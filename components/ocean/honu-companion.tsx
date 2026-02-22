@@ -1,0 +1,45 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useScrollProgress } from '@/hooks/use-scroll-progress';
+import { HonuMark } from './honu-mark';
+
+export function HonuCompanion() {
+  const scrollProgress = useScrollProgress();
+  const [visible, setVisible] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setVisible(window.scrollY > 100);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  if (reducedMotion) return null;
+
+  const rotation = Math.sin(scrollProgress * Math.PI * 4) * 12;
+  const yPosition = 10 + scrollProgress * 70; // 10% to 80% of viewport
+  const opacity = visible ? (scrollProgress > 0.95 ? 1 - (scrollProgress - 0.95) * 20 : 1) : 0;
+
+  return (
+    <div
+      className="fixed right-4 md:right-5 z-[100] pointer-events-none transition-opacity duration-500"
+      style={{
+        top: `${yPosition}%`,
+        opacity,
+        transform: `rotate(${rotation}deg)`,
+      }}
+    >
+      <div className="drop-shadow-[0_0_8px_var(--accent-teal)]">
+        <HonuMark size={28} className="md:w-8 md:h-8" />
+      </div>
+    </div>
+  );
+}

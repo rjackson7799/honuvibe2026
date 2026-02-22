@@ -1,0 +1,623 @@
+{
+  "nav": {
+    "home": "Home",
+    "honuhub": "HonuHub",
+    "exploration": "Exploration Island",
+    "learn": "Learn",
+    "blog": "Blog",
+    "community": "Community",
+    "about": "About Ryan",
+    "apply": "Apply"
+  },
+  "hero": {
+    "headline_en": "A Whole New",
+    "headline_vibe": "Vibe",
+    "headline_en_2": "for AI Learning",
+    "headline_jp": "新しいAI学習のスタイル",
+    "sub": "Hawaii-born. Globally minded. Built for the AI age.",
+    "cta_primary": "Explore Courses",
+    "cta_secondary": "Join the Community",
+    "scroll_hint": "Scroll to discover"
+  },
+  "mission": {
+    "overline": "Why HonuVibe",
+    "items": {
+      "global": {
+        "title": "Learn Anywhere",
+        "description": "In Waikiki or online globally — world-class AI education without borders."
+      },
+      "bilingual": {
+        "title": "EN/JP Bilingual",
+        "description": "A truly bilingual community bridging the US and Japan AI ecosystems."
+      },
+      "projects": {
+        "title": "Real Projects",
+        "description": "Build real applications, ship real products. No theory-only courses."
+      },
+      "practitioners": {
+        "title": "By Practitioners",
+        "description": "Learn from people who build AI products every day, not just teach them."
+      }
+    }
+  },
+  "honuhub_feature": {
+    "overline": "The Space",
+    "heading": "HonuHub Waikiki",
+    "description": "A dedicated learning space in the heart of Waikiki — where AI education meets island inspiration. Join in-person workshops, collaborative sessions, and live-streamed events.",
+    "cta": "Discover HonuHub"
+  },
+  "featured_courses": {
+    "overline": "Start Learning",
+    "heading": "Featured Courses",
+    "sub": "Practical AI education designed for entrepreneurs, builders, and curious minds.",
+    "see_all": "See all courses",
+    "courses": {
+      "ai_foundations": {
+        "title": "AI Foundations for Entrepreneurs",
+        "description": "Master the fundamentals of AI and learn to identify opportunities in your business. No coding required.",
+        "level": "Beginner",
+        "language": "EN"
+      },
+      "micro_saas": {
+        "title": "Build Your First Micro-SaaS",
+        "description": "From idea to launch — build a complete SaaS product using AI-powered development tools.",
+        "level": "Intermediate",
+        "language": "EN"
+      },
+      "ai_automation": {
+        "title": "AI Workflow Automation",
+        "description": "Automate repetitive tasks and build intelligent workflows with N8N, Zapier, and custom AI agents.",
+        "level": "Intermediate",
+        "language": "EN/JP"
+      }
+    },
+    "enroll": "Enroll Now"
+  },
+  "exploration": {
+    "overline": "Our Work",
+    "heading": "Exploration Island",
+    "sub": "Real projects. Real outcomes. See what the HonuVibe community has built.",
+    "cta": "Explore our work",
+    "projects": {
+      "reef_analytics": {
+        "title": "Reef Analytics Dashboard",
+        "tagline": "Real-time marine data visualization for conservation teams",
+        "outcome": "40% faster data-driven decisions",
+        "tags": "Next.js,Supabase,D3.js"
+      },
+      "aloha_scheduler": {
+        "title": "Aloha Scheduler",
+        "tagline": "AI-powered booking system for a Waikiki tour operator",
+        "outcome": "60% reduction in manual scheduling",
+        "tags": "React,Node.js,OpenAI"
+      }
+    }
+  },
+  "bio": {
+    "overline": "The Founder",
+    "heading": "Ryan Jackson",
+    "quote": "I believe AI should amplify human potential, not replace it. My mission is to make cutting-edge AI education approachable and actionable — for everyone from Honolulu to Tokyo.",
+    "role": "Founder & AI Educator",
+    "cta": "Read more about Ryan"
+  },
+  "newsletter": {
+    "overline": "Stay Connected",
+    "heading": "Join the Wave",
+    "description": "Join 1,000+ entrepreneurs learning AI the HonuVibe way. Weekly insights, tutorials, and community highlights.",
+    "placeholder": "your@email.com",
+    "cta": "Subscribe",
+    "success": "Welcome aboard! Check your inbox to confirm.",
+    "error": "Something went wrong. Please try again."
+  },
+  "social_proof": {
+    "overline": "Community Voices",
+    "heading": "What People Are Saying",
+    "cta": "Join the Community",
+    "testimonials": {
+      "one": {
+        "quote": "HonuVibe completely changed how I think about AI in my business. The community is incredibly supportive and Ryan's teaching style makes complex concepts feel approachable.",
+        "name": "Sarah K.",
+        "role": "Small Business Owner, Honolulu"
+      },
+      "two": {
+        "quote": "The bilingual approach is a game-changer. I finally found an AI community that bridges the gap between US innovation and the Japanese market.",
+        "name": "Takeshi M.",
+        "role": "Tech Entrepreneur, Tokyo"
+      },
+      "three": {
+        "quote": "I built and launched my first SaaS product within two months of joining. The hands-on approach and real project focus sets HonuVibe apart from every other AI course.",
+        "name": "Marcus L.",
+        "role": "Developer, San Francisco"
+      }
+    }
+  },
+  "honuhub_page": {
+    "hero": {
+      "overline": "The Space",
+      "heading": "HonuHub Waikiki",
+      "sub": "A dedicated learning space in the heart of Waikiki — where AI education meets island inspiration.",
+      "cta": "Book a Session"
+    },
+    "about": {
+      "overline": "What is HonuHub?",
+      "heading": "Where Learning Meets Aloha",
+      "description": "HonuHub is the physical heart of HonuVibe.AI — a premium learning space in Waikiki that functions as a classroom, conference room, and innovation lab. Whether you're joining in person or streaming from anywhere in the world, HonuHub brings the energy of Hawaii to every learning experience.",
+      "description_2": "Equipped with professional AV equipment, high-speed internet, and a collaborative atmosphere, HonuHub is designed to make AI education tangible, social, and inspiring."
+    },
+    "modes": {
+      "overline": "Three Modes",
+      "heading": "One Space, Endless Possibilities",
+      "in_person": {
+        "title": "In-Person Training",
+        "description": "Hands-on workshops and seminars in our Waikiki space. Small groups, direct instructor access, and collaborative learning."
+      },
+      "conference": {
+        "title": "Conference & Collaboration",
+        "description": "Book HonuHub for team offsites, corporate training sessions, or collaborative AI sprints. Flexible setup for your needs."
+      },
+      "remote": {
+        "title": "Remote Live Streaming",
+        "description": "Every HonuHub session is streamed live and recorded. Join from anywhere with a remote ticket and full interaction access."
+      }
+    },
+    "sessions": {
+      "overline": "Upcoming Sessions",
+      "heading": "What's Happening at HonuHub",
+      "sub": "Browse upcoming in-person and remote sessions. All sessions are recorded for later access.",
+      "coming_soon": "New sessions are being planned. Check back soon or subscribe to our newsletter for updates.",
+      "book": "Book Now",
+      "remote_ticket": "Remote Ticket",
+      "all_courses": "View Full Course Catalog"
+    },
+    "remote": {
+      "overline": "Learn from Anywhere",
+      "heading": "Remote Access to HonuHub",
+      "description": "Can't make it to Waikiki? No problem. All HonuHub sessions are streamed live with full interaction — Q&A, polls, and breakout rooms. Plus, every session is recorded so you can watch on your schedule.",
+      "cta": "Browse Courses"
+    },
+    "membership": {
+      "overline": "Membership",
+      "heading": "Join HonuHub",
+      "sub": "Choose the access level that fits your learning journey.",
+      "tiers": {
+        "drop_in": {
+          "title": "Drop-In",
+          "price": "Per session pricing",
+          "features": "Access to individual sessions,Pay-as-you-go flexibility,Recordings included"
+        },
+        "monthly": {
+          "title": "Monthly Member",
+          "price": "Monthly subscription",
+          "features": "Unlimited session access,Priority booking,Member-only events,All recordings"
+        },
+        "founding": {
+          "title": "Founding Member",
+          "price": "Annual commitment",
+          "features": "Everything in Monthly,Private mentorship sessions,Early access to new courses,Founding member recognition,Lifetime rate lock"
+        }
+      }
+    },
+    "future": {
+      "heading": "The Global HonuHub Network",
+      "description": "We're building a global network of HonuHubs. Interested in bringing one to your city?",
+      "cta": "Get in Touch"
+    },
+    "location": {
+      "overline": "Visit Us",
+      "heading": "Find HonuHub",
+      "address": "Waikiki, Honolulu, Hawaii",
+      "hours_title": "Hours",
+      "hours": "Monday – Friday: 9:00 AM – 6:00 PM HST",
+      "parking": "Street parking and nearby garages available. Walking distance from Waikiki Beach.",
+      "contact_title": "Contact",
+      "contact_description": "Interested in group bookings, corporate sessions, or partnerships?",
+      "contact_cta": "Send an Inquiry"
+    },
+    "contact": {
+      "name_label": "Name",
+      "name_placeholder": "Your name",
+      "email_label": "Email",
+      "email_placeholder": "your@email.com",
+      "type_label": "Inquiry Type",
+      "type_options": {
+        "group": "Group Booking",
+        "corporate": "Corporate Session",
+        "partnership": "Partnership",
+        "other": "Other"
+      },
+      "message_label": "Message",
+      "message_placeholder": "Tell us about your needs...",
+      "submit": "Send Inquiry",
+      "success": "Thanks for reaching out! We'll get back to you within 24 hours.",
+      "error": "Something went wrong. Please try again."
+    }
+  },
+  "exploration_page": {
+    "hero": {
+      "overline": "Our Work",
+      "heading": "Exploration Island",
+      "sub": "Real projects. Real outcomes. Explore what the HonuVibe community has built across five territories of innovation."
+    },
+    "territories": {
+      "web": {
+        "title": "Website Design & Redesign",
+        "description": "Visually impactful web experiences — built for performance, accessibility, and conversion.",
+        "projects": {
+          "reef_dashboard": {
+            "title": "Reef Analytics Dashboard",
+            "tagline": "Real-time marine data visualization for conservation teams",
+            "outcome": "40% faster data-driven decisions",
+            "tags": "Next.js,Supabase,D3.js"
+          },
+          "island_eats": {
+            "title": "Island Eats Redesign",
+            "tagline": "Complete rebrand and web redesign for a local restaurant group",
+            "outcome": "85% increase in online orders",
+            "tags": "React,Tailwind,Stripe"
+          }
+        }
+      },
+      "db": {
+        "title": "Database-Driven Applications",
+        "description": "Custom applications that solve real business problems with smart data architecture.",
+        "projects": {
+          "aloha_scheduler": {
+            "title": "Aloha Scheduler",
+            "tagline": "AI-powered booking system for a Waikiki tour operator",
+            "outcome": "60% reduction in manual scheduling",
+            "tags": "React,Node.js,OpenAI"
+          },
+          "inventory_pro": {
+            "title": "Inventory Pro",
+            "tagline": "Multi-location inventory management for a retail chain",
+            "outcome": "Real-time stock visibility across 12 locations",
+            "tags": "Next.js,Supabase,PostgreSQL"
+          }
+        }
+      },
+      "saas": {
+        "title": "SaaS & Efficiency Tools",
+        "description": "Micro-SaaS products and internal tools that save time and drive revenue.",
+        "projects": {
+          "course_pilot": {
+            "title": "CoursePilot",
+            "tagline": "AI-assisted course creation platform for educators",
+            "outcome": "70% faster course production time",
+            "tags": "Next.js,OpenAI,Stripe"
+          }
+        }
+      },
+      "auto": {
+        "title": "Automations",
+        "description": "Intelligent workflows that eliminate repetitive tasks and unlock team capacity.",
+        "projects": {
+          "report_flow": {
+            "title": "ReportFlow",
+            "tagline": "Automated weekly reporting pipeline for a marketing agency",
+            "outcome": "10 hours saved per week",
+            "tags": "N8N,Google Sheets,Slack"
+          }
+        }
+      },
+      "pro": {
+        "title": "Pro-Bono & Nonprofit",
+        "description": "Giving back is core to the Aloha Standard. Featured projects for organizations making a difference.",
+        "projects": {
+          "coral_watch": {
+            "title": "CoralWatch Hawaii",
+            "tagline": "Data collection app for volunteer coral reef monitoring teams",
+            "outcome": "3x increase in data collection efficiency",
+            "tags": "React Native,Supabase,MapboxGL"
+          }
+        }
+      }
+    },
+    "cta": {
+      "heading": "Have a Project in Mind?",
+      "sub": "Whether it's a passion project or a business challenge, we'd love to hear about it.",
+      "button": "Apply to Work Together"
+    }
+  },
+  "about_page": {
+    "hero": {
+      "overline": "The Founder",
+      "heading": "Ryan Jackson",
+      "role": "Founder & AI Educator",
+      "location": "Honolulu, Hawaii"
+    },
+    "story": {
+      "overline": "The Story",
+      "heading": "From Hawaii to AI",
+      "paragraphs": {
+        "p1": "Born and raised in Hawaii, I grew up surrounded by a culture that values community, connection, and giving back. Those values shaped everything I do today — including how I approach AI education.",
+        "p2": "After years of building AI products and leading engineering teams, I realized something was missing from the education landscape: practical, human-centered AI learning that bridges cultures and empowers entrepreneurs.",
+        "p3": "HonuVibe was born from that gap. It's my mission to make cutting-edge AI education approachable and actionable — for everyone from Honolulu to Tokyo."
+      }
+    },
+    "philosophy": {
+      "overline": "Philosophy",
+      "quote": "Leveraging AI to foster entrepreneurship, learning, and better business practices.",
+      "description": "I believe AI should amplify human potential, not replace it. Every course, project, and community interaction at HonuVibe is designed with this principle at its core."
+    },
+    "work": {
+      "overline": "Working with Ryan",
+      "heading": "Selective by Design",
+      "description": "I take on a small number of passion projects and high-impact engagements each year. If you want to work together, I'd love to hear from you.",
+      "cta": "Apply to Work Together"
+    },
+    "social": {
+      "overline": "Connect",
+      "heading": "Follow the Journey",
+      "tiktok": "TikTok",
+      "instagram": "Instagram",
+      "youtube": "YouTube"
+    }
+  },
+  "community_page": {
+    "hero": {
+      "overline": "The Community",
+      "heading": "Better Together",
+      "sub": "A global community of entrepreneurs, builders, and curious minds — united by AI and aloha."
+    },
+    "about": {
+      "overline": "What We Do",
+      "heading": "More Than a Course — A Community",
+      "description": "The HonuVibe community lives on Skool — a space where members share wins, ask questions, collaborate on projects, and support each other's AI journeys. Whether you're launching your first SaaS or exploring AI for the first time, you belong here.",
+      "description_2": "Weekly live sessions, project showcases, and direct access to Ryan and fellow practitioners make this the most active bilingual AI community online."
+    },
+    "stories": {
+      "overline": "Member Stories",
+      "heading": "Real Wins from Real Members",
+      "items": {
+        "one": {
+          "quote": "Within 3 months of joining, I automated 80% of my reporting workflow and started freelancing AI consulting on the side.",
+          "name": "Yuki T.",
+          "role": "Marketing Manager, Osaka"
+        },
+        "two": {
+          "quote": "The community helped me go from zero coding experience to launching a working SaaS product. The support is unreal.",
+          "name": "David R.",
+          "role": "Entrepreneur, Maui"
+        },
+        "three": {
+          "quote": "Finding a bilingual AI community that actually builds things was a game-changer for my career transition.",
+          "name": "Akiko M.",
+          "role": "Career Changer, Tokyo"
+        }
+      }
+    },
+    "impact": {
+      "overline": "Impact Wall",
+      "heading": "Community Milestones",
+      "stats": {
+        "members": "500+",
+        "members_label": "Active Members",
+        "projects": "120+",
+        "projects_label": "Projects Shipped",
+        "countries": "15+",
+        "countries_label": "Countries",
+        "sessions": "200+",
+        "sessions_label": "Live Sessions"
+      }
+    },
+    "probono": {
+      "overline": "Aloha Standard",
+      "heading": "Giving Back",
+      "description": "Every quarter, the HonuVibe community takes on a pro-bono project for a nonprofit or community organization. It's our way of practicing the Aloha Standard — using our skills to make a real difference.",
+      "featured": "Featured: CoralWatch Hawaii — helping volunteer teams monitor coral reef health with a custom data collection app."
+    },
+    "tiers": {
+      "overline": "Membership",
+      "heading": "Choose Your Path",
+      "sub": "Whether you're exploring AI or ready to build, there's a place for you.",
+      "free": {
+        "title": "Explorer",
+        "price": "Free",
+        "features": "Community access,Weekly digest,Public project showcases,Introductory resources"
+      },
+      "paid": {
+        "title": "Builder",
+        "price": "Monthly subscription",
+        "features": "Everything in Explorer,Live weekly sessions,Project collaboration,Direct mentor access,Course discounts,Private channels"
+      }
+    },
+    "cta": {
+      "heading": "Ready to Join?",
+      "sub": "The HonuVibe community is waiting for you.",
+      "button": "Join on Skool"
+    }
+  },
+  "apply_page": {
+    "hero": {
+      "overline": "Work Together",
+      "heading": "Apply to Work with Ryan",
+      "sub": "I work with a small number of partners each year on projects that genuinely excite me — or where I believe I can make a measurable difference. If that sounds like you, tell me about your vision."
+    },
+    "form": {
+      "name_label": "Full Name",
+      "name_placeholder": "Your name",
+      "email_label": "Email Address",
+      "email_placeholder": "your@email.com",
+      "company_label": "Company / Project Name",
+      "company_placeholder": "Your company or project",
+      "website_label": "Website (optional)",
+      "website_placeholder": "https://...",
+      "engagement_label": "Type of Engagement",
+      "engagement_options": {
+        "consulting": "Consulting",
+        "advisory": "Advisory",
+        "board": "Board Seat",
+        "passion": "Passion Project",
+        "other": "Other"
+      },
+      "project_label": "Tell me about your project",
+      "project_placeholder": "What are you building and why?",
+      "outcome_label": "What outcome are you hoping for?",
+      "outcome_placeholder": "What does success look like?",
+      "source_label": "How did you find HonuVibe?",
+      "source_options": {
+        "search": "Search Engine",
+        "social": "Social Media",
+        "referral": "Referral",
+        "event": "Event / Workshop",
+        "other": "Other"
+      },
+      "timeline_label": "Timeline / Urgency",
+      "timeline_options": {
+        "exploratory": "Exploratory",
+        "three_months": "Within 3 Months",
+        "asap": "ASAP"
+      },
+      "budget_label": "Budget Range",
+      "budget_options": {
+        "under_10k": "Under $10K",
+        "10k_50k": "$10K – $50K",
+        "over_50k": "$50K+",
+        "unsure": "Not sure yet"
+      },
+      "submit": "Send My Application",
+      "success_heading": "Application Received",
+      "success_message": "Thank you for your interest in working together. Ryan reviews every application personally and will respond within 5–7 business days.",
+      "error": "Something went wrong. Please try again."
+    }
+  },
+  "privacy_page": {
+    "heading": "Privacy Policy",
+    "last_updated": "Last updated: February 2026",
+    "intro": "HonuVibe.AI (\"we\", \"us\", or \"our\") respects your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.",
+    "sections": {
+      "collection": {
+        "title": "Information We Collect",
+        "content": "We collect information you voluntarily provide when you register, make a purchase, subscribe to our newsletter, fill out a form, or contact us. This may include your name, email address, billing information, and any other information you choose to provide."
+      },
+      "usage": {
+        "title": "How We Use Your Information",
+        "content": "We use the information we collect to provide and maintain our services, process transactions, send communications about courses and events, improve our website and user experience, and comply with legal obligations."
+      },
+      "sharing": {
+        "title": "Information Sharing",
+        "content": "We do not sell your personal information. We may share information with trusted third-party service providers who assist us in operating our website and services (such as payment processors, email providers, and analytics services), subject to confidentiality agreements."
+      },
+      "cookies": {
+        "title": "Cookies & Tracking",
+        "content": "We use cookies and similar tracking technologies to enhance your experience. You can control cookies through your browser settings. For more information, see our Cookie Notice."
+      },
+      "security": {
+        "title": "Data Security",
+        "content": "We implement appropriate security measures to protect your information. However, no method of transmission over the Internet is 100% secure. We cannot guarantee absolute security."
+      },
+      "rights": {
+        "title": "Your Rights",
+        "content": "You have the right to access, correct, or delete your personal information. You may also opt out of marketing communications at any time. To exercise these rights, contact us at privacy@honuvibe.ai."
+      },
+      "international": {
+        "title": "International Data Transfers",
+        "content": "Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for such transfers."
+      },
+      "changes": {
+        "title": "Changes to This Policy",
+        "content": "We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on our website with a new effective date."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "content": "If you have questions about this Privacy Policy, please contact us at privacy@honuvibe.ai."
+      }
+    }
+  },
+  "terms_page": {
+    "heading": "Terms of Service",
+    "last_updated": "Last updated: February 2026",
+    "intro": "These Terms of Service govern your use of HonuVibe.AI website and services. By accessing or using our services, you agree to be bound by these terms.",
+    "sections": {
+      "use": {
+        "title": "Use of Services",
+        "content": "You may use our services for lawful purposes only. You agree not to misuse our services, interfere with their operation, or attempt to access them using unauthorized methods."
+      },
+      "accounts": {
+        "title": "Accounts",
+        "content": "You are responsible for maintaining the security of your account credentials. You must notify us immediately of any unauthorized use of your account."
+      },
+      "payments": {
+        "title": "Payments & Refunds",
+        "content": "Course and session purchases are processed through Stripe. Refund requests must be made within 14 days of purchase. Digital content that has been accessed is generally non-refundable."
+      },
+      "ip": {
+        "title": "Intellectual Property",
+        "content": "All content on HonuVibe.AI — including courses, videos, text, graphics, and software — is owned by HonuVibe or its licensors and is protected by intellectual property laws. You may not reproduce, distribute, or create derivative works without our permission."
+      },
+      "disclaimer": {
+        "title": "Disclaimer of Warranties",
+        "content": "Our services are provided \"as is\" without warranties of any kind. We do not guarantee specific outcomes from using our courses or services."
+      },
+      "limitation": {
+        "title": "Limitation of Liability",
+        "content": "To the maximum extent permitted by law, HonuVibe shall not be liable for any indirect, incidental, or consequential damages arising from your use of our services."
+      },
+      "termination": {
+        "title": "Termination",
+        "content": "We may suspend or terminate your access to our services at our discretion, with or without notice, for any violation of these terms."
+      },
+      "governing": {
+        "title": "Governing Law",
+        "content": "These terms are governed by the laws of the State of Hawaii, USA, without regard to conflict of law principles."
+      },
+      "contact": {
+        "title": "Contact",
+        "content": "For questions about these terms, contact us at legal@honuvibe.ai."
+      }
+    }
+  },
+  "cookies_page": {
+    "heading": "Cookie Notice",
+    "last_updated": "Last updated: February 2026",
+    "intro": "This Cookie Notice explains how HonuVibe.AI uses cookies and similar technologies when you visit our website.",
+    "sections": {
+      "what": {
+        "title": "What Are Cookies?",
+        "content": "Cookies are small text files stored on your device when you visit a website. They help the site remember your preferences and improve your experience."
+      },
+      "types": {
+        "title": "Types of Cookies We Use",
+        "content": "Essential Cookies: Required for the website to function properly (authentication, security, language preferences). Analytics Cookies: Help us understand how visitors use our site (Plausible Analytics — privacy-focused, no personal data collected). Preference Cookies: Remember your settings such as theme preference (dark/light mode) and language selection."
+      },
+      "third_party": {
+        "title": "Third-Party Cookies",
+        "content": "We use minimal third-party services. Plausible Analytics does not use cookies and respects Do Not Track. Payment processing through Stripe may set cookies required for transaction security."
+      },
+      "control": {
+        "title": "Managing Cookies",
+        "content": "You can control cookies through your browser settings. Note that disabling essential cookies may affect website functionality. Most browsers allow you to block or delete cookies."
+      },
+      "changes": {
+        "title": "Changes to This Notice",
+        "content": "We may update this Cookie Notice as our practices change. Updates will be posted on this page with a revised date."
+      },
+      "contact": {
+        "title": "Contact",
+        "content": "Questions about our cookie practices? Contact us at privacy@honuvibe.ai."
+      }
+    }
+  },
+  "theme": {
+    "switch_to_light": "Switch to light mode",
+    "switch_to_dark": "Switch to dark mode"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "made_in_hawaii": "Made in Hawaii with Aloha",
+    "language": "Language",
+    "en": "EN",
+    "ja": "日本語"
+  },
+  "footer": {
+    "tagline": "A Whole New Vibe for AI Learning",
+    "nav_title": "Navigate",
+    "resources_title": "Resources",
+    "legal_title": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookies": "Cookie Notice",
+    "connect_title": "Connect"
+  }
+}
