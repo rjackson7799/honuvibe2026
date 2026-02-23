@@ -12,6 +12,7 @@ const routes = [
   '/community',
   '/contact',
   '/blog',
+  '/resources',
   '/privacy',
   '/terms',
   '/cookies',
