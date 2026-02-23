@@ -7,12 +7,19 @@ const navLinks = [
   { href: '/learn', key: 'learn' },
   { href: '/blog', key: 'blog' },
   { href: '/about', key: 'about' },
-  { href: '/apply', key: 'apply' },
+  { href: '/contact', key: 'contact' },
 ] as const;
 
 export async function Nav() {
   const t = await getTranslations('nav');
   const links = navLinks.map((l) => ({ href: l.href, label: t(l.key) }));
 
-  return <NavClient links={links} />;
+  const userMenuLabels = {
+    signIn: t('sign_in'),
+    dashboard: t('dashboard'),
+    admin: t('admin'),
+    signOut: t('sign_out'),
+  };
+
+  return <NavClient links={links} userMenuLabels={userMenuLabels} />;
 }

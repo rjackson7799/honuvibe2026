@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
@@ -8,14 +9,25 @@ import { IconButton } from '@/components/ui/icon-button';
 import { ThemeToggle } from './theme-toggle';
 import { LangToggle } from './lang-toggle';
 import { MobileMenu } from './mobile-menu';
+import { UserMenu } from './user-menu';
 
 type NavLink = { href: string; label: string };
 
-type NavClientProps = {
-  links: NavLink[];
+type UserMenuLabels = {
+  signIn: string;
+  dashboard: string;
+  admin: string;
+  signOut: string;
 };
 
-export function NavClient({ links }: NavClientProps) {
+type NavClientProps = {
+  links: NavLink[];
+  userMenuLabels: UserMenuLabels;
+};
+
+export function NavClient({ links, userMenuLabels }: NavClientProps) {
+  const pathname = usePathname();
+  const isAuthRoute = /^\/(ja\/)?(learn\/dashboard|admin)(\/|$)/.test(pathname);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -52,30 +64,37 @@ export function NavClient({ links }: NavClientProps) {
           HonuVibe<span className="text-accent-teal">.AI</span>
         </Link>
 
-        {/* Desktop Nav Links */}
-        <div className="hidden lg:flex items-center gap-1">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="px-3 py-2 text-sm text-fg-secondary hover:text-fg-primary transition-colors duration-[var(--duration-fast)]"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        {/* Desktop Nav Links — hidden on authenticated routes */}
+        {!isAuthRoute && (
+          <div className="hidden lg:flex items-center gap-1">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="px-3 py-2 text-sm text-fg-secondary hover:text-fg-primary transition-colors duration-[var(--duration-fast)]"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        )}
 
-        {/* Right side: Theme + Lang + Hamburger */}
+        {/* Right side: User + Theme + Lang + Hamburger */}
         <div className="flex items-center gap-1">
+          <div className={isAuthRoute ? '' : 'hidden lg:block'}>
+            <UserMenu labels={userMenuLabels} />
+          </div>
           <ThemeToggle />
           <LangToggle />
-          <div className="lg:hidden">
-            <IconButton
-              icon={Menu}
-              label="Open menu"
-              onClick={() => setMobileMenuOpen(true)}
-            />
-          </div>
+          {!isAuthRoute && (
+            <div className="lg:hidden">
+              <IconButton
+                icon={Menu}
+                label="Open menu"
+                onClick={() => setMobileMenuOpen(true)}
+              />
+            </div>
+          )}
         </div>
       </nav>
 
@@ -83,6 +102,7 @@ export function NavClient({ links }: NavClientProps) {
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         links={links}
+        userMenuLabels={userMenuLabels}
       />
     </>
   );

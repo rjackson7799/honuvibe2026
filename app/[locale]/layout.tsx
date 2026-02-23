@@ -10,7 +10,7 @@ import { dmSans, dmSerif, jetbrainsMono, notoSansJP } from '@/app/fonts';
 import { Nav } from '@/components/layout/nav';
 import { Footer } from '@/components/layout/footer';
 import { HonuCompanion } from '@/components/ocean/honu-companion';
-import { DepthIndicator } from '@/components/ocean/depth-indicator';
+
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/json-ld';
 import '@/styles/globals.css';
 
@@ -85,7 +85,6 @@ export default async function LocaleLayout({ children, params }: Props) {
           <NextIntlClientProvider>
             <Nav />
             <HonuCompanion />
-            <DepthIndicator />
             <main className="min-h-screen pt-14 md:pt-16">
               {children}
             </main>

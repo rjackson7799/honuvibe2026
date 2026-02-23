@@ -19,7 +19,7 @@ export function HonuHubFuture() {
           <p className="text-base text-fg-secondary leading-relaxed mb-6 max-w-[400px] mx-auto">
             {t('description')}
           </p>
-          <Link href="/apply">
+          <Link href="/contact">
             <Button variant="gold">{t('cta')}</Button>
           </Link>
         </div>

@@ -5,8 +5,8 @@ import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { Overline } from '@/components/ui';
 
-export function ApplyHero() {
-  const t = useTranslations('apply_page.hero');
+export function ContactHero() {
+  const t = useTranslations('contact_page.hero');
 
   return (
     <Section noReveal>

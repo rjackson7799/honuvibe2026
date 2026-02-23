@@ -20,7 +20,7 @@ export function AboutWork() {
             {t('description')}
           </p>
           <div className="mt-2">
-            <Link href="/apply">
+            <Link href="/contact">
               <Button variant="gold" size="lg" icon={ArrowRight} iconPosition="right">
                 {t('cta')}
               </Button>

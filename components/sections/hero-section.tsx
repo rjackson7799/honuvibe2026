@@ -17,7 +17,7 @@ interface CardTranslations {
 
 function HeroFloatingCards({ cards }: { cards: CardTranslations }) {
   return (
-    <div className="relative hidden lg:flex items-center justify-center h-[420px]">
+    <div className="relative hidden lg:flex items-center justify-center h-[420px] overflow-hidden">
       {/* Primary card — course preview */}
       <div
         className="glass-card absolute rounded-xl p-6 w-[320px]"

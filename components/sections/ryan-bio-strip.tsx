@@ -81,7 +81,7 @@ export function RyanBioStrip() {
           </div>
 
           {/* Photo placeholder — right on desktop */}
-          <div className="order-1 md:order-2 relative aspect-square max-w-[360px] mx-auto md:mx-0 md:ml-auto">
+          <div className="order-1 md:order-2 relative aspect-square max-w-[360px] mx-auto md:mx-0 md:ml-auto overflow-hidden">
             {/* Glow orb behind photo */}
             <div
               className="glow-orb absolute -z-10"

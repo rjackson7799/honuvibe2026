@@ -16,7 +16,7 @@ export function ExplorationCta() {
           <h2 className="font-serif text-h2 text-fg-primary">{t('heading')}</h2>
           <p className="text-base text-fg-secondary leading-relaxed max-w-[480px]">{t('sub')}</p>
           <div className="mt-2">
-            <Link href="/apply">
+            <Link href="/contact">
               <Button variant="gold" size="lg">{t('button')}</Button>
             </Link>
           </div>

@@ -3,14 +3,34 @@
 import { useEffect, useState } from 'react';
 import { useScrollProgress } from '@/hooks/use-scroll-progress';
 import { HonuMark } from './honu-mark';
+import { createClient } from '@/lib/supabase/client';
 
 export function HonuCompanion() {
   const scrollProgress = useScrollProgress();
   const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }, []);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session?.user);
+    }
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setIsAuthenticated(!!session?.user);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -23,6 +43,7 @@ export function HonuCompanion() {
   }, []);
 
   if (reducedMotion) return null;
+  if (isAuthenticated) return null;
 
   const rotation = Math.sin(scrollProgress * Math.PI * 4) * 12;
   const yPosition = 10 + scrollProgress * 70; // 10% to 80% of viewport

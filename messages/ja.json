@@ -2,12 +2,16 @@
   "nav": {
     "home": "ホーム",
     "honuhub": "HonuHub",
-    "exploration": "探検島",
+    "exploration": "探検する",
     "learn": "学ぶ",
     "blog": "ブログ",
     "community": "コミュニティ",
-    "about": "ライアンについて",
-    "apply": "応募する"
+    "about": "概要",
+    "contact": "お問い合わせ",
+    "sign_in": "ログイン",
+    "dashboard": "ダッシュボード",
+    "admin": "管理画面",
+    "sign_out": "ログアウト"
   },
   "hero": {
     "headline_en": "A Whole New",
@@ -86,7 +90,7 @@
   },
   "exploration": {
     "overline": "私たちの仕事",
-    "heading": "探検島",
+    "heading": "探検する",
     "sub": "実際のプロジェクト。実際の成果。HonuVibeコミュニティが構築したものをご覧ください。",
     "cta": "私たちの仕事を探る",
     "projects": {
@@ -246,7 +250,7 @@
   "exploration_page": {
     "hero": {
       "overline": "私たちの仕事",
-      "heading": "探検島",
+      "heading": "探検する",
       "sub": "実際のプロジェクト。実際の成果。HonuVibeコミュニティが5つのイノベーション領域で構築したものを探検してください。"
     },
     "territories": {
@@ -326,7 +330,7 @@
     "cta": {
       "heading": "プロジェクトのアイデアはありますか？",
       "sub": "パッションプロジェクトでもビジネス課題でも、お気軽にご相談ください。",
-      "button": "応募する"
+      "button": "お問い合わせ"
     }
   },
   "about_page": {
@@ -354,7 +358,7 @@
       "overline": "ライアンと仕事をする",
       "heading": "デザインによる選択",
       "description": "毎年、少数のパッションプロジェクトとハイインパクトな案件に取り組んでいます。一緒に仕事をしたい方は、ぜひご連絡ください。",
-      "cta": "応募する"
+      "cta": "お問い合わせ"
     },
     "social": {
       "overline": "つながる",
@@ -438,57 +442,30 @@
       "button": "Skoolで参加"
     }
   },
-  "apply_page": {
+  "contact_page": {
     "hero": {
-      "overline": "一緒に働く",
-      "heading": "ライアンとの仕事に応募する",
-      "sub": "毎年、本当にワクワクするプロジェクト、または測定可能な違いを生み出せると信じるプロジェクトに、少数のパートナーと取り組んでいます。それがあなたなら、あなたのビジョンを教えてください。"
+      "overline": "お問い合わせ",
+      "heading": "お問い合わせ",
+      "sub": "ご質問、アイデア、またはお仕事のご相談がありましたら、お気軽にご連絡ください。"
     },
     "form": {
       "name_label": "お名前",
       "name_placeholder": "お名前を入力",
       "email_label": "メールアドレス",
       "email_placeholder": "your@email.com",
-      "company_label": "会社名 / プロジェクト名",
-      "company_placeholder": "会社名またはプロジェクト名",
-      "website_label": "ウェブサイト（任意）",
-      "website_placeholder": "https://...",
-      "engagement_label": "契約形態",
-      "engagement_options": {
+      "subject_label": "件名",
+      "subject_options": {
+        "general": "一般的なお問い合わせ",
         "consulting": "コンサルティング",
-        "advisory": "アドバイザリー",
-        "board": "取締役",
-        "passion": "パッションプロジェクト",
+        "partnership": "パートナーシップ",
+        "feedback": "フィードバック",
         "other": "その他"
       },
-      "project_label": "プロジェクトについて教えてください",
-      "project_placeholder": "何を構築していて、なぜですか？",
-      "outcome_label": "期待する成果は？",
-      "outcome_placeholder": "成功とはどのようなものですか？",
-      "source_label": "HonuVibeをどこで知りましたか？",
-      "source_options": {
-        "search": "検索エンジン",
-        "social": "ソーシャルメディア",
-        "referral": "紹介",
-        "event": "イベント / ワークショップ",
-        "other": "その他"
-      },
-      "timeline_label": "タイムライン / 緊急性",
-      "timeline_options": {
-        "exploratory": "探索段階",
-        "three_months": "3ヶ月以内",
-        "asap": "至急"
-      },
-      "budget_label": "予算範囲",
-      "budget_options": {
-        "under_10k": "100万円未満",
-        "10k_50k": "100万円〜500万円",
-        "over_50k": "500万円以上",
-        "unsure": "まだ分からない"
-      },
-      "submit": "応募を送信",
-      "success_heading": "応募を受け付けました",
-      "success_message": "一緒に働くことに興味を持っていただきありがとうございます。ライアンがすべての応募を個人的に確認し、5〜7営業日以内にご返信いたします。",
+      "message_label": "メッセージ",
+      "message_placeholder": "どのようにお手伝いできますか？",
+      "submit": "送信する",
+      "success_heading": "送信完了",
+      "success_message": "お問い合わせありがとうございます。2〜3営業日以内にご返信いたします。",
       "error": "エラーが発生しました。もう一度お試しください。"
     }
   },
@@ -666,5 +643,101 @@
     "terms": "利用規約",
     "cookies": "クッキーに関するお知らせ",
     "connect_title": "つながる"
+  },
+  "auth": {
+    "sign_in": "ログイン",
+    "sign_up": "新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "name": "氏名",
+    "continue_google": "Googleで続ける",
+    "or": "または",
+    "forgot_password": "パスワードをお忘れですか？",
+    "no_account": "アカウントをお持ちでないですか？",
+    "has_account": "すでにアカウントをお持ちですか？",
+    "welcome_message": "コースにアクセスするにはログインしてください",
+    "signing_in": "ログイン中..."
+  },
+  "learn": {
+    "catalog_title": "学ぶ",
+    "catalog_subtitle": "好奇心から実力へ導くコース",
+    "enroll_now": "今すぐ申し込む",
+    "spots_left": "残り{count}席",
+    "cohort_full": "満員 — ウェイトリストに参加",
+    "starts": "{date}開始",
+    "weeks": "{count}週間",
+    "live_sessions": "ライブセッション{count}回",
+    "recorded_lessons": "録画レッスン{count}回",
+    "what_youll_master": "習得できること",
+    "tools_youll_learn": "学ぶツール",
+    "how_it_works": "学習の進め方",
+    "weekly_curriculum": "週間カリキュラム",
+    "who_is_for": "対象者",
+    "prerequisites": "前提条件",
+    "instructor": "講師",
+    "logistics": "コース詳細",
+    "materials": "提供される教材",
+    "week": "第{number}週",
+    "unlocks": "{date}に公開",
+    "locked": "ロック中",
+    "join_live": "ライブセッションに参加",
+    "watch_replay": "リプレイを見る",
+    "download_transcript": "トランスクリプトをダウンロード",
+    "download_slides": "スライドをダウンロード",
+    "homework": "宿題",
+    "action_challenge": "アクションチャレンジ",
+    "vocabulary": "重要用語",
+    "overview": "概要",
+    "weekly_plan": "週間プラン",
+    "resources": "リソース",
+    "community": "コミュニティ",
+    "back_to_dashboard": "ダッシュボードに戻る",
+    "welcome_back": "おかえりなさい、{name}さん",
+    "your_courses": "受講中のコース",
+    "explore_more": "他のコースを探す",
+    "continue": "続ける",
+    "in_progress": "進行中",
+    "completed": "完了",
+    "upcoming": "近日公開",
+    "live_now": "ライブ中",
+    "completion_requirements": "修了要件",
+    "cancellation_policy": "キャンセルポリシー",
+    "view_course": "コースを見る",
+    "format_live": "ライブ",
+    "format_recorded": "録画",
+    "format_hybrid": "ハイブリッド",
+    "beginner": "初級",
+    "intermediate": "中級",
+    "advanced": "上級",
+    "enrolled_success": "ようこそ！登録が完了しました。",
+    "no_courses": "現在利用可能なコースはありません。近日中にご確認ください。",
+    "progress": "{percent}%完了",
+    "next_session": "次のセッション：{date}",
+    "week_of": "第{current}週 / 全{total}週",
+    "how_step_1": "週2回のZoomライブセッション",
+    "how_step_2": "翌日にリプレイとトランスクリプトを提供",
+    "how_step_3": "学んだことを実践するミニ課題",
+    "how_step_4": "{months}ヶ月間のプライベートコミュニティ",
+    "schedule": "スケジュール",
+    "platform": "プラットフォーム",
+    "cohort_size": "定員",
+    "payment": "お支払い",
+    "material_name": "教材",
+    "material_language": "言語",
+    "material_included": "付属",
+    "current_week": "今週",
+    "completed_weeks": "完了",
+    "upcoming_weeks": "予定",
+    "session": "セッション{number}",
+    "topics_covered": "トピック",
+    "session_materials": "教材",
+    "join_zoom": "Zoomセッションに参加",
+    "link_available_soon": "セッション30分前にリンクが利用可能になります",
+    "replay_available": "リプレイ視聴可能",
+    "read_more_instructor": "{name}についてもっと読む",
+    "catalog_overline": "AI教育",
+    "all_levels": "すべてのレベル",
+    "showing_courses": "{count}件のコースを表示中",
+    "breadcrumb_learn": "学ぶ"
   }
 }

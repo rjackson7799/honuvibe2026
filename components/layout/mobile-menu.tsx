@@ -7,14 +7,23 @@ import { cn } from '@/lib/utils';
 import { IconButton } from '@/components/ui/icon-button';
 import { ThemeToggle } from './theme-toggle';
 import { LangToggle } from './lang-toggle';
+import { UserMenu } from './user-menu';
+
+type UserMenuLabels = {
+  signIn: string;
+  dashboard: string;
+  admin: string;
+  signOut: string;
+};
 
 type MobileMenuProps = {
   open: boolean;
   onClose: () => void;
   links: { href: string; label: string }[];
+  userMenuLabels: UserMenuLabels;
 };
 
-export function MobileMenu({ open, onClose, links }: MobileMenuProps) {
+export function MobileMenu({ open, onClose, links, userMenuLabels }: MobileMenuProps) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -67,7 +76,12 @@ export function MobileMenu({ open, onClose, links }: MobileMenuProps) {
         ))}
       </nav>
 
-      {/* Bottom: Theme + Lang + Socials */}
+      {/* User menu */}
+      <div className="px-5 py-4 border-t border-border-secondary" onClick={onClose}>
+        <UserMenu labels={userMenuLabels} />
+      </div>
+
+      {/* Bottom: Theme + Lang */}
       <div className="flex items-center justify-between px-5 py-6 border-t border-border-secondary">
         <div className="flex items-center gap-2">
           <ThemeToggle />

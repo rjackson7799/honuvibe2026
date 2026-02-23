@@ -2,12 +2,16 @@
   "nav": {
     "home": "Home",
     "honuhub": "HonuHub",
-    "exploration": "Exploration Island",
+    "exploration": "Explore",
     "learn": "Learn",
     "blog": "Blog",
     "community": "Community",
-    "about": "About Ryan",
-    "apply": "Apply"
+    "about": "About",
+    "contact": "Contact",
+    "sign_in": "Sign In",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "sign_out": "Sign Out"
   },
   "hero": {
     "headline_en": "A Whole New",
@@ -86,7 +90,7 @@
   },
   "exploration": {
     "overline": "Our Work",
-    "heading": "Exploration Island",
+    "heading": "Explore",
     "sub": "Real projects. Real outcomes. See what the HonuVibe community has built.",
     "cta": "Explore our work",
     "projects": {
@@ -246,7 +250,7 @@
   "exploration_page": {
     "hero": {
       "overline": "Our Work",
-      "heading": "Exploration Island",
+      "heading": "Explore",
       "sub": "Real projects. Real outcomes. Explore what the HonuVibe community has built across five territories of innovation."
     },
     "territories": {
@@ -326,7 +330,7 @@
     "cta": {
       "heading": "Have a Project in Mind?",
       "sub": "Whether it's a passion project or a business challenge, we'd love to hear about it.",
-      "button": "Apply to Work Together"
+      "button": "Get in Touch"
     }
   },
   "about_page": {
@@ -354,7 +358,7 @@
       "overline": "Working with Ryan",
       "heading": "Selective by Design",
       "description": "I take on a small number of passion projects and high-impact engagements each year. If you want to work together, I'd love to hear from you.",
-      "cta": "Apply to Work Together"
+      "cta": "Get in Touch"
     },
     "social": {
       "overline": "Connect",
@@ -438,57 +442,30 @@
       "button": "Join on Skool"
     }
   },
-  "apply_page": {
+  "contact_page": {
     "hero": {
-      "overline": "Work Together",
-      "heading": "Apply to Work with Ryan",
-      "sub": "I work with a small number of partners each year on projects that genuinely excite me — or where I believe I can make a measurable difference. If that sounds like you, tell me about your vision."
+      "overline": "Get in Touch",
+      "heading": "Contact Us",
+      "sub": "Have a question, idea, or want to work together? We'd love to hear from you."
     },
     "form": {
-      "name_label": "Full Name",
+      "name_label": "Name",
       "name_placeholder": "Your name",
-      "email_label": "Email Address",
+      "email_label": "Email",
       "email_placeholder": "your@email.com",
-      "company_label": "Company / Project Name",
-      "company_placeholder": "Your company or project",
-      "website_label": "Website (optional)",
-      "website_placeholder": "https://...",
-      "engagement_label": "Type of Engagement",
-      "engagement_options": {
+      "subject_label": "Subject",
+      "subject_options": {
+        "general": "General Inquiry",
         "consulting": "Consulting",
-        "advisory": "Advisory",
-        "board": "Board Seat",
-        "passion": "Passion Project",
+        "partnership": "Partnership",
+        "feedback": "Feedback",
         "other": "Other"
       },
-      "project_label": "Tell me about your project",
-      "project_placeholder": "What are you building and why?",
-      "outcome_label": "What outcome are you hoping for?",
-      "outcome_placeholder": "What does success look like?",
-      "source_label": "How did you find HonuVibe?",
-      "source_options": {
-        "search": "Search Engine",
-        "social": "Social Media",
-        "referral": "Referral",
-        "event": "Event / Workshop",
-        "other": "Other"
-      },
-      "timeline_label": "Timeline / Urgency",
-      "timeline_options": {
-        "exploratory": "Exploratory",
-        "three_months": "Within 3 Months",
-        "asap": "ASAP"
-      },
-      "budget_label": "Budget Range",
-      "budget_options": {
-        "under_10k": "Under $10K",
-        "10k_50k": "$10K – $50K",
-        "over_50k": "$50K+",
-        "unsure": "Not sure yet"
-      },
-      "submit": "Send My Application",
-      "success_heading": "Application Received",
-      "success_message": "Thank you for your interest in working together. Ryan reviews every application personally and will respond within 5–7 business days.",
+      "message_label": "Message",
+      "message_placeholder": "How can we help?",
+      "submit": "Send Message",
+      "success_heading": "Message Sent",
+      "success_message": "Thank you for reaching out. We'll get back to you within 2–3 business days.",
       "error": "Something went wrong. Please try again."
     }
   },
@@ -666,5 +643,101 @@
     "terms": "Terms of Service",
     "cookies": "Cookie Notice",
     "connect_title": "Connect"
+  },
+  "auth": {
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full Name",
+    "continue_google": "Continue with Google",
+    "or": "or",
+    "forgot_password": "Forgot password?",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "welcome_message": "Sign in to access your courses",
+    "signing_in": "Signing in..."
+  },
+  "learn": {
+    "catalog_title": "Learn",
+    "catalog_subtitle": "Courses designed to move you from curious to capable.",
+    "enroll_now": "Enroll Now",
+    "spots_left": "{count} spots left",
+    "cohort_full": "Cohort Full — Join Waitlist",
+    "starts": "Starts {date}",
+    "weeks": "{count} weeks",
+    "live_sessions": "{count} live sessions",
+    "recorded_lessons": "{count} recorded lessons",
+    "what_youll_master": "What You'll Master",
+    "tools_youll_learn": "Tools You'll Learn",
+    "how_it_works": "How It Works",
+    "weekly_curriculum": "Weekly Curriculum",
+    "who_is_for": "Who This Course Is For",
+    "prerequisites": "Prerequisites",
+    "instructor": "Your Instructor",
+    "logistics": "Course Logistics",
+    "materials": "Materials You'll Receive",
+    "week": "Week {number}",
+    "unlocks": "Unlocks {date}",
+    "locked": "Locked",
+    "join_live": "Join Live Session",
+    "watch_replay": "Watch Replay",
+    "download_transcript": "Download Transcript",
+    "download_slides": "Download Slides",
+    "homework": "Homework",
+    "action_challenge": "Action Challenge",
+    "vocabulary": "Key Vocabulary",
+    "overview": "Overview",
+    "weekly_plan": "Weekly Plan",
+    "resources": "Resources",
+    "community": "Community",
+    "back_to_dashboard": "Back to Dashboard",
+    "welcome_back": "Welcome back, {name}",
+    "your_courses": "Your Courses",
+    "explore_more": "Explore More Courses",
+    "continue": "Continue",
+    "in_progress": "In Progress",
+    "completed": "Completed",
+    "upcoming": "Upcoming",
+    "live_now": "Live Now",
+    "completion_requirements": "Completion Requirements",
+    "cancellation_policy": "Cancellation Policy",
+    "view_course": "View Course",
+    "format_live": "Live",
+    "format_recorded": "Recorded",
+    "format_hybrid": "Hybrid",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "enrolled_success": "Welcome! You're enrolled.",
+    "no_courses": "No courses available yet. Check back soon!",
+    "progress": "{percent}% complete",
+    "next_session": "Next session: {date}",
+    "week_of": "Week {current} of {total}",
+    "how_step_1": "Live on Zoom twice a week",
+    "how_step_2": "Replays + transcripts available next day",
+    "how_step_3": "Mini-assignments to apply what you learned",
+    "how_step_4": "Private community for {months} months",
+    "schedule": "Schedule",
+    "platform": "Platform",
+    "cohort_size": "Cohort Size",
+    "payment": "Payment",
+    "material_name": "Material",
+    "material_language": "Language",
+    "material_included": "Included With",
+    "current_week": "Current Week",
+    "completed_weeks": "Completed",
+    "upcoming_weeks": "Upcoming",
+    "session": "Session {number}",
+    "topics_covered": "Topics",
+    "session_materials": "Materials",
+    "join_zoom": "Join Zoom Session",
+    "link_available_soon": "Link available 30 min before session",
+    "replay_available": "Replay Available",
+    "read_more_instructor": "Read more about {name}",
+    "catalog_overline": "AI EDUCATION",
+    "all_levels": "All Levels",
+    "showing_courses": "Showing {count} courses",
+    "breadcrumb_learn": "Learn"
   }
 }
