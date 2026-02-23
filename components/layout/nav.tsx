@@ -5,7 +5,7 @@ const navLinks = [
   { href: '/honuhub', key: 'honuhub' },
   { href: '/exploration', key: 'exploration' },
   { href: '/learn', key: 'learn' },
-  { href: '/blog', key: 'blog' },
+  { href: '/resources', key: 'resources' },
   { href: '/about', key: 'about' },
   { href: '/contact', key: 'contact' },
 ] as const;
