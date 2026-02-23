@@ -643,7 +643,8 @@
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "cookies": "クッキーに関するお知らせ",
-    "connect_title": "つながる"
+    "connect_title": "つながる",
+    "glossary_link": "AI用語辞典"
   },
   "auth": {
     "sign_in": "ログイン",
@@ -854,5 +855,35 @@
     "homework": "宿題",
     "action_challenge": "アクションチャレンジ",
     "project": "プロジェクト"
+  },
+  "glossary": {
+    "title": "AI用語辞典",
+    "subtitle": "AIの時代に必要な用語を、わかりやすい言葉で解説します。",
+    "meta_title": "AI用語辞典 — わかりやすいAI用語解説 | HonuVibe",
+    "meta_description": "LLM、RAG、ファインチューニングなど、AI用語をわかりやすく解説。英語・日本語バイリンガル対応。",
+    "overline": "用語辞典",
+    "search_placeholder": "用語を検索...",
+    "filter_all": "すべて",
+    "filter_core": "基本概念",
+    "filter_models": "モデル・アーキテクチャ",
+    "filter_tools": "ツール・プラットフォーム",
+    "filter_business": "ビジネス・戦略",
+    "difficulty_beginner": "初級",
+    "difficulty_intermediate": "中級",
+    "difficulty_advanced": "上級",
+    "why_it_matters": "なぜ重要か",
+    "example": "実際の活用例",
+    "related_terms": "関連用語",
+    "learn_more": "さらに学ぶ",
+    "learn_more_course": "関連コース",
+    "learn_more_blog": "関連記事",
+    "learn_more_video": "チュートリアルを見る",
+    "back_to_glossary": "用語辞典に戻る",
+    "empty_state": "該当する用語が見つかりません。別のキーワードをお試しください。",
+    "cta_heading": "AIを定義だけでなく、理解したいですか？",
+    "cta_sub": "HonuVibeのコースでは、これらの概念を暗記するのではなく、実際に使いこなす方法を学べます。",
+    "cta_button": "コースを見る",
+    "term_count": "{count}件の用語",
+    "footer_link": "AI用語辞典"
   }
 }

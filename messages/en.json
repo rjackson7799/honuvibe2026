@@ -643,7 +643,8 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "cookies": "Cookie Notice",
-    "connect_title": "Connect"
+    "connect_title": "Connect",
+    "glossary_link": "AI Glossary"
   },
   "auth": {
     "sign_in": "Sign In",
@@ -854,5 +855,35 @@
     "homework": "Homework",
     "action_challenge": "Action Challenge",
     "project": "Project"
+  },
+  "glossary": {
+    "title": "AI Glossary",
+    "subtitle": "Plain-language definitions for the AI era. Every term explained for real people, not researchers.",
+    "meta_title": "AI Glossary — Plain-Language AI Definitions | HonuVibe",
+    "meta_description": "Clear, beginner-friendly definitions of AI terms like LLM, RAG, fine-tuning, and more. Bilingual English and Japanese.",
+    "overline": "GLOSSARY",
+    "search_placeholder": "Search terms...",
+    "filter_all": "All",
+    "filter_core": "Core Concepts",
+    "filter_models": "Models & Architecture",
+    "filter_tools": "Tools & Platforms",
+    "filter_business": "Business & Strategy",
+    "difficulty_beginner": "Beginner",
+    "difficulty_intermediate": "Intermediate",
+    "difficulty_advanced": "Advanced",
+    "why_it_matters": "Why It Matters",
+    "example": "Example in Practice",
+    "related_terms": "Related Terms",
+    "learn_more": "Go Deeper",
+    "learn_more_course": "Related Course",
+    "learn_more_blog": "Related Article",
+    "learn_more_video": "Watch Tutorial",
+    "back_to_glossary": "Back to Glossary",
+    "empty_state": "No terms match your search. Try a different keyword.",
+    "cta_heading": "Want to understand AI, not just define it?",
+    "cta_sub": "Our courses teach you to build with these concepts, not just memorize them.",
+    "cta_button": "Explore Courses",
+    "term_count": "{count} terms",
+    "footer_link": "AI Glossary"
   }
 }

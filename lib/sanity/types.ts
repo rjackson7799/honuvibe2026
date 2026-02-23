@@ -76,3 +76,51 @@ export type Influencer = {
   specialty?: string;
   sortOrder: number;
 };
+
+// ── Glossary ──────────────────────────────────────────────────────────────────
+
+export type GlossaryCategory =
+  | 'core-concepts'
+  | 'models-architecture'
+  | 'tools-platforms'
+  | 'business-strategy';
+
+export type GlossaryDifficulty = 'beginner' | 'intermediate' | 'advanced';
+
+/** Lightweight shape returned by glossaryIndexQuery (index page only) */
+export type GlossaryTermSummary = {
+  term_en: string;
+  term_jp?: string;
+  abbreviation?: string;
+  reading_jp?: string;
+  slug: { current: string };
+  definition_short_en: string;
+  definition_short_jp?: string;
+  category: GlossaryCategory;
+  difficulty: GlossaryDifficulty;
+};
+
+/** Related term reference resolved by Sanity -> operator */
+export type GlossaryTermRef = {
+  term_en: string;
+  term_jp?: string;
+  abbreviation?: string;
+  slug: { current: string };
+  definition_short_en: string;
+  definition_short_jp?: string;
+  difficulty: GlossaryDifficulty;
+};
+
+/** Full shape returned by glossaryTermQuery (detail page) */
+export type GlossaryTerm = GlossaryTermSummary & {
+  definition_full_en?: PortableTextBlock[];
+  definition_full_jp?: PortableTextBlock[];
+  why_it_matters_en?: string;
+  why_it_matters_jp?: string;
+  example_en?: string;
+  example_jp?: string;
+  relatedTerms?: GlossaryTermRef[];
+  relatedCourseSlug?: string;
+  relatedBlogSlug?: string;
+  relatedLibraryVideoSlug?: string;
+};

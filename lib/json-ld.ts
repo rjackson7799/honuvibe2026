@@ -102,3 +102,75 @@ export function generateCourseSchema(course: {
     inLanguage: course.language === 'EN/JP' ? ['en', 'ja'] : course.language.toLowerCase(),
   };
 }
+
+export function generateGlossaryCollectionSchema(opts: {
+  title: string;
+  description: string;
+  locale: string;
+}) {
+  const path = opts.locale === 'ja' ? '/ja/glossary' : '/glossary';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: opts.title,
+    description: opts.description,
+    url: `${baseUrl}${path}`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'HonuVibe.AI',
+      url: baseUrl,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: opts.title,
+          item: `${baseUrl}${path}`,
+        },
+      ],
+    },
+  };
+}
+
+export function generateDefinedTermSchema(opts: {
+  termName: string;
+  description: string;
+  slug: string;
+  locale: string;
+  glossaryTitle: string;
+}) {
+  const localePath = opts.locale === 'ja' ? '/ja' : '';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTerm',
+    name: opts.termName,
+    description: opts.description,
+    url: `${baseUrl}${localePath}/glossary/${opts.slug}`,
+    inDefinedTermSet: {
+      '@type': 'DefinedTermSet',
+      name: 'HonuVibe AI Glossary',
+      url: `${baseUrl}/glossary`,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: opts.glossaryTitle,
+          item: `${baseUrl}${localePath}/glossary`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: opts.termName,
+          item: `${baseUrl}${localePath}/glossary/${opts.slug}`,
+        },
+      ],
+    },
+  };
+}

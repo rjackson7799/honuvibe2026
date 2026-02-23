@@ -92,3 +92,60 @@ export const influencersQuery = `
     sortOrder
   }
 `;
+
+// ── Glossary queries ───────────────────────────────────────────────────────────
+
+/** All published terms — lightweight, for index page */
+export const glossaryIndexQuery = `
+  *[_type == "glossaryTerm" && isPublished == true] | order(term_en asc) {
+    term_en,
+    term_jp,
+    abbreviation,
+    reading_jp,
+    slug,
+    definition_short_en,
+    definition_short_jp,
+    category,
+    difficulty
+  }
+`;
+
+/** Single term by slug — full content for detail page */
+export const glossaryTermQuery = `
+  *[_type == "glossaryTerm" && slug.current == $slug && isPublished == true][0] {
+    term_en,
+    term_jp,
+    abbreviation,
+    reading_jp,
+    slug,
+    definition_short_en,
+    definition_short_jp,
+    definition_full_en,
+    definition_full_jp,
+    why_it_matters_en,
+    why_it_matters_jp,
+    example_en,
+    example_jp,
+    category,
+    difficulty,
+    relatedTerms[]-> {
+      term_en,
+      term_jp,
+      abbreviation,
+      slug,
+      definition_short_en,
+      definition_short_jp,
+      difficulty
+    },
+    relatedCourseSlug,
+    relatedBlogSlug,
+    relatedLibraryVideoSlug
+  }
+`;
+
+/** All slugs — for generateStaticParams and sitemap */
+export const glossarySlugQuery = `
+  *[_type == "glossaryTerm" && isPublished == true] {
+    "slug": slug.current
+  }
+`;
