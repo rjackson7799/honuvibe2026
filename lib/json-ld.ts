@@ -43,6 +43,45 @@ export function generateWebsiteSchema() {
   };
 }
 
+export function generateBlogPostSchema(post: {
+  title: string;
+  description: string;
+  slug: string;
+  author: string;
+  publishedAt: string;
+  category: string;
+  imageUrl?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    url: `${baseUrl}/blog/${post.slug}`,
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
+    articleSection: post.category,
+    author: {
+      '@type': 'Person',
+      name: post.author,
+      url: `${baseUrl}/about`,
+    },
+    publisher: {
+      '@type': 'EducationalOrganization',
+      name: 'HonuVibe.AI',
+      url: baseUrl,
+      logo: { '@type': 'ImageObject', url: `${baseUrl}/logo.png` },
+    },
+    ...(post.imageUrl && {
+      image: { '@type': 'ImageObject', url: post.imageUrl },
+    }),
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blog/${post.slug}`,
+    },
+  };
+}
+
 export function generateCourseSchema(course: {
   title: string;
   description: string;

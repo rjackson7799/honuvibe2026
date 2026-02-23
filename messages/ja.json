@@ -17,7 +17,18 @@
     "sub": "ハワイ生まれ。グローバルな視点。AI時代のために。",
     "cta_primary": "コースを探す",
     "cta_secondary": "コミュニティに参加",
-    "scroll_hint": "スクロールして発見"
+    "scroll_hint": "スクロールして発見",
+    "cards": {
+      "course_title": "AI基礎",
+      "course_modules": "12モジュール",
+      "progress": "進捗",
+      "lesson_1": "プロンプトエンジニアリングの基本",
+      "lesson_2": "AIワークフローの構築",
+      "lesson_3": "初めてのアプリをデプロイ",
+      "achievement_label": "達成",
+      "achievement_title": "初めてのビルド",
+      "achievement_desc": "マイクロSaaSのプロトタイプを出荷"
+    }
   },
   "mission": {
     "overline": "HonuVibeの理由",
@@ -596,6 +607,42 @@
         "title": "お問い合わせ",
         "content": "クッキーの取り扱いに関するご質問は、privacy@honuvibe.aiまでお問い合わせください。"
       }
+    }
+  },
+  "blog": {
+    "overline": "ブログ",
+    "heading": "インサイト＆ストーリー",
+    "sub": "実践的なAIインサイト、ビルドの裏側のストーリー、日米テックエコシステムをつなぐ視点。",
+    "all_posts": "すべての投稿",
+    "featured": "注目",
+    "read_more": "続きを読む",
+    "min_read": "分で読める",
+    "published": "公開日",
+    "share": "シェア",
+    "share_on_x": "Xでシェア",
+    "share_on_linkedin": "LinkedInでシェア",
+    "share_on_line": "LINEでシェア",
+    "copy_link": "リンクをコピー",
+    "link_copied": "コピーしました！",
+    "related_posts": "関連記事",
+    "no_posts": "まだ投稿がありません。近日公開予定です。",
+    "no_posts_category": "このカテゴリーの投稿はまだありません。",
+    "newsletter_heading": "この記事を楽しんでいますか？",
+    "newsletter_sub": "購読して、インサイトをメールで受け取りましょう。",
+    "author_bio_heading": "著者について",
+    "back_to_blog": "ブログに戻る",
+    "categories": {
+      "all": "すべて",
+      "ai-tools": "AIツール",
+      "entrepreneurship": "起業",
+      "japan-us": "日米AIシーン",
+      "behind-the-build": "ビルドの裏側",
+      "honuhub-stories": "HonuHubストーリー",
+      "impact": "インパクト"
+    },
+    "meta": {
+      "title": "ブログ — インサイト＆ストーリー",
+      "description": "ハワイのHonuVibeコミュニティからの実践的なAIインサイト、チュートリアル、ストーリー。"
     }
   },
   "theme": {

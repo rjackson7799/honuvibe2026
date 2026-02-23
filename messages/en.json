@@ -17,7 +17,18 @@
     "sub": "Hawaii-born. Globally minded. Built for the AI age.",
     "cta_primary": "Explore Courses",
     "cta_secondary": "Join the Community",
-    "scroll_hint": "Scroll to discover"
+    "scroll_hint": "Scroll to discover",
+    "cards": {
+      "course_title": "AI Foundations",
+      "course_modules": "12 modules",
+      "progress": "Progress",
+      "lesson_1": "Prompt Engineering Basics",
+      "lesson_2": "Building AI Workflows",
+      "lesson_3": "Deploying Your First App",
+      "achievement_label": "Achievement",
+      "achievement_title": "First Build",
+      "achievement_desc": "Shipped a micro-SaaS prototype"
+    }
   },
   "mission": {
     "overline": "Why HonuVibe",
@@ -596,6 +607,42 @@
         "title": "Contact",
         "content": "Questions about our cookie practices? Contact us at privacy@honuvibe.ai."
       }
+    }
+  },
+  "blog": {
+    "overline": "Blog",
+    "heading": "Insights & Stories",
+    "sub": "Practical AI insights, behind-the-build stories, and perspectives bridging the US-Japan tech ecosystem.",
+    "all_posts": "All Posts",
+    "featured": "Featured",
+    "read_more": "Read more",
+    "min_read": "min read",
+    "published": "Published",
+    "share": "Share",
+    "share_on_x": "Share on X",
+    "share_on_linkedin": "Share on LinkedIn",
+    "share_on_line": "Share on LINE",
+    "copy_link": "Copy link",
+    "link_copied": "Copied!",
+    "related_posts": "Related Posts",
+    "no_posts": "No posts yet. Check back soon.",
+    "no_posts_category": "No posts found in this category.",
+    "newsletter_heading": "Enjoying this post?",
+    "newsletter_sub": "Subscribe to get more insights delivered to your inbox.",
+    "author_bio_heading": "About the Author",
+    "back_to_blog": "Back to Blog",
+    "categories": {
+      "all": "All",
+      "ai-tools": "AI Tools",
+      "entrepreneurship": "Entrepreneurship",
+      "japan-us": "Japan/US AI Scene",
+      "behind-the-build": "Behind the Build",
+      "honuhub-stories": "HonuHub Stories",
+      "impact": "Impact"
+    },
+    "meta": {
+      "title": "Blog — Insights & Stories",
+      "description": "Practical AI insights, tutorials, and stories from the HonuVibe community in Hawaii."
     }
   },
   "theme": {

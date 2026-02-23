@@ -22,10 +22,13 @@ export default async function HomePage({ params }: Props) {
     <>
       <HeroSection />
       <MissionStrip />
+      <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
       <HonuHubFeature />
       <FeaturedCourses />
+      <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
       <ExplorationPreview />
       <RyanBioStrip />
+      <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
       <NewsletterSignup />
       <SocialProof />
     </>

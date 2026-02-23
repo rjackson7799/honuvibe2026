@@ -39,7 +39,7 @@ export function NewsletterSignup() {
   return (
     <Section id="newsletter">
       <Container size="narrow">
-        <div className="relative overflow-hidden rounded-2xl bg-bg-secondary border border-border-default p-8 md:p-12 text-center">
+        <div className="relative overflow-hidden rounded-2xl glass-card p-8 md:p-12 text-center">
           {/* Decorative gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/5 via-transparent to-accent-gold/5 pointer-events-none" />
 
@@ -60,7 +60,7 @@ export function NewsletterSignup() {
                 className="h-12 flex-1 rounded sm:rounded-r-none bg-bg-tertiary px-4 text-[16px] text-fg-primary border border-border-default placeholder:text-fg-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors duration-[var(--duration-fast)]"
               />
               <Button
-                variant="primary"
+                variant="gradient"
                 size="md"
                 type="submit"
                 disabled={status === 'loading'}

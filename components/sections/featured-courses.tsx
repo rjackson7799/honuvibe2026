@@ -24,9 +24,9 @@ export function FeaturedCourses() {
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
           {courseKeys.map((key) => (
-            <Card key={key} hover padding="lg" className="flex flex-col">
+            <Card key={key} variant="glass" hover padding="lg" className="flex flex-col">
               {/* Course accent bar */}
-              <div className="mb-5 h-1 w-12 rounded-full bg-accent-teal" />
+              <div className="mb-5 h-1 w-12 rounded-full accent-bar-teal" />
 
               <h3 className="font-serif text-h3 text-fg-primary mb-3">
                 {t(`courses.${key}.title`)}

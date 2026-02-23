@@ -22,8 +22,8 @@ export function SocialProof() {
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
           {testimonialKeys.map((key) => (
-            <Card key={key} padding="lg" className="flex flex-col">
-              <Quote size={24} className="text-accent-teal/40 mb-4" />
+            <Card key={key} variant="glass" hover padding="lg" className="flex flex-col">
+              <Quote size={24} className="text-accent-teal/40 mb-4 drop-shadow-[0_0_6px_var(--glow-teal)]" />
               <p className="text-sm text-fg-secondary leading-relaxed mb-6 flex-1">
                 &ldquo;{t(`testimonials.${key}.quote`)}&rdquo;
               </p>

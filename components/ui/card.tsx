@@ -1,7 +1,10 @@
 import { cn } from '@/lib/utils';
 
+type CardVariant = 'default' | 'glass';
+
 type CardProps = {
   children: React.ReactNode;
+  variant?: CardVariant;
   hover?: boolean;
   padding?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -13,12 +16,23 @@ const paddingStyles = {
   lg: 'p-8',
 };
 
-export function Card({ children, hover = false, padding = 'md', className }: CardProps) {
+const variantStyles: Record<CardVariant, string> = {
+  default: 'bg-bg-secondary border border-border-default',
+  glass: 'glass-card',
+};
+
+const hoverStyles: Record<CardVariant, string> = {
+  default: 'hover:shadow-md hover:-translate-y-0.5 hover:border-border-hover',
+  glass: 'hover:-translate-y-1',
+};
+
+export function Card({ children, variant = 'default', hover = false, padding = 'md', className }: CardProps) {
   return (
     <div
       className={cn(
-        'rounded-lg bg-bg-secondary border border-border-default',
-        hover && 'transition-all duration-[var(--duration-normal)] hover:shadow-md hover:-translate-y-0.5 hover:border-border-hover',
+        'rounded-lg',
+        variantStyles[variant],
+        hover && cn('transition-all duration-[var(--duration-normal)]', hoverStyles[variant]),
         paddingStyles[padding],
         className,
       )}

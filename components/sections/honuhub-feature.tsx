@@ -16,8 +16,15 @@ export function HonuHubFeature() {
         <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
           {/* Photo placeholder */}
           <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/20 via-bg-secondary to-accent-gold/10 border border-border-default rounded-xl" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <div className="absolute inset-0 glass-card rounded-xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/10 via-transparent to-accent-gold/5 rounded-xl" />
+            {/* Glow orb behind card */}
+            <div
+              className="glow-orb absolute -z-10"
+              style={{ width: '300px', height: '300px', top: '-20%', right: '-15%', background: 'var(--glow-teal)' }}
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10">
               <MapPin size={32} className="text-accent-teal/60" />
               <span className="text-sm font-medium text-fg-tertiary tracking-wide">
                 Waikiki, Honolulu
@@ -34,7 +41,7 @@ export function HonuHubFeature() {
             </p>
             <div className="mt-2">
               <Link href="/honuhub">
-                <Button variant="primary">{t('cta')}</Button>
+                <Button variant="gradient">{t('cta')}</Button>
               </Link>
             </div>
           </div>

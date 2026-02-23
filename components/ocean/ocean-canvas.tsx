@@ -18,9 +18,33 @@ function getHawaiiTimeHue(): number {
   return 0; // day — standard
 }
 
+/** Parse "rgb(r, g, b)" into [r, g, b] */
+function parseRgb(color: string): [number, number, number] {
+  const match = color.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (match) return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+  return [8, 24, 48]; // fallback to dark defaults
+}
+
+/** Read ocean theme colors from CSS variables */
+function readThemeColors() {
+  const styles = getComputedStyle(document.documentElement);
+  const get = (name: string) => styles.getPropertyValue(name).trim();
+
+  return {
+    surface: get('--ocean-surface'),
+    deep: get('--ocean-deep'),
+    caustic: get('--ocean-caustic'),
+    wave: get('--ocean-wave'),
+    particle: get('--ocean-particle'),
+    surfaceRgb: parseRgb(get('--ocean-surface')),
+    deepRgb: parseRgb(get('--ocean-deep')),
+  };
+}
+
 export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
+  const themeColorsRef = useRef<ReturnType<typeof readThemeColors> | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,6 +65,26 @@ export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps)
     resize();
     window.addEventListener('resize', resize);
 
+    // Read theme colors from CSS variables
+    themeColorsRef.current = readThemeColors();
+
+    // Watch for theme changes via data-theme attribute
+    const observer = new MutationObserver(() => {
+      themeColorsRef.current = readThemeColors();
+      // Re-render static fallback if reduced motion
+      if (prefersReducedMotion) {
+        const colors = themeColorsRef.current;
+        const w = canvas.width / dpr;
+        const h = canvas.height / dpr;
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, colors.surface);
+        grad.addColorStop(1, colors.deep);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
     const timeHue = getHawaiiTimeHue();
 
     const particles: { x: number; y: number; vx: number; vy: number; r: number; alpha: number }[] = [];
@@ -56,30 +100,37 @@ export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps)
     }
 
     if (prefersReducedMotion) {
-      // Static gradient
+      // Static gradient using theme colors
+      const colors = themeColorsRef.current;
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
       const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, 'rgb(8, 24, 48)');
-      grad.addColorStop(1, 'rgb(4, 12, 28)');
+      grad.addColorStop(0, colors.surface);
+      grad.addColorStop(1, colors.deep);
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
-      return;
+      return () => {
+        observer.disconnect();
+        window.removeEventListener('resize', resize);
+      };
     }
 
     let frame = 0;
     const render = () => {
+      const colors = themeColorsRef.current!;
+      const [sr, sg, sb] = colors.surfaceRgb;
+      const [dr, dg, db] = colors.deepRgb;
       const w = canvas.width / dpr;
       const h = canvas.height / dpr;
 
       // Background gradient that shifts with scroll
       const depth = scrollProgress;
-      const r1 = Math.round(8 + timeHue * 40 - depth * 4);
-      const g1 = Math.round(24 - depth * 12);
-      const b1 = Math.round(48 - depth * 20);
-      const r2 = Math.round(4 - depth * 2);
-      const g2 = Math.round(12 - depth * 6);
-      const b2 = Math.round(28 - depth * 10);
+      const r1 = Math.round(sr + timeHue * 40 - depth * 4);
+      const g1 = Math.round(sg - depth * 12);
+      const b1 = Math.round(sb - depth * 20);
+      const r2 = Math.round(dr - depth * 2);
+      const g2 = Math.round(dg - depth * 6);
+      const b2 = Math.round(db - depth * 10);
 
       const grad = ctx.createLinearGradient(0, 0, 0, h);
       grad.addColorStop(0, `rgb(${Math.max(r1, 0)}, ${Math.max(g1, 0)}, ${Math.max(b1, 0)})`);
@@ -104,7 +155,7 @@ export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps)
         }
         ctx.lineTo(w, h);
         ctx.closePath();
-        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.fillStyle = colors.wave || `rgba(255, 255, 255, ${alpha})`;
         ctx.fill();
       }
 
@@ -115,7 +166,7 @@ export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps)
         const radius = 40 + Math.sin(frame * 0.02 + i * 2) * 15;
 
         const causticGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        causticGrad.addColorStop(0, 'rgba(120, 180, 200, 0.015)');
+        causticGrad.addColorStop(0, colors.caustic || 'rgba(120, 180, 200, 0.015)');
         causticGrad.addColorStop(1, 'rgba(120, 180, 200, 0)');
         ctx.fillStyle = causticGrad;
         ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2);
@@ -130,7 +181,7 @@ export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps)
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180, 210, 220, ${p.alpha})`;
+        ctx.fillStyle = colors.particle || `rgba(180, 210, 220, ${p.alpha})`;
         ctx.fill();
       }
 
@@ -142,6 +193,7 @@ export function OceanCanvas({ scrollProgress = 0, className }: OceanCanvasProps)
 
     return () => {
       cancelAnimationFrame(animationRef.current);
+      observer.disconnect();
       window.removeEventListener('resize', resize);
     };
   }, [scrollProgress]);

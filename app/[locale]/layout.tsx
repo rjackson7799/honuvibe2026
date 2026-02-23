@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
 import { hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
+import { Analytics } from '@vercel/analytics/next';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { dmSans, dmSerif, jetbrainsMono, notoSansJP } from '@/app/fonts';
@@ -60,7 +61,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable} ${notoSansJP.variable}`}
+      className={`${dmSans.variable} ${dmSerif.variable} ${jetbrainsMono.variable}${locale === 'ja' ? ` ${notoSansJP.variable}` : ''}`}
     >
       <head>
         <script
@@ -71,6 +72,13 @@ export default async function LocaleLayout({ children, params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
         />
+        {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN && (
+          <script
+            defer
+            data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+            src="https://plausible.io/js/script.js"
+          />
+        )}
       </head>
       <body className="antialiased">
         <ThemeProvider>
@@ -84,6 +92,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <Footer />
           </NextIntlClientProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

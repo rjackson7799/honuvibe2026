@@ -27,11 +27,10 @@ export function ExplorationPreview() {
           {projectKeys.map((key, i) => {
             const tags = t(`projects.${key}.tags`).split(',');
             return (
-              <Card key={key} hover padding="lg" className="relative overflow-hidden">
+              <Card key={key} variant="glass" hover padding="lg" className="relative overflow-hidden">
                 {/* Left accent bar */}
                 <div
-                  className="absolute left-0 top-0 h-full w-1 rounded-l-lg"
-                  style={{ backgroundColor: accentColors[i] }}
+                  className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${i === 0 ? 'accent-bar-teal' : 'accent-bar-gold'}`}
                 />
 
                 <div className="pl-4">

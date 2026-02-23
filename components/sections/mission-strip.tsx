@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
-import { Overline } from '@/components/ui';
+import { Overline, Card } from '@/components/ui';
 import { Globe, Languages, Rocket, Wrench } from 'lucide-react';
 
 const icons = [Globe, Languages, Rocket, Wrench] as const;
@@ -20,11 +20,8 @@ export function MissionStrip() {
           {keys.map((key, i) => {
             const Icon = icons[i];
             return (
-              <div
-                key={key}
-                className="group flex flex-col items-center text-center p-6 rounded-lg bg-bg-secondary/50 border border-border-default hover:border-accent-teal/30 transition-all duration-[var(--duration-normal)]"
-              >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent-teal-subtle">
+              <Card key={key} variant="glass" hover padding="md" className="flex flex-col items-center text-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-accent-teal-subtle shadow-[0_0_12px_var(--glow-teal)]">
                   <Icon size={22} className="text-accent-teal" />
                 </div>
                 <h3 className="font-serif text-lg text-fg-primary mb-2">
@@ -33,7 +30,7 @@ export function MissionStrip() {
                 <p className="text-sm text-fg-secondary leading-relaxed">
                   {t(`items.${key}.description`)}
                 </p>
-              </div>
+              </Card>
             );
           })}
         </div>

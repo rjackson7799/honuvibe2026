@@ -82,8 +82,15 @@ export function RyanBioStrip() {
 
           {/* Photo placeholder — right on desktop */}
           <div className="order-1 md:order-2 relative aspect-square max-w-[360px] mx-auto md:mx-0 md:ml-auto">
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent-teal/15 via-bg-secondary to-accent-gold/10 border border-border-default" />
-            <div className="absolute inset-0 flex items-center justify-center">
+            {/* Glow orb behind photo */}
+            <div
+              className="glow-orb absolute -z-10"
+              style={{ width: '350px', height: '350px', top: '-15%', left: '-15%', background: 'var(--glow-teal)' }}
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 rounded-2xl glass-card" />
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent-teal/10 via-transparent to-accent-gold/5" />
+            <div className="absolute inset-0 flex items-center justify-center z-10">
               <span className="text-fg-tertiary text-sm tracking-wide">Ryan Jackson</span>
             </div>
           </div>
