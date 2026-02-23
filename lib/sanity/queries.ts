@@ -61,3 +61,34 @@ export const allPostSlugsQuery = `
     "slug": slug.current
   }
 `;
+
+// Resources page queries
+export const resourcesQuery = `
+  *[_type == "resource" && isPublished == true] | order(category asc, sortOrder asc) {
+    name,
+    slug,
+    description_en,
+    description_jp,
+    category,
+    pricing,
+    url,
+    "logoUrl": logo.asset->url,
+    relatedLibraryVideoSlug,
+    relatedCourseSlug,
+    isFeatured,
+    sortOrder
+  }
+`;
+
+export const influencersQuery = `
+  *[_type == "influencer" && isPublished == true] | order(sortOrder asc) {
+    name,
+    slug,
+    description_en,
+    description_jp,
+    "avatarUrl": avatar.asset->url,
+    platforms,
+    specialty,
+    sortOrder
+  }
+`;

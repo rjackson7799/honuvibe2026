@@ -41,3 +41,38 @@ export type BlogPost = {
 };
 
 export type BlogPostSummary = Omit<BlogPost, 'body_en' | 'body_jp'>;
+
+// Resources page types
+export type ResourceCategory = 'build' | 'create' | 'learn' | 'business' | 'communicate';
+export type ResourcePricing = 'free' | 'freemium' | 'paid';
+
+export type Resource = {
+  name: string;
+  slug: { current: string };
+  description_en: string;
+  description_jp?: string;
+  category: ResourceCategory;
+  pricing: ResourcePricing;
+  url: string;
+  logoUrl?: string;
+  relatedLibraryVideoSlug?: string;
+  relatedCourseSlug?: string;
+  isFeatured: boolean;
+  sortOrder: number;
+};
+
+export type InfluencerPlatform = {
+  platform: string;
+  url: string;
+};
+
+export type Influencer = {
+  name: string;
+  slug: { current: string };
+  description_en: string;
+  description_jp?: string;
+  avatarUrl?: string;
+  platforms: InfluencerPlatform[];
+  specialty?: string;
+  sortOrder: number;
+};
