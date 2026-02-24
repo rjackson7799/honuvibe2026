@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       { source: '/ja/tools', destination: '/ja/resources', permanent: true },
       { source: '/ja/toolkit', destination: '/ja/resources', permanent: true },
       { source: '/ja/stack', destination: '/ja/resources', permanent: true },
+      { source: '/dictionary', destination: '/glossary', permanent: true },
+      { source: '/ja/dictionary', destination: '/ja/glossary', permanent: true },
+      { source: '/ai-glossary', destination: '/glossary', permanent: true },
+      { source: '/ja/ai-glossary', destination: '/ja/glossary', permanent: true },
     ];
   },
   images: {

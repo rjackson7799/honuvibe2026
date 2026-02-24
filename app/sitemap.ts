@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { sanityPublicClient } from '@/lib/sanity/client';
-import { allPostSlugsQuery } from '@/lib/sanity/queries';
+import { allPostSlugsQuery, glossarySlugQuery } from '@/lib/sanity/queries';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://honuvibe.ai';
 
@@ -13,6 +13,7 @@ const routes = [
   '/contact',
   '/blog',
   '/resources',
+  '/glossary',
   '/privacy',
   '/terms',
   '/cookies',
@@ -56,6 +57,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     } catch {
       // Sanity not configured or unreachable — skip blog entries
+    }
+
+    // Dynamic glossary terms from Sanity
+    try {
+      const glossarySlugs: { slug: string }[] = await sanityPublicClient.fetch(glossarySlugQuery);
+      for (const { slug } of glossarySlugs) {
+        entries.push({
+          url: `${baseUrl}/glossary/${slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'monthly',
+          priority: 0.6,
+          alternates: {
+            languages: {
+              en: `${baseUrl}/glossary/${slug}`,
+              ja: `${baseUrl}/ja/glossary/${slug}`,
+            },
+          },
+        });
+      }
+    } catch {
+      // Sanity not configured or unreachable — skip glossary entries
     }
   }
 
