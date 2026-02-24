@@ -149,3 +149,58 @@ export const glossarySlugQuery = `
     "slug": slug.current
   }
 `;
+
+// ── Newsletter Archive queries ───────────────────────────────────────────────
+
+/** All published issues — lightweight, for index page */
+export const newsletterIndexQuery = `
+  *[_type == "newsletterIssue" && isPublished == true] | order(issueNumber desc) {
+    title_en,
+    title_jp,
+    slug,
+    issueNumber,
+    excerpt_en,
+    excerpt_jp,
+    publishedAt,
+    readingTime_en,
+    readingTime_jp
+  }
+`;
+
+/** Single issue by slug — full content for detail page */
+export const newsletterIssueQuery = `
+  *[_type == "newsletterIssue" && slug.current == $slug && isPublished == true][0] {
+    title_en,
+    title_jp,
+    slug,
+    issueNumber,
+    excerpt_en,
+    excerpt_jp,
+    body_en,
+    body_jp,
+    publishedAt,
+    readingTime_en,
+    readingTime_jp,
+    beehiivUrl,
+    "featuredImageUrl": featuredImage.asset->url,
+    relatedBlogSlugs,
+    relatedCourseSlugs
+  }
+`;
+
+/** Adjacent issues for prev/next navigation */
+export const newsletterAdjacentQuery = `{
+  "prev": *[_type == "newsletterIssue" && isPublished == true && issueNumber < $issueNumber] | order(issueNumber desc) [0] {
+    title_en, title_jp, slug, issueNumber
+  },
+  "next": *[_type == "newsletterIssue" && isPublished == true && issueNumber > $issueNumber] | order(issueNumber asc) [0] {
+    title_en, title_jp, slug, issueNumber
+  }
+}`;
+
+/** All slugs — for generateStaticParams and sitemap */
+export const newsletterSlugQuery = `
+  *[_type == "newsletterIssue" && isPublished == true] {
+    "slug": slug.current
+  }
+`;

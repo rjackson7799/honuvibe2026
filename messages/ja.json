@@ -123,7 +123,31 @@
     "placeholder": "your@email.com",
     "cta": "購読する",
     "success": "ようこそ！確認のためにメールをチェックしてください。",
-    "error": "エラーが発生しました。もう一度お試しください。"
+    "error": "エラーが発生しました。もう一度お試しください。",
+    "title": "HonuVibeニュースレター",
+    "subtitle": "ビルダーと夢見る人のための、毎週のAIインサイト。すべてのバックナンバーをここで。",
+    "meta_title": "ニュースレターアーカイブ — 毎週のAIインサイト | HonuVibe",
+    "meta_description": "HonuVibeニュースレターの全アーカイブ。起業家やビルダーのための毎週のAIインサイト、ツール、戦略。",
+    "subscribe_heading": "毎週メールでお届けします",
+    "subscribe_sub": "AIをHonuVibeスタイルで学ぶ起業家やビルダーの仲間に。",
+    "subscribe_button": "登録する",
+    "subscribe_placeholder": "your@email.com",
+    "issue_label": "第{number}号",
+    "published_label": "{date}配信",
+    "reading_time": "読了時間 {minutes}分",
+    "read_issue": "読む",
+    "prev_issue": "← 前の号",
+    "next_issue": "次の号 →",
+    "back_to_archive": "← アーカイブに戻る",
+    "view_on_beehiiv": "メール版を見る",
+    "related_posts": "関連記事",
+    "related_courses": "関連コース",
+    "share_heading": "この号をシェア",
+    "cta_heading": "この内容、気に入りましたか？",
+    "cta_sub": "ニュースレターはまだ入口です。コースではさらに深く学べます。",
+    "cta_button": "コースを見る",
+    "empty_state": "最初の号がもうすぐ届きます。通知を受け取るには登録してください。",
+    "footer_link": "ニュースレター"
   },
   "social_proof": {
     "overline": "コミュニティの声",
@@ -644,7 +668,8 @@
     "terms": "利用規約",
     "cookies": "クッキーに関するお知らせ",
     "connect_title": "つながる",
-    "glossary_link": "AI用語辞典"
+    "glossary_link": "AI用語辞典",
+    "newsletter_link": "ニュースレター"
   },
   "auth": {
     "sign_in": "ログイン",

@@ -124,3 +124,46 @@ export type GlossaryTerm = GlossaryTermSummary & {
   relatedBlogSlug?: string;
   relatedLibraryVideoSlug?: string;
 };
+
+// ── Newsletter Archive ───────────────────────────────────────────────────────
+
+/** Full shape returned by newsletterIssueQuery (detail page) */
+export type NewsletterIssue = {
+  title_en: string;
+  title_jp?: string;
+  slug: { current: string };
+  issueNumber: number;
+  excerpt_en: string;
+  excerpt_jp?: string;
+  body_en?: PortableTextBlock[];
+  body_jp?: PortableTextBlock[];
+  publishedAt: string;
+  readingTime_en?: number;
+  readingTime_jp?: number;
+  beehiivUrl?: string;
+  featuredImageUrl?: string;
+  relatedBlogSlugs?: string[];
+  relatedCourseSlugs?: string[];
+};
+
+/** Lightweight shape returned by newsletterIndexQuery (index page only) */
+export type NewsletterIssueSummary = Omit<
+  NewsletterIssue,
+  'body_en' | 'body_jp' | 'beehiivUrl' | 'featuredImageUrl' | 'relatedBlogSlugs' | 'relatedCourseSlugs'
+>;
+
+/** Adjacent issue references for prev/next navigation */
+export type NewsletterAdjacent = {
+  prev?: {
+    title_en: string;
+    title_jp?: string;
+    slug: { current: string };
+    issueNumber: number;
+  };
+  next?: {
+    title_en: string;
+    title_jp?: string;
+    slug: { current: string };
+    issueNumber: number;
+  };
+};

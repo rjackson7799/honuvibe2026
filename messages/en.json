@@ -123,7 +123,31 @@
     "placeholder": "your@email.com",
     "cta": "Subscribe",
     "success": "Welcome aboard! Check your inbox to confirm.",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "title": "The HonuVibe Newsletter",
+    "subtitle": "Weekly AI insights for builders and dreamers. Every issue archived here.",
+    "meta_title": "Newsletter Archive — Weekly AI Insights | HonuVibe",
+    "meta_description": "Browse the complete archive of the HonuVibe newsletter. Weekly AI insights, tools, and strategies for entrepreneurs and builders.",
+    "subscribe_heading": "Get this in your inbox every week",
+    "subscribe_sub": "Join entrepreneurs and builders learning AI the HonuVibe way.",
+    "subscribe_button": "Subscribe",
+    "subscribe_placeholder": "your@email.com",
+    "issue_label": "Issue #{number}",
+    "published_label": "Published {date}",
+    "reading_time": "{minutes} min read",
+    "read_issue": "Read Issue",
+    "prev_issue": "← Previous Issue",
+    "next_issue": "Next Issue →",
+    "back_to_archive": "← Back to Archive",
+    "view_on_beehiiv": "View original email version",
+    "related_posts": "Related Articles",
+    "related_courses": "Related Courses",
+    "share_heading": "Share this issue",
+    "cta_heading": "Like what you're reading?",
+    "cta_sub": "The newsletter is just the surface. Our courses go deep.",
+    "cta_button": "Explore Courses",
+    "empty_state": "The first issue is coming soon. Subscribe to be notified.",
+    "footer_link": "Newsletter"
   },
   "social_proof": {
     "overline": "Community Voices",
@@ -644,7 +668,8 @@
     "terms": "Terms of Service",
     "cookies": "Cookie Notice",
     "connect_title": "Connect",
-    "glossary_link": "AI Glossary"
+    "glossary_link": "AI Glossary",
+    "newsletter_link": "Newsletter"
   },
   "auth": {
     "sign_in": "Sign In",
