@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-02-24
+**Last updated:** 2026-02-23 (Glossary feature complete)
 
 ### Status Legend
 - [ ] Not started
@@ -34,9 +34,9 @@
 - [x] IconButton
 
 ### Layout Components
-- [x] Nav (fixed, glass effect, hamburger on mobile)
+- [x] Nav (fixed, glass effect, hamburger on mobile) — 6 links: HonuHub, Explore, Learn, Resources, About, Contact
 - [x] MobileMenu (full-screen overlay)
-- [x] Footer (compact horizontal layout — brand left, 3 link columns right, wide container)
+- [x] Footer (compact horizontal layout — brand left, 3 link columns right, wide container) — Navigate (HonuHub, Explore, Learn, Community), Resources (Resources, Blog, About, Contact), Legal
 - [x] ThemeToggle (sun/moon, persists to localStorage)
 - [x] LangToggle (EN/JP, persists to cookie)
 - [x] Container, Section wrappers
@@ -122,6 +122,47 @@
 ### Blog (JP)
 - [ ] Begin translating EN blog posts to JP
 - [ ] Target: JP translations within 1–2 weeks of EN publish
+
+---
+
+## Glossary — AI Terminology Feature
+
+### Foundation
+- [x] TypeScript types: `GlossaryCategory`, `GlossaryDifficulty`, `GlossaryTermSummary`, `GlossaryTermRef`, `GlossaryTerm` (`lib/sanity/types.ts`)
+- [x] GROQ queries: `glossaryIndexQuery`, `glossaryTermQuery`, `glossarySlugQuery` (`lib/sanity/queries.ts`)
+- [x] JSON-LD helpers: `generateGlossaryCollectionSchema` (CollectionPage), `generateDefinedTermSchema` (DefinedTerm) (`lib/json-ld.ts`)
+- [x] i18n strings: 32 keys EN + 32 keys JP in `glossary` namespace + footer links (`messages/en.json`, `messages/ja.json`)
+
+### Components (7 new)
+- [x] `DifficultyBadge` — Server component, wraps Tag with difficulty-based color (teal/gold/default)
+- [x] `GlossaryTermCard` — Server component, full-width row link with abbreviation, JP term, definition, badge
+- [x] `GlossarySearch` — Client component, search input + category filter pills, 150ms debounce, analytics events
+- [x] `GlossaryAlphaNav` — Client component, A-Z sticky letter row, IntersectionObserver tracking, disabled inactive letters
+- [x] `RelatedTerms` — Client component, chip row of linked related terms with analytics
+- [x] `GlossaryIndexContent` — Client orchestrator, owns filter state, groups terms by letter, renders all subcomponents
+- [x] `GlossaryTermAnalytics` — Client component, renders null, fires `glossary_term_view` event on mount
+
+### Pages
+- [x] `/glossary` — Index page with ISR 60s, CollectionPage JSON-LD, SectionHeading + GlossaryIndexContent
+- [x] `/glossary/[slug]` — Term detail with ISR 60s, DefinedTerm JSON-LD, generateStaticParams, full bilingual content, Why It Matters + Example callouts, RelatedTerms, Go Deeper links
+
+### Integration
+- [x] Footer: glossary link in RESOURCES column (both locales)
+- [x] Redirects: `/dictionary`, `/ai-glossary` (+ `/ja/` variants) → `/glossary`
+- [x] Sitemap: `/glossary` static route + dynamic term entries (priority 0.6, monthly)
+- [x] `llms.txt`: glossary added to Key Pages + Topics sections
+
+### Tests (26 tests across 5 files)
+- [x] `DifficultyBadge.test.tsx` — 6 tests: label rendering, color mapping per difficulty
+- [x] `GlossaryTermCard.test.tsx` — 8 tests: abbreviation display, full term, JP term, links, badge
+- [x] `GlossarySearch.test.tsx` — 4 tests: search input, category pills, debounced callback, active styling
+- [x] `GlossaryAlphaNav.test.tsx` — 4 tests: 26 letters, disabled/enabled states, muted styling
+- [x] `RelatedTerms.test.tsx` — 4 tests: chip rendering, abbreviation display, empty state, link URLs
+
+### Verification
+- [x] TypeScript: zero errors (`npx tsc --noEmit`)
+- [x] Full test suite: 103/103 passed (26 glossary + 77 existing)
+- [x] Production build: clean, `/glossary` and `/glossary/[slug]` in build output with ISR
 
 ---
 
@@ -280,14 +321,15 @@
 ## Build Summary
 
 ### What's Live
-- **10 public page routes** × 2 locales = **20 pages** (SSG)
+- **12 public page routes** × 2 locales = **24 pages** (SSG) — includes `/glossary` index + `/glossary/[slug]` detail
 - **13 dynamic LMS routes** (learn catalog, course detail, auth, dashboard, course hub, admin dashboard, courses, course detail, upload, students, student detail, applications)
 - **9 API routes**: `/api/newsletter/subscribe`, `/api/apply/submit`, `/api/auth/callback`, `/api/admin/courses/parse`, `/api/admin/courses/create`, `/api/admin/courses/upload-image`, `/api/admin/courses/generate-image`, `/api/stripe/webhook` (skeleton), `/api/stripe/checkout` (skeleton)
 - **Sitemap + robots.txt + llms.txt**
 - **Full design system**: dark/light themes, CSS variables, Tailwind v4 tokens
 - **Ocean interactions**: animated canvas, scroll companion (auth-aware), custom themed scrollbar
-- **Full i18n**: EN + JA translations for all pages including learn namespace (84+ strings)
-- **JSON-LD**: Organization + WebSite structured data
+- **Full i18n**: EN + JA translations for all pages including learn namespace (84+ strings) + glossary namespace (32 keys per locale)
+- **JSON-LD**: Organization + WebSite + CollectionPage (glossary index) + DefinedTerm (glossary terms) structured data
+- **AI Glossary**: bilingual EN/JP terminology reference with search, category filters, A-Z navigation, related terms, SEO-optimized term pages
 - **Supabase Auth**: email/password + Google OAuth, middleware-based session management
 - **Full LMS**: course catalog (hero + level filters), course detail (full-bleed hero header), enrollment, student dashboard, tabbed course hub
 - **Admin panel**: dashboard with stats, course management with session editor, AI-powered course upload, student/application management
@@ -304,6 +346,12 @@
 - **19 learn components** (`components/learn/`)
 - **11 admin components** (`components/admin/`)
 - **3 auth components** (`components/auth/`)
+
+### New File Count (Glossary)
+- **7 glossary components** (`components/glossary/`)
+- **2 page routes** (`app/[locale]/glossary/`, `app/[locale]/glossary/[slug]/`)
+- **5 test files** (`__tests__/components/glossary/`) — 26 tests
+- **Modified**: types, queries, JSON-LD, i18n (EN+JP), footer, redirects, sitemap, llms.txt
 
 ### Tech Stack
 - Next.js 16.1.6 (Turbopack) + React 19.2.3
