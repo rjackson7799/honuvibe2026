@@ -37,6 +37,7 @@ export function Footer() {
               <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('resources_title')}</h4>
               <Link href="/resources" className={linkClass}>{nav('resources')}</Link>
               <Link href="/glossary" className={linkClass}>{t('glossary_link')}</Link>
+              <Link href="/newsletter" className={linkClass}>{t('newsletter_link')}</Link>
               <Link href="/blog" className={linkClass}>{nav('blog')}</Link>
               <Link href="/about" className={linkClass}>{nav('about')}</Link>
               <Link href="/contact" className={linkClass}>{nav('contact')}</Link>

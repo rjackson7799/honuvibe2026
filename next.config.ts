@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
       { source: '/ja/dictionary', destination: '/ja/glossary', permanent: true },
       { source: '/ai-glossary', destination: '/glossary', permanent: true },
       { source: '/ja/ai-glossary', destination: '/ja/glossary', permanent: true },
+      { source: '/emails', destination: '/newsletter', permanent: true },
+      { source: '/ja/emails', destination: '/ja/newsletter', permanent: true },
+      { source: '/archive', destination: '/newsletter', permanent: true },
+      { source: '/ja/archive', destination: '/ja/newsletter', permanent: true },
     ];
   },
   images: {

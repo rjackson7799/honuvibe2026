@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { sanityPublicClient } from '@/lib/sanity/client';
-import { allPostSlugsQuery, glossarySlugQuery } from '@/lib/sanity/queries';
+import { allPostSlugsQuery, glossarySlugQuery, newsletterSlugQuery } from '@/lib/sanity/queries';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://honuvibe.ai';
 
@@ -14,6 +14,7 @@ const routes = [
   '/blog',
   '/resources',
   '/glossary',
+  '/newsletter',
   '/privacy',
   '/terms',
   '/cookies',
@@ -78,6 +79,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     } catch {
       // Sanity not configured or unreachable — skip glossary entries
+    }
+
+    // Dynamic newsletter issues from Sanity
+    try {
+      const newsletterSlugs: { slug: string }[] = await sanityPublicClient.fetch(newsletterSlugQuery);
+      for (const { slug } of newsletterSlugs) {
+        entries.push({
+          url: `${baseUrl}/newsletter/${slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'monthly',
+          priority: 0.7,
+          alternates: {
+            languages: {
+              en: `${baseUrl}/newsletter/${slug}`,
+              ja: `${baseUrl}/ja/newsletter/${slug}`,
+            },
+          },
+        });
+      }
+    } catch {
+      // Sanity not configured or unreachable — skip newsletter entries
     }
   }
 
