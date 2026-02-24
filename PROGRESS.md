@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-02-23 (Glossary feature complete)
+**Last updated:** 2026-02-23 (Newsletter Archive added) (Glossary feature complete)
 
 ### Status Legend
 - [ ] Not started
@@ -267,6 +267,28 @@
 
 ---
 
+## Phase 1.75 — Newsletter Archive
+
+- [x] TypeScript types: `NewsletterIssue`, `NewsletterIssueSummary`, `NewsletterAdjacent` (`lib/sanity/types.ts`)
+- [x] GROQ queries: `newsletterIndexQuery`, `newsletterIssueQuery`, `newsletterAdjacentQuery`, `newsletterSlugQuery` (`lib/sanity/queries.ts`)
+- [x] i18n strings: 25 keys in newsletter + footer namespaces (EN + JP)
+- [x] `/newsletter` — Archive index page (SSG/ISR 60s, CollectionPage JSON-LD)
+- [x] `/newsletter/[slug]` — Individual issue page (SSG/ISR 60s, Article JSON-LD, generateStaticParams)
+- [x] `NewsletterIssueCard` component — issue card for index page
+- [x] `IssueNavigation` component — prev/next issue links
+- [x] `IssueShareButtons` client component — X, LinkedIn, LINE, Copy Link with analytics
+- [x] `NewsletterSubscribeBlock` client component — reuses existing Beehiiv `/api/newsletter/subscribe`
+- [x] Footer: Newsletter link added to Resources column
+- [x] Sitemap: `/newsletter` index + dynamic issue slugs from Sanity
+- [x] Redirects: `/emails`, `/archive` → `/newsletter` (EN + JP)
+- [x] `llms.txt`: Newsletter Archive + Course Catalog URLs added
+- [x] `robots.ts`: `/admin/` added to disallow list
+- [x] Unit tests: 3 test files, 21 tests (NewsletterIssueCard, IssueNavigation, NewsletterSubscribeBlock)
+- [ ] Sanity Studio: deploy `newsletterIssue` schema (manual step)
+- [ ] Content: publish 5+ issues in Sanity Studio (manual step)
+
+---
+
 ## Phase 2B — Content Library (Planned)
 
 - [ ] Content items table + tag system (schema deployed in Stage 1)
@@ -321,15 +343,16 @@
 ## Build Summary
 
 ### What's Live
-- **12 public page routes** × 2 locales = **24 pages** (SSG) — includes `/glossary` index + `/glossary/[slug]` detail
+- **14 public page routes** × 2 locales = **28 pages** (SSG) — includes `/glossary`, `/newsletter` index + detail routes
 - **13 dynamic LMS routes** (learn catalog, course detail, auth, dashboard, course hub, admin dashboard, courses, course detail, upload, students, student detail, applications)
 - **9 API routes**: `/api/newsletter/subscribe`, `/api/apply/submit`, `/api/auth/callback`, `/api/admin/courses/parse`, `/api/admin/courses/create`, `/api/admin/courses/upload-image`, `/api/admin/courses/generate-image`, `/api/stripe/webhook` (skeleton), `/api/stripe/checkout` (skeleton)
 - **Sitemap + robots.txt + llms.txt**
 - **Full design system**: dark/light themes, CSS variables, Tailwind v4 tokens
 - **Ocean interactions**: animated canvas, scroll companion (auth-aware), custom themed scrollbar
-- **Full i18n**: EN + JA translations for all pages including learn namespace (84+ strings) + glossary namespace (32 keys per locale)
-- **JSON-LD**: Organization + WebSite + CollectionPage (glossary index) + DefinedTerm (glossary terms) structured data
+- **Full i18n**: EN + JA translations for all pages including learn namespace (84+ strings) + glossary (32 keys) + newsletter archive (25 keys) per locale
+- **JSON-LD**: Organization + WebSite + CollectionPage (glossary, newsletter) + DefinedTerm (glossary) + Article (newsletter issues) structured data
 - **AI Glossary**: bilingual EN/JP terminology reference with search, category filters, A-Z navigation, related terms, SEO-optimized term pages
+- **Newsletter Archive**: bilingual EN/JP newsletter archive with issue pages, share buttons, prev/next navigation, subscribe blocks, course CTAs
 - **Supabase Auth**: email/password + Google OAuth, middleware-based session management
 - **Full LMS**: course catalog (hero + level filters), course detail (full-bleed hero header), enrollment, student dashboard, tabbed course hub
 - **Admin panel**: dashboard with stats, course management with session editor, AI-powered course upload, student/application management
@@ -352,6 +375,12 @@
 - **2 page routes** (`app/[locale]/glossary/`, `app/[locale]/glossary/[slug]/`)
 - **5 test files** (`__tests__/components/glossary/`) — 26 tests
 - **Modified**: types, queries, JSON-LD, i18n (EN+JP), footer, redirects, sitemap, llms.txt
+
+### New File Count (Newsletter Archive)
+- **4 newsletter components** (`components/newsletter/`)
+- **2 page routes** (`app/[locale]/newsletter/`, `app/[locale]/newsletter/[slug]/`)
+- **3 test files** (`__tests__/components/newsletter/`) — 21 tests
+- **Modified**: types, queries, i18n (EN+JP), footer, redirects, sitemap, llms.txt, robots.ts
 
 ### Tech Stack
 - Next.js 16.1.6 (Turbopack) + React 19.2.3
