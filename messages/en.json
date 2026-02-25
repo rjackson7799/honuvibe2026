@@ -8,6 +8,7 @@
     "community": "Community",
     "about": "About",
     "resources": "Resources",
+    "library": "Library",
     "contact": "Contact",
     "sign_in": "Sign In",
     "dashboard": "Dashboard",
@@ -176,7 +177,17 @@
       "overline": "The Space",
       "heading": "HonuHub Waikiki",
       "sub": "A dedicated learning space in the heart of Waikiki — where AI education meets island inspiration.",
-      "cta": "Book a Session"
+      "opening_badge": "Opening April 3, 2026",
+      "location": "Waikiki, Honolulu, Hawaii",
+      "cta": "Update Me on the Hub",
+      "notify_modal": {
+        "heading": "Stay Current",
+        "description": "Get notified about HonuHub's grand opening, first sessions, and founding member perks.",
+        "placeholder": "your@email.com",
+        "cta": "Notify Me",
+        "success": "You're on the list! We'll be in touch soon.",
+        "error": "Something went wrong. Please try again."
+      }
     },
     "about": {
       "overline": "What is HonuHub?",
@@ -204,16 +215,48 @@
       "overline": "Upcoming Sessions",
       "heading": "What's Happening at HonuHub",
       "sub": "Browse upcoming in-person and remote sessions. All sessions are recorded for later access.",
-      "coming_soon": "New sessions are being planned. Check back soon or subscribe to our newsletter for updates.",
-      "book": "Book Now",
-      "remote_ticket": "Remote Ticket",
-      "all_courses": "View Full Course Catalog"
+      "all_courses": "View Full Course Catalog",
+      "events": {
+        "grand_opening": {
+          "date": "April 3, 2026",
+          "title": "Grand Opening Week",
+          "description": "Join us for HonuHub's inaugural week. Tours, demos, and complimentary workshops to kick things off.",
+          "type": "In-Person",
+          "time": "10:00 AM – 4:00 PM HST"
+        },
+        "ai_workshop": {
+          "date": "April 10, 2026",
+          "title": "Intro to AI for Business",
+          "description": "A hands-on workshop covering practical AI tools you can start using in your business today.",
+          "type": "In-Person + Remote",
+          "time": "1:00 PM – 3:00 PM HST"
+        },
+        "community_meetup": {
+          "date": "April 17, 2026",
+          "title": "HonuVibe Community Meetup",
+          "description": "Connect with fellow builders and AI enthusiasts. Casual networking, show-and-tell, and island vibes.",
+          "type": "In-Person",
+          "time": "5:00 PM – 7:00 PM HST"
+        },
+        "corporate_intro": {
+          "date": "April 24, 2026",
+          "title": "Corporate AI Strategy Session",
+          "description": "An executive briefing on AI adoption strategies for Hawaii-based and Asia-Pacific businesses.",
+          "type": "In-Person + Remote",
+          "time": "10:00 AM – 12:00 PM HST"
+        }
+      }
     },
     "remote": {
       "overline": "Learn from Anywhere",
       "heading": "Remote Access to HonuHub",
       "description": "Can't make it to Waikiki? No problem. All HonuHub sessions are streamed live with full interaction — Q&A, polls, and breakout rooms. Plus, every session is recorded so you can watch on your schedule.",
-      "cta": "Browse Courses"
+      "cta": "Browse Courses",
+      "features": {
+        "streaming": "Live streaming with full interaction",
+        "recording": "All sessions recorded for later viewing",
+        "interactive": "Q&A, polls, and breakout rooms"
+      }
     },
     "membership": {
       "overline": "Membership",
@@ -276,7 +319,90 @@
     "hero": {
       "overline": "Our Work",
       "heading": "Explore",
-      "sub": "Real projects. Real outcomes. Explore what the HonuVibe community has built across five territories of innovation."
+      "sub": "Real projects. Real outcomes. Explore what the HonuVibe community has built across five territories of innovation.",
+      "cta": "Work with Us"
+    },
+    "lead_form": {
+      "heading": "Work with Us",
+      "sub": "Tell us about your project and we'll be in touch.",
+      "name": "Name",
+      "email": "Email",
+      "company": "Company (optional)",
+      "message": "Brief project description",
+      "submit": "Send Inquiry",
+      "success": "Thanks! We'll be in touch soon.",
+      "error": "Something went wrong. Please try again."
+    },
+    "featured_build": {
+      "overline": "Featured Build",
+      "heading": "KwameBrathwaite.com",
+      "sub": "A photography archive gets a modern makeover",
+      "problem": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
+      "description": "Using Claude, Cursor, and a modern AI-powered workflow, we're rebuilding KwameBrathwaite.com from the ground up. The new site preserves the archive's cultural significance while driving real business outcomes — sales, licensing inquiries, and brand partnerships.",
+      "outcome": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
+      "outcome_stats": {
+        "stat_1": { "value": "3x", "label": "Faster Load Time" },
+        "stat_2": { "value": "Mobile-First", "label": "Responsive Design" },
+        "stat_3": { "value": "AI-Powered", "label": "Modern Workflow" }
+      },
+      "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
+      "challenge_label": "The Challenge",
+      "carousel_label": "Project Screenshots",
+      "slide_alt_1": "KwameBrathwaite.com homepage redesign",
+      "slide_alt_2": "Photo archive gallery view",
+      "slide_alt_3": "Mobile responsive layout",
+      "status": "In Development"
+    },
+    "tech_stack": {
+      "overline": "Our Toolkit",
+      "heading": "Technologies We Work With",
+      "sub": "Modern tools and frameworks for building fast, scalable, and intelligent applications.",
+      "items": {
+        "nextjs": "Next.js",
+        "react": "React",
+        "typescript": "TypeScript",
+        "tailwind": "Tailwind CSS",
+        "supabase": "Supabase",
+        "stripe": "Stripe",
+        "openai": "OpenAI",
+        "nodejs": "Node.js",
+        "vercel": "Vercel",
+        "figma": "Figma",
+        "claude": "Claude AI",
+        "cursor": "Cursor"
+      }
+    },
+    "process": {
+      "overline": "How We Work",
+      "heading": "From Idea to Launch",
+      "sub": "A proven process refined across dozens of projects.",
+      "steps": {
+        "discovery": {
+          "title": "Discovery",
+          "description": "We listen, research, and define the problem. Understanding your goals, audience, and constraints shapes everything that follows."
+        },
+        "design": {
+          "title": "Design",
+          "description": "Wireframes, prototypes, and visual direction. We design for conversion, accessibility, and brand alignment before writing a line of code."
+        },
+        "build": {
+          "title": "Build",
+          "description": "AI-accelerated development using modern frameworks. We ship fast without cutting corners on quality or performance."
+        },
+        "launch": {
+          "title": "Launch",
+          "description": "Deployment, testing, and optimization. We ensure your project is fast, secure, and ready for real users from day one."
+        },
+        "support": {
+          "title": "Support",
+          "description": "Ongoing maintenance, analytics review, and iteration. We stay engaged to help you grow and adapt."
+        }
+      }
+    },
+    "territory_grid": {
+      "overline": "Territories",
+      "heading": "Five Areas of Innovation",
+      "sub": "From web design to pro-bono work, we build across the full spectrum."
     },
     "territories": {
       "web": {
@@ -360,30 +486,75 @@
   },
   "about_page": {
     "hero": {
+      "overline": "About Us",
+      "heading": "A Whole New Vibe for AI",
+      "sub": "HonuVibe bridges Hawaii and Japan to make AI education approachable, actionable, and community-driven."
+    },
+    "mission": {
+      "overline": "Our Purpose",
+      "heading": "Mission & Vision",
+      "description": "We believe AI should amplify human potential, not replace it. HonuVibe exists to close the gap between cutting-edge AI and the people who can benefit from it most.",
+      "mission_title": "Our Mission",
+      "mission_text": "To make cutting-edge AI education approachable, actionable, and community-driven — for Hawaii's local business community, ambitious entrepreneurs across the US, and Japanese students eager to access emerging AI technologies from the source.",
+      "vision_title": "Our Vision",
+      "vision_text": "A world where every entrepreneur, regardless of technical background or geography, has the tools and community they need to build with AI. From Waikiki to Tokyo, we're creating a new standard for practitioner-focused education."
+    },
+    "aloha_standard": {
+      "overline": "Our Values",
+      "heading": "The Aloha Standard",
+      "sub": "Aloha is not a marketing tagline — it is the actual operating standard for how HonuVibe shows up in every interaction.",
+      "principles": {
+        "give_generously": {
+          "title": "Give Generously",
+          "description": "Free content, free community access, transparent information. We trust that generosity compounds."
+        },
+        "pro_bono": {
+          "title": "Pro-Bono Is Real Work",
+          "description": "When a nonprofit or community organization comes to HonuVibe, they receive the same quality of attention as any paying client."
+        },
+        "celebrate_community": {
+          "title": "Celebrate the Community",
+          "description": "Member wins — launched apps, grown businesses, shipped projects — are HonuVibe moments. We make space for those stories."
+        },
+        "never_fear": {
+          "title": "Never Fear-Based",
+          "description": "We don't use urgency tactics or 'AI is coming for your job' framing. Ever. We lead with curiosity, not anxiety."
+        }
+      }
+    },
+    "competencies": {
+      "overline": "What We Do",
+      "heading": "Core Competencies",
+      "sub": "From rapid prototyping to full curriculum development, HonuVibe brings practitioner expertise to every engagement.",
+      "items": {
+        "prototyping": {
+          "title": "AI Prototyping",
+          "description": "Rapid AI prototype building and product development. From concept to working demo in days, not months."
+        },
+        "micro_saas": {
+          "title": "Micro-SaaS Design",
+          "description": "Design and deploy focused SaaS products that solve real problems. Purpose-built, lean, and revenue-ready."
+        },
+        "integration": {
+          "title": "AI Integration",
+          "description": "Integrate AI into existing organizations and workflows. We meet businesses where they are and build from there."
+        },
+        "education": {
+          "title": "AI Education",
+          "description": "Training, curriculum development, and community-driven learning. Bilingual EN/JP education designed by practitioners."
+        }
+      },
+      "cta_heading": "Selective by Design",
+      "cta_description": "We take on a small number of passion projects and high-impact engagements each year. If you want to work together, we'd love to hear from you.",
+      "cta_button": "Get in Touch"
+    },
+    "founder": {
       "overline": "The Founder",
       "heading": "Ryan Jackson",
       "role": "Founder & AI Educator",
-      "location": "Honolulu, Hawaii"
-    },
-    "story": {
-      "overline": "The Story",
-      "heading": "From Hawaii to AI",
-      "paragraphs": {
-        "p1": "Born and raised in Hawaii, I grew up surrounded by a culture that values community, connection, and giving back. Those values shaped everything I do today — including how I approach AI education.",
-        "p2": "After years of building AI products and leading engineering teams, I realized something was missing from the education landscape: practical, human-centered AI learning that bridges cultures and empowers entrepreneurs.",
-        "p3": "HonuVibe was born from that gap. It's my mission to make cutting-edge AI education approachable and actionable — for everyone from Honolulu to Tokyo."
-      }
-    },
-    "philosophy": {
-      "overline": "Philosophy",
-      "quote": "Leveraging AI to foster entrepreneurship, learning, and better business practices.",
-      "description": "I believe AI should amplify human potential, not replace it. Every course, project, and community interaction at HonuVibe is designed with this principle at its core."
-    },
-    "work": {
-      "overline": "Working with Ryan",
-      "heading": "Selective by Design",
-      "description": "I take on a small number of passion projects and high-impact engagements each year. If you want to work together, I'd love to hear from you.",
-      "cta": "Get in Touch"
+      "location": "Honolulu, Hawaii",
+      "bio_p1": "Born and raised in Hawaii, Ryan grew up surrounded by a culture that values community, connection, and giving back. After years of building AI products and leading engineering teams, he realized something was missing from the education landscape: practical, human-centered AI learning that bridges cultures and empowers entrepreneurs.",
+      "bio_p2": "HonuVibe was born from that gap — a platform dedicated to making cutting-edge AI education approachable and actionable for everyone from Honolulu to Tokyo."
     },
     "social": {
       "overline": "Connect",
@@ -492,6 +663,10 @@
       "success_heading": "Message Sent",
       "success_message": "Thank you for reaching out. We'll get back to you within 2–3 business days.",
       "error": "Something went wrong. Please try again."
+    },
+    "social": {
+      "overline": "Connect With Us",
+      "heading": "Follow Along"
     }
   },
   "privacy_page": {
@@ -688,6 +863,7 @@
   "learn": {
     "catalog_title": "Learn",
     "catalog_subtitle": "Courses designed to move you from curious to capable.",
+    "library_cta": "Looking for quick tutorials? Browse the Library",
     "enroll_now": "Enroll Now",
     "spots_left": "{count} spots left",
     "cohort_full": "Cohort Full — Join Waitlist",
@@ -765,7 +941,34 @@
     "catalog_overline": "AI EDUCATION",
     "all_levels": "All Levels",
     "showing_courses": "Showing {count} courses",
-    "breadcrumb_learn": "Learn"
+    "breadcrumb_learn": "Learn",
+    "paths": {
+      "overline": "CHOOSE YOUR PATH",
+      "heading": "3 Ways to Learn",
+      "sub": "Whether you want live guidance, self-paced depth, or free exploration — there's a path for you.",
+      "courses": {
+        "title": "Courses",
+        "description": "Teacher-led, cohort-based classes with live Zoom sessions, hands-on projects, and full access to the Vault and Library.",
+        "price": "Per session · Live + recorded",
+        "cta": "Browse Courses"
+      },
+      "vault": {
+        "title": "The Vault",
+        "badge": "Coming Soon",
+        "description": "Premium 10-minute self-study videos crafted by Ryan. Deep-dive walkthroughs, build-alongs, and behind-the-scenes breakdowns — on your schedule.",
+        "price": "Monthly subscription",
+        "cta": "Notify Me",
+        "placeholder": "your@email.com",
+        "success": "You're on the list! We'll let you know when The Vault opens.",
+        "error": "Something went wrong. Please try again."
+      },
+      "library": {
+        "title": "Library",
+        "description": "A free, curated collection of the best AI tutorials and project walkthroughs from across the web. Start learning right now.",
+        "price": "Free",
+        "cta": "Explore Library"
+      }
+    }
   },
   "resources_page": {
     "title": "Ryan's Toolkit",
@@ -798,6 +1001,7 @@
     "nav_courses": "My Courses",
     "nav_schedule": "Schedule",
     "nav_resources": "Resources",
+    "nav_my_library": "My Library",
     "nav_community": "Community",
     "nav_settings": "Settings",
     "heading_overview": "Dashboard",
@@ -910,5 +1114,92 @@
     "cta_button": "Explore Courses",
     "term_count": "{count} terms",
     "footer_link": "AI Glossary"
+  },
+  "library": {
+    "title": "The HonuVibe Library",
+    "subtitle": "Quick tutorials. Real skills. No fluff.",
+    "meta_title": "AI Tutorial Library — Quick-Learn Videos | HonuVibe",
+    "meta_description": "Short, practical AI tutorials you can finish in under 10 minutes. Learn Cursor, Claude, automation, image generation, and more.",
+    "search_placeholder": "Search tutorials...",
+    "filter_all": "All",
+    "filter_ai_basics": "AI Basics",
+    "filter_coding_tools": "Coding Tools",
+    "filter_business_automation": "Business Automation",
+    "filter_image_video": "Image & Video",
+    "filter_productivity": "Productivity",
+    "filter_getting_started": "Getting Started",
+    "duration_label": "{minutes} min",
+    "open_badge": "Free",
+    "account_badge": "Free Account",
+    "watch_video": "Watch",
+    "favorited": "Favorited",
+    "favorite": "Favorite",
+    "viewed": "Viewed",
+    "featured_label": "Featured",
+    "related_videos": "Related Tutorials",
+    "related_course": "Want to go deeper?",
+    "related_resource": "Tool Featured",
+    "related_glossary": "Terms Explained",
+    "auth_gate_heading": "Create a free account to watch",
+    "auth_gate_sub": "Get access to the full tutorial library, save favorites, and track your progress.",
+    "auth_gate_button": "Sign Up Free",
+    "auth_gate_login": "Already have an account? Log in",
+    "cta_heading": "Ready to go beyond tutorials?",
+    "cta_sub": "Our courses give you the full system — not just the quick wins.",
+    "cta_button": "Explore Courses",
+    "empty_state": "No tutorials match that filter. Try a different category.",
+    "my_library": "My Library",
+    "my_favorites": "Favorites",
+    "my_recent": "Recently Watched",
+    "my_library_empty": "You haven't watched or favorited any tutorials yet. Start exploring!",
+    "continue_watching": "Continue Watching",
+    "back_to_library": "Back to Library",
+    "overline": "LIBRARY"
+  },
+  "admin_library": {
+    "title": "Library Videos",
+    "add_video": "Add Video",
+    "new_video": "New Video",
+    "back_to_library": "Back to Library",
+    "tab_details": "Details",
+    "tab_preview": "Preview",
+    "core_info": "Core Info",
+    "video_content": "Video Content",
+    "classification": "Classification",
+    "relations": "Relations",
+    "field_slug": "Slug",
+    "field_title_en": "Title (EN)",
+    "field_title_jp": "Title (JP)",
+    "field_description_en": "Description (EN)",
+    "field_description_jp": "Description (JP)",
+    "field_video_url": "Video URL",
+    "field_duration": "Duration (seconds)",
+    "field_thumbnail": "Thumbnail",
+    "field_category": "Category",
+    "field_difficulty": "Difficulty",
+    "field_language": "Language",
+    "field_access_tier": "Access Tier",
+    "field_sort_order": "Sort Order",
+    "field_featured": "Featured",
+    "field_related_course": "Related Course",
+    "field_related_resource": "Related Resource Slug",
+    "field_related_glossary": "Related Glossary Slugs",
+    "field_tags": "Tags",
+    "save_changes": "Save Changes",
+    "create_video": "Create Video",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "delete": "Delete",
+    "delete_confirm": "Are you sure you want to delete this video? This action cannot be undone.",
+    "save_success": "Saved successfully",
+    "save_first": "Save the video first, then upload a thumbnail.",
+    "filter_all": "All",
+    "filter_published": "Published",
+    "filter_draft": "Draft",
+    "filter_featured": "Featured",
+    "empty_list": "No library videos found.",
+    "none": "None",
+    "video_preview": "Video Preview",
+    "open_in_tab": "Open video URL in new tab"
   }
 }

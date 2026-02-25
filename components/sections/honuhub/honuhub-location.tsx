@@ -21,8 +21,22 @@ export function HonuHubLocation() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormState('loading');
-    // Placeholder — will wire to API later
-    setTimeout(() => setFormState('success'), 1000);
+
+    try {
+      const res = await fetch('/api/honuhub/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setFormState('success');
+      } else {
+        setFormState('error');
+      }
+    } catch {
+      setFormState('error');
+    }
   };
 
   return (

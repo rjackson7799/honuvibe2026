@@ -48,6 +48,7 @@ export function MobileMenu({ open, onClose, links, userMenuLabels }: MobileMenuP
   return (
     <div
       className={cn(
+        'dark-zone',
         'fixed inset-0 z-[300] bg-bg-primary',
         'flex flex-col transition-all duration-[var(--duration-slow)]',
         open ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none',

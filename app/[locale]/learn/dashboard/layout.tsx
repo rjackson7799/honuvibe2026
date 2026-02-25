@@ -1,5 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import { AuthGuard } from '@/components/auth/AuthGuard';
+import { StudentDashboardLayout } from '@/components/learn/StudentDashboardLayout';
 
 type Props = {
   children: React.ReactNode;
@@ -12,7 +13,9 @@ export default async function DashboardLayout({ children, params }: Props) {
 
   return (
     <AuthGuard locale={locale}>
-      {children}
+      <StudentDashboardLayout>
+        {children}
+      </StudentDashboardLayout>
     </AuthGuard>
   );
 }

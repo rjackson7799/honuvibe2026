@@ -6,7 +6,6 @@ import {
   HonuHubSessions,
   HonuHubRemote,
   HonuHubMembership,
-  HonuHubFuture,
   HonuHubLocation,
 } from '@/components/sections/honuhub';
 
@@ -26,7 +25,6 @@ export default async function HonuHubPage({ params }: Props) {
       <HonuHubSessions />
       <HonuHubRemote />
       <HonuHubMembership />
-      <HonuHubFuture />
       <HonuHubLocation />
     </>
   );

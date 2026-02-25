@@ -94,7 +94,7 @@ export async function HeroSection() {
   const t = await getTranslations('hero');
 
   return (
-    <section className="relative flex min-h-[100svh] items-center overflow-hidden -mt-14 md:-mt-16">
+    <section className="dark-zone relative flex min-h-[100svh] items-center overflow-hidden -mt-14 md:-mt-16">
       <HeroBackground />
 
       {/* Glow orbs — above canvas, below content */}

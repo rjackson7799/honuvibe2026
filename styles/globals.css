@@ -158,6 +158,70 @@
 }
 
 /* ============================================
+   ALWAYS-DARK ZONES (nav, hero, footer, newsletter)
+   Forces dark-mode variables inside .dark-zone
+   when light mode is active.
+   ============================================ */
+
+[data-theme="light"] .dark-zone {
+  --bg-primary: #080c18;
+  --bg-secondary: #0d1220;
+  --bg-tertiary: #131a2e;
+  --bg-glass: rgba(8, 12, 24, 0.85);
+
+  --fg-primary: rgba(255, 255, 255, 0.92);
+  --fg-secondary: rgba(255, 255, 255, 0.55);
+  --fg-tertiary: rgba(255, 255, 255, 0.35);
+  --fg-muted: rgba(255, 255, 255, 0.15);
+
+  --accent-teal: #5eaaa8;
+  --accent-teal-hover: #4d9997;
+  --accent-teal-subtle: rgba(94, 170, 168, 0.12);
+  --accent-gold: #b68d40;
+  --accent-gold-hover: #a47d38;
+  --accent-gold-subtle: rgba(182, 141, 64, 0.12);
+
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --border-secondary: rgba(255, 255, 255, 0.04);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  --border-accent: rgba(94, 170, 168, 0.3);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-accent: 0 8px 24px rgba(94, 170, 168, 0.2);
+
+  --glow-teal: rgba(94, 170, 168, 0.15);
+  --glow-teal-strong: rgba(94, 170, 168, 0.25);
+  --glow-gold: rgba(182, 141, 64, 0.12);
+  --glow-purple: rgba(139, 126, 200, 0.10);
+
+  --glass-bg: rgba(13, 18, 32, 0.60);
+  --glass-border: rgba(94, 170, 168, 0.15);
+  --glass-border-hover: rgba(94, 170, 168, 0.35);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(94, 170, 168, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  --btn-gradient-from: #6ec5c3;
+  --btn-gradient-to: #4a9694;
+  --btn-glow: 0 0 20px rgba(94, 170, 168, 0.4), 0 0 40px rgba(94, 170, 168, 0.15);
+  --btn-glow-hover: 0 0 24px rgba(94, 170, 168, 0.5), 0 0 48px rgba(94, 170, 168, 0.2);
+
+  --glow-line: linear-gradient(90deg, transparent, rgba(94, 170, 168, 0.2), transparent);
+
+  --ocean-surface: rgb(8, 24, 48);
+  --ocean-deep: rgb(4, 12, 28);
+  --ocean-caustic: rgba(120, 180, 200, 0.015);
+  --ocean-wave: rgba(255, 255, 255, 0.025);
+  --ocean-particle: rgba(180, 210, 220, 0.08);
+}
+
+/* Smooth dark→light transition bridge after hero */
+[data-theme="light"] .light-zone-fade {
+  background: linear-gradient(to bottom, #080c18, var(--bg-primary) 120px);
+}
+
+/* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */
 
@@ -237,14 +301,14 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--fg-primary);
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ============================================

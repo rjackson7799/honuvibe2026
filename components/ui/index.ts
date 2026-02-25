@@ -8,3 +8,4 @@ export { Overline } from './overline';
 export { SectionHeading } from './section-heading';
 export { Divider } from './divider';
 export { IconButton } from './icon-button';
+export { Modal } from './modal';

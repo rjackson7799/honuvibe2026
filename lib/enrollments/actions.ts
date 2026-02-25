@@ -56,6 +56,59 @@ export async function simulatedEnroll(courseId: string, locale: string) {
     .update({ current_enrollment: course.current_enrollment + 1 })
     .eq('id', courseId);
 
+  // Send enrollment confirmation emails (fire-and-forget)
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('full_name, email, locale_preference')
+    .eq('id', user.id)
+    .single();
+
+  if (userProfile?.email) {
+    const { data: courseForEmail } = await supabase
+      .from('courses')
+      .select('title_en, title_jp, course_type, start_date, price_usd, price_jpy')
+      .eq('id', courseId)
+      .single();
+
+    if (courseForEmail) {
+      const emailLocale = (locale === 'ja' ? 'ja' : 'en') as 'en' | 'ja';
+      const courseTitle =
+        emailLocale === 'ja'
+          ? (courseForEmail.title_jp ?? courseForEmail.title_en)
+          : courseForEmail.title_en;
+
+      const { sendEnrollmentConfirmation, sendEnrollmentAdminNotification } =
+        await import('@/lib/email/send');
+
+      void Promise.all([
+        sendEnrollmentConfirmation({
+          locale: emailLocale,
+          studentName: userProfile.full_name ?? 'Student',
+          studentEmail: userProfile.email,
+          courseTitle,
+          courseSlug: course.slug,
+          courseType: (courseForEmail.course_type ?? 'self-study') as 'cohort' | 'self-study',
+          startDate: courseForEmail.start_date,
+          amountPaid: 0,
+          currency: (locale === 'ja' ? 'jpy' : 'usd') as 'usd' | 'jpy',
+          isManualEnroll: false,
+        }),
+        sendEnrollmentAdminNotification({
+          locale: emailLocale,
+          studentName: userProfile.full_name ?? 'Student',
+          studentEmail: userProfile.email,
+          courseTitle,
+          courseSlug: course.slug,
+          courseType: (courseForEmail.course_type ?? 'self-study') as 'cohort' | 'self-study',
+          startDate: courseForEmail.start_date,
+          amountPaid: 0,
+          currency: (locale === 'ja' ? 'jpy' : 'usd') as 'usd' | 'jpy',
+          isManualEnroll: false,
+        }),
+      ]);
+    }
+  }
+
   revalidatePath('/learn');
   revalidatePath('/learn/dashboard');
 

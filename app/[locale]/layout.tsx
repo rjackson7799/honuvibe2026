@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
-import { NextIntlClientProvider } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
-import { hasLocale } from 'next-intl';
+import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { setRequestLocale, getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { Analytics } from '@vercel/analytics/next';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { dmSans, dmSerif, jetbrainsMono, notoSansJP } from '@/app/fonts';
 import { Nav } from '@/components/layout/nav';
-import { Footer } from '@/components/layout/footer';
+import { ConditionalFooter } from '@/components/layout/conditional-footer';
 import { HonuCompanion } from '@/components/ocean/honu-companion';
 
 import { generateOrganizationSchema, generateWebsiteSchema } from '@/lib/json-ld';
@@ -54,6 +53,7 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
 
+  const messages = await getMessages();
   const orgSchema = generateOrganizationSchema();
   const siteSchema = generateWebsiteSchema();
 
@@ -82,13 +82,13 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body className="antialiased">
         <ThemeProvider>
-          <NextIntlClientProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
             <Nav />
             <HonuCompanion />
             <main className="min-h-screen pt-14 md:pt-16">
               {children}
             </main>
-            <Footer />
+            <ConditionalFooter />
           </NextIntlClientProvider>
         </ThemeProvider>
         <Analytics />

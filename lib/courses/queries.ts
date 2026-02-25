@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getInstructorForCourse } from '@/lib/instructors/queries';
 import type {
   Course,
   CourseWithCurriculum,
@@ -97,7 +98,12 @@ export async function getCourseWithCurriculum(
     resources: resources.filter((r) => r.week_id === week.id),
   }));
 
-  return { ...course, weeks: weeksWithContent };
+  // Fetch instructor profile if assigned
+  const instructor = course.instructor_id
+    ? await getInstructorForCourse(course.instructor_id)
+    : null;
+
+  return { ...course, weeks: weeksWithContent, instructor };
 }
 
 // Admin queries (bypass RLS via service role or admin session)
@@ -172,5 +178,10 @@ export async function getAdminCourseById(
     resources: (resourcesRes.data ?? []).filter((r) => r.week_id === week.id),
   }));
 
-  return { ...course, weeks: weeksWithContent };
+  // Fetch instructor profile if assigned
+  const instructor = course.instructor_id
+    ? await getInstructorForCourse(course.instructor_id)
+    : null;
+
+  return { ...course, weeks: weeksWithContent, instructor };
 }

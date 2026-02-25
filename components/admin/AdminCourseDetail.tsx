@@ -10,16 +10,51 @@ import { SessionEditor } from './SessionEditor';
 import { ManualEnrollForm } from './ManualEnrollForm';
 import { publishCourse, unpublishCourse, archiveCourse, updateCourse } from '@/lib/courses/actions';
 import { CourseImageUploader } from './course-image-uploader';
+import { InstructorAssignControl } from './InstructorAssignControl';
 import type { CourseWithCurriculum } from '@/lib/courses/types';
+
+type InstructorOption = {
+  id: string;
+  display_name: string;
+  photo_url: string | null;
+};
 
 type AdminCourseDetailProps = {
   course: CourseWithCurriculum;
+  instructors?: InstructorOption[];
 };
 
-export function AdminCourseDetail({ course }: AdminCourseDetailProps) {
+export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetailProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [actionLoading, setActionLoading] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translateResult, setTranslateResult] = useState<{ success?: boolean; error?: string } | null>(null);
+
+  const hasJpTranslations = !!course.title_jp;
+
+  async function handleTranslate() {
+    setTranslating(true);
+    setTranslateResult(null);
+    try {
+      const res = await fetch('/api/admin/courses/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId: course.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setTranslateResult({ error: data.error || 'Translation failed' });
+      } else {
+        setTranslateResult({ success: true });
+        router.refresh();
+      }
+    } catch {
+      setTranslateResult({ error: 'Network error' });
+    } finally {
+      setTranslating(false);
+    }
+  }
 
   const tabs = [
     { key: 'overview', label: 'Overview' },
@@ -77,24 +112,44 @@ export function AdminCourseDetail({ course }: AdminCourseDetailProps) {
             {course.course_id_code} · {course.current_enrollment}/{course.max_enrollment ?? '∞'} enrolled
           </p>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <Button
-            variant={course.is_published ? 'ghost' : 'primary'}
-            size="sm"
-            onClick={handlePublish}
-            disabled={actionLoading}
-          >
-            {course.is_published ? 'Unpublish' : 'Publish'}
-          </Button>
-          {course.status !== 'archived' && (
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="flex gap-2">
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleArchive}
+              onClick={handleTranslate}
+              disabled={translating || actionLoading}
+            >
+              {translating ? 'Translating…' : hasJpTranslations ? 'Regenerate JP' : 'Generate JP Translations'}
+            </Button>
+            <Button
+              variant={course.is_published ? 'ghost' : 'primary'}
+              size="sm"
+              onClick={handlePublish}
               disabled={actionLoading}
             >
-              Archive
+              {course.is_published ? 'Unpublish' : 'Publish'}
             </Button>
+            {course.status !== 'archived' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleArchive}
+                disabled={actionLoading}
+              >
+                Archive
+              </Button>
+            )}
+          </div>
+          {translateResult?.success && (
+            <span className="text-xs text-accent-teal">
+              Japanese translations generated successfully.
+            </span>
+          )}
+          {translateResult?.error && (
+            <span className="text-xs text-red-400">
+              Error: {translateResult.error}
+            </span>
           )}
         </div>
       </div>
@@ -142,6 +197,14 @@ export function AdminCourseDetail({ course }: AdminCourseDetailProps) {
             </div>
           </div>
 
+          {/* Instructor Assignment */}
+          <InstructorAssignControl
+            courseId={course.id}
+            currentInstructorId={course.instructor_id}
+            currentInstructorName={course.instructor_name}
+            instructors={instructors}
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <InfoField label="Level" value={course.level ?? '—'} />
             <InfoField label="Language" value={course.language} />
@@ -161,7 +224,7 @@ export function AdminCourseDetail({ course }: AdminCourseDetailProps) {
                   })
                 : '—'}
             />
-            <InfoField label="Instructor" value={course.instructor_name ?? '—'} />
+            <InfoField label="Instructor" value={course.instructor?.display_name ?? course.instructor_name ?? '—'} />
             <InfoField label="Community" value={course.community_platform ?? '—'} />
             <InfoField label="Max Enrollment" value={course.max_enrollment?.toString() ?? 'Unlimited'} />
           </div>

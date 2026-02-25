@@ -135,6 +135,77 @@ export function generateGlossaryCollectionSchema(opts: {
   };
 }
 
+export function generateLibraryCollectionSchema(opts: {
+  title: string;
+  description: string;
+  locale: string;
+}) {
+  const localePath = opts.locale === 'ja' ? '/ja' : '';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: opts.title,
+    description: opts.description,
+    url: `${baseUrl}${localePath}/learn/library`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'HonuVibe.AI',
+      url: baseUrl,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Learn', item: `${baseUrl}${localePath}/learn` },
+        { '@type': 'ListItem', position: 3, name: opts.title },
+      ],
+    },
+  };
+}
+
+export function generateLibraryVideoSchema(opts: {
+  title: string;
+  description: string;
+  thumbnailUrl: string | null;
+  durationSeconds: number;
+  publishedAt: string | null;
+  videoUrl: string;
+  slug: string;
+  locale: string;
+}) {
+  const localePath = opts.locale === 'ja' ? '/ja' : '';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: opts.title,
+    description: opts.description,
+    ...(opts.thumbnailUrl && { thumbnailUrl: opts.thumbnailUrl }),
+    duration: `PT${Math.ceil(opts.durationSeconds / 60)}M`,
+    ...(opts.publishedAt && { uploadDate: opts.publishedAt }),
+    contentUrl: opts.videoUrl,
+    embedUrl: opts.videoUrl,
+    publisher: {
+      '@type': 'Organization',
+      name: 'HonuVibe.AI',
+      url: baseUrl,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Learn', item: `${baseUrl}${localePath}/learn` },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: opts.locale === 'ja' ? 'ライブラリ' : 'Library',
+          item: `${baseUrl}${localePath}/learn/library`,
+        },
+        { '@type': 'ListItem', position: 4, name: opts.title },
+      ],
+    },
+  };
+}
+
 export function generateDefinedTermSchema(opts: {
   termName: string;
   description: string;

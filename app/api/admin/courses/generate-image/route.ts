@@ -1,6 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+export const maxDuration = 60;
+
+function getLevelMood(level: string | null): string {
+  switch (level) {
+    case 'beginner':
+      return 'approachable, friendly, and welcoming — clear and uncluttered';
+    case 'intermediate':
+      return 'professional and capable — balanced detail with confident energy';
+    case 'advanced':
+      return 'sophisticated and technical — rich detail, layered depth, expert-level atmosphere';
+    default:
+      return 'professional and engaging';
+  }
+}
+
+function getDescriptionSnippet(description: string | null, maxChars = 250): string {
+  if (!description) return '';
+  const sentences = description.split(/(?<=\.)\s+/);
+  let result = sentences[0];
+  if (sentences[1] !== undefined && (result.length + 1 + sentences[1].length) <= maxChars) {
+    result = result + ' ' + sentences[1];
+  }
+  if (result.length > maxChars) {
+    result = result.slice(0, maxChars).trimEnd() + '...';
+  }
+  return result.trim();
+}
+
+function buildImagePrompt(
+  course: {
+    title_en: string;
+    description_en: string | null;
+    level: string | null;
+    tools_covered: string[] | null;
+    tags: string[] | null;
+  },
+  imageType: 'thumbnail' | 'hero',
+): string {
+  const descSnippet = getDescriptionSnippet(course.description_en);
+  const mood = getLevelMood(course.level);
+  const tools = course.tools_covered?.length
+    ? `Tools featured in this course: ${course.tools_covered.join(', ')}.`
+    : '';
+
+  const courseContext = [
+    'Create a high-quality background image with no text for an online course about:',
+    `${course.title_en}${descSnippet ? ': ' + descSnippet : ''}`,
+    tools,
+  ].filter(Boolean).join('\n');
+
+  const styleGuidance = [
+    `Visual style: ${mood}.`,
+    'Professional quality suitable for a premium education platform.',
+    'Subtle representational elements and visual metaphors relevant to the topic are welcome.',
+    'Avoid generic stock-photo aesthetics — prefer illustrative, modern, or slightly stylized visuals.',
+    'Color tone: dark, deep backgrounds preferred. Teal and gold accents welcome if they suit the subject.',
+    'Absolutely no text, letters, numbers, or words anywhere in the image.',
+  ].join(' ');
+
+  const composition = imageType === 'thumbnail'
+    ? 'Compose for a course card thumbnail: 16:9 aspect ratio, balanced centered focal point, visually striking and clear even at small sizes.'
+    : 'Compose for a wide panoramic hero banner: 21:9 aspect ratio, visual interest toward the edges, calm open center area where course title text will be overlaid, cinematic horizontal flow.';
+
+  return [courseContext, styleGuidance, composition].join('\n\n');
+}
+
 export async function POST(request: NextRequest) {
   // Auth check
   const supabase = await createClient();
@@ -20,9 +86,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: 'OPENAI_API_KEY not configured' }, { status: 500 });
+    return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
   try {
@@ -53,75 +119,76 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Course not found' }, { status: 404 });
     }
 
-    // Build a focused prompt from course data
-    const toolsList = course.tools_covered?.join(', ') || '';
-    const tagsList = course.tags?.join(', ') || '';
-    const aspectHint = imageType === 'thumbnail'
-      ? 'landscape 16:9 aspect ratio, suitable as a course card thumbnail'
-      : 'ultra-wide 21:9 panoramic aspect ratio, suitable as a course page hero banner';
+    // Configure aspect ratio and size based on image type
+    const imageConfig = imageType === 'thumbnail'
+      ? { aspectRatio: '16:9', imageSize: '2K' }
+      : { aspectRatio: '21:9', imageSize: '2K' };
 
-    const prompt = [
-      `Create a professional, modern course cover image for an AI education platform.`,
-      `Course: "${course.title_en}".`,
-      course.description_en ? `Description: ${course.description_en.slice(0, 300)}.` : '',
-      toolsList ? `Topics/tools: ${toolsList}.` : '',
-      tagsList ? `Tags: ${tagsList}.` : '',
-      course.level ? `Level: ${course.level}.` : '',
-      `Style: Clean, abstract, tech-forward design with ocean/teal color accents.`,
-      `Use subtle geometric patterns, gradients, or abstract data visualizations.`,
-      `Do NOT include any text, words, letters, or numbers in the image.`,
-      `${aspectHint}.`,
-    ].filter(Boolean).join(' ');
+    const prompt = buildImagePrompt(course, imageType);
 
-    // Call OpenAI DALL-E 3
-    const size = imageType === 'thumbnail' ? '1792x1024' : '1792x1024';
-
-    const dalleRes = await fetch('https://api.openai.com/v1/images/generations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
+    // Call Gemini Image Generation API
+    const model = 'gemini-3-pro-image-preview';
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'x-goog-api-key': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            responseModalities: ['IMAGE'],
+            imageConfig,
+          },
+        }),
       },
-      body: JSON.stringify({
-        model: 'dall-e-3',
-        prompt,
-        n: 1,
-        size,
-        quality: 'standard',
-        response_format: 'url',
-      }),
-    });
+    );
 
-    if (!dalleRes.ok) {
-      const err = await dalleRes.json();
+    if (!geminiRes.ok) {
+      const err = await geminiRes.json().catch(() => ({}));
+      const message = (err as { error?: { message?: string } })?.error?.message
+        || `Gemini API error (${geminiRes.status})`;
       return NextResponse.json(
-        { error: `OpenAI error: ${err.error?.message || 'Image generation failed'}` },
+        { error: `Image generation failed: ${message}` },
         { status: 502 },
       );
     }
 
-    const dalleData = await dalleRes.json();
-    const imageUrl = dalleData.data?.[0]?.url;
+    const geminiData = await geminiRes.json();
 
-    if (!imageUrl) {
-      return NextResponse.json({ error: 'No image returned from OpenAI' }, { status: 502 });
+    // Extract base64 image from response
+    const candidates = geminiData.candidates as Array<{
+      content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> };
+    }> | undefined;
+
+    const imagePart = candidates?.[0]?.content?.parts?.find(
+      (part) => part.inlineData,
+    );
+
+    if (!imagePart?.inlineData?.data) {
+      return NextResponse.json(
+        { error: 'No image returned from Gemini' },
+        { status: 502 },
+      );
     }
 
-    // Download the generated image
-    const imageRes = await fetch(imageUrl);
-    if (!imageRes.ok) {
-      return NextResponse.json({ error: 'Failed to download generated image' }, { status: 502 });
-    }
-
-    const imageBuffer = Buffer.from(await imageRes.arrayBuffer());
+    const imageBuffer = Buffer.from(imagePart.inlineData.data, 'base64');
 
     // Upload to Supabase Storage
-    const storagePath = `${courseId}/${imageType}.png`;
+    const mimeType = imagePart.inlineData.mimeType || 'image/png';
+    const ext = mimeType === 'image/jpeg' ? 'jpg' : 'png';
+    const storagePath = `${courseId}/${imageType}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from('course-images')
       .upload(storagePath, imageBuffer, {
-        contentType: 'image/png',
+        contentType: mimeType,
         upsert: true,
       });
 

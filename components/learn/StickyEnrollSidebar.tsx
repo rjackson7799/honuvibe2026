@@ -49,7 +49,7 @@ export function StickyEnrollSidebar({
     : null;
 
   return (
-    <div className="hidden md:block sticky top-24 w-72 shrink-0">
+    <div className="hidden md:block sticky top-24 w-72 shrink-0 self-start">
       <div className="bg-bg-secondary border border-border-default rounded-lg overflow-hidden shadow-lg shadow-black/20 ring-1 ring-white/5">
         {thumbnailUrl && (
           <div className="aspect-[16/9] bg-bg-tertiary overflow-hidden">

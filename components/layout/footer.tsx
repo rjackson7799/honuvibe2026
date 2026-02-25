@@ -9,7 +9,7 @@ export function Footer() {
   const linkClass = "text-[13px] text-fg-secondary hover:text-accent-teal transition-colors duration-200";
 
   return (
-    <footer className="border-t border-border-secondary py-8 md:py-10">
+    <footer className="dark-zone bg-bg-primary border-t border-border-secondary py-8 md:py-10">
       <Container size="wide">
         {/* Main footer row: brand left, link groups right */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
@@ -30,17 +30,18 @@ export function Footer() {
               <Link href="/exploration" className={linkClass}>{nav('exploration')}</Link>
               <Link href="/learn" className={linkClass}>{nav('learn')}</Link>
               <Link href="/community" className={linkClass}>{nav('community')}</Link>
+              <Link href="/about" className={linkClass}>{nav('about')}</Link>
+              <Link href="/contact" className={linkClass}>{nav('contact')}</Link>
             </div>
 
             {/* Resources */}
             <div className="flex flex-col gap-1.5">
               <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('resources_title')}</h4>
               <Link href="/resources" className={linkClass}>{nav('resources')}</Link>
+              <Link href="/learn/library" className={linkClass}>{nav('library')}</Link>
               <Link href="/glossary" className={linkClass}>{t('glossary_link')}</Link>
               <Link href="/newsletter" className={linkClass}>{t('newsletter_link')}</Link>
               <Link href="/blog" className={linkClass}>{nav('blog')}</Link>
-              <Link href="/about" className={linkClass}>{nav('about')}</Link>
-              <Link href="/contact" className={linkClass}>{nav('contact')}</Link>
             </div>
 
             {/* Legal */}

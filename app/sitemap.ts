@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { sanityPublicClient } from '@/lib/sanity/client';
 import { allPostSlugsQuery, glossarySlugQuery, newsletterSlugQuery } from '@/lib/sanity/queries';
+import { getLibraryVideoSlugs } from '@/lib/library/queries';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://honuvibe.ai';
 
@@ -15,6 +16,7 @@ const routes = [
   '/resources',
   '/glossary',
   '/newsletter',
+  '/learn/library',
   '/privacy',
   '/terms',
   '/cookies',
@@ -101,6 +103,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     } catch {
       // Sanity not configured or unreachable — skip newsletter entries
     }
+  }
+
+  // Dynamic library videos from Supabase
+  try {
+    const librarySlugs = await getLibraryVideoSlugs();
+    for (const slug of librarySlugs) {
+      entries.push({
+        url: `${baseUrl}/learn/library/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/learn/library/${slug}`,
+            ja: `${baseUrl}/ja/learn/library/${slug}`,
+          },
+        },
+      });
+    }
+  } catch {
+    // Supabase not configured or unreachable — skip library entries
   }
 
   return entries;

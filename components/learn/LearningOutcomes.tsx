@@ -1,20 +1,12 @@
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 
 type LearningOutcomesProps = {
-  outcomesEn: string[] | null;
-  outcomesJp: string[] | null;
+  outcomes: string[] | null;
 };
 
-export function LearningOutcomes({
-  outcomesEn,
-  outcomesJp,
-}: LearningOutcomesProps) {
+export function LearningOutcomes({ outcomes }: LearningOutcomesProps) {
   const t = useTranslations('learn');
-  const locale = useLocale();
-
-  const outcomes =
-    locale === 'ja' && outcomesJp?.length ? outcomesJp : outcomesEn;
 
   if (!outcomes?.length) return null;
 

@@ -2,10 +2,16 @@
 
 import { useTransition } from 'react';
 import { useLocale } from 'next-intl';
+import { Globe } from 'lucide-react';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
+import { IconButton } from '@/components/ui/icon-button';
 
-export function LangToggle() {
+type LangToggleProps = {
+  compact?: boolean;
+};
+
+export function LangToggle({ compact = false }: LangToggleProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
@@ -25,10 +31,23 @@ export function LangToggle() {
     router.prefetch(pathname, { locale: alternateLocale });
   };
 
+  // Compact mode: Globe icon that cycles to the alternate locale
+  if (compact) {
+    return (
+      <div className={cn(isPending && 'opacity-50 pointer-events-none')}>
+        <IconButton
+          icon={Globe}
+          label={alternateLocale === 'ja' ? '日本語に切替' : 'Switch to EN'}
+          onClick={() => switchLocale(alternateLocale)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        'flex items-center gap-1 text-sm transition-opacity duration-[var(--duration-fast)]',
+        'flex items-center gap-1 text-sm whitespace-nowrap shrink-0 transition-opacity duration-[var(--duration-fast)]',
         isPending && 'opacity-50 pointer-events-none',
       )}
     >

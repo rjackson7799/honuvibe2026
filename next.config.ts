@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
       { source: '/ja/emails', destination: '/ja/newsletter', permanent: true },
       { source: '/archive', destination: '/newsletter', permanent: true },
       { source: '/ja/archive', destination: '/ja/newsletter', permanent: true },
+      { source: '/tutorials', destination: '/learn/library', permanent: true },
+      { source: '/ja/tutorials', destination: '/ja/learn/library', permanent: true },
+      { source: '/library', destination: '/learn/library', permanent: true },
+      { source: '/ja/library', destination: '/ja/learn/library', permanent: true },
+      { source: '/videos', destination: '/learn/library', permanent: true },
+      { source: '/ja/videos', destination: '/ja/learn/library', permanent: true },
     ];
   },
   images: {

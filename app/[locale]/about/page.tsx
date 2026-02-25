@@ -1,8 +1,9 @@
 import { setRequestLocale } from 'next-intl/server';
 import { AboutHero } from '@/components/sections/about/about-hero';
-import { AboutStory } from '@/components/sections/about/about-story';
-import { AboutPhilosophy } from '@/components/sections/about/about-philosophy';
-import { AboutWork } from '@/components/sections/about/about-work';
+import { AboutMission } from '@/components/sections/about/about-mission';
+import { AboutAlohaStandard } from '@/components/sections/about/about-aloha-standard';
+import { AboutCompetencies } from '@/components/sections/about/about-competencies';
+import { AboutFounder } from '@/components/sections/about/about-founder';
 import { AboutSocial } from '@/components/sections/about/about-social';
 
 type Props = {
@@ -16,10 +17,11 @@ export default async function AboutPage({ params }: Props) {
   return (
     <>
       <AboutHero />
-      <AboutStory />
-      <AboutPhilosophy />
+      <AboutMission />
+      <AboutAlohaStandard />
+      <AboutCompetencies />
+      <AboutFounder />
       <AboutSocial />
-      <AboutWork />
     </>
   );
 }

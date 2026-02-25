@@ -79,9 +79,9 @@ export function ContactForm() {
   return (
     <Section>
       <Container size="narrow">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Row: Name + Email */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-fg-secondary">{t('name_label')}</label>
               <input
@@ -127,7 +127,7 @@ export function ContactForm() {
             <label className="text-sm font-medium text-fg-secondary">{t('message_label')}</label>
             <textarea
               required
-              rows={6}
+              rows={4}
               maxLength={2000}
               value={formData.message}
               onChange={(e) => handleChange('message', e.target.value)}
@@ -138,12 +138,12 @@ export function ContactForm() {
 
           <Button
             variant="gold"
-            size="lg"
+            size="md"
             type="submit"
             disabled={status === 'loading'}
             icon={Send}
             iconPosition="right"
-            className="mt-2"
+            className="mt-1 self-start"
           >
             {t('submit')}
           </Button>

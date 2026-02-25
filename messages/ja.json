@@ -8,6 +8,7 @@
     "community": "コミュニティ",
     "about": "概要",
     "resources": "リソース",
+    "library": "ライブラリ",
     "contact": "お問い合わせ",
     "sign_in": "ログイン",
     "dashboard": "ダッシュボード",
@@ -176,7 +177,17 @@
       "overline": "スペース",
       "heading": "HonuHub ワイキキ",
       "sub": "ワイキキの中心にある専用学習スペース — AI教育と島のインスピレーションが出会う場所。",
-      "cta": "セッションを予約"
+      "opening_badge": "2026年4月3日オープン",
+      "location": "ワイキキ、ホノルル、ハワイ",
+      "cta": "ハブの最新情報を受け取る",
+      "notify_modal": {
+        "heading": "最新情報をお届け",
+        "description": "HonuHubのグランドオープン、最初のセッション、ファウンディングメンバー特典のお知らせを受け取りましょう。",
+        "placeholder": "your@email.com",
+        "cta": "通知を受け取る",
+        "success": "リストに登録されました！近日中にご連絡します。",
+        "error": "エラーが発生しました。もう一度お試しください。"
+      }
     },
     "about": {
       "overline": "HonuHubとは？",
@@ -204,16 +215,48 @@
       "overline": "今後のセッション",
       "heading": "HonuHubで何が起きているか",
       "sub": "今後の対面・リモートセッションをご覧ください。すべてのセッションは後日視聴用に録画されます。",
-      "coming_soon": "新しいセッションを計画中です。またお越しください。またはニュースレターに登録して最新情報をお受け取りください。",
-      "book": "予約する",
-      "remote_ticket": "リモートチケット",
-      "all_courses": "全コースカタログを見る"
+      "all_courses": "全コースカタログを見る",
+      "events": {
+        "grand_opening": {
+          "date": "2026年4月3日",
+          "title": "グランドオープニングウィーク",
+          "description": "HonuHubの開業週間にご参加ください。ツアー、デモ、無料ワークショップをお届けします。",
+          "type": "対面",
+          "time": "10:00 AM – 4:00 PM HST"
+        },
+        "ai_workshop": {
+          "date": "2026年4月10日",
+          "title": "ビジネスのためのAI入門",
+          "description": "今日からビジネスで使える実践的なAIツールを学ぶハンズオンワークショップ。",
+          "type": "対面 + リモート",
+          "time": "1:00 PM – 3:00 PM HST"
+        },
+        "community_meetup": {
+          "date": "2026年4月17日",
+          "title": "HonuVibeコミュニティミートアップ",
+          "description": "ビルダーやAI愛好家と交流。カジュアルなネットワーキング、発表会、アイランドバイブス。",
+          "type": "対面",
+          "time": "5:00 PM – 7:00 PM HST"
+        },
+        "corporate_intro": {
+          "date": "2026年4月24日",
+          "title": "企業AI戦略セッション",
+          "description": "ハワイおよびアジア太平洋地域のビジネス向けAI導入戦略のエグゼクティブブリーフィング。",
+          "type": "対面 + リモート",
+          "time": "10:00 AM – 12:00 PM HST"
+        }
+      }
     },
     "remote": {
       "overline": "どこからでも学べる",
       "heading": "HonuHubへのリモートアクセス",
       "description": "ワイキキに来られない？問題ありません。すべてのHonuHubセッションは、Q&A、投票、ブレイクアウトルームなど完全なインタラクションでライブ配信されます。さらに、すべてのセッションが録画されるので、お好きな時間に視聴できます。",
-      "cta": "コースを見る"
+      "cta": "コースを見る",
+      "features": {
+        "streaming": "完全なインタラクションでライブ配信",
+        "recording": "すべてのセッションを録画・後日視聴可能",
+        "interactive": "Q&A、投票、ブレイクアウトルーム対応"
+      }
     },
     "membership": {
       "overline": "メンバーシップ",
@@ -276,7 +319,90 @@
     "hero": {
       "overline": "私たちの仕事",
       "heading": "探検する",
-      "sub": "実際のプロジェクト。実際の成果。HonuVibeコミュニティが5つのイノベーション領域で構築したものを探検してください。"
+      "sub": "実際のプロジェクト。実際の成果。HonuVibeコミュニティが5つのイノベーション領域で構築したものを探検してください。",
+      "cta": "お仕事のご相談"
+    },
+    "lead_form": {
+      "heading": "お仕事のご相談",
+      "sub": "プロジェクトについてお聞かせください。折り返しご連絡いたします。",
+      "name": "お名前",
+      "email": "メールアドレス",
+      "company": "会社名（任意）",
+      "message": "プロジェクトの概要",
+      "submit": "送信する",
+      "success": "ありがとうございます！近日中にご連絡いたします。",
+      "error": "エラーが発生しました。もう一度お試しください。"
+    },
+    "featured_build": {
+      "overline": "注目プロジェクト",
+      "heading": "KwameBrathwaite.com",
+      "sub": "写真アーカイブのモダンリニューアル",
+      "problem": "伝説的な写真家クワメ・ブラスウェイトのレガシーサイトは完全な変革が必要でした。モバイル非対応、読み込みが遅く、プリント販売やライセンス、展覧会予約のコンバージョン機会を逃していました。",
+      "description": "Claude、Cursor、そしてモダンなAI駆動ワークフローを使用して、KwameBrathwaite.comをゼロから再構築しています。新しいサイトはアーカイブの文化的意義を保ちながら、実際のビジネス成果—販売、ライセンス問い合わせ、ブランドパートナーシップ—を推進しています。",
+      "outcome": "伝説的なアーティストのレガシーを尊重しながら、ビジネスを成長させるモバイルファーストでコンバージョン最適化された写真アーカイブ。",
+      "outcome_stats": {
+        "stat_1": { "value": "3倍", "label": "高速化" },
+        "stat_2": { "value": "モバイル対応", "label": "レスポンシブデザイン" },
+        "stat_3": { "value": "AI活用", "label": "モダンワークフロー" }
+      },
+      "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
+      "challenge_label": "課題",
+      "carousel_label": "プロジェクトスクリーンショット",
+      "slide_alt_1": "KwameBrathwaite.comホームページリデザイン",
+      "slide_alt_2": "フォトアーカイブギャラリービュー",
+      "slide_alt_3": "モバイルレスポンシブレイアウト",
+      "status": "開発中"
+    },
+    "tech_stack": {
+      "overline": "ツールキット",
+      "heading": "使用する技術",
+      "sub": "高速でスケーラブル、インテリジェントなアプリケーションを構築するためのモダンツールとフレームワーク。",
+      "items": {
+        "nextjs": "Next.js",
+        "react": "React",
+        "typescript": "TypeScript",
+        "tailwind": "Tailwind CSS",
+        "supabase": "Supabase",
+        "stripe": "Stripe",
+        "openai": "OpenAI",
+        "nodejs": "Node.js",
+        "vercel": "Vercel",
+        "figma": "Figma",
+        "claude": "Claude AI",
+        "cursor": "Cursor"
+      }
+    },
+    "process": {
+      "overline": "仕事の進め方",
+      "heading": "アイデアからローンチまで",
+      "sub": "数十のプロジェクトで磨き上げた実証済みのプロセス。",
+      "steps": {
+        "discovery": {
+          "title": "発見",
+          "description": "お客様の目標、ターゲット、制約を理解し、全体の方向性を定めます。"
+        },
+        "design": {
+          "title": "デザイン",
+          "description": "コード作成前に、コンバージョン、アクセシビリティ、ブランド統一を考慮したデザインを行います。"
+        },
+        "build": {
+          "title": "構築",
+          "description": "モダンフレームワークを使用したAI加速開発。品質やパフォーマンスを犠牲にせず、素早くリリースします。"
+        },
+        "launch": {
+          "title": "ローンチ",
+          "description": "デプロイ、テスト、最適化。初日から高速で安全、ユーザーに対応した状態を確保します。"
+        },
+        "support": {
+          "title": "サポート",
+          "description": "継続的なメンテナンス、分析レビュー、改善。成長と適応をお手伝いします。"
+        }
+      }
+    },
+    "territory_grid": {
+      "overline": "テリトリー",
+      "heading": "5つのイノベーション領域",
+      "sub": "ウェブデザインからプロボノまで、幅広い分野で構築しています。"
     },
     "territories": {
       "web": {
@@ -360,30 +486,75 @@
   },
   "about_page": {
     "hero": {
+      "overline": "私たちについて",
+      "heading": "AIの全く新しいバイブ",
+      "sub": "HonuVibeはハワイと日本を結び、AI教育を身近で実践的、そしてコミュニティ主導なものにします。"
+    },
+    "mission": {
+      "overline": "私たちの目的",
+      "heading": "ミッション＆ビジョン",
+      "description": "AIは人間の可能性を増幅すべきであり、置き換えるべきではないと信じています。HonuVibeは最先端のAIと、それを最も必要とする人々との間のギャップを埋めるために存在します。",
+      "mission_title": "ミッション",
+      "mission_text": "ハワイのローカルビジネスコミュニティ、全米の意欲的な起業家、そして日本で最先端のAI技術にアクセスしたい学生のために、最先端のAI教育を身近で実践的、コミュニティ主導なものにすること。",
+      "vision_title": "ビジョン",
+      "vision_text": "技術的バックグラウンドや地理に関係なく、すべての起業家がAIで構築するために必要なツールとコミュニティを持てる世界。ワイキキから東京まで、実践者中心の教育の新しい基準を作っています。"
+    },
+    "aloha_standard": {
+      "overline": "私たちの価値観",
+      "heading": "アロハ・スタンダード",
+      "sub": "アロハはマーケティングのスローガンではありません。HonuVibeがすべてのやりとりで実践する実際の行動基準です。",
+      "principles": {
+        "give_generously": {
+          "title": "惜しみなく与える",
+          "description": "無料のコンテンツ、無料のコミュニティアクセス、透明な情報。寛大さは複利で成長すると信じています。"
+        },
+        "pro_bono": {
+          "title": "プロボノも本気の仕事",
+          "description": "非営利団体やコミュニティ組織がHonuVibeを訪れたとき、有料クライアントと同じ品質の対応を受けられます。"
+        },
+        "celebrate_community": {
+          "title": "コミュニティを祝う",
+          "description": "メンバーの成果 — アプリのリリース、ビジネスの成長、プロジェクトの完成 — はHonuVibeの大切な瞬間です。"
+        },
+        "never_fear": {
+          "title": "恐怖に基づかない",
+          "description": "緊急性を煽る戦術や「AIがあなたの仕事を奪う」というフレーミングは決して使いません。好奇心で導き、不安ではなく。"
+        }
+      }
+    },
+    "competencies": {
+      "overline": "私たちの専門領域",
+      "heading": "コアコンピテンシー",
+      "sub": "ラピッドプロトタイピングからカリキュラム開発まで、HonuVibeは実践者の専門知識をすべてのプロジェクトに活かします。",
+      "items": {
+        "prototyping": {
+          "title": "AIプロトタイピング",
+          "description": "高速AIプロトタイプ構築と製品開発。コンセプトから動作するデモまで、数ヶ月ではなく数日で。"
+        },
+        "micro_saas": {
+          "title": "マイクロSaaSデザイン",
+          "description": "実際の問題を解決するSaaS製品の設計とデプロイ。目的に特化し、リーンで、収益化可能。"
+        },
+        "integration": {
+          "title": "AIインテグレーション",
+          "description": "既存の組織やワークフローへのAI統合。ビジネスの現状に合わせて構築します。"
+        },
+        "education": {
+          "title": "AI教育",
+          "description": "トレーニング、カリキュラム開発、コミュニティ主導の学習。実践者が設計したEN/JPバイリンガル教育。"
+        }
+      },
+      "cta_heading": "デザインによる選択",
+      "cta_description": "毎年、少数のパッションプロジェクトとハイインパクトな案件に取り組んでいます。一緒に仕事をしたい方は、ぜひお聞かせください。",
+      "cta_button": "お問い合わせ"
+    },
+    "founder": {
       "overline": "創設者",
       "heading": "Ryan Jackson",
       "role": "創設者 & AI教育者",
-      "location": "ホノルル、ハワイ"
-    },
-    "story": {
-      "overline": "ストーリー",
-      "heading": "ハワイからAIへ",
-      "paragraphs": {
-        "p1": "ハワイで生まれ育ち、コミュニティ、つながり、恩返しを大切にする文化に囲まれて育ちました。その価値観が今日の私のすべてを形作っています — AI教育へのアプローチを含めて。",
-        "p2": "AI製品の構築とエンジニアリングチームのリーダーシップを経験した後、教育の分野に欠けているものに気づきました：文化を橋渡しし、起業家を力づける、実践的で人間中心のAI学習です。",
-        "p3": "HonuVibeはそのギャップから生まれました。最先端のAI教育をホノルルから東京まで、すべての人にとって身近で実践的なものにすることが私の使命です。"
-      }
-    },
-    "philosophy": {
-      "overline": "哲学",
-      "quote": "AIを活用して起業家精神、学習、より良いビジネスプラクティスを育む。",
-      "description": "AIは人間の可能性を増幅すべきであり、置き換えるべきではないと信じています。HonuVibeのすべてのコース、プロジェクト、コミュニティでのやりとりは、この原則を核に設計されています。"
-    },
-    "work": {
-      "overline": "ライアンと仕事をする",
-      "heading": "デザインによる選択",
-      "description": "毎年、少数のパッションプロジェクトとハイインパクトな案件に取り組んでいます。一緒に仕事をしたい方は、ぜひご連絡ください。",
-      "cta": "お問い合わせ"
+      "location": "ホノルル、ハワイ",
+      "bio_p1": "ハワイで生まれ育ったライアンは、コミュニティ、つながり、恩返しを大切にする文化に囲まれて育ちました。AI製品の構築とエンジニアリングチームのリーダーシップを経験した後、教育の分野に欠けているものに気づきました：文化を橋渡しし、起業家を力づける、実践的で人間中心のAI学習です。",
+      "bio_p2": "HonuVibeはそのギャップから生まれました — ホノルルから東京まで、すべての人にとって最先端のAI教育を身近で実践的なものにするプラットフォームです。"
     },
     "social": {
       "overline": "つながる",
@@ -492,6 +663,10 @@
       "success_heading": "送信完了",
       "success_message": "お問い合わせありがとうございます。2〜3営業日以内にご返信いたします。",
       "error": "エラーが発生しました。もう一度お試しください。"
+    },
+    "social": {
+      "overline": "つながる",
+      "heading": "SNSをフォロー"
     }
   },
   "privacy_page": {
@@ -688,6 +863,7 @@
   "learn": {
     "catalog_title": "学ぶ",
     "catalog_subtitle": "好奇心から実力へ導くコース",
+    "library_cta": "短時間チュートリアルをお探しですか？ライブラリを見る",
     "enroll_now": "今すぐ申し込む",
     "spots_left": "残り{count}席",
     "cohort_full": "満員 — ウェイトリストに参加",
@@ -765,7 +941,34 @@
     "catalog_overline": "AI教育",
     "all_levels": "すべてのレベル",
     "showing_courses": "{count}件のコースを表示中",
-    "breadcrumb_learn": "学ぶ"
+    "breadcrumb_learn": "学ぶ",
+    "paths": {
+      "overline": "学習パスを選ぶ",
+      "heading": "3つの学び方",
+      "sub": "ライブ指導、自分のペースでの深掘り、または無料の探索 — あなたに合ったパスがあります。",
+      "courses": {
+        "title": "コース",
+        "description": "講師によるコホート型クラス。Zoomライブセッション、実践プロジェクト、Vault・ライブラリへのフルアクセス付き。",
+        "price": "セッションごと · ライブ＋録画",
+        "cta": "コースを見る"
+      },
+      "vault": {
+        "title": "The Vault",
+        "badge": "近日公開",
+        "description": "Ryanが制作するプレミアム10分セルフスタディ動画。ウォークスルー、ビルドアロング、舞台裏の解説を自分のペースで。",
+        "price": "月額サブスクリプション",
+        "cta": "通知を受け取る",
+        "placeholder": "your@email.com",
+        "success": "リストに登録しました！Vault公開時にお知らせします。",
+        "error": "エラーが発生しました。もう一度お試しください。"
+      },
+      "library": {
+        "title": "ライブラリ",
+        "description": "ウェブ上の優れたAIチュートリアルとプロジェクトウォークスルーの無料キュレーションコレクション。今すぐ学び始めましょう。",
+        "price": "無料",
+        "cta": "ライブラリを探す"
+      }
+    }
   },
   "resources_page": {
     "title": "Ryanのツールキット",
@@ -798,6 +1001,7 @@
     "nav_courses": "マイコース",
     "nav_schedule": "スケジュール",
     "nav_resources": "リソース",
+    "nav_my_library": "マイライブラリ",
     "nav_community": "コミュニティ",
     "nav_settings": "設定",
     "heading_overview": "ダッシュボード",
@@ -910,5 +1114,92 @@
     "cta_button": "コースを見る",
     "term_count": "{count}件の用語",
     "footer_link": "AI用語辞典"
+  },
+  "library": {
+    "title": "HonuVibeライブラリ",
+    "subtitle": "短くて実践的なチュートリアル。すぐに使えるスキル。",
+    "meta_title": "AIチュートリアルライブラリ — 短時間動画レッスン | HonuVibe",
+    "meta_description": "10分以内で完了する実践的なAIチュートリアル。Cursor、Claude、自動化、画像生成などを学べます。",
+    "search_placeholder": "チュートリアルを検索...",
+    "filter_all": "すべて",
+    "filter_ai_basics": "AI基礎",
+    "filter_coding_tools": "コーディングツール",
+    "filter_business_automation": "ビジネス自動化",
+    "filter_image_video": "画像・動画",
+    "filter_productivity": "生産性",
+    "filter_getting_started": "はじめに",
+    "duration_label": "{minutes}分",
+    "open_badge": "無料",
+    "account_badge": "無料アカウント",
+    "watch_video": "見る",
+    "favorited": "お気に入り済",
+    "favorite": "お気に入り",
+    "viewed": "視聴済",
+    "featured_label": "おすすめ",
+    "related_videos": "関連チュートリアル",
+    "related_course": "もっと深く学びたいですか？",
+    "related_resource": "紹介ツール",
+    "related_glossary": "解説用語",
+    "auth_gate_heading": "無料アカウントを作成して視聴",
+    "auth_gate_sub": "チュートリアルライブラリへのフルアクセス、お気に入り保存、進捗管理が可能です。",
+    "auth_gate_button": "無料で登録",
+    "auth_gate_login": "アカウントをお持ちの方はログイン",
+    "cta_heading": "チュートリアルの先へ進みたいですか？",
+    "cta_sub": "HonuVibeのコースでは、クイックヒントだけでなく、体系的な学びを提供します。",
+    "cta_button": "コースを見る",
+    "empty_state": "該当するチュートリアルが見つかりません。別のカテゴリをお試しください。",
+    "my_library": "マイライブラリ",
+    "my_favorites": "お気に入り",
+    "my_recent": "最近視聴",
+    "my_library_empty": "まだチュートリアルを視聴・お気に入りしていません。ライブラリを探索してみましょう！",
+    "continue_watching": "続きを見る",
+    "back_to_library": "ライブラリに戻る",
+    "overline": "ライブラリ"
+  },
+  "admin_library": {
+    "title": "ライブラリ動画",
+    "add_video": "動画を追加",
+    "new_video": "新規動画",
+    "back_to_library": "ライブラリに戻る",
+    "tab_details": "詳細",
+    "tab_preview": "プレビュー",
+    "core_info": "基本情報",
+    "video_content": "動画コンテンツ",
+    "classification": "分類",
+    "relations": "関連",
+    "field_slug": "スラッグ",
+    "field_title_en": "タイトル（EN）",
+    "field_title_jp": "タイトル（JP）",
+    "field_description_en": "説明（EN）",
+    "field_description_jp": "説明（JP）",
+    "field_video_url": "動画URL",
+    "field_duration": "再生時間（秒）",
+    "field_thumbnail": "サムネイル",
+    "field_category": "カテゴリ",
+    "field_difficulty": "難易度",
+    "field_language": "言語",
+    "field_access_tier": "アクセス層",
+    "field_sort_order": "並び順",
+    "field_featured": "注目",
+    "field_related_course": "関連コース",
+    "field_related_resource": "関連リソーススラッグ",
+    "field_related_glossary": "関連用語集スラッグ",
+    "field_tags": "タグ",
+    "save_changes": "変更を保存",
+    "create_video": "動画を作成",
+    "publish": "公開",
+    "unpublish": "非公開",
+    "delete": "削除",
+    "delete_confirm": "この動画を削除してもよろしいですか？この操作は取り消せません。",
+    "save_success": "保存しました",
+    "save_first": "まず動画を保存してから、サムネイルをアップロードしてください。",
+    "filter_all": "すべて",
+    "filter_published": "公開中",
+    "filter_draft": "下書き",
+    "filter_featured": "注目",
+    "empty_list": "ライブラリ動画が見つかりません。",
+    "none": "なし",
+    "video_preview": "動画プレビュー",
+    "open_in_tab": "新しいタブで動画URLを開く"
   }
 }

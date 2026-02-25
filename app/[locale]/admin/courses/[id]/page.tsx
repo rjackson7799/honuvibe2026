@@ -1,6 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { getAdminCourseById } from '@/lib/courses/queries';
+import { getActiveInstructorOptions } from '@/lib/instructors/queries';
 import { AdminCourseDetail } from '@/components/admin/AdminCourseDetail';
 
 type Props = {
@@ -17,8 +18,12 @@ export default async function AdminCourseDetailPage({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const course = await getAdminCourseById(id);
+  const [course, instructors] = await Promise.all([
+    getAdminCourseById(id),
+    getActiveInstructorOptions(),
+  ]);
+
   if (!course) notFound();
 
-  return <AdminCourseDetail course={course} />;
+  return <AdminCourseDetail course={course} instructors={instructors} />;
 }

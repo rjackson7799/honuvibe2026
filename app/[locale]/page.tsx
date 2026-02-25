@@ -21,14 +21,23 @@ export default async function HomePage({ params }: Props) {
   return (
     <>
       <HeroSection />
-      <MissionStrip />
-      <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
+      {/* Fade bridge: smooth dark→light transition in light mode */}
+      <div className="light-zone-fade">
+        <MissionStrip />
+      </div>
+      <div className="dark-zone">
+        <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
+      </div>
       <HonuHubFeature />
       <FeaturedCourses />
-      <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
+      <div className="dark-zone">
+        <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
+      </div>
       <ExplorationPreview />
       <RyanBioStrip />
-      <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
+      <div className="dark-zone">
+        <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
+      </div>
       <NewsletterSignup />
       <SocialProof />
     </>

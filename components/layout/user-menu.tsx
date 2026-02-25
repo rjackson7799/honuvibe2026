@@ -16,9 +16,10 @@ type UserMenuLabels = {
 
 type UserMenuProps = {
   labels: UserMenuLabels;
+  dropdownPosition?: 'below' | 'above';
 };
 
-export function UserMenu({ labels }: UserMenuProps) {
+export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -155,10 +156,13 @@ export function UserMenu({ labels }: UserMenuProps) {
       {open && (
         <div
           className={cn(
-            'absolute right-0 top-full mt-2 w-52',
+            'absolute w-52',
             'rounded-lg border border-border-secondary',
             'bg-bg-secondary shadow-lg',
             'py-1 z-[250]',
+            dropdownPosition === 'above'
+              ? 'bottom-full mb-2 left-0'
+              : 'top-full mt-2 right-0',
           )}
           role="menu"
         >

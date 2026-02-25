@@ -26,6 +26,24 @@ export async function updateApplicationStatus(
 
   if (error) throw error;
 
+  // Notify applicant of status change (fire-and-forget)
+  const { data: application } = await supabase
+    .from('applications')
+    .select('name, email, locale')
+    .eq('id', applicationId)
+    .single();
+
+  if (application?.email) {
+    const { sendApplicationStatusUpdate } = await import('@/lib/email/send');
+    void sendApplicationStatusUpdate({
+      locale: (application.locale === 'ja' ? 'ja' : 'en') as 'en' | 'ja',
+      applicantName: application.name,
+      applicantEmail: application.email,
+      newStatus: status,
+      notes,
+    });
+  }
+
   revalidatePath('/admin/applications');
 }
 
@@ -74,6 +92,48 @@ export async function manualEnroll(
       .from('courses')
       .update({ current_enrollment: (course.current_enrollment ?? 0) + 1 })
       .eq('id', courseId);
+  }
+
+  // Send enrollment welcome email to student (fire-and-forget)
+  const { data: student } = await supabase
+    .from('users')
+    .select('full_name, email, locale_preference')
+    .eq('id', userId)
+    .single();
+
+  const { data: courseForEmail } = await supabase
+    .from('courses')
+    .select('title_en, title_jp, slug, course_type, start_date')
+    .eq('id', courseId)
+    .single();
+
+  if (student?.email && courseForEmail) {
+    const emailLocale = (student.locale_preference === 'ja' ? 'ja' : 'en') as 'en' | 'ja';
+    const courseTitle =
+      emailLocale === 'ja'
+        ? (courseForEmail.title_jp ?? courseForEmail.title_en)
+        : courseForEmail.title_en;
+
+    const { sendEnrollmentConfirmation, sendEnrollmentAdminNotification } =
+      await import('@/lib/email/send');
+
+    const enrollmentData = {
+      locale: emailLocale,
+      studentName: student.full_name ?? 'Student',
+      studentEmail: student.email,
+      courseTitle,
+      courseSlug: courseForEmail.slug,
+      courseType: (courseForEmail.course_type ?? 'self-study') as 'cohort' | 'self-study',
+      startDate: courseForEmail.start_date,
+      amountPaid: 0,
+      currency: 'usd' as const,
+      isManualEnroll: true,
+    };
+
+    void Promise.all([
+      sendEnrollmentConfirmation(enrollmentData),
+      sendEnrollmentAdminNotification(enrollmentData),
+    ]);
   }
 
   revalidatePath('/admin/courses');

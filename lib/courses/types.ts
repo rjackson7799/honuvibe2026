@@ -1,5 +1,6 @@
 // Course-related TypeScript types
 // Mirrors Supabase schema from supabase/migrations/001_phase2_schema.sql
+import type { InstructorCardData } from '@/lib/instructors/types';
 
 export type CourseType = 'cohort' | 'self-study';
 export type CourseStatus = 'draft' | 'published' | 'in-progress' | 'completed' | 'archived';
@@ -31,6 +32,7 @@ export interface Course {
   description_en: string | null;
   description_jp: string | null;
   instructor_name: string | null;
+  instructor_id: string | null;
   price_usd: number | null;
   price_jpy: number | null;
   language: CourseLanguage;
@@ -157,6 +159,7 @@ export interface CourseWeekWithContent extends CourseWeek {
 
 export interface CourseWithCurriculum extends Course {
   weeks: CourseWeekWithContent[];
+  instructor?: InstructorCardData | null;
 }
 
 // Wizard types

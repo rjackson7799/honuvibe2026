@@ -53,6 +53,7 @@ export async function updateCourseSession(
     replay_url?: string;
     transcript_url?: string;
     slide_deck_url?: string;
+    zoom_link?: string | null;
     status?: 'upcoming' | 'live' | 'completed';
   },
 ) {

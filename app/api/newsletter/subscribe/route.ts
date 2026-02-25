@@ -40,6 +40,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Admin notification (fire-and-forget)
+    const referer = request.headers.get('referer') ?? '';
+    const locale = referer.includes('/ja/') ? 'ja' : 'en';
+    const { sendNewsletterAdminNotification } = await import('@/lib/email/send');
+    void sendNewsletterAdminNotification({ email, locale: locale as 'en' | 'ja' });
+
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(

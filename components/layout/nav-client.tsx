@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/navigation';
 import { Menu } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
@@ -51,6 +51,7 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
     <>
       <nav
         className={cn(
+          'dark-zone',
           'fixed top-0 left-0 right-0 z-[200] h-14 md:h-16',
           'flex items-center justify-between px-5 md:px-8',
           'transition-all duration-[400ms]',
@@ -81,11 +82,14 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
 
         {/* Right side: User + Theme + Lang + Hamburger */}
         <div className="flex items-center gap-1">
-          <div className={isAuthRoute ? '' : 'hidden lg:block'}>
+          {/* On auth routes, controls move to sidebar on desktop — show only on mobile */}
+          <div className={isAuthRoute ? 'md:hidden' : 'hidden lg:block'}>
             <UserMenu labels={userMenuLabels} />
           </div>
-          <ThemeToggle />
-          <LangToggle />
+          <div className={isAuthRoute ? 'md:hidden flex items-center gap-1' : 'flex items-center gap-1'}>
+            <ThemeToggle />
+            <LangToggle />
+          </div>
           {!isAuthRoute && (
             <div className="lg:hidden">
               <IconButton

@@ -5,7 +5,15 @@ import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { Overline, Button } from '@/components/ui';
 import { Link } from '@/i18n/navigation';
-import { Monitor, Wifi, Video } from 'lucide-react';
+import { Monitor, Wifi, Video, type LucideIcon } from 'lucide-react';
+
+const featureKeys = ['streaming', 'recording', 'interactive'] as const;
+
+const featureIcons: Record<typeof featureKeys[number], LucideIcon> = {
+  streaming: Wifi,
+  recording: Video,
+  interactive: Monitor,
+};
 
 export function HonuHubRemote() {
   const t = useTranslations('honuhub_page.remote');
@@ -33,18 +41,19 @@ export function HonuHubRemote() {
 
             {/* Feature icons */}
             <div className="flex flex-col gap-6">
-              {[
-                { Icon: Wifi, text: 'Live streaming with full interaction' },
-                { Icon: Video, text: 'All sessions recorded for later viewing' },
-                { Icon: Monitor, text: 'Q&A, polls, and breakout rooms' },
-              ].map(({ Icon, text }) => (
-                <div key={text} className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-teal-subtle">
-                    <Icon size={18} className="text-accent-teal" />
+              {featureKeys.map((key) => {
+                const Icon = featureIcons[key];
+                return (
+                  <div key={key} className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-teal-subtle">
+                      <Icon size={18} className="text-accent-teal" />
+                    </div>
+                    <p className="text-sm text-fg-secondary leading-relaxed pt-2">
+                      {t(`features.${key}`)}
+                    </p>
                   </div>
-                  <p className="text-sm text-fg-secondary leading-relaxed pt-2">{text}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { Overline } from '@/components/ui';
@@ -12,12 +13,15 @@ export function HonuHubAbout() {
     <Section>
       <Container>
         <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
-          {/* Photo placeholder */}
+          {/* Photo */}
           <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/15 via-bg-secondary to-accent-gold/8 border border-border-default rounded-xl" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-fg-tertiary text-sm tracking-wide">HonuHub Interior</span>
-            </div>
+            <Image
+              src="/images/honu_hub.jpg"
+              alt="HonuHub Waikiki interior"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 440px"
+            />
           </div>
 
           {/* Text */}

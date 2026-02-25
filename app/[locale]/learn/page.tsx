@@ -7,6 +7,7 @@ import { Section } from '@/components/layout/section';
 import { Overline } from '@/components/ui/overline';
 import { CourseCard } from '@/components/learn/CourseCard';
 import { LevelFilter } from '@/components/learn/LevelFilter';
+import { LearnPathCards } from '@/components/learn/LearnPathCards';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -40,6 +41,9 @@ export default async function LearnPage({ params, searchParams }: Props) {
     <>
       {/* Hero */}
       <div className="relative overflow-hidden">
+        {/* Background gradient — matches HonuHub hero */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/10 via-bg-primary to-accent-gold/5" />
+
         {/* Glow orbs */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
           <div
@@ -66,13 +70,10 @@ export default async function LearnPage({ params, searchParams }: Props) {
             }}
           />
         </div>
-        {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 z-[1] bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
-
         <Container className="relative z-10">
           <div className="py-16 md:py-24 text-center">
             <Overline className="mb-4 block">{t('catalog_overline')}</Overline>
-            <h1 className="font-serif text-[var(--text-h1)] text-fg-primary mb-4">
+            <h1 className="font-serif text-h1 text-fg-primary mb-4">
               {t('catalog_title')}
             </h1>
             <p className="max-w-[560px] mx-auto text-base md:text-lg text-fg-secondary leading-relaxed">
@@ -80,10 +81,18 @@ export default async function LearnPage({ params, searchParams }: Props) {
             </p>
           </div>
         </Container>
+
+        {/* 3 Ways to Learn */}
+        <div className="relative z-10">
+          <LearnPathCards />
+        </div>
+
+        {/* Bottom fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 z-[1] bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
       </div>
 
       {/* Filters + Grid */}
-      <Section noReveal className="!pt-0">
+      <Section noReveal id="courses" className="!pt-0">
         <Container className="max-w-[1100px]">
           {/* Level Filter */}
           <div className="mb-6">

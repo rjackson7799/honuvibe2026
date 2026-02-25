@@ -13,6 +13,7 @@ import { HowItWorks } from '@/components/learn/HowItWorks';
 import { CurriculumAccordion } from '@/components/learn/CurriculumAccordion';
 import { StickyEnrollSidebar } from '@/components/learn/StickyEnrollSidebar';
 import { StickyEnrollBar } from '@/components/learn/StickyEnrollBar';
+import { InstructorCard } from '@/components/learn/InstructorCard';
 import { Divider } from '@/components/ui/divider';
 
 type Props = {
@@ -129,8 +130,11 @@ export default async function CourseDetailPage({ params }: Props) {
 
               {/* What You'll Master */}
               <LearningOutcomes
-                outcomesEn={course.learning_outcomes_en}
-                outcomesJp={course.learning_outcomes_jp}
+                outcomes={
+                  locale === 'ja' && course.learning_outcomes_jp?.length
+                    ? course.learning_outcomes_jp
+                    : course.learning_outcomes_en
+                }
               />
 
               <Divider className="my-8" />
@@ -193,27 +197,16 @@ export default async function CourseDetailPage({ params }: Props) {
               )}
 
               {/* Instructor */}
-              {course.instructor_name && (
+              {(course.instructor || course.instructor_name) && (
                 <>
                   <h2 className="text-xl font-serif text-fg-primary mb-4">
                     {t('instructor')}
                   </h2>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-bg-tertiary" />
-                    <div>
-                      <p className="font-medium text-fg-primary">
-                        {course.instructor_name}
-                      </p>
-                      <a
-                        href={locale === 'ja' ? '/ja/about' : '/about'}
-                        className="text-sm text-accent-teal hover:underline"
-                      >
-                        {t('read_more_instructor', {
-                          name: course.instructor_name,
-                        })}
-                      </a>
-                    </div>
-                  </div>
+                  <InstructorCard
+                    instructor={course.instructor ?? null}
+                    fallbackName={course.instructor_name}
+                    locale={locale}
+                  />
                   <Divider className="my-8" />
                 </>
               )}

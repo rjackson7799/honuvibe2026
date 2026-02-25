@@ -23,6 +23,9 @@ const statusStyles: Record<string, string> = {
   // Session statuses
   upcoming: 'bg-accent-gold/10 text-accent-gold',
   live: 'bg-accent-teal/10 text-accent-teal',
+  // Library video statuses
+  featured: 'bg-accent-gold/10 text-accent-gold',
+  open: 'bg-accent-teal/10 text-accent-teal',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

@@ -37,7 +37,7 @@ export function NewsletterSignup() {
   };
 
   return (
-    <Section id="newsletter">
+    <Section id="newsletter" className="dark-zone bg-[#080c18]">
       <Container size="narrow">
         <div className="relative overflow-hidden rounded-2xl glass-card p-8 md:p-12 text-center">
           {/* Decorative gradient */}
