@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { LibraryPlayer } from '@/components/library/LibraryPlayer';
 
 vi.mock('@/lib/analytics', () => ({
@@ -15,6 +15,19 @@ vi.mock('@/lib/library/youtube', () => ({
   YT_STATE: { PLAYING: 1, PAUSED: 2, ENDED: 0 },
 }));
 
+const mockPlayer = {
+  getCurrentTime: vi.fn(() => 0),
+  getDuration: vi.fn(() => 300),
+  destroy: vi.fn(),
+  playVideo: vi.fn(),
+  pauseVideo: vi.fn(),
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MockYTPlayer(this: any) {
+  Object.assign(this, mockPlayer);
+}
+
 const baseProps = {
   videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
   videoId: 'video-uuid-123',
@@ -28,6 +41,14 @@ const baseProps = {
 describe('LibraryPlayer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock window.YT.Player so the useEffect doesn't throw
+    (window as Window & { YT?: unknown }).YT = {
+      Player: MockYTPlayer,
+    };
+  });
+
+  afterEach(() => {
+    delete (window as Window & { YT?: unknown }).YT;
   });
 
   it('renders thumbnail before play is clicked', () => {

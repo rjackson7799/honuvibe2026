@@ -1,8 +1,16 @@
 'use client';
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Play, Pause } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { trackEvent } from '@/lib/analytics';
+import {
+  parseYouTubeVideoId,
+  buildEmbedUrl,
+  loadYouTubeIframeAPI,
+  YT_STATE,
+  type YTPlayer,
+  type YTOnStateChangeEvent,
+} from '@/lib/library/youtube';
 
 type LibraryPlayerProps = {
   videoUrl: string;
@@ -17,6 +25,7 @@ type LibraryPlayerProps = {
 const PROGRESS_THRESHOLDS = [25, 50, 75, 80];
 
 export function LibraryPlayer({
+  videoUrl,
   videoId,
   title,
   thumbnailUrl,
@@ -24,21 +33,26 @@ export function LibraryPlayer({
   isAuthenticated,
   locale,
 }: LibraryPlayerProps) {
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const ytPlayerRef = useRef<YTPlayer | null>(null);
+  const iframeContainerRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef(0); // mirrors progress state — safe for sendBeacon on unmount
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const reportedRef = useRef<Set<number>>(new Set());
   const lastReportRef = useRef(0);
+  const destroyedRef = useRef(false);
+
+  const youtubeVideoId = parseYouTubeVideoId(videoUrl);
+  const embedUrl = youtubeVideoId ? buildEmbedUrl(youtubeVideoId) : null;
 
   const reportProgress = useCallback(
     async (percent: number) => {
       if (!isAuthenticated) return;
-      // Throttle: don't report more than once per 10 seconds
       const now = Date.now();
       if (now - lastReportRef.current < 10000) return;
       lastReportRef.current = now;
-
       try {
         await fetch('/api/library/progress', {
           method: 'POST',
@@ -46,7 +60,7 @@ export function LibraryPlayer({
           body: JSON.stringify({ video_id: videoId, progress_percent: percent }),
         });
       } catch {
-        // Silent fail for progress tracking
+        // Silent fail
       }
     },
     [isAuthenticated, videoId],
@@ -58,12 +72,8 @@ export function LibraryPlayer({
         if (percent >= threshold && !reportedRef.current.has(threshold)) {
           reportedRef.current.add(threshold);
           reportProgress(percent);
-
           if (threshold === 80) {
-            trackEvent('library_video_complete', {
-              video_slug: videoId,
-              locale,
-            });
+            trackEvent('library_video_complete', { video_slug: videoId, locale });
           }
         }
       }
@@ -71,116 +81,164 @@ export function LibraryPlayer({
     [reportProgress, videoId, locale],
   );
 
-  // Simulated playback timer (placeholder — replace with real player events)
-  useEffect(() => {
-    if (playing && durationSeconds > 0) {
-      const intervalMs = 1000;
-      const incrementPerTick = (100 / durationSeconds);
+  const startPolling = useCallback(() => {
+    if (timerRef.current) return;
+    timerRef.current = setInterval(() => {
+      const player = ytPlayerRef.current;
+      if (!player) return;
+      const duration = player.getDuration();
+      const current = player.getCurrentTime();
+      if (duration > 0) {
+        const pct = Math.min((current / duration) * 100, 100);
+        setProgress(pct);
+        progressRef.current = pct;
+        checkThresholds(pct);
+      }
+    }, 1000);
+  }, [checkThresholds]);
 
-      timerRef.current = setInterval(() => {
-        setProgress((prev) => {
-          const next = Math.min(prev + incrementPerTick, 100);
-          checkThresholds(next);
-          if (next >= 100) {
-            setPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
-          }
-          return next;
-        });
-      }, intervalMs);
+  const stopPolling = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
+  }, []);
+
+  // Initialize YT player when user clicks Play (YouTube path only)
+  useEffect(() => {
+    if (!hasStarted || !embedUrl || !iframeContainerRef.current) return;
+
+    destroyedRef.current = false;
+
+    loadYouTubeIframeAPI().then(() => {
+      if (destroyedRef.current || !iframeContainerRef.current) return;
+
+      const YT = (window as Window & { YT: { Player: new (el: HTMLElement, opts: unknown) => YTPlayer } }).YT;
+
+      ytPlayerRef.current = new YT.Player(iframeContainerRef.current, {
+        videoId: youtubeVideoId,
+        playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
+        events: {
+          onStateChange: (event: YTOnStateChangeEvent) => {
+            if (event.data === YT_STATE.PLAYING) {
+              startPolling();
+            } else if (event.data === YT_STATE.PAUSED || event.data === YT_STATE.ENDED) {
+              stopPolling();
+            }
+          },
+        },
+      });
+    });
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      destroyedRef.current = true;
+      stopPolling();
+      ytPlayerRef.current?.destroy();
+      ytPlayerRef.current = null;
     };
-  }, [playing, durationSeconds, checkThresholds]);
+    // youtubeVideoId and embedUrl are derived from videoUrl — stable for component lifetime
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasStarted]);
 
-  // Report final progress on unmount
+  // Simulated fallback timer (non-YouTube URLs)
+  useEffect(() => {
+    if (!hasStarted || embedUrl) return; // skip if YouTube or not started
+    const intervalMs = 1000;
+    const increment = durationSeconds > 0 ? 100 / durationSeconds : 0;
+    const id = setInterval(() => {
+      setProgress((prev) => {
+        const next = Math.min(prev + increment, 100);
+        progressRef.current = next;
+        checkThresholds(next);
+        if (next >= 100) clearInterval(id);
+        return next;
+      });
+    }, intervalMs);
+    return () => clearInterval(id);
+  }, [hasStarted, embedUrl, durationSeconds, checkThresholds]);
+
+  // Send final progress on unmount using progressRef (avoids stale closure)
   useEffect(() => {
     return () => {
-      if (isAuthenticated && progress > 0) {
-        // Use sendBeacon for reliability on page leave
-        if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-          navigator.sendBeacon(
-            '/api/library/progress',
-            JSON.stringify({ video_id: videoId, progress_percent: Math.round(progress) }),
-          );
-        }
+      if (isAuthenticated && progressRef.current > 0 && navigator.sendBeacon) {
+        navigator.sendBeacon(
+          '/api/library/progress',
+          JSON.stringify({ video_id: videoId, progress_percent: Math.round(progressRef.current) }),
+        );
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePlayPause = () => {
-    if (!hasStarted) {
-      setHasStarted(true);
-      trackEvent('library_video_play', {
-        video_slug: videoId,
-        locale,
-      });
-    }
-    setPlaying(!playing);
+  const handlePlay = () => {
+    setHasStarted(true);
+    trackEvent('library_video_play', { video_slug: videoId, locale });
   };
 
   const minutes = Math.ceil(durationSeconds / 60);
 
   return (
     <div className="relative w-full rounded-lg overflow-hidden bg-bg-tertiary" style={{ aspectRatio: '16/9' }}>
-      {/* Thumbnail / Player area */}
-      {thumbnailUrl ? (
-        <img
-          src={thumbnailUrl}
-          alt={title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-fg-tertiary text-sm">Video: {title}</span>
-        </div>
-      )}
-
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-      {/* Play/Pause button */}
-      <button
-        onClick={handlePlayPause}
-        className="absolute inset-0 flex items-center justify-center group"
-        aria-label={playing ? 'Pause video' : 'Play video'}
-      >
-        {!playing && (
-          <div className="w-16 h-16 rounded-full bg-accent-teal/90 flex items-center justify-center shadow-lg group-hover:bg-accent-teal transition-colors">
-            <Play size={28} className="text-white ml-1" />
-          </div>
-        )}
-        {playing && (
-          <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Pause size={20} className="text-white" />
-          </div>
-        )}
-      </button>
-
-      {/* Duration badge */}
+      {/* Phase 1: Before play — show thumbnail */}
       {!hasStarted && (
-        <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
-          {minutes} min
+        <>
+          {thumbnailUrl ? (
+            <img src={thumbnailUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-fg-tertiary text-sm">{title}</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          <button
+            onClick={handlePlay}
+            className="absolute inset-0 flex items-center justify-center group"
+            aria-label="Play video"
+          >
+            <div className="w-16 h-16 rounded-full bg-accent-teal/90 flex items-center justify-center shadow-lg group-hover:bg-accent-teal transition-colors">
+              <Play size={28} className="text-white ml-1" />
+            </div>
+          </button>
+          <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded">
+            {minutes} min
+          </div>
+        </>
+      )}
+
+      {/* Phase 2: After play */}
+      {hasStarted && embedUrl && (
+        // YouTube iframe — div is replaced by YT.Player constructor
+        <div ref={iframeContainerRef} className="absolute inset-0 w-full h-full">
+          {/* YT.Player mounts here; also serves as fallback iframe */}
+          <iframe
+            title={title}
+            src={embedUrl}
+            className="w-full h-full"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
         </div>
       )}
 
-      {/* Progress bar */}
+      {/* Phase 2 fallback: simulated player (non-YouTube URL) */}
+      {hasStarted && !embedUrl && (
+        <>
+          {thumbnailUrl && (
+            <img src={thumbnailUrl} alt={title} className="absolute inset-0 w-full h-full object-cover opacity-60" />
+          )}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-fg-secondary text-sm">Playing: {title}</span>
+          </div>
+        </>
+      )}
+
+      {/* Progress bar (both modes) */}
       {progress > 0 && (
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
           <div
             className="h-full bg-accent-teal transition-all duration-1000 ease-linear"
             style={{ width: `${progress}%` }}
           />
-        </div>
-      )}
-
-      {/* Placeholder label */}
-      {playing && (
-        <div className="absolute top-3 right-3 bg-accent-teal/90 text-white text-xs px-2 py-1 rounded">
-          Simulated Playback
         </div>
       )}
     </div>
