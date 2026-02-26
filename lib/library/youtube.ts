@@ -38,13 +38,13 @@ export function loadYouTubeIframeAPI(): Promise<void> {
 
   apiReadyPromise = new Promise<void>((resolve) => {
     // Already loaded (e.g. during hot reload)
-    if (typeof window !== 'undefined' && (window as Window & { YT?: { Player: unknown } }).YT?.Player) {
+    if (typeof window !== 'undefined' && (window as unknown as { YT?: { Player: unknown } }).YT?.Player) {
       resolve();
       return;
     }
 
     // YT calls this global when the API is ready
-    (window as Window & { onYouTubeIframeAPIReady?: () => void }).onYouTubeIframeAPIReady = resolve;
+    (window as unknown as { onYouTubeIframeAPIReady?: () => void }).onYouTubeIframeAPIReady = resolve;
 
     const script = document.createElement('script');
     script.src = 'https://www.youtube.com/iframe_api';

@@ -113,7 +113,7 @@ export function LibraryPlayer({
     loadYouTubeIframeAPI().then(() => {
       if (destroyedRef.current || !iframeContainerRef.current) return;
 
-      const YT = (window as Window & { YT: { Player: new (el: HTMLElement, opts: unknown) => YTPlayer } }).YT;
+      const YT = (window as unknown as { YT: { Player: new (el: HTMLElement, opts: unknown) => YTPlayer } }).YT;
 
       ytPlayerRef.current = new YT.Player(iframeContainerRef.current, {
         videoId: youtubeVideoId,
