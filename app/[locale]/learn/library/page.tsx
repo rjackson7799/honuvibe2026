@@ -5,11 +5,11 @@ import { createClient } from '@/lib/supabase/server';
 import { getLibraryVideosWithUserState } from '@/lib/library/queries';
 import { resolveVideoCardProps } from '@/lib/library/types';
 import { generateLibraryCollectionSchema } from '@/lib/json-ld';
-import { Container } from '@/components/layout/container';
-import { Section } from '@/components/layout/section';
-import { SectionHeading } from '@/components/ui/section-heading';
 import { CtaStrip } from '@/components/sections/cta-strip';
+import { LibraryHero } from '@/components/sections/learn/library-hero';
 import { LibraryContent } from '@/components/library/LibraryContent';
+import { Section } from '@/components/layout/section';
+import { Container } from '@/components/layout/container';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -69,15 +69,7 @@ export default async function LibraryPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Section>
-        <Container>
-          <SectionHeading
-            overline={t('overline')}
-            heading={t('title')}
-            sub={t('subtitle')}
-          />
-        </Container>
-      </Section>
+      <LibraryHero />
 
       <Section>
         <Container size="wide">

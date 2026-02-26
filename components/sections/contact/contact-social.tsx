@@ -65,12 +65,13 @@ export function ContactSocial() {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex flex-col items-center gap-2.5 rounded-xl border border-border-default bg-bg-secondary p-6 hover:border-accent-teal/30 hover:bg-bg-tertiary/50 transition-all duration-[var(--duration-normal)]"
+              aria-label={`${label} (opens in new tab)`}
+              className="group flex flex-col items-center gap-2.5 rounded-xl border border-border-default bg-bg-secondary p-6 cursor-pointer hover:border-accent-teal/30 hover:bg-bg-tertiary/50 transition-all duration-[var(--duration-normal)]"
             >
-              <div className="text-fg-secondary">
+              <div className="text-fg-secondary group-hover:text-accent-teal transition-colors duration-[var(--duration-normal)]">
                 <Icon />
               </div>
-              <span className="text-sm font-medium text-fg-primary">{label}</span>
+              <span className="text-sm font-medium text-fg-primary group-hover:text-fg-primary transition-colors duration-[var(--duration-normal)]">{label}</span>
             </a>
           ))}
         </div>

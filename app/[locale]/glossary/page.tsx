@@ -80,7 +80,7 @@ export default async function GlossaryPage({ params }: Props) {
         </Container>
       </Section>
 
-      <Section className="!pt-0">
+      <Section className="!pt-0" noReveal>
         <Container size="wide">
           <GlossaryIndexContent
             terms={terms}

@@ -660,6 +660,8 @@
       "message_label": "Message",
       "message_placeholder": "How can we help?",
       "submit": "Send Message",
+      "submitting": "Sending…",
+      "chars_remaining": "{count} / 2000",
       "success_heading": "Message Sent",
       "success_message": "Thank you for reaching out. We'll get back to you within 2–3 business days.",
       "error": "Something went wrong. Please try again."

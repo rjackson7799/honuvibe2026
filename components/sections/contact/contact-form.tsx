@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle, Loader2, ChevronDown } from 'lucide-react';
 
 type FormData = {
   name: string;
@@ -20,6 +20,8 @@ const initialFormData: FormData = {
   subject: 'general',
   message: '',
 };
+
+const MAX_MESSAGE_LENGTH = 2000;
 
 export function ContactForm() {
   const t = useTranslations('contact_page.form');
@@ -83,8 +85,11 @@ export function ContactForm() {
           {/* Row: Name + Email */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-fg-secondary">{t('name_label')}</label>
+              <label htmlFor="contact-name" className="text-sm font-medium text-fg-secondary">
+                {t('name_label')}
+              </label>
               <input
+                id="contact-name"
                 type="text"
                 required
                 value={formData.name}
@@ -94,8 +99,11 @@ export function ContactForm() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-fg-secondary">{t('email_label')}</label>
+              <label htmlFor="contact-email" className="text-sm font-medium text-fg-secondary">
+                {t('email_label')}
+              </label>
               <input
+                id="contact-email"
                 type="email"
                 required
                 value={formData.email}
@@ -108,32 +116,47 @@ export function ContactForm() {
 
           {/* Subject */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-fg-secondary">{t('subject_label')}</label>
-            <select
-              value={formData.subject}
-              onChange={(e) => handleChange('subject', e.target.value)}
-              className={selectClasses}
-            >
-              <option value="general">{t('subject_options.general')}</option>
-              <option value="consulting">{t('subject_options.consulting')}</option>
-              <option value="partnership">{t('subject_options.partnership')}</option>
-              <option value="feedback">{t('subject_options.feedback')}</option>
-              <option value="other">{t('subject_options.other')}</option>
-            </select>
+            <label htmlFor="contact-subject" className="text-sm font-medium text-fg-secondary">
+              {t('subject_label')}
+            </label>
+            <div className="relative">
+              <select
+                id="contact-subject"
+                value={formData.subject}
+                onChange={(e) => handleChange('subject', e.target.value)}
+                className={selectClasses}
+              >
+                <option value="general">{t('subject_options.general')}</option>
+                <option value="consulting">{t('subject_options.consulting')}</option>
+                <option value="partnership">{t('subject_options.partnership')}</option>
+                <option value="feedback">{t('subject_options.feedback')}</option>
+                <option value="other">{t('subject_options.other')}</option>
+              </select>
+              <ChevronDown
+                size={16}
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-fg-tertiary"
+              />
+            </div>
           </div>
 
           {/* Message */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-fg-secondary">{t('message_label')}</label>
+            <label htmlFor="contact-message" className="text-sm font-medium text-fg-secondary">
+              {t('message_label')}
+            </label>
             <textarea
+              id="contact-message"
               required
               rows={4}
-              maxLength={2000}
+              maxLength={MAX_MESSAGE_LENGTH}
               value={formData.message}
               onChange={(e) => handleChange('message', e.target.value)}
               placeholder={t('message_placeholder')}
               className={textareaClasses}
             />
+            <span className="text-xs text-fg-tertiary text-right tabular-nums">
+              {t('chars_remaining', { count: formData.message.length })}
+            </span>
           </div>
 
           <Button
@@ -141,15 +164,17 @@ export function ContactForm() {
             size="md"
             type="submit"
             disabled={status === 'loading'}
-            icon={Send}
+            icon={status === 'loading' ? Loader2 : Send}
             iconPosition="right"
-            className="mt-1 self-start"
+            className={`mt-1 w-full sm:w-auto sm:self-start${status === 'loading' ? ' [&_svg]:animate-spin' : ''}`}
           >
-            {t('submit')}
+            {status === 'loading' ? t('submitting') : t('submit')}
           </Button>
 
           {status === 'error' && (
-            <p className="text-sm text-red-400 text-center">{t('error')}</p>
+            <p role="alert" aria-live="assertive" className="text-sm text-red-400 text-center">
+              {t('error')}
+            </p>
           )}
         </form>
       </Container>

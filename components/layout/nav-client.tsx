@@ -6,7 +6,6 @@ import { Menu } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { IconButton } from '@/components/ui/icon-button';
-import { ThemeToggle } from './theme-toggle';
 import { LangToggle } from './lang-toggle';
 import { MobileMenu } from './mobile-menu';
 import { UserMenu } from './user-menu';
@@ -87,7 +86,6 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
             <UserMenu labels={userMenuLabels} />
           </div>
           <div className={isAuthRoute ? 'md:hidden flex items-center gap-1' : 'flex items-center gap-1'}>
-            <ThemeToggle />
             <LangToggle />
           </div>
           {!isAuthRoute && (

@@ -660,6 +660,8 @@
       "message_label": "メッセージ",
       "message_placeholder": "どのようにお手伝いできますか？",
       "submit": "送信する",
+      "submitting": "送信中…",
+      "chars_remaining": "{count} / 2000",
       "success_heading": "送信完了",
       "success_message": "お問い合わせありがとうございます。2〜3営業日以内にご返信いたします。",
       "error": "エラーが発生しました。もう一度お試しください。"
