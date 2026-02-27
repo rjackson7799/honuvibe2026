@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-02-25 (About page redesign — brand-first, founder-second)
+**Last updated:** 2026-02-26 (Exploration page — dual featured builds)
 
 ### Status Legend
 - [ ] Not started
@@ -60,7 +60,7 @@
 ### Pages (EN + JA)
 - [x] Homepage — Hero, MissionStrip, HonuHub feature, Featured Courses, Exploration preview, Ryan bio, Newsletter, Social proof
 - [x] HonuHub — Hero (opening badge, notify modal, glow orbs), about (real photo), three modes, upcoming events (4 placeholder), remote learning (i18n), membership tiers, location + contact form
-- [x] Exploration Island — Territory accordion with accent bars, project cards with tech tags and outcomes, 5 categories
+- [x] Exploration Island — Territory grid, 2× featured builds (KwameBrathwaite + HCI Medical Group, side-by-side cards), tech stack showcase, process timeline, lead form
 - [x] About — Brand-first redesign: HonuHub-style hero, Mission & Vision, Aloha Standard, Core Competencies + consulting CTA, Founder bio, social links
 - [!] Blog index — Blocked on CMS decision (Sanity.io or Payload)
 - [!] Blog post — Blocked on CMS decision
@@ -551,6 +551,44 @@
 ### Verification
 - [x] TypeScript: zero errors
 - [x] Production build: clean, `/en/about` and `/ja/about` in output
+
+---
+
+## Exploration Page — Dual Featured Builds
+
+### Problem
+- Single featured project (KwameBrathwaite.com) didn't showcase the full range of our work
+- Only one territory represented (arts/culture web redesign)
+
+### Changes
+- [x] Refactored `FeaturedBuild` from single 2-column layout to **2-card side-by-side grid**
+- [x] Extracted `FeaturedCard` sub-component with independent carousel state per card
+- [x] Data-driven via `ProjectConfig[]` array — easy to add/remove projects
+- [x] Translation key restructured: `featured_build` → `featured_builds` with `kwame` + `hci` project keys
+- [x] Section-level heading added above both cards ("Featured Builds" / "注目プロジェクト")
+
+### Projects
+1. **KwameBrathwaite.com** — Photography archive redesign (status: "In Development", pulsing dot)
+2. **HCI Medical Group** — Healthcare platform + custom project management module (status: "Live", solid dot)
+
+### Layout
+- Desktop: `md:grid-cols-2` side-by-side cards
+- Mobile: stacked vertically
+- Each card: carousel on top → project details below (vertical stack fits 50% width)
+- Cards have border + subtle background for visual separation
+
+### Files Created
+- `public/projects/hci-medical/screenshot-1.svg`, `screenshot-2.svg`, `screenshot-3.svg` (placeholders)
+
+### Files Modified
+- `components/sections/exploration/featured-build.tsx` (full refactor)
+- `messages/en.json` (`featured_build` → `featured_builds` + HCI content)
+- `messages/ja.json` (`featured_build` → `featured_builds` + HCI JP content)
+
+### Verification
+- [x] TypeScript: zero errors
+- [x] Production build: clean
+- [ ] Replace placeholder SVGs with real HCI Medical Group screenshots
 
 ---
 

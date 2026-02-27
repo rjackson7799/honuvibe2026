@@ -68,6 +68,7 @@ export interface Course {
   thumbnail_url: string | null;
   hero_image_url: string | null;
   tags: string[] | null;
+  is_featured: boolean;
   is_published: boolean;
   status: CourseStatus;
   created_at: string;

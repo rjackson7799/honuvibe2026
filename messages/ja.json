@@ -95,19 +95,16 @@
     "heading": "探検する",
     "sub": "実際のプロジェクト。実際の成果。HonuVibeコミュニティが構築したものをご覧ください。",
     "cta": "私たちの仕事を探る",
-    "projects": {
-      "reef_analytics": {
-        "title": "リーフ分析ダッシュボード",
-        "tagline": "保全チームのためのリアルタイム海洋データ可視化",
-        "outcome": "データに基づく意思決定が40%高速化",
-        "tags": "Next.js,Supabase,D3.js"
-      },
-      "aloha_scheduler": {
-        "title": "アロハスケジューラー",
-        "tagline": "ワイキキツアーオペレーターのためのAI搭載予約システム",
-        "outcome": "手動スケジューリングを60%削減",
-        "tags": "React,Node.js,OpenAI"
-      }
+    "featured": {
+      "overline": "注目プロジェクト",
+      "heading": "KwameBrathwaite.com",
+      "tagline": "写真アーカイブのモダンリニューアル",
+      "status": "開発中",
+      "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
+      "carousel_label": "プロジェクトスクリーンショット",
+      "slide_alt_1": "KwameBrathwaite.comホームページリデザイン",
+      "slide_alt_2": "フォトアーカイブギャラリービュー",
+      "slide_alt_3": "モバイルレスポンシブレイアウト"
     }
   },
   "bio": {
@@ -333,25 +330,49 @@
       "success": "ありがとうございます！近日中にご連絡いたします。",
       "error": "エラーが発生しました。もう一度お試しください。"
     },
-    "featured_build": {
-      "overline": "注目プロジェクト",
-      "heading": "KwameBrathwaite.com",
-      "sub": "写真アーカイブのモダンリニューアル",
-      "problem": "伝説的な写真家クワメ・ブラスウェイトのレガシーサイトは完全な変革が必要でした。モバイル非対応、読み込みが遅く、プリント販売やライセンス、展覧会予約のコンバージョン機会を逃していました。",
-      "description": "Claude、Cursor、そしてモダンなAI駆動ワークフローを使用して、KwameBrathwaite.comをゼロから再構築しています。新しいサイトはアーカイブの文化的意義を保ちながら、実際のビジネス成果—販売、ライセンス問い合わせ、ブランドパートナーシップ—を推進しています。",
-      "outcome": "伝説的なアーティストのレガシーを尊重しながら、ビジネスを成長させるモバイルファーストでコンバージョン最適化された写真アーカイブ。",
-      "outcome_stats": {
-        "stat_1": { "value": "3倍", "label": "高速化" },
-        "stat_2": { "value": "モバイル対応", "label": "レスポンシブデザイン" },
-        "stat_3": { "value": "AI活用", "label": "モダンワークフロー" }
+    "featured_builds": {
+      "section_overline": "注目プロジェクト",
+      "section_heading": "私たちの技術を定義するプロジェクト",
+      "kwame": {
+        "overline": "注目プロジェクト",
+        "heading": "KwameBrathwaite.com",
+        "sub": "写真アーカイブのモダンリニューアル",
+        "problem": "伝説的な写真家クワメ・ブラスウェイトのレガシーサイトは完全な変革が必要でした。モバイル非対応、読み込みが遅く、プリント販売やライセンス、展覧会予約のコンバージョン機会を逃していました。",
+        "description": "Claude、Cursor、そしてモダンなAI駆動ワークフローを使用して、KwameBrathwaite.comをゼロから再構築しています。新しいサイトはアーカイブの文化的意義を保ちながら、実際のビジネス成果—販売、ライセンス問い合わせ、ブランドパートナーシップ—を推進しています。",
+        "outcome": "伝説的なアーティストのレガシーを尊重しながら、ビジネスを成長させるモバイルファーストでコンバージョン最適化された写真アーカイブ。",
+        "outcome_stats": {
+          "stat_1": { "value": "3倍", "label": "高速化" },
+          "stat_2": { "value": "モバイル対応", "label": "レスポンシブデザイン" },
+          "stat_3": { "value": "AI活用", "label": "モダンワークフロー" }
+        },
+        "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
+        "challenge_label": "課題",
+        "carousel_label": "プロジェクトスクリーンショット",
+        "slide_alt_1": "KwameBrathwaite.comホームページリデザイン",
+        "slide_alt_2": "フォトアーカイブギャラリービュー",
+        "slide_alt_3": "モバイルレスポンシブレイアウト",
+        "status": "開発中"
       },
-      "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
-      "challenge_label": "課題",
-      "carousel_label": "プロジェクトスクリーンショット",
-      "slide_alt_1": "KwameBrathwaite.comホームページリデザイン",
-      "slide_alt_2": "フォトアーカイブギャラリービュー",
-      "slide_alt_3": "モバイルレスポンシブレイアウト",
-      "status": "開発中"
+      "hci": {
+        "overline": "注目プロジェクト",
+        "heading": "HCI Medical Group",
+        "sub": "カスタムプロジェクト管理付きヘルスケアプラットフォーム",
+        "problem": "HCI Medical Groupは、モダンでプロフェッショナルなウェブプレゼンスと、医療実践全体の業務を効率化する内部プロジェクト管理ツールを必要としていました。",
+        "description": "ブランドのデジタルプレゼンスを向上させる完全なフロントエンドリデザインと、チームの連携とワークフロー追跡のためのカスタムビルドのプロジェクト管理モジュールを提供しました。",
+        "outcome": "日常業務を効率化する強力な内部ツールと組み合わされた、洗練されたコンバージョン対応のヘルスケアウェブサイト。",
+        "outcome_stats": {
+          "stat_1": { "value": "公開中", "label": "本番環境" },
+          "stat_2": { "value": "カスタムPM", "label": "バックエンドモジュール" },
+          "stat_3": { "value": "フルスタック", "label": "エンドツーエンド構築" }
+        },
+        "tags": "Next.js,Tailwind CSS,Supabase,Custom PM,Vercel",
+        "challenge_label": "課題",
+        "carousel_label": "プロジェクトスクリーンショット",
+        "slide_alt_1": "HCI Medical Groupホームページ",
+        "slide_alt_2": "プロジェクト管理ダッシュボード",
+        "slide_alt_3": "モバイルレスポンシブビュー",
+        "status": "公開中"
+      }
     },
     "tech_stack": {
       "overline": "ツールキット",

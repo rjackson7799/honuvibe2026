@@ -5,7 +5,6 @@ import {
   HonuHubFeature,
   FeaturedCourses,
   ExplorationPreview,
-  RyanBioStrip,
   NewsletterSignup,
   SocialProof,
 } from '@/components/sections';
@@ -34,7 +33,6 @@ export default async function HomePage({ params }: Props) {
         <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
       </div>
       <ExplorationPreview />
-      <RyanBioStrip />
       <div className="dark-zone">
         <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
       </div>

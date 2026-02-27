@@ -19,6 +19,21 @@ export async function getPublishedCourses(): Promise<Course[]> {
   return data ?? [];
 }
 
+export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('courses')
+    .select('*')
+    .eq('is_published', true)
+    .eq('is_featured', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const supabase = await createClient();
 

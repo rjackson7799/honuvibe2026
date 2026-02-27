@@ -56,7 +56,7 @@ INSERT INTO courses (
   completion_requirements_en, completion_requirements_jp,
   materials_summary_en, materials_summary_jp,
   tags,
-  is_published, status
+  is_featured, is_published, status
 ) VALUES
 
 -- ── Course 1: AI Foundations for Business (Beginner, 8 weeks) ──
@@ -94,7 +94,7 @@ INSERT INTO courses (
   '[{"material": "Session slides (PDF)", "language": "EN + JP", "provided_with": "Each session"}, {"material": "Prompt template library", "language": "EN", "provided_with": "Week 1"}, {"material": "AI tool comparison guide", "language": "EN + JP", "provided_with": "Week 2"}, {"material": "Final project template", "language": "EN", "provided_with": "Week 6"}]'::jsonb,
   '[{"material": "セッションスライド（PDF）", "language": "EN + JP", "provided_with": "各セッション"}, {"material": "プロンプトテンプレートライブラリ", "language": "EN", "provided_with": "第1週"}, {"material": "AIツール比較ガイド", "language": "EN + JP", "provided_with": "第2週"}, {"material": "最終プロジェクトテンプレート", "language": "EN", "provided_with": "第6週"}]'::jsonb,
   '["ai-fundamentals", "prompt-engineering", "business-ai", "chatgpt", "claude"]'::jsonb,
-  true, 'published'
+  true, true, 'published'
 ),
 
 -- ── Course 2: AI-Powered Productivity Mastery (Intermediate, 6 weeks) ──
@@ -132,7 +132,7 @@ INSERT INTO courses (
   '[{"material": "Session slides + recordings", "language": "EN + JP", "provided_with": "Each session"}, {"material": "Zapier template pack", "language": "EN", "provided_with": "Week 2"}, {"material": "Advanced prompt patterns cheat sheet", "language": "EN + JP", "provided_with": "Week 1"}, {"material": "ROI measurement spreadsheet", "language": "EN", "provided_with": "Week 5"}]'::jsonb,
   '[{"material": "セッションスライド＋録画", "language": "EN + JP", "provided_with": "各セッション"}, {"material": "Zapierテンプレートパック", "language": "EN", "provided_with": "第2週"}, {"material": "上級プロンプトパターン早見表", "language": "EN + JP", "provided_with": "第1週"}, {"material": "ROI測定スプレッドシート", "language": "EN", "provided_with": "第5週"}]'::jsonb,
   '["productivity", "automation", "prompt-engineering", "zapier", "business-ai"]'::jsonb,
-  true, 'published'
+  true, true, 'published'
 ),
 
 -- ── Course 3: Building AI-First Products (Advanced, 10 weeks) ──
@@ -170,7 +170,7 @@ INSERT INTO courses (
   '[{"material": "Session slides + code repos", "language": "EN", "provided_with": "Each session"}, {"material": "API starter templates", "language": "EN", "provided_with": "Week 1"}, {"material": "AI UX pattern library", "language": "EN + JP", "provided_with": "Week 4"}, {"material": "Deployment checklist", "language": "EN", "provided_with": "Week 9"}]'::jsonb,
   '[{"material": "セッションスライド＋コードリポジトリ", "language": "EN", "provided_with": "各セッション"}, {"material": "APIスターターテンプレート", "language": "EN", "provided_with": "第1週"}, {"material": "AI UXパターンライブラリ", "language": "EN + JP", "provided_with": "第4週"}, {"material": "デプロイチェックリスト", "language": "EN", "provided_with": "第9週"}]'::jsonb,
   '["cursor", "claude", "automation", "hands-on", "career"]'::jsonb,
-  true, 'published'
+  true, true, 'published'
 )
 ON CONFLICT (slug) DO NOTHING;
 

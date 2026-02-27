@@ -95,19 +95,16 @@
     "heading": "Explore",
     "sub": "Real projects. Real outcomes. See what the HonuVibe community has built.",
     "cta": "Explore our work",
-    "projects": {
-      "reef_analytics": {
-        "title": "Reef Analytics Dashboard",
-        "tagline": "Real-time marine data visualization for conservation teams",
-        "outcome": "40% faster data-driven decisions",
-        "tags": "Next.js,Supabase,D3.js"
-      },
-      "aloha_scheduler": {
-        "title": "Aloha Scheduler",
-        "tagline": "AI-powered booking system for a Waikiki tour operator",
-        "outcome": "60% reduction in manual scheduling",
-        "tags": "React,Node.js,OpenAI"
-      }
+    "featured": {
+      "overline": "Featured Build",
+      "heading": "KwameBrathwaite.com",
+      "tagline": "A photography archive gets a modern makeover",
+      "status": "In Development",
+      "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
+      "carousel_label": "Project Screenshots",
+      "slide_alt_1": "KwameBrathwaite.com homepage redesign",
+      "slide_alt_2": "Photo archive gallery view",
+      "slide_alt_3": "Mobile responsive layout"
     }
   },
   "bio": {
@@ -333,25 +330,49 @@
       "success": "Thanks! We'll be in touch soon.",
       "error": "Something went wrong. Please try again."
     },
-    "featured_build": {
-      "overline": "Featured Build",
-      "heading": "KwameBrathwaite.com",
-      "sub": "A photography archive gets a modern makeover",
-      "problem": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
-      "description": "Using Claude, Cursor, and a modern AI-powered workflow, we're rebuilding KwameBrathwaite.com from the ground up. The new site preserves the archive's cultural significance while driving real business outcomes — sales, licensing inquiries, and brand partnerships.",
-      "outcome": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
-      "outcome_stats": {
-        "stat_1": { "value": "3x", "label": "Faster Load Time" },
-        "stat_2": { "value": "Mobile-First", "label": "Responsive Design" },
-        "stat_3": { "value": "AI-Powered", "label": "Modern Workflow" }
+    "featured_builds": {
+      "section_overline": "Featured Builds",
+      "section_heading": "Projects That Define Our Craft",
+      "kwame": {
+        "overline": "Featured Build",
+        "heading": "KwameBrathwaite.com",
+        "sub": "A photography archive gets a modern makeover",
+        "problem": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
+        "description": "Using Claude, Cursor, and a modern AI-powered workflow, we're rebuilding KwameBrathwaite.com from the ground up. The new site preserves the archive's cultural significance while driving real business outcomes — sales, licensing inquiries, and brand partnerships.",
+        "outcome": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
+        "outcome_stats": {
+          "stat_1": { "value": "3x", "label": "Faster Load Time" },
+          "stat_2": { "value": "Mobile-First", "label": "Responsive Design" },
+          "stat_3": { "value": "AI-Powered", "label": "Modern Workflow" }
+        },
+        "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
+        "challenge_label": "The Challenge",
+        "carousel_label": "Project Screenshots",
+        "slide_alt_1": "KwameBrathwaite.com homepage redesign",
+        "slide_alt_2": "Photo archive gallery view",
+        "slide_alt_3": "Mobile responsive layout",
+        "status": "In Development"
       },
-      "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
-      "challenge_label": "The Challenge",
-      "carousel_label": "Project Screenshots",
-      "slide_alt_1": "KwameBrathwaite.com homepage redesign",
-      "slide_alt_2": "Photo archive gallery view",
-      "slide_alt_3": "Mobile responsive layout",
-      "status": "In Development"
+      "hci": {
+        "overline": "Featured Build",
+        "heading": "HCI Medical Group",
+        "sub": "Healthcare platform with custom project management",
+        "problem": "HCI Medical Group needed a modern, professional web presence and an internal project management tool to streamline operations across their medical practice.",
+        "description": "We delivered a complete front-end redesign that elevated the brand's digital presence, plus a custom-built project management module in the backend for internal team coordination and workflow tracking.",
+        "outcome": "A polished, conversion-ready healthcare website paired with powerful internal tools that streamline daily operations.",
+        "outcome_stats": {
+          "stat_1": { "value": "Live", "label": "In Production" },
+          "stat_2": { "value": "Custom PM", "label": "Backend Module" },
+          "stat_3": { "value": "Full-Stack", "label": "End-to-End Build" }
+        },
+        "tags": "Next.js,Tailwind CSS,Supabase,Custom PM,Vercel",
+        "challenge_label": "The Challenge",
+        "carousel_label": "Project Screenshots",
+        "slide_alt_1": "HCI Medical Group homepage",
+        "slide_alt_2": "Project management dashboard",
+        "slide_alt_3": "Mobile responsive view",
+        "status": "Live"
+      }
     },
     "tech_stack": {
       "overline": "Our Toolkit",
