@@ -67,7 +67,7 @@ export function LibraryContent({ videos, locale }: LibraryContentProps) {
       {activeCategory === 'all' && !searchQuery.trim() && featuredVideos.length > 0 && (
         <div>
           <Overline className="mb-4">{t('featured_label')}</Overline>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-2 xl:grid-cols-3 md:overflow-visible">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none -mx-5 px-5 md:mx-0 md:px-0 md:grid md:grid-cols-3 xl:grid-cols-4 md:overflow-visible">
             {featuredVideos.map((video) => (
               <div key={video.id} className="shrink-0 w-[300px] md:w-auto" style={{ scrollSnapAlign: 'start' }}>
                 <LibraryVideoCard {...video} />
@@ -89,7 +89,7 @@ export function LibraryContent({ videos, locale }: LibraryContentProps) {
         />
 
         {filteredVideos.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-6">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3 xl:grid-cols-4 mt-6">
             {filteredVideos.map((video) => (
               <LibraryVideoCard key={video.id} {...video} />
             ))}

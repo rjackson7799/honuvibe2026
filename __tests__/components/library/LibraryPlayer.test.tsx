@@ -12,6 +12,7 @@ vi.mock('@/lib/library/youtube', () => ({
   ),
   buildEmbedUrl: vi.fn(() => 'https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=https://honuvibe.ai'),
   loadYouTubeIframeAPI: vi.fn(() => Promise.resolve()),
+  resolveThumbnail: vi.fn((thumb: string | null) => thumb),
   YT_STATE: { PLAYING: 1, PAUSED: 2, ENDED: 0 },
 }));
 

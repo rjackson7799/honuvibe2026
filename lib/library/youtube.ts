@@ -85,6 +85,31 @@ export function parseYouTubeVideoId(url: string): string | null {
 }
 
 /**
+ * Returns a YouTube thumbnail URL for a given video ID.
+ * Uses mqdefault (320×180) by default — good balance of quality and size.
+ */
+export function getYouTubeThumbnailUrl(
+  videoId: string,
+  quality: 'default' | 'mqdefault' | 'hqdefault' | 'sddefault' | 'maxresdefault' = 'hqdefault',
+): string {
+  return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
+}
+
+/**
+ * Resolves a thumbnail: returns the provided thumbnailUrl if it looks like a real image,
+ * otherwise falls back to YouTube's auto-generated thumbnail.
+ */
+export function resolveThumbnail(thumbnailUrl: string | null, videoUrl: string): string | null {
+  // If a custom thumbnail exists and isn't a placeholder local path, use it
+  if (thumbnailUrl && !thumbnailUrl.startsWith('/images/library/')) {
+    return thumbnailUrl;
+  }
+  // Fall back to YouTube thumbnail
+  const videoId = parseYouTubeVideoId(videoUrl);
+  return videoId ? getYouTubeThumbnailUrl(videoId) : thumbnailUrl;
+}
+
+/**
  * Builds the YouTube embed URL with the IFrame API enabled.
  */
 export function buildEmbedUrl(videoId: string): string {

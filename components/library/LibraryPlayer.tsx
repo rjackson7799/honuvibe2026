@@ -7,6 +7,7 @@ import {
   parseYouTubeVideoId,
   buildEmbedUrl,
   loadYouTubeIframeAPI,
+  resolveThumbnail,
   YT_STATE,
   type YTPlayer,
   type YTOnStateChangeEvent,
@@ -46,6 +47,7 @@ export function LibraryPlayer({
 
   const youtubeVideoId = parseYouTubeVideoId(videoUrl);
   const embedUrl = youtubeVideoId ? buildEmbedUrl(youtubeVideoId) : null;
+  const resolvedThumbnail = resolveThumbnail(thumbnailUrl, videoUrl);
 
   const reportProgress = useCallback(
     async (percent: number) => {
@@ -182,8 +184,8 @@ export function LibraryPlayer({
       {/* Phase 1: Before play — show thumbnail */}
       {!hasStarted && (
         <>
-          {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt={title} className="absolute inset-0 w-full h-full object-cover" />
+          {resolvedThumbnail ? (
+            <img src={resolvedThumbnail} alt={title} className="absolute inset-0 w-full h-full object-cover" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-fg-tertiary text-sm">{title}</span>
@@ -223,8 +225,8 @@ export function LibraryPlayer({
       {/* Phase 2 fallback: simulated player (non-YouTube URL) */}
       {hasStarted && !embedUrl && (
         <>
-          {thumbnailUrl && (
-            <img src={thumbnailUrl} alt={title} className="absolute inset-0 w-full h-full object-cover opacity-60" />
+          {resolvedThumbnail && (
+            <img src={resolvedThumbnail} alt={title} className="absolute inset-0 w-full h-full object-cover opacity-60" />
           )}
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-fg-secondary text-sm">Playing: {title}</span>

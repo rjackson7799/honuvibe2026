@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseYouTubeVideoId, buildEmbedUrl } from '@/lib/library/youtube';
+import { parseYouTubeVideoId, buildEmbedUrl, getYouTubeThumbnailUrl, resolveThumbnail } from '@/lib/library/youtube';
 
 describe('parseYouTubeVideoId', () => {
   it('parses youtu.be short URL', () => {
@@ -36,5 +36,41 @@ describe('buildEmbedUrl', () => {
     expect(buildEmbedUrl('dQw4w9WgXcQ')).toBe(
       'https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1&origin=https://honuvibe.ai',
     );
+  });
+});
+
+describe('getYouTubeThumbnailUrl', () => {
+  it('returns hqdefault thumbnail by default', () => {
+    expect(getYouTubeThumbnailUrl('dQw4w9WgXcQ')).toBe(
+      'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+    );
+  });
+
+  it('supports custom quality', () => {
+    expect(getYouTubeThumbnailUrl('dQw4w9WgXcQ', 'maxresdefault')).toBe(
+      'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    );
+  });
+});
+
+describe('resolveThumbnail', () => {
+  it('returns YouTube thumbnail when thumbnailUrl is a local placeholder', () => {
+    const result = resolveThumbnail('/images/library/cursor-setup.jpg', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    expect(result).toBe('https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg');
+  });
+
+  it('returns custom thumbnail when not a local placeholder', () => {
+    const result = resolveThumbnail('https://cdn.example.com/thumb.jpg', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    expect(result).toBe('https://cdn.example.com/thumb.jpg');
+  });
+
+  it('returns YouTube thumbnail when thumbnailUrl is null', () => {
+    const result = resolveThumbnail(null, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    expect(result).toBe('https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg');
+  });
+
+  it('returns null when no thumbnail and non-YouTube URL', () => {
+    const result = resolveThumbnail(null, 'https://vimeo.com/123');
+    expect(result).toBeNull();
   });
 });

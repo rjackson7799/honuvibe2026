@@ -1,6 +1,8 @@
 // Library video TypeScript types
 // Mirrors Supabase schema from supabase/migrations/005_library_videos.sql
 
+import { resolveThumbnail } from '@/lib/library/youtube';
+
 export type LibraryVideoCategory =
   | 'ai-basics'
   | 'coding-tools'
@@ -127,7 +129,7 @@ export function resolveVideoCardProps(
       locale === 'ja' && video.description_jp
         ? video.description_jp
         : (video.description_en ?? ''),
-    thumbnailUrl: video.thumbnail_url,
+    thumbnailUrl: resolveThumbnail(video.thumbnail_url, video.video_url),
     durationSeconds: video.duration_seconds,
     category: video.category,
     difficulty: video.difficulty,

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getLibraryVideoBySlug, getRelatedVideos } from '@/lib/library/queries';
 import { resolveVideoCardProps } from '@/lib/library/types';
 import { generateLibraryVideoSchema } from '@/lib/json-ld';
+import { resolveThumbnail } from '@/lib/library/youtube';
 import { Container } from '@/components/layout/container';
 import { Section } from '@/components/layout/section';
 import { Tag } from '@/components/ui/tag';
@@ -87,6 +88,9 @@ export default async function LibraryVideoPage({ params }: Props) {
     ),
   );
 
+  // Resolve thumbnail (YouTube auto-thumbnail if local placeholder missing)
+  const resolvedThumbnail = resolveThumbnail(video.thumbnail_url, video.video_url);
+
   // Resolve bilingual content
   const title = locale === 'ja' && video.title_jp ? video.title_jp : video.title_en;
   const description = locale === 'ja' && video.description_jp ? video.description_jp : (video.description_en ?? '');
@@ -141,14 +145,14 @@ export default async function LibraryVideoPage({ params }: Props) {
               videoUrl={video.video_url}
               videoId={video.id}
               title={title}
-              thumbnailUrl={video.thumbnail_url}
+              thumbnailUrl={resolvedThumbnail}
               durationSeconds={video.duration_seconds}
               isAuthenticated={isAuthenticated}
               locale={locale}
             />
           ) : (
             <AccessGate
-              thumbnailUrl={video.thumbnail_url}
+              thumbnailUrl={resolvedThumbnail}
               videoSlug={video.slug}
               locale={locale}
               translations={{
