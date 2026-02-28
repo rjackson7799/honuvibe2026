@@ -7,7 +7,7 @@ export function LibraryHero() {
   const t = useTranslations('library');
 
   return (
-    <Section noReveal className="relative overflow-hidden">
+    <Section noReveal className="relative overflow-hidden min-h-[50vh] md:min-h-[60vh] flex items-center !pb-8">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/10 via-bg-primary to-accent-gold/5" />
 

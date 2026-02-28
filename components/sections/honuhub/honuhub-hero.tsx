@@ -13,7 +13,7 @@ export function HonuHubHero() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <Section noReveal className="relative min-h-[100svh] flex items-center">
+    <Section noReveal className="relative min-h-[100svh] flex items-center -mt-14 md:-mt-16">
 
       <Container className="relative z-10">
         <div className="flex flex-col items-center text-center">

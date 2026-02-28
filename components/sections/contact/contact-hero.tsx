@@ -11,7 +11,7 @@ export function ContactHero() {
   const t = useTranslations('contact_page.hero');
 
   return (
-    <Section noReveal className="relative overflow-hidden !pb-8">
+    <Section noReveal className="relative overflow-hidden min-h-[50vh] md:min-h-[60vh] flex items-center !pb-8">
       {/* Animated ocean / starry sky background */}
       <MessageBeaconBackground />
 
