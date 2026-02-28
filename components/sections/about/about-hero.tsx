@@ -9,7 +9,7 @@ export function AboutHero() {
   const t = useTranslations('about_page.hero');
 
   return (
-    <Section noReveal className="relative min-h-[50vh] md:min-h-[70vh] flex items-center !pb-0">
+    <Section noReveal className="relative min-h-[50vh] md:min-h-[60vh] flex items-center !pb-8">
       <Container className="relative z-10 w-full">
         <div className="flex flex-col items-center text-center">
           <Overline className="mb-4">{t('overline')}</Overline>
