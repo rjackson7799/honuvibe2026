@@ -6,7 +6,7 @@ import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { SectionHeading } from '@/components/ui';
 import { Search, Palette, Code, Rocket, HeartHandshake } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 
 const steps = [
   { key: 'discovery', Icon: Search, color: 'var(--accent-teal)', hex: '#459b98' },

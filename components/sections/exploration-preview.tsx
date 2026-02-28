@@ -14,9 +14,9 @@ const AUTO_ROTATE_MS = 5000;
 const RESUME_DELAY_MS = 10000;
 
 const slides = [
-  { src: '/projects/kwame-brathwaite/screenshot-1.svg', altKey: 'slide_alt_1' },
-  { src: '/projects/kwame-brathwaite/screenshot-2.svg', altKey: 'slide_alt_2' },
-  { src: '/projects/kwame-brathwaite/screenshot-3.svg', altKey: 'slide_alt_3' },
+  { src: '/projects/kwame-brathwaite/KB_1.jpg', altKey: 'slide_alt_1' },
+  { src: '/projects/kwame-brathwaite/KB_2.jpg', altKey: 'slide_alt_2' },
+  { src: '/projects/kwame-brathwaite/KB_3.jpg', altKey: 'slide_alt_3' },
 ];
 
 export function ExplorationPreview() {

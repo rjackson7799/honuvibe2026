@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 
 // Hardcoded dark palette — lighthouse scene is always nocturnal
 const BG_BASE = '#02050f';
