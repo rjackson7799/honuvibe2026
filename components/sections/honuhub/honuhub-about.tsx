@@ -10,7 +10,7 @@ export function HonuHubAbout() {
   const t = useTranslations('honuhub_page.about');
 
   return (
-    <Section>
+    <Section className="relative z-[1]">
       <Container>
         <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
           {/* Photo */}

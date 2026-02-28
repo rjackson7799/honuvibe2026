@@ -35,7 +35,8 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 50);
+          const shouldBeScrolled = window.scrollY > 50;
+          setScrolled((prev) => (prev === shouldBeScrolled ? prev : shouldBeScrolled));
           ticking = false;
         });
         ticking = true;
