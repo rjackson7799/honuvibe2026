@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-02-26 (Exploration page — dual featured builds)
+**Last updated:** 2026-02-27 (Exploration hero — lighthouse background with canvas starfield, Hawaiian island silhouettes, sweeping beam)
 
 ### Status Legend
 - [ ] Not started
@@ -56,11 +56,12 @@
 - [x] Gradient text shimmer (teal → gold on hero)
 - [x] Hawaii time-aware hero theming
 - [x] Theme toggle cross-fade transition
+- [x] Lighthouse hero background (canvas starfield, Hawaiian island silhouettes, sweeping beam with lens flare, Hokule'a guiding star)
 
 ### Pages (EN + JA)
 - [x] Homepage — Hero, MissionStrip, HonuHub feature, Featured Courses, Exploration preview, Ryan bio, Newsletter, Social proof
 - [x] HonuHub — Hero (opening badge, notify modal, glow orbs), about (real photo), three modes, upcoming events (4 placeholder), remote learning (i18n), membership tiers, location + contact form
-- [x] Exploration Island — Territory grid, 2× featured builds (KwameBrathwaite + HCI Medical Group, side-by-side cards), tech stack showcase, process timeline, lead form
+- [x] Exploration Island — Lighthouse hero (canvas starfield, 3 Hawaiian island silhouettes, sweeping beam, Hokule'a star, ocean gradient), territory grid, 2× featured builds (KwameBrathwaite + HCI Medical Group, side-by-side cards), floating tech showcase (auto-illuminate), process timeline, lead form
 - [x] About — Brand-first redesign: HonuHub-style hero, Mission & Vision, Aloha Standard, Core Competencies + consulting CTA, Founder bio, social links
 - [!] Blog index — Blocked on CMS decision (Sanity.io or Payload)
 - [!] Blog post — Blocked on CMS decision
@@ -801,6 +802,68 @@ Dark:  Footer
 - Vercel deployment (need domain + org setup)
 - Plausible analytics (need account setup)
 - Claude API parsing (need `ANTHROPIC_API_KEY` env var)
+
+---
+
+## Floating Tech Showcase (Reusable Pattern)
+
+### Effect
+Organic floating icon layout with underwater theme — icons bob with staggered framer-motion animations, appear dimmed by default, and glow on hover with brand color + drop-shadow. An auto-illuminate cycle randomly highlights one icon every 3 seconds, pausing when user hovers.
+
+### Key Behaviors
+- **Bobbing**: framer-motion `animate={{ y: [0, -12, 0] }}` with staggered durations (3.5–5.5s) and delays per icon
+- **Dimmed default**: `text-fg-secondary/50` — visible but muted
+- **Hover glow**: full brand color + `drop-shadow(0 0 20px <color>)` + blurred glow circle behind icon
+- **Dim siblings**: `group/container` pattern — `group-hover/container:opacity-20` with `hover:!opacity-100`
+- **Auto-illuminate**: `useState`/`setInterval` picks random icon every 3s, applies glow; pauses on container hover
+- **Labels**: hidden by default, fade in below icon on hover/auto-illuminate
+- **Accessibility**: `useReducedMotion` disables all animation + auto-illuminate
+- **Deep water gradient**: `bg-gradient-to-b from-transparent via-bg-primary/80 to-bg-primary` overlay
+
+### Files
+- `components/sections/exploration/tech-stack-showcase.tsx` — main component (currently Exploration-specific)
+- `components/sections/exploration/tech-icon.tsx` — 12 SVG icons using `currentColor`
+
+### Reuse Notes
+To use this effect elsewhere (e.g., homepage, about page, course landing pages):
+1. Extract floating layout + auto-illuminate logic into a generic `FloatingIconShowcase` component
+2. Accept `items: { icon: ReactNode; color: string; label: string }[]` as props
+3. Keep `TechIcon` for tech-specific usage, but the floating/glow pattern is icon-agnostic
+4. The `scales`, `offsets`, `durations` arrays can be auto-generated based on item count
+
+### Dependencies
+- `framer-motion` (already installed — v12.34.3)
+
+---
+
+## Lighthouse Hero Background
+
+### Effect
+Cinematic Hawaiian night-sky scene behind the Exploration hero. Canvas-rendered starfield for performance, framer-motion beam sweep for the lighthouse, and layered SVG island silhouettes for depth.
+
+### Layers (bottom to top)
+1. **Base fill** — hardcoded `#02050f` (always nocturnal, ignores theme toggle)
+2. **Sky gradient** — top 60%, three-stop navy gradient
+3. **Star canvas** — 150 twinkling stars via `<canvas>` RAF loop (follows `ocean-canvas.tsx` pattern)
+4. **Hokule'a star** — amber guiding star with subtle pulse animation
+5. **Ocean gradient** — bottom 40%, dark gradient with SVG noise shimmer + teal horizon glow
+6. **Island silhouettes** — 3 layered SVGs with smooth bezier curves: far rolling ridges, Diamond Head volcanic cone, Mokulua twin humps
+7. **Lighthouse** — tower structure with sweeping 3D beam (`rotateY` + `rotateZ`, 12s cycle), inner bright beam, lens flare
+8. **Vignette** — radial gradient darkening edges for cinematic focus
+
+### Key Behaviors
+- **Stars**: canvas RAF loop, each star oscillates alpha via `sin(frame * speed + phase)`
+- **Beam sweep**: framer-motion `rotateY: [0, 60, 0]` with `perspective: 1000px` wrapper, `mix-blend-screen`
+- **Lens flare**: pulsing blur circle synced to beam cycle
+- **Reduced motion**: static stars at dim alpha, beam and flare hidden entirely
+- **Hardcoded palette**: always dark — lighthouse scene is nocturnal regardless of theme
+
+### Files
+- `components/sections/exploration/lighthouse-background.tsx` — full component (canvas + motion.div)
+- `components/sections/exploration/exploration-hero.tsx` — imports and renders `<LighthouseBackground />`
+
+### Dependencies
+- `framer-motion` (v12.34.3 — already installed)
 
 ---
 

@@ -153,7 +153,7 @@ export function ExplorationPreview() {
         </div>
 
         <div className="mt-10 flex justify-center">
-          <Link href="/exploration">
+          <Link href="/explore">
             <Button variant="ghost" icon={ArrowRight} iconPosition="right">
               {t('cta')}
             </Button>

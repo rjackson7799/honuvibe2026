@@ -27,7 +27,7 @@ export function Footer() {
             <div className="flex flex-col gap-1.5">
               <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('nav_title')}</h4>
               <Link href="/honuhub" className={linkClass}>{nav('honuhub')}</Link>
-              <Link href="/exploration" className={linkClass}>{nav('exploration')}</Link>
+              <Link href="/explore" className={linkClass}>{nav('exploration')}</Link>
               <Link href="/learn" className={linkClass}>{nav('learn')}</Link>
               <Link href="/community" className={linkClass}>{nav('community')}</Link>
               <Link href="/about" className={linkClass}>{nav('about')}</Link>

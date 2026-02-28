@@ -8,6 +8,7 @@ import { Overline } from '@/components/ui/overline';
 import { CourseCard } from '@/components/learn/CourseCard';
 import { LevelFilter } from '@/components/learn/LevelFilter';
 import { LearnPathCards } from '@/components/learn/LearnPathCards';
+import { FloatingTechBg } from '@/components/ui/floating-tech-bg';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -62,7 +63,7 @@ export default async function LearnPage({ params, searchParams }: Props) {
             style={{
               width: '350px',
               height: '350px',
-              bottom: '10%',
+              bottom: '20%',
               left: '-5%',
               background: 'var(--glow-gold)',
               opacity: 0.14,
@@ -70,17 +71,24 @@ export default async function LearnPage({ params, searchParams }: Props) {
             }}
           />
         </div>
-        <Container className="relative z-10">
-          <div className="py-16 md:py-24 text-center">
-            <Overline className="mb-4 block">{t('catalog_overline')}</Overline>
-            <h1 className="font-serif text-h1 text-fg-primary mb-4">
-              {t('catalog_title')}
-            </h1>
-            <p className="max-w-[560px] mx-auto text-base md:text-lg text-fg-secondary leading-relaxed">
-              {t('catalog_subtitle')}
-            </p>
-          </div>
-        </Container>
+
+        {/* Floating tech icons — spans entire hero + path cards area */}
+        <FloatingTechBg iconSize={44} className="z-[1]" />
+
+        {/* Hero text area */}
+        <div className="relative">
+          <Container className="relative z-10">
+            <div className="py-16 md:py-24 text-center">
+              <Overline className="mb-4 block">{t('catalog_overline')}</Overline>
+              <h1 className="font-serif text-h1 text-fg-primary mb-4">
+                {t('catalog_title')}
+              </h1>
+              <p className="max-w-[560px] mx-auto text-base md:text-lg text-fg-secondary leading-relaxed">
+                {t('catalog_subtitle')}
+              </p>
+            </div>
+          </Container>
+        </div>
 
         {/* 3 Ways to Learn */}
         <div className="relative z-10">
@@ -88,7 +96,7 @@ export default async function LearnPage({ params, searchParams }: Props) {
         </div>
 
         {/* Bottom fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 z-[1] bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 z-[2] bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
       </div>
 
       {/* Filters + Grid */}

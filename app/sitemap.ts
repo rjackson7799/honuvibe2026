@@ -8,7 +8,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://honuvibe.ai';
 const routes = [
   '',
   '/honuhub',
-  '/exploration',
+  '/explore',
   '/about',
   '/community',
   '/contact',

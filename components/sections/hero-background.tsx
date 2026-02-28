@@ -1,16 +1,15 @@
 'use client';
 
-import { OceanCanvas } from '@/components/ocean/ocean-canvas';
-import { useScrollProgress } from '@/hooks/use-scroll-progress';
+// import { OceanCanvas } from '@/components/ocean/ocean-canvas';
+// import { useScrollProgress } from '@/hooks/use-scroll-progress';
+import { SurfaceWaterBackground } from '@/components/ocean/surface-water-background';
 import { ChevronDown } from 'lucide-react';
 
 export function HeroBackground() {
-  const scrollProgress = useScrollProgress();
-
   return (
     <>
-      <OceanCanvas scrollProgress={scrollProgress} className="z-0" />
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-transparent via-transparent to-bg-primary/70" />
+      <SurfaceWaterBackground />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-transparent via-transparent to-bg-primary" />
     </>
   );
 }

@@ -97,19 +97,19 @@ export async function HeroSection() {
     <section className="dark-zone relative flex min-h-[100svh] items-center overflow-hidden -mt-14 md:-mt-16">
       <HeroBackground />
 
-      {/* Glow orbs — above canvas, below content */}
+      {/* Glow orbs — above canvas, below content (reduced intensity for new ray background) */}
       <div className="absolute inset-0 z-[2] pointer-events-none overflow-hidden" aria-hidden="true">
         <div
           className="glow-orb"
-          style={{ width: '600px', height: '600px', top: '-10%', right: '-5%', background: 'var(--glow-teal)' }}
+          style={{ width: '500px', height: '500px', top: '-10%', right: '-5%', background: 'var(--glow-teal)', opacity: 0.6 }}
         />
         <div
           className="glow-orb"
-          style={{ width: '400px', height: '400px', bottom: '10%', left: '-8%', background: 'var(--glow-gold)', animationDelay: '-4s' }}
+          style={{ width: '350px', height: '350px', bottom: '10%', left: '-8%', background: 'var(--glow-gold)', animationDelay: '-4s', opacity: 0.5 }}
         />
         <div
           className="glow-orb"
-          style={{ width: '500px', height: '500px', top: '30%', right: '10%', background: 'var(--glow-purple)', animationDelay: '-8s' }}
+          style={{ width: '400px', height: '400px', top: '30%', right: '10%', background: 'var(--glow-purple)', animationDelay: '-8s', opacity: 0.4 }}
         />
       </div>
 
