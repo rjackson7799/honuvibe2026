@@ -77,7 +77,7 @@ function FeaturedCard({ project }: { project: ProjectConfig }) {
     <div className="flex flex-col overflow-hidden rounded-xl border border-border-default bg-bg-secondary/30">
       {/* Carousel */}
       <div
-        className="relative aspect-[16/10] overflow-hidden bg-bg-secondary"
+        className="relative aspect-[16/9] overflow-hidden bg-bg-secondary"
         aria-label={t('carousel_label')}
         aria-roledescription="carousel"
         onMouseEnter={() => setPaused(true)}
@@ -95,7 +95,7 @@ function FeaturedCard({ project }: { project: ProjectConfig }) {
               src={slide.src}
               alt={t(slide.altKey)}
               fill
-              className="object-cover"
+              className="object-cover object-top"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority={i === 0}
             />

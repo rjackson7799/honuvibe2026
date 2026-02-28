@@ -33,7 +33,7 @@ function generateSparks(count: number): Spark[] {
     duration: rand() * 2 + 2, // 2-4s
     delay: rand() * 25, // spread over 25s
     direction: (rand() > 0.5 ? 1 : -1) as 1 | -1,
-    opacity: rand() * 0.15 + 0.15, // 0.15-0.3
+    opacity: rand() * 0.2 + 0.3, // 0.3-0.5
   }));
 }
 
@@ -60,13 +60,13 @@ export function AbyssalEchoBackground() {
       {/* Layer 2: Deep current orbs */}
       {reducedMotion ? (
         <>
-          <div className="absolute -top-[20%] -left-[10%] h-[80vw] w-[80vw] rounded-full bg-glow-teal opacity-40 blur-[150px] mix-blend-screen pointer-events-none" />
-          <div className="absolute -bottom-[20%] -right-[10%] h-[70vw] w-[70vw] rounded-full bg-glow-gold opacity-20 blur-[150px] mix-blend-screen pointer-events-none" />
+          <div className="absolute -top-[20%] -left-[10%] h-[80vw] w-[80vw] rounded-full bg-glow-teal opacity-60 blur-[120px] mix-blend-screen pointer-events-none" />
+          <div className="absolute -bottom-[20%] -right-[10%] h-[70vw] w-[70vw] rounded-full bg-glow-gold opacity-35 blur-[120px] mix-blend-screen pointer-events-none" />
         </>
       ) : (
         <>
           <motion.div
-            className="absolute -top-[20%] -left-[10%] h-[80vw] w-[80vw] rounded-full bg-glow-teal opacity-40 blur-[150px] mix-blend-screen pointer-events-none"
+            className="absolute -top-[20%] -left-[10%] h-[80vw] w-[80vw] rounded-full bg-glow-teal opacity-60 blur-[120px] mix-blend-screen pointer-events-none"
             animate={{
               x: ['0vw', '10vw', '-5vw', '0vw'],
               y: ['0vh', '5vh', '10vh', '0vh'],
@@ -79,7 +79,7 @@ export function AbyssalEchoBackground() {
             }}
           />
           <motion.div
-            className="absolute -bottom-[20%] -right-[10%] h-[70vw] w-[70vw] rounded-full bg-glow-gold opacity-20 blur-[150px] mix-blend-screen pointer-events-none"
+            className="absolute -bottom-[20%] -right-[10%] h-[70vw] w-[70vw] rounded-full bg-glow-gold opacity-35 blur-[120px] mix-blend-screen pointer-events-none"
             animate={{
               x: ['0vw', '-10vw', '5vw', '0vw'],
               y: ['0vh', '-10vh', '-5vh', '0vh'],
@@ -101,8 +101,8 @@ export function AbyssalEchoBackground() {
           {Array.from({ length: ECHO_COUNT }, (_, i) => (
             <motion.div
               key={`echo-${i}`}
-              className="absolute rounded-full border border-accent-teal/10"
-              initial={{ width: 0, height: 0, opacity: 0.3 }}
+              className="absolute rounded-full border border-accent-teal/20"
+              initial={{ width: 0, height: 0, opacity: 0.5 }}
               animate={{ width: '150vw', height: '150vw', opacity: 0 }}
               transition={{
                 duration: ECHO_DURATION,
@@ -121,7 +121,7 @@ export function AbyssalEchoBackground() {
           {SPARKS.map((spark) => (
             <motion.div
               key={`spark-${spark.id}`}
-              className="absolute h-px bg-gradient-to-r from-transparent via-accent-teal/60 to-transparent blur-[0.5px]"
+              className="absolute h-[2px] bg-gradient-to-r from-transparent via-accent-teal/80 to-transparent blur-[1px]"
               style={{
                 top: `${spark.top}%`,
                 width: `${spark.width}vw`,
@@ -152,7 +152,7 @@ export function AbyssalEchoBackground() {
       />
 
       {/* Layer 6: Vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,var(--bg-primary)_100%)] opacity-80 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,var(--bg-primary)_100%)] opacity-50 pointer-events-none" />
     </div>
   );
 }

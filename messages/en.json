@@ -675,6 +675,9 @@
       "subject_options": {
         "general": "General Inquiry",
         "consulting": "Consulting",
+        "advisory": "Advisory",
+        "training": "Training",
+        "speaking": "Speaking Engagement",
         "partnership": "Partnership",
         "feedback": "Feedback",
         "other": "Other"

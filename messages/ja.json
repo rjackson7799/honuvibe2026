@@ -675,6 +675,9 @@
       "subject_options": {
         "general": "一般的なお問い合わせ",
         "consulting": "コンサルティング",
+        "advisory": "アドバイザリー",
+        "training": "トレーニング",
+        "speaking": "講演依頼",
         "partnership": "パートナーシップ",
         "feedback": "フィードバック",
         "other": "その他"
