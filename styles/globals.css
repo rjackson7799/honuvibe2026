@@ -69,6 +69,12 @@
   --ocean-wave: rgba(255, 255, 255, 0.025);
   --ocean-particle: rgba(180, 210, 220, 0.08);
 
+  /* Deep Honu Abyss (HonuHub) */
+  --ocean-abyss-dark: rgb(2, 6, 14);
+  --ocean-abyss-mid: rgb(4, 14, 24);
+  --ocean-abyss-spotlight: rgba(77, 184, 164, 0.12);
+  --ocean-abyss-caustic: rgba(100, 160, 180, 0.008);
+
   /* Territory accents */
   --territory-web: #5eaaa8;
   --territory-db: #5b8fb9;
@@ -214,6 +220,11 @@
   --ocean-caustic: rgba(120, 180, 200, 0.015);
   --ocean-wave: rgba(255, 255, 255, 0.025);
   --ocean-particle: rgba(180, 210, 220, 0.08);
+
+  --ocean-abyss-dark: rgb(2, 6, 14);
+  --ocean-abyss-mid: rgb(4, 14, 24);
+  --ocean-abyss-spotlight: rgba(77, 184, 164, 0.12);
+  --ocean-abyss-caustic: rgba(100, 160, 180, 0.008);
 }
 
 /* Smooth dark→light transition bridge after hero */

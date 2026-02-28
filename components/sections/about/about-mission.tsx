@@ -9,7 +9,7 @@ export function AboutMission() {
   const t = useTranslations('about_page.mission');
 
   return (
-    <Section className="relative z-10">
+    <Section className="relative z-10 !pt-8 md:!pt-section">
       <Container>
         <SectionHeading
           overline={t('overline')}

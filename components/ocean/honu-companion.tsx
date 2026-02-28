@@ -7,9 +7,11 @@ import { createClient } from '@/lib/supabase/client';
 
 export function HonuCompanion() {
   const scrollProgress = useScrollProgress();
-  const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Derive visibility from scroll progress instead of a separate scroll listener
+  const visible = scrollProgress > 0.01;
 
   useEffect(() => {
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -31,15 +33,6 @@ export function HonuCompanion() {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setVisible(window.scrollY > 100);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   if (reducedMotion) return null;

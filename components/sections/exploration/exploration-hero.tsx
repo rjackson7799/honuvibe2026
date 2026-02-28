@@ -14,7 +14,7 @@ export function ExplorationHero() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <Section noReveal className="relative overflow-hidden min-h-[70vh] !pb-8">
+    <Section noReveal className="relative overflow-hidden min-h-[50vh] md:min-h-[70vh] !pb-8">
       <LighthouseBackground />
 
       <Container>
