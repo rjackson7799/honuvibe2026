@@ -21,17 +21,17 @@ const projects: ProjectConfig[] = [
   {
     key: 'kwame',
     slides: [
-      { src: '/projects/kwame-brathwaite/screenshot-1.svg', altKey: 'slide_alt_1' },
-      { src: '/projects/kwame-brathwaite/screenshot-2.svg', altKey: 'slide_alt_2' },
-      { src: '/projects/kwame-brathwaite/screenshot-3.svg', altKey: 'slide_alt_3' },
+      { src: '/projects/kwame-brathwaite/KB_1.jpg', altKey: 'slide_alt_1' },
+      { src: '/projects/kwame-brathwaite/KB_2.jpg', altKey: 'slide_alt_2' },
+      { src: '/projects/kwame-brathwaite/KB_3.jpg', altKey: 'slide_alt_3' },
     ],
   },
   {
     key: 'hci',
     slides: [
-      { src: '/projects/hci-medical/screenshot-1.svg', altKey: 'slide_alt_1' },
-      { src: '/projects/hci-medical/screenshot-2.svg', altKey: 'slide_alt_2' },
-      { src: '/projects/hci-medical/screenshot-3.svg', altKey: 'slide_alt_3' },
+      { src: '/projects/hci-medical/HCI_1.jpg', altKey: 'slide_alt_1' },
+      { src: '/projects/hci-medical/HCI_2.jpg', altKey: 'slide_alt_2' },
+      { src: '/projects/hci-medical/HCI_3.jpg', altKey: 'slide_alt_3' },
     ],
   },
 ];
