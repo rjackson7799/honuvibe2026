@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'motion/react';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { SectionHeading } from '@/components/ui';
