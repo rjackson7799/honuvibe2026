@@ -1,16 +1,38 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { Overline, Button } from '@/components/ui';
 import { Send } from 'lucide-react';
+import { motion, useMotionValue, useMotionTemplate } from 'motion/react';
 
 export function NewsletterSignup() {
   const t = useTranslations('newsletter');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [isHovered, setIsHovered] = useState(false);
+  // Spotlight mouse tracking
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const spotlightBg = useMotionTemplate`
+    radial-gradient(
+      500px circle at ${mouseX}px ${mouseY}px,
+      rgba(var(--accent-teal-rgb, 94, 170, 168), 0.1),
+      transparent 80%
+    )
+  `;
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const { left, top } = e.currentTarget.getBoundingClientRect();
+      mouseX.set(e.clientX - left);
+      mouseY.set(e.clientY - top);
+    },
+    [mouseX, mouseY]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,12 +59,25 @@ export function NewsletterSignup() {
   };
 
   return (
-    <Section id="newsletter" className="dark-zone bg-[#080c18]">
+    <Section id="newsletter" className="dark-zone bg-[var(--bg-primary)]">
       <Container size="narrow">
-        <div className="relative overflow-hidden rounded-2xl glass-card p-8 md:p-12 text-center">
-          {/* Decorative gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/5 via-transparent to-accent-gold/5 pointer-events-none" />
+        <div
+          className="group relative overflow-hidden rounded-2xl glass-card p-8 md:p-12 text-center"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {/* Mouse-tracking spotlight */}
+          <motion.div
+            className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-300"
+            style={{
+              background: spotlightBg,
+              opacity: isHovered ? 1 : 0,
+            }}
+            aria-hidden="true"
+          />
 
+          {/* Content */}
           <div className="relative z-10">
             <Overline className="mb-4 block">{t('overline')}</Overline>
             <h2 className="font-serif text-h2 text-fg-primary mb-3">{t('heading')}</h2>

@@ -7,19 +7,15 @@ import { Container } from '@/components/layout/container';
 import { Button, Overline, Modal } from '@/components/ui';
 import { Briefcase } from 'lucide-react';
 import { ExplorationLeadForm } from './exploration-lead-form';
+import { LighthouseBackground } from './lighthouse-background';
 
 export function ExplorationHero() {
   const t = useTranslations('exploration_page');
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <Section noReveal className="relative overflow-hidden">
-      {/* Background gradient — matches HonuHub hero */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/10 via-bg-primary to-accent-gold/5" />
-
-      {/* Glow orbs */}
-      <div className="glow-orb absolute -top-20 right-1/4 h-[300px] w-[300px] bg-glow-teal" />
-      <div className="glow-orb absolute bottom-0 left-[16%] h-[200px] w-[200px] bg-glow-gold" />
+    <Section noReveal className="relative overflow-hidden min-h-[70vh] !pb-8">
+      <LighthouseBackground />
 
       <Container>
         <div className="relative flex flex-col items-center text-center">

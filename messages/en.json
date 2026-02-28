@@ -20,7 +20,7 @@
     "headline_vibe": "Vibe",
     "headline_en_2": "for AI Learning",
     "headline_jp": "新しいAI学習のスタイル",
-    "sub": "Hawaii-born. Globally minded. Built for the AI age.",
+    "sub": "Where curiosity meets code.",
     "cta_primary": "Explore Courses",
     "cta_secondary": "Join the Community",
     "scroll_hint": "Scroll to discover",
@@ -390,7 +390,8 @@
         "vercel": "Vercel",
         "figma": "Figma",
         "claude": "Claude AI",
-        "cursor": "Cursor"
+        "cursor": "Cursor",
+        "lovable": "Lovable"
       }
     },
     "process": {

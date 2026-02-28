@@ -3,7 +3,7 @@ import { NavClient } from './nav-client';
 
 const navLinks = [
   { href: '/honuhub', key: 'honuhub' },
-  { href: '/exploration', key: 'exploration' },
+  { href: '/explore', key: 'exploration' },
   { href: '/learn', key: 'learn' },
   { href: '/about', key: 'about' },
   { href: '/contact', key: 'contact' },

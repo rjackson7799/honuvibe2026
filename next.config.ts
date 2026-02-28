@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
       { source: '/ja/library', destination: '/ja/learn/library', permanent: true },
       { source: '/videos', destination: '/learn/library', permanent: true },
       { source: '/ja/videos', destination: '/ja/learn/library', permanent: true },
+      { source: '/exploration', destination: '/explore', permanent: true },
+      { source: '/ja/exploration', destination: '/ja/explore', permanent: true },
     ];
   },
   images: {
