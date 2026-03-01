@@ -1295,6 +1295,15 @@
       "bilingual": "バイリンガルEN-JPサポート",
       "certificate": "修了証書発行"
     },
-    "endorsement": "Vertice Societyが推薦するAI教育プログラム"
+    "endorsement": "Vertice Societyが推薦するAI教育プログラム",
+    "right_panel": {
+      "takeaways_title": "得られるスキル",
+      "takeaway_1": "すぐに使える実践的なAIスキル",
+      "takeaway_2": "プロンプトエンジニアリングの習得",
+      "takeaway_3": "画像生成・クリエイティブAI",
+      "takeaway_4": "ワークフロー自動化テクニック",
+      "takeaway_5": "カスタムAIアシスタントの構築",
+      "preview_label": "講座カリキュラムプレビュー"
+    }
   }
 }
