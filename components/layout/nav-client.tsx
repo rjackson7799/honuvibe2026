@@ -27,6 +27,7 @@ type NavClientProps = {
 export function NavClient({ links, userMenuLabels }: NavClientProps) {
   const pathname = usePathname();
   const isAuthRoute = /^\/(ja\/)?(learn\/dashboard|admin)(\/|$)/.test(pathname);
+  const isLightZonePage = pathname.startsWith('/partners/');
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -55,7 +56,7 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
           'fixed top-0 left-0 right-0 z-[200] h-14 md:h-16',
           'flex items-center justify-between px-5 md:px-8',
           'transition-all duration-[400ms]',
-          scrolled
+          scrolled || isLightZonePage
             ? 'bg-bg-glass backdrop-blur-[24px] backdrop-saturate-[180%] border-b border-border-secondary'
             : 'bg-transparent',
         )}
