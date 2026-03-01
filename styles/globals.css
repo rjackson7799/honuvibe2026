@@ -233,6 +233,71 @@
 }
 
 /* ============================================
+   ALWAYS-LIGHT ZONES (partner landing pages)
+   Forces light-mode variables inside .light-zone
+   regardless of global theme setting.
+   ============================================ */
+
+.light-zone {
+  --bg-primary: #faf9f7;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f2f0ec;
+  --bg-glass: rgba(250, 249, 247, 0.88);
+
+  --fg-primary: #1a1a2e;
+  --fg-secondary: #4a4a5a;
+  --fg-tertiary: #8a8a96;
+  --fg-muted: #c8c8d0;
+
+  --accent-teal: #3d8a88;
+  --accent-teal-hover: #327574;
+  --accent-teal-subtle: rgba(61, 138, 136, 0.08);
+  --accent-gold: #9a7530;
+  --accent-gold-hover: #846528;
+  --accent-gold-subtle: rgba(154, 117, 48, 0.08);
+
+  --border-primary: rgba(0, 0, 0, 0.10);
+  --border-secondary: rgba(0, 0, 0, 0.06);
+  --border-hover: rgba(0, 0, 0, 0.16);
+  --border-accent: rgba(61, 138, 136, 0.25);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-accent: 0 8px 24px rgba(61, 138, 136, 0.15);
+
+  --glow-teal: rgba(61, 138, 136, 0.08);
+  --glow-teal-strong: rgba(61, 138, 136, 0.12);
+  --glow-gold: rgba(154, 117, 48, 0.06);
+  --glow-purple: rgba(107, 94, 168, 0.06);
+
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.10);
+  --glass-border-hover: rgba(0, 0, 0, 0.18);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --glass-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+
+  --btn-gradient-from: #4a9e9c;
+  --btn-gradient-to: #327574;
+  --btn-glow: 0 0 16px rgba(61, 138, 136, 0.2), 0 0 32px rgba(61, 138, 136, 0.08);
+  --btn-glow-hover: 0 0 20px rgba(61, 138, 136, 0.3), 0 0 40px rgba(61, 138, 136, 0.12);
+
+  --glow-line: linear-gradient(90deg, transparent, rgba(61, 138, 136, 0.15), transparent);
+
+  --ocean-surface: rgb(200, 220, 230);
+  --ocean-deep: rgb(170, 200, 215);
+  --ocean-caustic: rgba(255, 255, 255, 0.4);
+  --ocean-wave: rgba(255, 255, 255, 0.15);
+  --ocean-particle: rgba(255, 255, 255, 0.3);
+
+  --territory-web: #3d8a88;
+  --territory-db: #4275a0;
+  --territory-saas: #9a7530;
+  --territory-auto: #6b5ea8;
+  --territory-pro: #3d8870;
+}
+
+/* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */
 
@@ -381,6 +446,14 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Ocean drift — Vertice partner page right panel */
+@keyframes oceanDrift {
+  0% { background-position: 0% 50%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Gradient flow — hero "Vibe" text */

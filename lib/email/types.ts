@@ -62,3 +62,13 @@ export interface ApplicationStatusEmailData {
   newStatus: 'received' | 'reviewing' | 'responded' | 'archived';
   notes?: string;
 }
+
+export interface VerticeLeadEmailData {
+  locale: Locale;
+  fullName: string;
+  email: string;
+  aiLevel: 'beginner' | 'intermediate' | 'advanced';
+  interests: string[];
+  whyStudy: string;
+  isReturning: boolean;
+}

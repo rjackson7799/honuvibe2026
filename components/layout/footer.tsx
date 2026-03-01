@@ -21,8 +21,8 @@ export function Footer() {
             <p className="text-[13px] text-fg-tertiary">{t('tagline')}</p>
           </div>
 
-          {/* Link groups — 3 columns side by side */}
-          <div className="grid grid-cols-3 gap-x-10 lg:gap-x-14">
+          {/* Link groups — 4 columns side by side */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-10 lg:gap-x-14 gap-y-6">
             {/* Navigate */}
             <div className="flex flex-col gap-1.5">
               <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('nav_title')}</h4>
@@ -49,6 +49,12 @@ export function Footer() {
               <Link href="/privacy" className={linkClass}>{t('privacy')}</Link>
               <Link href="/terms" className={linkClass}>{t('terms')}</Link>
               <Link href="/cookies" className={linkClass}>{t('cookies')}</Link>
+            </div>
+
+            {/* Partners */}
+            <div className="flex flex-col gap-1.5">
+              <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('partners_title')}</h4>
+              <Link href="/partners/vertice-society" locale="ja" className={linkClass}>Vertice Society</Link>
             </div>
           </div>
         </div>
