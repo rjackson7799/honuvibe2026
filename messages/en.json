@@ -1295,6 +1295,15 @@
       "bilingual": "Bilingual EN-JP support",
       "certificate": "Certificate of completion"
     },
-    "endorsement": "An AI education program recommended by Vertice Society"
+    "endorsement": "An AI education program recommended by Vertice Society",
+    "right_panel": {
+      "takeaways_title": "What You'll Gain",
+      "takeaway_1": "Practical AI skills you can use immediately",
+      "takeaway_2": "Prompt engineering mastery",
+      "takeaway_3": "Image generation & creative AI",
+      "takeaway_4": "Workflow automation techniques",
+      "takeaway_5": "Your own custom AI assistant",
+      "preview_label": "Course Curriculum Preview"
+    }
   }
 }
