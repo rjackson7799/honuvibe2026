@@ -871,7 +871,8 @@
     "cookies": "Cookie Notice",
     "connect_title": "Connect",
     "glossary_link": "AI Glossary",
-    "newsletter_link": "Newsletter"
+    "newsletter_link": "Newsletter",
+    "partners_title": "Partners"
   },
   "auth": {
     "sign_in": "Sign In",
@@ -1228,5 +1229,72 @@
     "none": "None",
     "video_preview": "Video Preview",
     "open_in_tab": "Open video URL in new tab"
+  },
+  "vertice": {
+    "heading": "AI Mastery",
+    "subheading": "From Curious to Confident",
+    "program_label": "A 5-Week AI Education Program",
+    "exclusive_label": "Exclusively for Vertice Society Members",
+    "form": {
+      "full_name": "Full Name",
+      "full_name_placeholder": "Taro Yamada",
+      "email": "Email",
+      "email_placeholder": "taro@example.com",
+      "ai_level": "Current AI Level",
+      "ai_beginner": "Beginner",
+      "ai_intermediate": "Intermediate",
+      "ai_advanced": "Advanced",
+      "interests_label": "Areas of Interest",
+      "interest_prompting": "ChatGPT & Prompting",
+      "interest_image_gen": "Image Generation",
+      "interest_automation": "Workflow Automation",
+      "interest_data": "Data Analysis",
+      "interest_assistants": "Custom AI Assistants",
+      "interest_landscape": "AI Industry Overview",
+      "why_study": "Why are you interested in this course?",
+      "why_study_placeholder": "Tell us about your goals and what you hope to learn...",
+      "access_code": "Access Code",
+      "access_code_placeholder": "Enter your code",
+      "submit": "Join the Waitlist",
+      "submitting": "Submitting...",
+      "chars_remaining": "{count}/300"
+    },
+    "errors": {
+      "name_required": "Please enter your full name",
+      "email_invalid": "Please enter a valid email",
+      "level_required": "Please select your current AI level",
+      "interests_required": "Please select at least one area of interest",
+      "why_required": "Please tell us why you're interested (min 10 characters)",
+      "code_invalid": "Invalid access code. Please check with your Vertice Society coordinator.",
+      "rate_limit": "Too many attempts. Please try again in a few minutes.",
+      "server_error": "Something went wrong. Please try again."
+    },
+    "confirmation": {
+      "title": "You're In!",
+      "greeting": "Thank you, {firstName}.",
+      "welcome": "Welcome to AI Mastery.",
+      "download_label": "Download your course curriculum below:",
+      "file_title_en": "AI Mastery — Course Curriculum (English)",
+      "file_title_jp": "AI Mastery — 講座カリキュラム (日本語)",
+      "file_info": "PDF",
+      "download_button": "Download PDF",
+      "followup": "We'll be in touch with next steps and scheduling details soon.",
+      "questions": "Questions?",
+      "returning_user": "Welcome back! Your information has been updated."
+    },
+    "footer_note": "Spring 2026 · Honolulu, Hawaii",
+    "image_alt": "AI-powered ocean technology landscape",
+    "overview_title": "What You'll Learn",
+    "week_1": "AI Foundations",
+    "week_2": "Prompt Engineering",
+    "week_3": "Image Generation & Creative AI",
+    "week_4": "Workflow Automation",
+    "week_5": "Custom AI Assistants",
+    "benefits": {
+      "workshops": "Small group workshops",
+      "bilingual": "Bilingual EN-JP support",
+      "certificate": "Certificate of completion"
+    },
+    "endorsement": "An AI education program recommended by Vertice Society"
   }
 }

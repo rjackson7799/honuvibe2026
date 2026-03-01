@@ -16,6 +16,7 @@ import type {
   HonuHubContactEmailData,
   ExplorationInquiryEmailData,
   ApplicationStatusEmailData,
+  VerticeLeadEmailData,
 } from './types';
 
 // ─── Internal helper ────────────────────────────────────────
@@ -478,5 +479,124 @@ export async function sendApplicationStatusUpdate(
       ? '【HonuVibe.AI】お申し込み状況の更新'
       : 'Application update — HonuVibe.AI',
     html: baseLayout({ locale, body }),
+  });
+}
+
+// ─── 8. Vertice Society Lead ──────────────────────────────
+
+export async function sendVerticeLeadConfirmation(data: VerticeLeadEmailData): Promise<void> {
+  const { locale, fullName, email } = data;
+  const isJP = locale === 'ja';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+  const firstName = fullName.split(' ')[0];
+  const downloadUrlEN = `${siteUrl}/downloads/Vertice_Honu_AI_Mastery_Course_EN.pdf`;
+  const downloadUrlJP = `${siteUrl}/downloads/Vertice_Honu_AI_Mastery_Course_JP.pdf`;
+
+  const body = [
+    accentBanner(isJP ? 'AI Mastery コースへようこそ' : 'Welcome to AI Mastery'),
+    heading(
+      isJP
+        ? `${firstName}さん、お申し込みありがとうございます`
+        : `Welcome, ${firstName}!`,
+    ),
+    paragraph(
+      isJP
+        ? 'Vertice Society限定「AI Mastery — From Curious to Confident」コースへのお申し込みを受け付けました。'
+        : 'Your registration for the Vertice Society exclusive "AI Mastery — From Curious to Confident" course has been received.',
+    ),
+    divider(),
+    heading(isJP ? '5週間コース概要' : '5-Week Course Overview'),
+    paragraph(
+      isJP
+        ? 'Week 1: AI基礎 — AIの現状と主要ツールの紹介'
+        : 'Week 1: AI Foundations — The current AI landscape and key tools',
+    ),
+    paragraph(
+      isJP
+        ? 'Week 2: プロンプトエンジニアリング — 効果的なAIとのコミュニケーション'
+        : 'Week 2: Prompt Engineering — Communicating effectively with AI',
+    ),
+    paragraph(
+      isJP
+        ? 'Week 3: 画像生成とクリエイティブAI — ビジュアルコンテンツの作成'
+        : 'Week 3: Image Generation & Creative AI — Creating visual content',
+    ),
+    paragraph(
+      isJP
+        ? 'Week 4: ワークフロー自動化 — 業務プロセスの効率化'
+        : 'Week 4: Workflow Automation — Streamlining your processes',
+    ),
+    paragraph(
+      isJP
+        ? 'Week 5: カスタムAIアシスタント — パーソナライズされたAIソリューション'
+        : 'Week 5: Custom AI Assistants — Building personalized AI solutions',
+    ),
+    divider(),
+    paragraph(
+      isJP
+        ? 'カリキュラムをダウンロード：'
+        : 'Download the course curriculum:',
+    ),
+    ctaButton({
+      href: downloadUrlEN,
+      label: isJP ? '英語版をダウンロード' : 'Download English Version',
+    }),
+    ctaButton({
+      href: downloadUrlJP,
+      label: isJP ? '日本語版をダウンロード' : 'Download Japanese Version',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'ご質問がございましたら、ryan@honuvibe.ai までお気軽にお問い合わせください。'
+        : 'Questions? Reach us at ryan@honuvibe.ai — we\'re happy to help.',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? '【HonuVibe.AI】AI Mastery コースへようこそ'
+      : 'Welcome to AI Mastery — HonuVibe.AI × Vertice Society',
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'AI Masteryへようこそ' : 'Welcome to AI Mastery!',
+      body,
+    }),
+  });
+}
+
+export async function sendVerticeLeadAdminNotification(
+  data: VerticeLeadEmailData,
+): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const levelLabels: Record<string, string> = {
+    beginner: 'Beginner',
+    intermediate: 'Intermediate',
+    advanced: 'Advanced',
+  };
+
+  const body = [
+    accentBanner(data.isReturning ? 'Vertice Lead Updated' : 'New Vertice Society Lead'),
+    detailsTable([
+      { label: 'Name', value: data.fullName },
+      { label: 'Email', value: data.email },
+      { label: 'AI Level', value: levelLabels[data.aiLevel] ?? data.aiLevel },
+      { label: 'Interests', value: data.interests.join(', ') },
+      { label: 'Locale', value: data.locale },
+      { label: 'Returning', value: data.isReturning ? 'Yes (updated)' : 'No (new)' },
+    ]),
+    divider(),
+    heading('Why They Want to Study AI'),
+    paragraph(data.whyStudy),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Vertice] ${data.isReturning ? 'Updated' : 'New'} lead: ${data.fullName}`,
+    html: baseLayout({ locale: 'en', body }),
+    replyTo: data.email,
   });
 }

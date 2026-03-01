@@ -871,7 +871,8 @@
     "cookies": "クッキーに関するお知らせ",
     "connect_title": "つながる",
     "glossary_link": "AI用語辞典",
-    "newsletter_link": "ニュースレター"
+    "newsletter_link": "ニュースレター",
+    "partners_title": "パートナー"
   },
   "auth": {
     "sign_in": "ログイン",
@@ -1228,5 +1229,72 @@
     "none": "なし",
     "video_preview": "動画プレビュー",
     "open_in_tab": "新しいタブで動画URLを開く"
+  },
+  "vertice": {
+    "heading": "AI Mastery",
+    "subheading": "好奇心から自信へ",
+    "program_label": "5週間のAI教育プログラム",
+    "exclusive_label": "Vertice Societyメンバー限定",
+    "form": {
+      "full_name": "お名前",
+      "full_name_placeholder": "山田太郎",
+      "email": "メールアドレス",
+      "email_placeholder": "taro@example.com",
+      "ai_level": "現在のAI知識レベル",
+      "ai_beginner": "初心者",
+      "ai_intermediate": "中級者",
+      "ai_advanced": "上級者",
+      "interests_label": "興味のある分野",
+      "interest_prompting": "ChatGPT・プロンプト作成",
+      "interest_image_gen": "画像生成",
+      "interest_automation": "業務効率化・自動化",
+      "interest_data": "データ分析",
+      "interest_assistants": "カスタムAIアシスタント",
+      "interest_landscape": "AI業界の概要",
+      "why_study": "この講座に興味を持った理由は？",
+      "why_study_placeholder": "目標や学びたいことについてお聞かせください...",
+      "access_code": "アクセスコード",
+      "access_code_placeholder": "コードを入力",
+      "submit": "ウェイトリストに参加",
+      "submitting": "送信中...",
+      "chars_remaining": "{count}/300"
+    },
+    "errors": {
+      "name_required": "お名前を入力してください",
+      "email_invalid": "有効なメールアドレスを入力してください",
+      "level_required": "現在のAI知識レベルを選択してください",
+      "interests_required": "興味のある分野を1つ以上選択してください",
+      "why_required": "興味を持った理由を入力してください（10文字以上）",
+      "code_invalid": "アクセスコードが無効です。Vertice Societyのコーディネーターにご確認ください。",
+      "rate_limit": "試行回数が多すぎます。数分後に再度お試しください。",
+      "server_error": "エラーが発生しました。もう一度お試しください。"
+    },
+    "confirmation": {
+      "title": "登録完了！",
+      "greeting": "{firstName}さん、ありがとうございます。",
+      "welcome": "AI Masteryへようこそ。",
+      "download_label": "講座カリキュラムをダウンロードしてください：",
+      "file_title_en": "AI Mastery — Course Curriculum（英語）",
+      "file_title_jp": "AI Mastery — 講座カリキュラム（日本語）",
+      "file_info": "PDF",
+      "download_button": "PDFをダウンロード",
+      "followup": "今後のスケジュールと詳細については、近日中にご連絡いたします。",
+      "questions": "ご質問は？",
+      "returning_user": "おかえりなさい！情報が更新されました。"
+    },
+    "footer_note": "2026年春 · ホノルル、ハワイ",
+    "image_alt": "AIを活用したオーシャンテクノロジーの風景",
+    "overview_title": "学べること",
+    "week_1": "AI基礎",
+    "week_2": "プロンプトエンジニアリング",
+    "week_3": "画像生成・クリエイティブAI",
+    "week_4": "ワークフロー自動化",
+    "week_5": "カスタムAIアシスタント",
+    "benefits": {
+      "workshops": "少人数制ワークショップ",
+      "bilingual": "バイリンガルEN-JPサポート",
+      "certificate": "修了証書発行"
+    },
+    "endorsement": "Vertice Societyが推薦するAI教育プログラム"
   }
 }

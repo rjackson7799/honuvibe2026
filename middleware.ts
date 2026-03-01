@@ -38,10 +38,20 @@ function getPathWithoutLocale(pathname: string): string {
 }
 
 export default async function middleware(request: NextRequest) {
+  // Vertice Society: default to Japanese locale when no locale cookie is set
+  const pathname = request.nextUrl.pathname;
+  if (
+    pathname === '/partners/vertice-society' &&
+    !request.cookies.get('NEXT_LOCALE')
+  ) {
+    return NextResponse.redirect(
+      new URL('/ja/partners/vertice-society', request.url),
+    );
+  }
+
   // First, run the intl middleware to handle locale detection
   const intlResponse = intlMiddleware(request);
 
-  const pathname = request.nextUrl.pathname;
   const logicalPath = getPathWithoutLocale(pathname);
 
   // Only do auth checks for protected routes
