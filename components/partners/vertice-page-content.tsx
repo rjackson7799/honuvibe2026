@@ -234,33 +234,38 @@ export function VerticePageContent() {
           <div className="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-l from-bg-primary/50 via-transparent to-transparent z-10 pointer-events-none" />
         </div>
 
-        {/* Mobile course cover overlay */}
-        <div className="flex lg:hidden absolute inset-0 z-[2] items-center justify-center px-8">
+        {/* Mobile course cover + CTA overlay */}
+        <div className="flex lg:hidden absolute inset-0 z-[2] flex-col items-center justify-center px-6 gap-2.5">
           <Image
             src="/images/partners/course_cover.jpg"
             alt={t('right_panel.preview_label')}
-            width={240}
-            height={160}
-            className="rounded-lg max-h-[28vh] object-cover"
+            width={300}
+            height={200}
+            className="rounded-lg max-h-[26vh] w-full object-cover"
             style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1)' }}
           />
+          <div className="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2 text-center w-full max-w-[320px]">
+            <p className="text-[12px] text-slate-700 leading-snug font-medium">
+              {t('right_panel.cta_prompt')}
+            </p>
+          </div>
         </div>
 
         {/* Layer 3: Content overlay (desktop only) */}
-        <div className="hidden lg:flex relative z-[2] h-full items-center justify-center px-6 xl:px-10 py-6">
+        <div className="hidden lg:flex relative z-[2] h-full items-center justify-center px-5 xl:px-8 py-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="w-full max-w-[300px] flex flex-col items-center gap-3"
+            className="w-full max-w-[380px] flex flex-col items-center gap-3"
           >
-            {/* Course cover image — constrained to ~40% of viewport height */}
+            {/* Course cover image — constrained to viewport height */}
             <Image
               src="/images/partners/course_cover.jpg"
               alt={t('right_panel.preview_label')}
-              width={300}
-              height={200}
-              className="rounded-xl w-full max-h-[38vh] object-cover"
+              width={380}
+              height={260}
+              className="rounded-xl w-full max-h-[42vh] object-cover"
               style={{ boxShadow: '0 16px 40px rgba(0,0,0,0.22), 0 6px 16px rgba(0,0,0,0.1)' }}
             />
 
