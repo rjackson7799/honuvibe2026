@@ -21,16 +21,38 @@ const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5'] as const;
 const BENEFIT_KEYS = ['workshops', 'bilingual', 'certificate'] as const;
 const TAKEAWAY_KEYS = ['takeaway_1', 'takeaway_2', 'takeaway_3', 'takeaway_4', 'takeaway_5'] as const;
 
-// Curated tech icons for the right panel floating display
+// Display names for tech icons
+const TECH_LABELS: Record<string, string> = {
+  react: 'React', nextjs: 'Next.js', typescript: 'TypeScript', tailwind: 'Tailwind',
+  claude: 'Claude', openai: 'OpenAI', supabase: 'Supabase', stripe: 'Stripe',
+  cursor: 'Cursor', vercel: 'Vercel', figma: 'Figma', lovable: 'Lovable', nodejs: 'Node.js',
+};
+
+// Curated tech icons — light-mode colors, larger sizes with labels
 const FLOATING_ICONS = [
-  { key: 'react', color: 'var(--accent-teal)', top: '8%', left: '12%', duration: 4.2, delay: 0 },
-  { key: 'nextjs', color: 'var(--fg-primary)', top: '15%', left: '75%', duration: 5.0, delay: 0.3 },
-  { key: 'typescript', color: 'var(--territory-db)', top: '35%', left: '5%', duration: 3.8, delay: 0.6 },
-  { key: 'claude', color: 'var(--accent-gold)', top: '55%', left: '82%', duration: 4.5, delay: 0.9 },
-  { key: 'tailwind', color: 'var(--accent-teal)', top: '72%', left: '15%', duration: 5.2, delay: 1.2 },
-  { key: 'openai', color: 'var(--fg-primary)', top: '80%', left: '70%', duration: 4.0, delay: 0.45 },
-  { key: 'supabase', color: 'var(--territory-pro)', top: '25%', left: '88%', duration: 4.8, delay: 0.75 },
-  { key: 'cursor', color: 'var(--accent-teal)', top: '90%', left: '45%', duration: 3.6, delay: 1.05 },
+  // Row 1: top area
+  { key: 'react', color: '#0e7490', top: '3%', left: '8%', duration: 4.2, delay: 0, size: 42 },
+  { key: 'claude', color: '#b45309', top: '4%', left: '70%', duration: 5.0, delay: 0.3, size: 46 },
+  { key: 'nextjs', color: '#334155', top: '11%', left: '38%', duration: 4.6, delay: 0.7, size: 40 },
+  // Row 2: upper-mid
+  { key: 'typescript', color: '#1d4ed8', top: '21%', left: '6%', duration: 3.8, delay: 0.5, size: 44 },
+  { key: 'openai', color: '#475569', top: '19%', left: '75%', duration: 4.4, delay: 1.0, size: 42 },
+  // Row 3: middle
+  { key: 'tailwind', color: '#0891b2', top: '36%', left: '70%', duration: 5.2, delay: 0.2, size: 40 },
+  { key: 'supabase', color: '#059669', top: '34%', left: '4%', duration: 4.8, delay: 0.8, size: 44 },
+  // Row 4: lower-mid
+  { key: 'stripe', color: '#7c3aed', top: '50%', left: '12%', duration: 4.0, delay: 0.45, size: 42 },
+  { key: 'cursor', color: '#0e7490', top: '53%', left: '78%', duration: 3.6, delay: 1.1, size: 40 },
+  { key: 'vercel', color: '#1e293b', top: '48%', left: '42%', duration: 5.4, delay: 0.6, size: 38 },
+  // Row 5: lower
+  { key: 'figma', color: '#c2410c', top: '66%', left: '6%', duration: 4.3, delay: 0.35, size: 42 },
+  { key: 'lovable', color: '#be185d', top: '68%', left: '68%', duration: 4.9, delay: 0.9, size: 44 },
+  // Row 6: bottom
+  { key: 'nodejs', color: '#15803d', top: '80%', left: '38%', duration: 3.9, delay: 0.15, size: 40 },
+  { key: 'react', color: '#0e7490', top: '83%', left: '74%', duration: 4.7, delay: 0.55, size: 38 },
+  { key: 'claude', color: '#b45309', top: '86%', left: '10%', duration: 5.1, delay: 1.2, size: 42 },
+  // Row 7: very bottom
+  { key: 'typescript', color: '#1d4ed8', top: '94%', left: '52%', duration: 4.1, delay: 0.75, size: 40 },
 ] as const;
 
 export function VerticePageContent() {
@@ -48,7 +70,7 @@ export function VerticePageContent() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="flex flex-col lg:flex-row lg:items-start min-h-screen">
       {/* ─── Left Panel: Form / Confirmation ─── */}
       <div className="order-2 lg:order-1 lg:w-[55%] flex items-start lg:items-center justify-center px-5 py-12 sm:px-8 lg:px-12 xl:px-20 bg-bg-primary">
         <div className="w-full max-w-[520px]">
@@ -164,77 +186,92 @@ export function VerticePageContent() {
       </div>
 
       {/* ─── Right Panel: Floating Icons + Course Preview ─── */}
-      <div className="order-1 lg:order-2 lg:w-[45%] h-[40vh] lg:h-auto relative overflow-hidden">
-        {/* Layer 1: Animated ocean gradient background */}
-        <div
-          className="absolute inset-0 motion-safe:animate-[oceanDrift_30s_ease-in-out_infinite]"
-          style={{
-            background: 'linear-gradient(135deg, #b8d8e8 0%, #8ec0d4 25%, #6ba8c0 50%, #a8c4d4 75%, #c8dce6 100%)',
-            backgroundSize: '200% 200%',
-          }}
-        />
-
-        {/* Subtle noise texture overlay for depth */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
-
-        {/* Layer 2: Floating tech icons */}
-        {FLOATING_ICONS.map(({ key, color, top, left, duration, delay }) => (
-          <motion.div
-            key={key}
-            className="absolute z-[1]"
-            style={{ top, left }}
-            animate={prefersReducedMotion ? {} : { y: [0, -14, 0] }}
-            transition={{
-              duration,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay,
+      <div className="order-1 lg:order-2 lg:w-[45%] h-[40vh] lg:h-screen lg:sticky lg:top-0 relative overflow-clip">
+        {/* Decorative background — clipped so floating icons don't leak */}
+        <div className="absolute inset-0 overflow-clip">
+          {/* Layer 1: Animated ocean gradient background */}
+          <div
+            className="absolute inset-0 motion-safe:animate-[oceanDrift_30s_ease-in-out_infinite]"
+            style={{
+              background: 'linear-gradient(135deg, #b8d8e8 0%, #8ec0d4 25%, #6ba8c0 50%, #a8c4d4 75%, #c8dce6 100%)',
+              backgroundSize: '200% 200%',
             }}
-          >
-            <div
-              className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center opacity-[0.18]"
-              style={{ color, filter: `drop-shadow(0 0 12px ${color})` }}
+          />
+
+          {/* Subtle noise texture overlay for depth */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+
+          {/* Layer 2: Floating tech icons with labels — spread across full height */}
+          {FLOATING_ICONS.map(({ key, color, top, left, duration, delay, size }, i) => (
+            <motion.div
+              key={`${key}-${i}`}
+              className="absolute z-[1] flex flex-col items-center"
+              style={{ top, left }}
+              animate={prefersReducedMotion ? {} : { y: [0, -14, 0] }}
+              transition={{
+                duration,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay,
+              }}
             >
-              <TechIcon name={key} size={28} />
-            </div>
-          </motion.div>
-        ))}
+              <div
+                className="flex items-center justify-center opacity-[0.4]"
+                style={{ color, filter: `drop-shadow(0 0 10px ${color}50)`, width: size, height: size }}
+              >
+                <TechIcon name={key} size={size} />
+              </div>
+              <span
+                className="mt-1 text-[9px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap opacity-[0.35]"
+                style={{ color }}
+              >
+                {TECH_LABELS[key] ?? key}
+              </span>
+            </motion.div>
+          ))}
+
+          {/* Gradient overlay for smooth transition on mobile */}
+          <div className="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-l from-bg-primary/50 via-transparent to-transparent z-10 pointer-events-none" />
+        </div>
 
         {/* Layer 3: Content overlay (desktop only) */}
-        <div className="hidden lg:flex absolute inset-0 z-[2] items-center justify-center px-8 xl:px-12">
+        <div className="hidden lg:flex relative z-[2] h-full items-center justify-center px-6 xl:px-10 py-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.23, 1, 0.32, 1] }}
-            className="w-full max-w-[340px] flex flex-col items-center gap-6"
+            className="w-full max-w-[300px] flex flex-col items-center gap-3"
           >
-            {/* Course cover image */}
-            <div className="relative -rotate-2 hover:rotate-0 transition-transform duration-500">
-              <Image
-                src="/images/partners/course_cover.jpg"
-                alt={t('right_panel.preview_label')}
-                width={280}
-                height={396}
-                className="rounded-lg shadow-2xl"
-                style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.15)' }}
-              />
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-lg">
-                <span className="text-[11px] font-semibold text-slate-700 tracking-wide uppercase">
-                  {t('right_panel.preview_label')}
-                </span>
-              </div>
+            {/* Course cover image — constrained to ~40% of viewport height */}
+            <Image
+              src="/images/partners/course_cover.jpg"
+              alt={t('right_panel.preview_label')}
+              width={300}
+              height={200}
+              className="rounded-xl w-full max-h-[38vh] object-cover"
+              style={{ boxShadow: '0 16px 40px rgba(0,0,0,0.22), 0 6px 16px rgba(0,0,0,0.1)' }}
+            />
+
+            {/* CTA + privacy note */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2.5 text-center w-full">
+              <p className="text-[12.5px] text-slate-700 leading-snug font-medium">
+                {t('right_panel.cta_prompt')}
+              </p>
+              <p className="text-[10.5px] text-slate-500 leading-snug mt-0.5">
+                {t('right_panel.privacy_note')}
+              </p>
             </div>
 
             {/* Key takeaways */}
-            <div className="w-full bg-white/60 backdrop-blur-md rounded-xl p-5 shadow-lg border border-white/40">
-              <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider mb-3">
+            <div className="w-full bg-white/60 backdrop-blur-md rounded-xl px-4 py-3 shadow-lg border border-white/40">
+              <h3 className="text-[13px] font-semibold text-slate-800 uppercase tracking-wider mb-2">
                 {t('right_panel.takeaways_title')}
               </h3>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
                 {TAKEAWAY_KEYS.map((key) => (
-                  <div key={key} className="flex items-start gap-2.5">
-                    <span className="text-accent-gold text-xs mt-0.5 flex-shrink-0">&#10022;</span>
-                    <span className="text-[13px] text-slate-700 leading-snug">
+                  <div key={key} className="flex items-start gap-2">
+                    <span className="text-accent-gold text-[11px] mt-0.5 flex-shrink-0">&#10022;</span>
+                    <span className="text-[12px] text-slate-700 leading-snug">
                       {t(`right_panel.${key}`)}
                     </span>
                   </div>
@@ -243,9 +280,6 @@ export function VerticePageContent() {
             </div>
           </motion.div>
         </div>
-
-        {/* Gradient overlay for smooth transition on mobile */}
-        <div className="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-l from-bg-primary/50 via-transparent to-transparent z-10 pointer-events-none" />
       </div>
     </div>
   );

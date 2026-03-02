@@ -1303,7 +1303,9 @@
       "takeaway_3": "Image generation & creative AI",
       "takeaway_4": "Workflow automation techniques",
       "takeaway_5": "Your own custom AI assistant",
-      "preview_label": "Course Curriculum Preview"
+      "preview_label": "Course Curriculum Preview",
+      "cta_prompt": "Complete the form to receive the full course description as a PDF.",
+      "privacy_note": "Your information will only be used to share details about this course."
     }
   }
 }

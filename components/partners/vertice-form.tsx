@@ -29,9 +29,9 @@ const INTEREST_OPTIONS = [
   'prompting',
   'image_gen',
   'automation',
-  'data_analysis',
-  'custom_assistants',
-  'ai_landscape',
+  'data',
+  'assistants',
+  'landscape',
 ] as const;
 
 const AI_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
@@ -253,14 +253,14 @@ export function VerticeForm({ onSuccess }: VerticeFormProps) {
                 className={`flex items-center gap-3 min-h-[48px] px-3.5 py-2.5 rounded-lg border cursor-pointer transition-colors duration-[var(--duration-fast)] ${
                   isSelected
                     ? 'bg-accent-teal-subtle border-accent-teal'
-                    : 'bg-transparent border-border-primary hover:border-border-hover'
+                    : 'bg-white/50 border-slate-200 shadow-sm hover:border-slate-300'
                 }`}
               >
                 <div
                   className={`flex-shrink-0 w-5 h-5 rounded flex items-center justify-center transition-colors duration-[var(--duration-fast)] ${
                     isSelected
                       ? 'bg-accent-teal text-white'
-                      : 'border border-border-primary bg-bg-tertiary'
+                      : 'border-2 border-slate-300 bg-white shadow-sm'
                   }`}
                 >
                   {isSelected && <Check size={14} strokeWidth={2.5} />}
