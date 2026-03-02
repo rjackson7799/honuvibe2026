@@ -234,6 +234,18 @@ export function VerticePageContent() {
           <div className="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-l from-bg-primary/50 via-transparent to-transparent z-10 pointer-events-none" />
         </div>
 
+        {/* Mobile course cover overlay */}
+        <div className="flex lg:hidden absolute inset-0 z-[2] items-center justify-center px-8">
+          <Image
+            src="/images/partners/course_cover.jpg"
+            alt={t('right_panel.preview_label')}
+            width={240}
+            height={160}
+            className="rounded-lg max-h-[28vh] object-cover"
+            style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1)' }}
+          />
+        </div>
+
         {/* Layer 3: Content overlay (desktop only) */}
         <div className="hidden lg:flex relative z-[2] h-full items-center justify-center px-6 xl:px-10 py-6">
           <motion.div
