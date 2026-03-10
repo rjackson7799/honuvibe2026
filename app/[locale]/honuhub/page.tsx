@@ -6,7 +6,6 @@ import {
   HonuHubSessions,
   HonuHubRemote,
   HonuHubMembership,
-  HonuHubLocation,
 } from '@/components/sections/honuhub';
 import { DeepHonuBackground } from '@/components/ocean/deep-honu-background';
 
@@ -32,7 +31,6 @@ export default async function HonuHubPage({ params }: Props) {
       <HonuHubSessions />
       <HonuHubRemote />
       <HonuHubMembership />
-      <HonuHubLocation />
     </>
   );
 }

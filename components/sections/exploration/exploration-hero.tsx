@@ -1,17 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
-import { Button, Overline, Modal } from '@/components/ui';
-import { Briefcase } from 'lucide-react';
-import { ExplorationLeadForm } from './exploration-lead-form';
+import { Button, Overline } from '@/components/ui';
+import { ArrowDown, ArrowRight } from 'lucide-react';
 import { LighthouseBackground } from './lighthouse-background';
 
 export function ExplorationHero() {
   const t = useTranslations('exploration_page');
-  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <Section noReveal className="relative overflow-hidden min-h-[50vh] md:min-h-[60vh] flex items-center !pb-8">
@@ -27,26 +24,28 @@ export function ExplorationHero() {
             {t('hero.sub')}
           </p>
 
-          <Button
-            variant="primary"
-            size="lg"
-            icon={Briefcase}
-            iconPosition="left"
-            onClick={() => setModalOpen(true)}
-          >
-            {t('hero.cta')}
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              variant="primary"
+              size="lg"
+              icon={ArrowDown}
+              iconPosition="right"
+              href="#projects"
+            >
+              {t('hero_cta_primary')}
+            </Button>
+            <Button
+              variant="ghost"
+              size="lg"
+              icon={ArrowRight}
+              iconPosition="right"
+              href="/build"
+            >
+              {t('hero_cta_secondary')}
+            </Button>
+          </div>
         </div>
       </Container>
-
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        size="sm"
-        title={t('lead_form.heading')}
-      >
-        <ExplorationLeadForm onSuccess={() => setModalOpen(false)} />
-      </Modal>
     </Section>
   );
 }

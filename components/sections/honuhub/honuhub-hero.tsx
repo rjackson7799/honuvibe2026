@@ -23,14 +23,6 @@ export function HonuHubHero() {
             {t('sub')}
           </p>
 
-          {/* Opening date badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent-teal/30 bg-accent-teal-subtle px-4 py-2 mb-4">
-            <span className="h-2 w-2 rounded-full bg-accent-gold animate-pulse" />
-            <span className="text-sm font-medium text-accent-teal">
-              {t('opening_badge')}
-            </span>
-          </div>
-
           <div className="flex items-center gap-2 text-fg-tertiary text-sm mb-8">
             <MapPin size={16} />
             <span>{t('location')}</span>
