@@ -4,6 +4,8 @@ import type {
   StudentListItem,
   StudentDetail,
   Application,
+  RevenueStats,
+  TransactionRecord,
 } from './types';
 
 export async function getDashboardStats(): Promise<DashboardStats> {
@@ -97,7 +99,7 @@ export async function getStudentList(): Promise<StudentListItem[]> {
 
   const { data: students, error } = await supabase
     .from('users')
-    .select('id, email, full_name, created_at')
+    .select('id, email, full_name, subscription_status, subscription_tier, created_at')
     .eq('role', 'student')
     .order('created_at', { ascending: false });
 
@@ -125,6 +127,8 @@ export async function getStudentList(): Promise<StudentListItem[]> {
     email: s.email,
     full_name: s.full_name,
     enrolled_courses: enrollmentMap.get(s.id) ?? [],
+    subscription_status: s.subscription_status ?? 'none',
+    subscription_tier: s.subscription_tier ?? 'free',
     created_at: s.created_at,
   }));
 }
@@ -182,4 +186,88 @@ export async function getApplications(
   const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
+}
+
+export async function getRevenueStats(): Promise<RevenueStats> {
+  const supabase = await createClient();
+
+  // Total revenue by currency
+  const { data: allPayments } = await supabase
+    .from('payments')
+    .select('amount, currency')
+    .eq('status', 'succeeded');
+
+  let total_usd = 0;
+  let total_jpy = 0;
+  for (const p of allPayments ?? []) {
+    if (p.currency === 'usd') total_usd += p.amount;
+    else if (p.currency === 'jpy') total_jpy += p.amount;
+  }
+
+  // This month's revenue
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+
+  const { data: monthPayments } = await supabase
+    .from('payments')
+    .select('amount, currency')
+    .eq('status', 'succeeded')
+    .gte('created_at', monthStart.toISOString());
+
+  let month_usd = 0;
+  let month_jpy = 0;
+  for (const p of monthPayments ?? []) {
+    if (p.currency === 'usd') month_usd += p.amount;
+    else if (p.currency === 'jpy') month_jpy += p.amount;
+  }
+
+  // Active subscribers
+  const { count: active_subscribers } = await supabase
+    .from('users')
+    .select('*', { count: 'exact', head: true })
+    .eq('subscription_status', 'active');
+
+  // Active enrollments
+  const { count: active_enrollments } = await supabase
+    .from('enrollments')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'active');
+
+  return {
+    total_usd,
+    total_jpy,
+    month_usd,
+    month_jpy,
+    active_subscribers: active_subscribers ?? 0,
+    active_enrollments: active_enrollments ?? 0,
+  };
+}
+
+export async function getTransactions(): Promise<TransactionRecord[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('payments')
+    .select('*, user:users(full_name, email)')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  if (error) throw error;
+
+  return (data ?? []).map((p) => {
+    const user = p.user as unknown as { full_name: string | null; email: string | null } | null;
+    return {
+      id: p.id,
+      user_name: user?.full_name ?? null,
+      user_email: user?.email ?? null,
+      type: p.type,
+      description: p.description,
+      amount: p.amount,
+      currency: p.currency,
+      status: p.status,
+      receipt_url: p.receipt_url,
+      created_at: p.created_at,
+    };
+  });
 }

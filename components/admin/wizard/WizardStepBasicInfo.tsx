@@ -143,6 +143,119 @@ export function WizardStepBasicInfo({ data, onChange, onNext }: WizardStepBasicI
         />
       </div>
 
+      {/* ESL Settings */}
+      <div className="border-t border-[var(--border-primary)] pt-5 mt-5">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={data.eslEnabled ?? false}
+            onChange={(e) => onChange({ eslEnabled: e.target.checked })}
+            className="w-4 h-4 rounded border-[var(--border-primary)] text-[var(--accent-teal)] focus:ring-[var(--accent-teal)]"
+          />
+          <span className="text-sm font-medium text-[var(--fg-primary)]">
+            Create ESL Lesson from Course Material
+          </span>
+        </label>
+
+        {data.eslEnabled && (
+          <div className="ml-7 mt-4 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Select
+                label="Vocabulary Depth"
+                value={data.eslSettings?.vocab_depth ?? 'comprehensive'}
+                onChange={(e) =>
+                  onChange({
+                    eslSettings: {
+                      ...(data.eslSettings ?? {
+                        vocab_depth: 'comprehensive',
+                        grammar_count: 3,
+                        include_cultural: true,
+                        generate_audio: true,
+                        tts_voice: 'nova',
+                      }),
+                      vocab_depth: e.target.value as 'essential' | 'comprehensive',
+                    },
+                  })
+                }
+                options={[
+                  { value: 'essential', label: 'Essential (8-12 words)' },
+                  { value: 'comprehensive', label: 'Comprehensive (15-20 words)' },
+                ]}
+              />
+
+              <Select
+                label="Grammar Points per Week"
+                value={String(data.eslSettings?.grammar_count ?? 3)}
+                onChange={(e) =>
+                  onChange({
+                    eslSettings: {
+                      ...(data.eslSettings ?? {
+                        vocab_depth: 'comprehensive',
+                        grammar_count: 3,
+                        include_cultural: true,
+                        generate_audio: true,
+                        tts_voice: 'nova',
+                      }),
+                      grammar_count: parseInt(e.target.value),
+                    },
+                  })
+                }
+                options={[
+                  { value: '2', label: '2' },
+                  { value: '3', label: '3' },
+                  { value: '4', label: '4' },
+                  { value: '5', label: '5' },
+                ]}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm text-[var(--fg-secondary)]">
+                <input
+                  type="radio"
+                  name="eslPricing"
+                  checked={data.eslIncluded ?? true}
+                  onChange={() => onChange({ eslIncluded: true })}
+                  className="text-[var(--accent-teal)]"
+                />
+                Included with course (no extra charge)
+              </label>
+              <label className="flex items-center gap-2 text-sm text-[var(--fg-secondary)]">
+                <input
+                  type="radio"
+                  name="eslPricing"
+                  checked={!(data.eslIncluded ?? true)}
+                  onChange={() => onChange({ eslIncluded: false })}
+                  className="text-[var(--accent-teal)]"
+                />
+                Add-on purchase
+              </label>
+            </div>
+
+            {!(data.eslIncluded ?? true) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="ESL Add-on Price (USD cents)"
+                  type="number"
+                  min={0}
+                  value={data.eslPriceUsd || ''}
+                  onChange={(e) => onChange({ eslPriceUsd: parseInt(e.target.value) || 0 })}
+                  placeholder="e.g., 7900"
+                />
+                <Input
+                  label="ESL Add-on Price (JPY)"
+                  type="number"
+                  min={0}
+                  value={data.eslPriceJpy || ''}
+                  onChange={(e) => onChange({ eslPriceJpy: parseInt(e.target.value) || 0 })}
+                  placeholder="e.g., 11800"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="flex justify-end pt-2">
         <Button variant="primary" onClick={onNext} disabled={!canProceed}>
           Next: Content Outline

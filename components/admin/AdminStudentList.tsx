@@ -45,6 +45,28 @@ export function AdminStudentList({ students }: AdminStudentListProps) {
           : '—',
     },
     {
+      key: 'subscription',
+      header: 'Subscription',
+      render: (student: StudentListItem) => {
+        const status = student.subscription_status;
+        if (status === 'active') {
+          return (
+            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-accent-teal/15 text-accent-teal">
+              Active
+            </span>
+          );
+        }
+        if (status === 'cancelled') {
+          return (
+            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-red-400/15 text-red-400">
+              Cancelled
+            </span>
+          );
+        }
+        return <span className="text-fg-tertiary text-xs">—</span>;
+      },
+    },
+    {
       key: 'joined',
       header: 'Joined',
       render: (student: StudentListItem) =>

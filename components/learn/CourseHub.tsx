@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { TabNavigation } from './TabNavigation';
 import { WeekCard } from './WeekCard';
 import { VocabularyList } from './VocabularyList';
 import { Button } from '@/components/ui/button';
+import { Container } from '@/components/layout/container';
+import { ESLTab } from '@/components/esl/ESLTab';
 import type { CourseWithCurriculum, CourseWeekWithContent } from '@/lib/courses/types';
 
 type CourseHubProps = {
@@ -64,6 +67,9 @@ export function CourseHub({ course, locale }: CourseHubProps) {
   const tabs = [
     { key: 'overview', label: t('overview') },
     { key: 'weekly_plan', label: t('weekly_plan') },
+    ...(course.esl_enabled
+      ? [{ key: 'esl', label: t('esl_practice') }]
+      : []),
     { key: 'resources', label: t('resources') },
     { key: 'community', label: t('community') },
   ];
@@ -84,36 +90,92 @@ export function CourseHub({ course, locale }: CourseHubProps) {
     })
     .flatMap((w) => w.vocabulary);
 
-  return (
-    <div className="space-y-6">
-      {/* Back link */}
-      <button
-        type="button"
-        onClick={() => router.push(`${prefix}/learn/dashboard`)}
-        className="flex items-center gap-1 text-sm text-fg-tertiary hover:text-fg-primary transition-colors"
-      >
-        <ArrowLeft size={16} />
-        {t('back_to_dashboard')}
-      </button>
+  const imageUrl = course.hero_image_url || course.thumbnail_url;
 
-      {/* Course header */}
-      <div className="space-y-3">
-        <h1 className="text-2xl md:text-3xl font-serif text-fg-primary">{title}</h1>
-        <div className="flex items-center gap-4 text-sm text-fg-tertiary">
-          <span>{t('week_of', { current: currentWeek, total: totalWeeks })}</span>
-          <span>{t('progress', { percent: progressPercent })}</span>
-        </div>
-        {/* Progress bar */}
-        <div className="h-2 bg-bg-tertiary rounded-full overflow-hidden max-w-md">
-          <div
-            className="h-full bg-accent-teal rounded-full transition-all duration-[var(--duration-slow)]"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+  return (
+    <div>
+      {/* Hero image banner — negative margin to negate dashboard layout padding */}
+      <div className="relative overflow-hidden -mt-6 -mx-6 md:-mt-8 md:-mx-8">
+        {imageUrl ? (
+          <>
+            <div className="absolute inset-0 z-0">
+              <Image
+                src={imageUrl}
+                alt=""
+                fill
+                className="object-cover"
+                priority
+                sizes="100vw"
+              />
+            </div>
+            {/* Gradient overlays for text readability */}
+            <div className="absolute inset-0 z-[1] bg-gradient-to-r from-[var(--bg-primary)]/95 via-[var(--bg-primary)]/80 to-[var(--bg-primary)]/60" />
+            <div className="absolute inset-0 z-[1] bg-gradient-to-t from-[var(--bg-primary)] via-transparent to-[var(--bg-primary)]/40" />
+          </>
+        ) : (
+          <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+            <div
+              className="glow-orb"
+              style={{
+                width: '400px',
+                height: '400px',
+                top: '-10%',
+                right: '-5%',
+                background: 'var(--glow-teal)',
+                opacity: 0.15,
+              }}
+            />
+            <div
+              className="glow-orb"
+              style={{
+                width: '300px',
+                height: '300px',
+                bottom: '5%',
+                left: '-5%',
+                background: 'var(--glow-gold)',
+                opacity: 0.1,
+                animationDelay: '-4s',
+              }}
+            />
+          </div>
+        )}
+
+        <Container className="relative z-10">
+          <div className="px-6 md:px-8 py-6 md:py-8 space-y-3">
+            {/* Back link */}
+            <button
+              type="button"
+              onClick={() => router.push(`${prefix}/learn/dashboard`)}
+              className="flex items-center gap-1 text-sm text-fg-tertiary hover:text-fg-primary transition-colors"
+            >
+              <ArrowLeft size={16} />
+              {t('back_to_dashboard')}
+            </button>
+
+            {/* Course title */}
+            <h1 className="text-2xl md:text-3xl font-serif text-fg-primary">{title}</h1>
+
+            {/* Progress info */}
+            <div className="flex items-center gap-4 text-sm text-fg-tertiary">
+              <span>{t('week_of', { current: currentWeek, total: totalWeeks })}</span>
+              <span>{t('progress', { percent: progressPercent })}</span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-2 bg-bg-tertiary/50 rounded-full overflow-hidden max-w-md">
+              <div
+                className="h-full bg-accent-teal rounded-full transition-all duration-[var(--duration-slow)]"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        </Container>
       </div>
 
-      {/* Tabs */}
-      <TabNavigation tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* Tabs and content */}
+      <Container className="space-y-6 mt-6">
+        {/* Tabs */}
+        <TabNavigation tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Tab content */}
       <div className="min-h-[400px]">
@@ -248,6 +310,18 @@ export function CourseHub({ course, locale }: CourseHubProps) {
         )}
 
         {/* Community Tab */}
+        {activeTab === 'esl' && course.esl_enabled && (
+          <div className="py-4">
+            <ESLTab
+              courseId={course.id}
+              weeks={course.weeks}
+              eslIncluded={course.esl_included}
+              eslPriceUsd={course.esl_price_usd}
+              eslPriceJpy={course.esl_price_jpy}
+            />
+          </div>
+        )}
+
         {activeTab === 'community' && (
           <div className="space-y-6 py-4">
             {course.community_platform && (
@@ -295,6 +369,7 @@ export function CourseHub({ course, locale }: CourseHubProps) {
           </div>
         )}
       </div>
+      </Container>
     </div>
   );
 }

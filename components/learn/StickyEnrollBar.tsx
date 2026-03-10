@@ -37,6 +37,8 @@ export function StickyEnrollBar({
           isLoggedIn={isLoggedIn}
           isEnrolled={isEnrolled}
           isFull={isFull}
+          priceUsd={priceUsd}
+          priceJpy={priceJpy}
           size="sm"
         />
       </div>

@@ -4,6 +4,7 @@ import { StatCard } from '@/components/admin/StatCard';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { BookOpen, Users, Calendar, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { PathStatsWidget } from '@/components/admin/PathStatsWidget';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -155,6 +156,9 @@ export default async function AdminDashboardPage({ params }: Props) {
             </div>
           )}
         </div>
+
+        {/* Self-Study Path Stats */}
+        <PathStatsWidget />
 
         {/* Quick actions */}
         <div className="bg-bg-secondary border border-border-default rounded-lg p-5">

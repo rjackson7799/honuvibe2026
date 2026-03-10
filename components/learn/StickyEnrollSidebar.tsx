@@ -91,6 +91,8 @@ export function StickyEnrollSidebar({
           isLoggedIn={isLoggedIn}
           isEnrolled={isEnrolled}
           isFull={isFull}
+          priceUsd={priceUsd}
+          priceJpy={priceJpy}
           fullWidth
         />
 

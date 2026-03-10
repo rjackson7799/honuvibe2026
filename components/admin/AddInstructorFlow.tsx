@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search, UserPlus, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { searchUserByEmail, createInstructorProfile } from '@/lib/instructors/actions';
+import { searchUserByEmail, createInstructorProfile, createNewUserAndInstructor } from '@/lib/instructors/actions';
 
 type FoundUser = {
   id: string;
@@ -24,6 +24,8 @@ export function AddInstructorFlow() {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [foundUser, setFoundUser] = useState<FoundUser | null>(null);
+  const [mode, setMode] = useState<'promote' | 'create' | null>(null);
+  const [fullName, setFullName] = useState('');
 
   // Step 2: Profile
   const [displayName, setDisplayName] = useState('');
@@ -43,11 +45,12 @@ export function AddInstructorFlow() {
     setSearching(true);
     setSearchError('');
     setFoundUser(null);
+    setMode(null);
 
     try {
       const user = await searchUserByEmail(email.trim().toLowerCase());
       if (!user) {
-        setSearchError('No account found with that email. The user must sign up first.');
+        setMode('create');
         return;
       }
       if (user.role === 'instructor') {
@@ -60,6 +63,7 @@ export function AddInstructorFlow() {
       }
       setFoundUser(user);
       setDisplayName(user.full_name ?? '');
+      setMode('promote');
     } catch {
       setSearchError('Search failed. Please try again.');
     } finally {
@@ -68,20 +72,34 @@ export function AddInstructorFlow() {
   }
 
   async function handleCreate() {
-    if (!foundUser || !displayName.trim()) return;
+    if (!displayName.trim()) return;
     setCreating(true);
     setCreateError('');
 
+    const profileData = {
+      display_name: displayName.trim(),
+      title_en: titleEn.trim() || null,
+      title_jp: titleJp.trim() || null,
+      bio_short_en: bioShortEn.trim() || null,
+      bio_short_jp: bioShortJp.trim() || null,
+      website_url: websiteUrl.trim() || null,
+    };
+
     try {
-      const { id } = await createInstructorProfile(foundUser.id, {
-        display_name: displayName.trim(),
-        title_en: titleEn.trim() || null,
-        title_jp: titleJp.trim() || null,
-        bio_short_en: bioShortEn.trim() || null,
-        bio_short_jp: bioShortJp.trim() || null,
-        website_url: websiteUrl.trim() || null,
-      });
-      setNewProfileId(id);
+      let result: { id: string };
+
+      if (mode === 'create') {
+        result = await createNewUserAndInstructor(
+          email.trim().toLowerCase(),
+          fullName.trim(),
+          profileData,
+        );
+      } else {
+        if (!foundUser) return;
+        result = await createInstructorProfile(foundUser.id, profileData);
+      }
+
+      setNewProfileId(result.id);
       setStep('done');
     } catch (err) {
       setCreateError(err instanceof Error ? err.message : 'Failed to create instructor');
@@ -108,7 +126,7 @@ export function AddInstructorFlow() {
       {step === 'search' && (
         <div className="space-y-4">
           <p className="text-sm text-fg-secondary">
-            Search for an existing user account by email to promote them to instructor.
+            Enter an email to find an existing user or create a new instructor account.
           </p>
 
           <div className="flex gap-2">
@@ -137,7 +155,7 @@ export function AddInstructorFlow() {
             </div>
           )}
 
-          {foundUser && (
+          {foundUser && mode === 'promote' && (
             <div className="bg-bg-secondary border border-border-default rounded-lg p-4 space-y-3">
               <div>
                 <p className="text-fg-primary font-medium">
@@ -158,14 +176,53 @@ export function AddInstructorFlow() {
               </Button>
             </div>
           )}
+
+          {mode === 'create' && (
+            <div className="bg-bg-secondary border border-accent-teal/30 rounded-lg p-4 space-y-3">
+              <p className="text-sm text-fg-secondary">
+                No account found for <strong className="text-fg-primary">{email}</strong>.
+                Create a new instructor account?
+              </p>
+              <div>
+                <label className="block text-xs text-fg-tertiary mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Jane Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && fullName.trim()) {
+                      setDisplayName(fullName);
+                      setStep('profile');
+                    }
+                  }}
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
+                />
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  setDisplayName(fullName);
+                  setStep('profile');
+                }}
+                disabled={!fullName.trim()}
+              >
+                <UserPlus size={16} className="mr-1.5" />
+                Create New Instructor
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
       {/* Step 2: Fill Profile */}
-      {step === 'profile' && foundUser && (
+      {step === 'profile' && (
         <div className="space-y-4">
           <p className="text-sm text-fg-secondary">
-            Fill in the instructor profile for <strong>{foundUser.email}</strong>.
+            Fill in the instructor profile for <strong>{foundUser?.email ?? email}</strong>.
           </p>
 
           <div className="space-y-3">

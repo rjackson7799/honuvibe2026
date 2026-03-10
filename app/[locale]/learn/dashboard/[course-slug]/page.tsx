@@ -4,8 +4,6 @@ import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
 import { checkEnrollment } from '@/lib/enrollments/queries';
-import { Container } from '@/components/layout/container';
-import { Section } from '@/components/layout/section';
 import { CourseHub } from '@/components/learn/CourseHub';
 
 type Props = {
@@ -49,11 +47,5 @@ export default async function CourseHubPage({ params }: Props) {
   const course = await getCourseWithCurriculum(slug);
   if (!course) notFound();
 
-  return (
-    <Section>
-      <Container>
-        <CourseHub course={course} locale={locale} />
-      </Container>
-    </Section>
-  );
+  return <CourseHub course={course} locale={locale} />;
 }

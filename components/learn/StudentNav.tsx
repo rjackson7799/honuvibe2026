@@ -9,12 +9,15 @@ import {
   LayoutDashboard,
   BookOpen,
   Calendar,
+  Lock,
   Library,
   PlaySquare,
   Users,
+  CreditCard,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
+  Route,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -26,9 +29,12 @@ const navItems = [
   { href: '/learn/dashboard', labelKey: 'nav_overview', icon: LayoutDashboard, exact: true },
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/dashboard/schedule', labelKey: 'nav_schedule', icon: Calendar, exact: false },
+  { href: '/learn/paths/new', labelKey: 'nav_study_paths', icon: Route, exact: false },
+  { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
   { href: '/learn/dashboard/resources', labelKey: 'nav_resources', icon: Library, exact: false },
   { href: '/learn/dashboard/my-library', labelKey: 'nav_my_library', icon: PlaySquare, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
+  { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
   { href: '/learn/dashboard/settings', labelKey: 'nav_settings', icon: Settings, exact: false },
 ];
 

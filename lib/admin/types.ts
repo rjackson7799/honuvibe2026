@@ -63,6 +63,30 @@ export interface StudentListItem {
   email: string | null;
   full_name: string | null;
   enrolled_courses: string[];
+  subscription_status: string;
+  subscription_tier: string;
+  created_at: string;
+}
+
+export interface RevenueStats {
+  total_usd: number;
+  total_jpy: number;
+  month_usd: number;
+  month_jpy: number;
+  active_subscribers: number;
+  active_enrollments: number;
+}
+
+export interface TransactionRecord {
+  id: string;
+  user_name: string | null;
+  user_email: string | null;
+  type: string;
+  description: string | null;
+  amount: number;
+  currency: string;
+  status: string;
+  receipt_url: string | null;
   created_at: string;
 }
 

@@ -71,6 +71,14 @@ export interface Course {
   is_featured: boolean;
   is_published: boolean;
   status: CourseStatus;
+
+  // ESL configuration
+  esl_enabled: boolean;
+  esl_included: boolean;
+  esl_price_usd: number | null;
+  esl_price_jpy: number | null;
+  esl_settings_json: Record<string, unknown> | null;
+
   created_at: string;
   updated_at: string;
 }
@@ -187,6 +195,19 @@ export interface WizardParams {
   prerequisites?: string;
   specialInstructions?: string;
   templateId?: string;
+
+  // ESL settings
+  eslEnabled?: boolean;
+  eslIncluded?: boolean;
+  eslPriceUsd?: number;
+  eslPriceJpy?: number;
+  eslSettings?: {
+    vocab_depth: 'essential' | 'comprehensive';
+    grammar_count: number;
+    include_cultural: boolean;
+    generate_audio: boolean;
+    tts_voice: string;
+  };
 }
 
 // Upload pipeline types

@@ -3,10 +3,15 @@ import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStudentDashboardData } from '@/lib/dashboard/queries';
+import { getUserPaths } from '@/lib/paths/queries';
 import { StatCard } from '@/components/admin/StatCard';
 import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
-import { BookOpen, CheckCircle, Calendar, Clock } from 'lucide-react';
+import { PathCard } from '@/components/learn/PathCard';
+import { PremiumUpgradeCard } from '@/components/learn/PremiumUpgradeCard';
+import { BookOpen, CheckCircle, Calendar, Clock, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { getVaultCourseRecommendations } from '@/lib/vault/queries';
+import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -41,12 +46,17 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   // Get user profile for display name
   const { data: profile } = await supabase
     .from('users')
-    .select('full_name')
+    .select('full_name, subscription_tier')
     .eq('id', user.id)
     .single();
 
-  const dashboardData = await getStudentDashboardData(user.id);
+  const [dashboardData, vaultRecommendations, studyPaths] = await Promise.all([
+    getStudentDashboardData(user.id),
+    getVaultCourseRecommendations(user.id, 6),
+    getUserPaths(user.id),
+  ]);
   const { enrollments, upcomingSessions, pendingAssignments, stats } = dashboardData;
+  const tPaths = await getTranslations({ locale, namespace: 'study_paths' });
 
   const displayName = profile?.full_name ?? user.email?.split('@')[0] ?? '';
 
@@ -88,6 +98,49 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           value={stats.total_study_hours}
           icon={Clock}
         />
+      </div>
+
+      {/* Premium upgrade banner for free users */}
+      {profile?.subscription_tier !== 'premium' && (
+        <PremiumUpgradeCard variant="banner" />
+      )}
+
+      {/* Vault Recommendations */}
+      {vaultRecommendations.length > 0 && (
+        <VaultCourseRecommendations items={vaultRecommendations} />
+      )}
+
+      {/* Study Paths section */}
+      <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
+            {t('section_study_paths')}
+          </h2>
+          <Link
+            href={`${locale === 'ja' ? '/ja' : ''}/learn/paths/new`}
+            className="inline-flex items-center gap-1 text-xs text-accent-teal hover:underline"
+          >
+            <Plus size={14} />
+            {t('create_study_path')}
+          </Link>
+        </div>
+        {studyPaths.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-sm text-fg-tertiary mb-3">{t('no_study_paths')}</p>
+            <Link
+              href={`${locale === 'ja' ? '/ja' : ''}/learn/paths/new`}
+              className="inline-flex items-center gap-2 text-sm text-accent-teal hover:underline"
+            >
+              {t('create_study_path')} →
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {studyPaths.slice(0, 4).map((path) => (
+              <PathCard key={path.id} path={path} />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
