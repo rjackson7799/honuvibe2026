@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { sanityPublicClient } from '@/lib/sanity/client';
 import { allPostSlugsQuery, glossarySlugQuery, newsletterSlugQuery } from '@/lib/sanity/queries';
 import { getLibraryVideoSlugs } from '@/lib/library/queries';
+import { getVaultPublishedSlugs, getVaultSeriesSlugs } from '@/lib/vault/queries';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://honuvibe.ai';
 
@@ -9,6 +10,7 @@ const routes = [
   '',
   '/honuhub',
   '/explore',
+  '/build',
   '/about',
   '/community',
   '/contact',
@@ -16,6 +18,8 @@ const routes = [
   '/resources',
   '/glossary',
   '/newsletter',
+  '/learn/vault',
+  '/learn/vault/series',
   '/learn/library',
   '/privacy',
   '/terms',
@@ -124,6 +128,48 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // Supabase not configured or unreachable — skip library entries
+  }
+
+  // Dynamic vault content items from Supabase
+  try {
+    const vaultSlugs = await getVaultPublishedSlugs();
+    for (const slug of vaultSlugs) {
+      entries.push({
+        url: `${baseUrl}/learn/vault/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.7,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/learn/vault/${slug}`,
+            ja: `${baseUrl}/ja/learn/vault/${slug}`,
+          },
+        },
+      });
+    }
+  } catch {
+    // Supabase not configured or unreachable — skip vault entries
+  }
+
+  // Dynamic vault series from Supabase
+  try {
+    const seriesSlugs = await getVaultSeriesSlugs();
+    for (const slug of seriesSlugs) {
+      entries.push({
+        url: `${baseUrl}/learn/vault/series/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+        alternates: {
+          languages: {
+            en: `${baseUrl}/learn/vault/series/${slug}`,
+            ja: `${baseUrl}/ja/learn/vault/series/${slug}`,
+          },
+        },
+      });
+    }
+  } catch {
+    // Supabase not configured or unreachable — skip vault series entries
   }
 
   return entries;

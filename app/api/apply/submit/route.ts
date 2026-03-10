@@ -38,10 +38,12 @@ export async function POST(request: NextRequest) {
         website: data.website ?? null,
         engagement_type: data.engagement ?? null,
         project_description: data.project,
+        desired_outcome: data.outcome ?? null,
         referral_source: data.referral_source ?? null,
         timeline: data.timeline ?? null,
         budget_range: data.budget ?? null,
         locale: data.locale ?? 'en',
+        source_page: data.source_page ?? 'apply',
       });
 
       if (dbError) {

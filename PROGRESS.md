@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-02-27 (Exploration hero — lighthouse background with canvas starfield, Hawaiian island silhouettes, sweeping beam)
+**Last updated:** 2026-03-07 (Phase 2C — Self-Study Mode, remaining items complete)
 
 ### Status Legend
 - [ ] Not started
@@ -35,7 +35,7 @@
 - [x] Modal (centered overlay, backdrop blur, scroll lock, Escape key, scale animation)
 
 ### Layout Components
-- [x] Nav (fixed, glass effect, hamburger on mobile) — 6 links: HonuHub, Explore, Learn, Resources, About, Contact
+- [x] Nav (fixed, glass effect, hamburger on mobile) — 6 links: HonuHub, Explore, Build, Learn, About, Contact
 - [x] MobileMenu (full-screen overlay)
 - [x] Footer (compact horizontal layout — brand left, 3 link columns right, wide container) — Navigate (HonuHub, Explore, Learn, Community), Resources (Resources, Blog, About, Contact), Legal
 - [x] ThemeToggle (sun/moon, persists to localStorage)
@@ -61,7 +61,8 @@
 ### Pages (EN + JA)
 - [x] Homepage — Hero, MissionStrip, HonuHub feature, Featured Courses, Exploration preview, Ryan bio, Newsletter, Social proof
 - [x] HonuHub — Hero (opening badge, notify modal, glow orbs), about (real photo), three modes, upcoming events (4 placeholder), remote learning (i18n), membership tiers, location + contact form
-- [x] Exploration Island — Lighthouse hero (canvas starfield, 3 Hawaiian island silhouettes, sweeping beam, Hokule'a star, ocean gradient), territory grid, 2× featured builds (KwameBrathwaite + HCI Medical Group, side-by-side cards), floating tech showcase (auto-illuminate), process timeline, lead form
+- [x] Exploration Island — Lighthouse hero (canvas starfield, 3 Hawaiian island silhouettes, sweeping beam, Hokule'a star, ocean gradient), 2× featured builds (KwameBrathwaite + HCI Medical Group, side-by-side cards), bottom CTA strip linking to Build page. Restructured: territory grid, tech showcase, process timeline, and lead form moved to Build page.
+- [x] Build — Hero (gradient bg, dual CTAs), 5 territory cards (accent colors, "See examples" links), tech logo grid (grayscale + hover), 5-step process timeline (horizontal desktop / vertical mobile), 3 engagement cards (Project Build, Consulting, Pro-Bono), proof strip (stats), full inquiry form (shared ApplicationForm with source_page tracking), advisory link to /apply. Full i18n (EN + JP), SEO metadata, Plausible analytics events, sitemap entry.
 - [x] About — Brand-first redesign: HonuHub-style hero, Mission & Vision, Aloha Standard, Core Competencies + consulting CTA, Founder bio, social links
 - [!] Blog index — Blocked on CMS decision (Sanity.io or Payload)
 - [!] Blog post — Blocked on CMS decision
@@ -667,33 +668,155 @@ Dark:  Footer
 
 ---
 
-## Phase 2B — Content Library (Planned)
+## The Vault — Content Library
 
-- [ ] Content items table + tag system (schema deployed in Stage 1)
-- [ ] Content catalog page with filters (type, difficulty, tags)
-- [ ] Content detail pages (article, video, tool, template)
-- [ ] YouTube metadata auto-fetch
-- [ ] Admin content management UI
-- [ ] Collections/playlists feature
-- [ ] Access tier gating (free/premium)
+### Phase V0: Database + Admin Foundation
+- [x] Schema migration (`011_vault_schema.sql`) — 7 tables (vault_series, vault_downloads, vault_bookmarks, vault_notes, vault_feedback, vault_views, vault_content_requests) + content_items ALTERs
+- [x] TypeScript types (`lib/vault/types.ts`) — all interfaces and union types
+- [x] Query functions (`lib/vault/queries.ts`) — 17 queries (browse, trending, admin, freshness, tags, series, user state, related items, stats)
+- [x] Server actions (`lib/vault/actions.ts`) — 18 actions (CRUD, publish, bookmarks, notes, feedback, views, content requests, series reorder, downloads)
+- [x] Access control (`lib/vault/access.ts`) — subscription OR enrollment check
+- [x] Admin UI — AdminVaultList, AdminVaultDetail, VaultFreshnessQueue, AdminVaultSeriesDetail + 5 admin pages
+- [x] AdminNav — Vault + Series items added
 
-## Phase 2C — Self-Study Mode (Planned)
+### Phase V1: Core Browse + Detail Pages
+- [x] API routes — `/api/vault/browse`, `/api/vault/view`, `/api/vault/downloads/[id]`
+- [x] Browse components (11 files) — VaultContentCard, VaultFilters, VaultBrowseGrid, VaultPremiumGate, VaultContentDetail, VaultVideoPlayer, VaultActionBar, VaultFeedbackWidget, VaultDownloadList, VaultSeriesCard, VaultSeriesDetail
+- [x] Browse page (`/learn/vault`) — server component, premium gating, free tier preview
+- [x] Detail page (`/learn/vault/[slug]`) — full detail with downloads, feedback, related items, series nav
+- [x] StudentNav updated to point to `/learn/vault`
 
-- [ ] AI-generated learning paths via Claude API (schema deployed in Stage 1)
-- [ ] Study path builder with topic selection
-- [ ] Progress tracking for self-study items
-- [ ] Stripe subscription integration (premium tier)
-- [ ] Path generation logs and quality tracking
+### Phase V2: Series + Downloads
+- [x] Series API routes — `/api/vault/series`, `/api/vault/series/[slug]`
+- [x] Series pages — `/learn/vault/series` (browse), `/learn/vault/series/[slug]` (detail)
+- [x] Download tracking via `/api/vault/downloads/[id]`
+- [x] Admin series management — AdminVaultSeriesDetail
+
+### Phase V3: Personal Features (Auth-Gated)
+- [x] Completion migration (`012_vault_completion.sql`) — adds `completed` bookmark type
+- [x] Types update — `VaultBookmarkType` now includes `'completed'`
+- [x] Queries update — `getVaultRecentlyViewed(userId)`, `getVaultUserState` checks completion
+- [x] Actions update — `markComplete` now functional (uses toggleBookmark pattern)
+- [x] Bookmarks API (`/api/vault/bookmarks`) — GET list + POST toggle
+- [x] Bookmarks page (`/learn/vault/bookmarks`) — auth-gated grid with empty state
+- [x] Watch Later API (`/api/vault/watch-later`) — GET list + POST toggle
+- [x] Watch Later page (`/learn/vault/watch-later`) — auth-gated video queue with empty state
+- [x] Notes API (`/api/vault/notes`) — GET all + PUT upsert; `/api/vault/notes/[id]` — DELETE
+- [x] Notes page (`/learn/vault/notes`) — auth-gated, notes grouped by content item with timestamps
+- [x] VaultNoteEditor component — textarea with 2s debounce auto-save, 5000 char limit, timestamp support, save status indicator
+- [x] Feedback API (`/api/vault/feedback`) — POST submit/toggle
+- [x] VaultRecentlyViewed component — "Continue where you left off" horizontal scroll row on browse page
+- [x] VaultCompletionToggle component — mark-as-done button with optimistic update
+- [x] VaultContentCard — completion overlay (checkmark badge)
+- [x] VaultContentDetail — NoteEditor + CompletionToggle integrated
+- [x] VaultSubNav component — pill navigation (Browse, Series, Bookmarks, Watch Later, Notes) on all vault pages
+- [x] Build verification — clean compile
+
+### Phase V4: Polish + Intelligence
+- [x] Related content priority logic — 4-tier: manual → same series → tag overlap ≥2 → same topic next difficulty
+- [x] VaultRelatedItems component — extracted from VaultContentDetail, uses `useTranslations('vault')`
+- [x] VaultDifficultyPath component — beginner → intermediate → advanced progression view per tag
+- [x] Course-aware recommendations — VaultCourseRecommendations on student dashboard (enrolled courses' tags → vault items)
+- [x] Content request system — VaultContentRequest form + `/api/vault/requests` API + VaultContentRequests admin view on freshness page
+- [x] Admin VaultRelatedPicker — searchable multi-select for related_item_ids in AdminVaultDetail
+- [x] Full i18n — ~85 vault namespace keys in EN + JP (`messages/en.json`, `messages/ja.json`)
+- [x] SEO + sitemap — `generateMetadata()` with bilingual alternates on all vault pages, vault item + series slugs in sitemap
+- [x] Analytics events — 12 Plausible events: vault_browse, vault_search, vault_item_view, vault_video_play, vault_video_complete, vault_bookmark, vault_watch_later, vault_feedback, vault_download, vault_series_view, vault_premium_gate, vault_subscribe_click
+- [x] Library → Vault redirects — `/learn/library` → `/learn/vault`, `/learn/library/[slug]` → `/learn/vault/[slug]`
+- [x] Keyboard shortcuts — `/` focus search, `b` bookmark, `j/k` series next/prev (VaultKeyboardShortcuts component)
+- [x] VaultAnalyticsTracker — client component for tracking events from server components
+- [x] Build verification — clean compile
+
+## Phase 2C — Self-Study Mode
+
+### Library Layer (`lib/paths/`)
+- [x] Types — `PathIntakeInput`, `CatalogItem`, `ClaudePathResponse`, `PathStats` (extended existing `lib/paths/types.ts`)
+- [x] Zod schemas — Claude response validation (`lib/paths/schemas.ts`)
+- [x] Content catalog builder — queries published items, filters by tier (`lib/paths/catalog.ts`)
+- [x] Claude generation prompt — v1.1 bilingual prompt with content library + student context (`lib/paths/prompt.ts`)
+- [x] Generation orchestrator — Claude API call, JSON extraction, Zod validation, cross-validation, enrolled courses context (`lib/paths/generate.ts`)
+- [x] Supabase queries — CRUD, rate limiting (3/day), admin stats, user progress counts, admin user joins (`lib/paths/queries.ts`)
+- [x] Premium access check — role, tier, status, grace period (`lib/paths/access.ts`)
+
+### API Routes
+- [x] `POST /api/learn/paths/generate` — AI path generation with rate limiting + generation log
+- [x] `GET /api/learn/paths` — List user's non-archived paths
+- [x] `GET/PUT /api/learn/paths/[id]` — Path detail + archive
+- [x] `POST /api/learn/paths/[id]/regenerate` — Regenerate with feedback (archives old path)
+- [x] `PUT /api/learn/paths/[id]/items/[itemId]` — Toggle item completion, auto-complete path
+- [x] `GET /api/admin/paths` — Admin: all paths with pagination
+- [x] `GET /api/admin/paths/stats` — Admin: analytics (totals, completion rate, top topics, top content)
+
+### Student Components (`components/learn/`)
+- [x] `GoalTextarea` — controlled textarea with char count (0/500)
+- [x] `DifficultySelector` — 3-option radio cards (beginner/intermediate/advanced)
+- [x] `FocusAreaChips` — multi-select chips from tags table
+- [x] `PathIntakeForm` — composed intake form with language selector
+- [x] `PathGenerating` — animated loading state with HonuMark + progress bar
+- [x] `PathItemCard` — item card with status (completed/next/upcoming/locked), completion toggle
+- [x] `ContentViewer` — YouTube/Vimeo iframe embeds, external link cards
+- [x] `PathPreview` — post-generation preview with stats, item list, regenerate feedback
+- [x] `PathCard` — dashboard summary card with accurate progress (completed_items count from batch query)
+- [x] `StudyPathView` — full path detail with progress bar, grouped items, inline viewer with real URLs, actions
+- [x] `PremiumUpgradeCard` — upgrade CTAs (inline/banner variants), wired into dashboard + intake form
+
+### Pages
+- [x] `/learn/paths/new` — intake flow page with `PathIntakeFlow` state machine (intake → generating → preview)
+- [x] `/learn/paths/[id]` — study path detail page with auth + ownership guard
+
+### Dashboard Integration
+- [x] Dashboard page — "Your Study Paths" section with `PathCard` grid + "Create New" link
+- [x] `StudentNav` — added "Study Paths" nav item with Route icon
+
+### Admin
+- [x] `PathStatsWidget` — analytics widget (totals, rates, top topics, top content items)
+- [x] Admin dashboard — added PathStatsWidget
+- [x] `AdminNav` — added "Study Paths" nav item
+- [x] `/admin/paths` page — table view of all study paths with user info, status, items, difficulty, created date
+- [x] `AdminPathsList` component — search, status filter tabs (all/active/completed/archived), DataTable
+
+### i18n
+- [x] `study_paths` namespace — 45+ keys (EN + JP) for intake, generating, preview, path view, progress
+- [x] `subscription` namespace — 14 keys (EN + JP) for premium upgrade CTAs
+- [x] Dashboard keys — `nav_study_paths`, `section_study_paths`, `create_study_path`, `no_study_paths`
+
+### Remaining Items (completed 2026-03-07)
+- [x] ContentViewer URL fix — denormalized `item_url`/`item_embed_url` on `study_path_items` (migration `013_path_items_urls.sql`), StudyPathView passes real URLs to ContentViewer
+- [x] PathCard progress accuracy — `getUserPaths()` batch-fetches completed item counts, PathCard shows actual % progress
+- [x] Admin paths list page — `/admin/paths` with `AdminPathsList` component, `getAllPaths()` joins user email/name
+- [x] Premium upgrade touchpoints — `PremiumUpgradeCard` banner on student dashboard (free users), `userTier` prop on `PathIntakeForm` with conditional free_note
+- [x] Path generation enrolled courses context — `fetchStudentContext()` queries enrollments + completed items, prompt v1.1 includes `STUDENT CONTEXT` section
+- [x] New types — `StudyPathWithProgress`, `AdminStudyPath` in `lib/paths/types.ts`
+
+### Previously Completed
+- [x] Stripe subscription integration (premium tier) — Vault $50/mo, webhook handlers, billing dashboard
+- [x] Database schema deployed — `study_paths`, `study_path_items`, `path_generation_logs` tables with RLS
+
+### Build Verification
+- [x] TypeScript — clean compile
+- [x] Next.js build — all routes registered, no errors
 
 ---
 
 ## Phase 2 — Future Items
 
 ### Payments (Real Stripe)
-- [ ] Stripe Checkout integration (swap simulated → real)
-- [ ] USD + JPY currency support
-- [ ] Webhook processing for `checkout.session.completed`
-- [ ] End-to-end payment flow testing
+- [x] Stripe Checkout integration (swap simulated → real)
+- [x] USD + JPY currency support
+- [x] Webhook processing for `checkout.session.completed`
+- [x] Vault monthly subscription checkout (`/api/stripe/subscribe`)
+- [x] Stripe Customer Portal integration (`/api/stripe/portal`)
+- [x] Subscription webhook handlers (`customer.subscription.created/updated/deleted`, `invoice.paid`)
+- [x] Payments table migration (`supabase/migrations/008_payments_billing.sql`)
+- [x] Vault access helper (`lib/vault/access.ts`) — subscription OR active enrollment
+- [x] User billing dashboard (`/learn/dashboard/billing`) — Vault status card, payment history, subscribe/manage buttons
+- [x] Admin revenue dashboard (`/admin/revenue`) — stats cards (USD/JPY totals, monthly, active subs/enrollments), transaction table
+- [x] Admin student list — subscription status column added
+- [x] Billing + revenue i18n keys (EN + JP)
+- [x] Student nav — Billing item added
+- [x] Admin nav — Revenue item added
+- [ ] End-to-end payment flow testing (needs Stripe Price IDs configured)
+- [ ] Stripe CLI webhook forwarding testing
 
 ### Certificates
 - [ ] Auto-generated certificate on course completion
@@ -723,18 +846,19 @@ Dark:  Footer
 ### What's Live
 - **16 public page routes** × 2 locales = **32 pages** (SSG) — includes `/glossary`, `/newsletter`, `/learn/library` index + detail routes
 - **16 dynamic LMS routes** (learn catalog, course detail, library index, library detail, auth, dashboard, course hub, my-library, admin dashboard, courses, course detail, upload, students, student detail, applications, admin library list, admin library detail)
-- **12 API routes**: `/api/newsletter/subscribe`, `/api/apply/submit`, `/api/auth/callback`, `/api/admin/courses/parse`, `/api/admin/courses/create`, `/api/admin/courses/upload-image`, `/api/admin/courses/generate-image`, `/api/admin/library/upload-thumbnail`, `/api/library/favorite`, `/api/library/progress`, `/api/stripe/webhook` (skeleton), `/api/stripe/checkout` (skeleton)
+- **8 Vault routes** (browse, detail, series browse, series detail, bookmarks, watch-later, notes) + 5 admin vault pages + library redirects
+- **30+ API routes** including 8 vault APIs: `/api/newsletter/subscribe`, `/api/apply/submit`, `/api/auth/callback`, `/api/admin/courses/parse`, `/api/admin/courses/create`, `/api/admin/courses/upload-image`, `/api/admin/courses/generate-image`, `/api/admin/library/upload-thumbnail`, `/api/admin/esl/update`, `/api/library/favorite`, `/api/library/progress`, `/api/stripe/webhook`, `/api/stripe/checkout`, `/api/stripe/subscribe`, `/api/stripe/portal`, `/api/esl/generate`, `/api/esl/[weekId]`, `/api/esl/[weekId]/publish`, `/api/esl/audio/generate`, `/api/esl/progress`, `/api/esl/purchase`
 - **Sitemap + robots.txt + llms.txt**
 - **Full design system**: dark/light themes, CSS variables, Tailwind v4 tokens
 - **Ocean interactions**: animated canvas, scroll companion (auth-aware), custom themed scrollbar
-- **Full i18n**: EN + JA translations for all pages including learn namespace (84+ strings) + glossary (32 keys) + newsletter archive (25 keys) + library (42+ keys) + admin library (45+ keys) per locale
+- **Full i18n**: EN + JA translations for all pages including learn namespace (84+ strings) + glossary (32 keys) + newsletter archive (25 keys) + library (42+ keys) + admin library (45+ keys) + ESL (50+ keys) per locale
 - **JSON-LD**: Organization + WebSite + CollectionPage (glossary, newsletter, library) + DefinedTerm (glossary) + Article (newsletter issues) + VideoObject (library) structured data
 - **AI Glossary**: bilingual EN/JP terminology reference with search, category filters, A-Z navigation, related terms, SEO-optimized term pages
 - **Newsletter Archive**: bilingual EN/JP newsletter archive with issue pages, share buttons, prev/next navigation, subscribe blocks, course CTAs
 - **Library**: bilingual EN/JP quick-learn video tutorials with search, category filters, access tier gating, favorite/progress tracking, placeholder player, dashboard tab, related videos
 - **Supabase Auth**: email/password + Google OAuth, middleware-based session management
 - **Full LMS**: course catalog (hero + level filters), course detail (full-bleed hero header), enrollment, student dashboard, tabbed course hub
-- **Admin panel**: dashboard with stats, course management with session editor, AI-powered course upload, student/application management, library video management (CRUD + YouTube preview + thumbnail upload)
+- **Admin panel**: dashboard with stats, course management with session editor, AI-powered course upload, student/application management, library video management (CRUD + YouTube preview + thumbnail upload), ESL lesson management (generate/review/publish per week)
 - **AI course parser**: Claude API integration for markdown → structured course data
 - **Course image management**: drag-drop upload + AI generation (Gemini), Supabase Storage with RLS
 
@@ -786,7 +910,8 @@ Dark:  Footer
 - Tailwind CSS v4 (inline @theme tokens)
 - next-intl 4.8.3 (URL-based locale routing)
 - Supabase (PostgreSQL + Auth + RLS + Storage)
-- Claude API (course markdown parser — claude-sonnet-4)
+- Claude API (course markdown parser — claude-sonnet-4, ESL content generator — claude-sonnet-4)
+- OpenAI TTS API (ESL pronunciation audio — tts-1, nova voice)
 - Google Gemini API (course image generation — gemini-3-pro-image-preview)
 - Lucide React icons
 
@@ -864,6 +989,118 @@ Cinematic Hawaiian night-sky scene behind the Exploration hero. Canvas-rendered 
 
 ### Dependencies
 - `framer-motion` (v12.34.3 — already installed)
+
+---
+
+## Build Page + Explore Page Restructure (2026-03-04)
+
+### Rationale
+The Exploration page was carrying two jobs: portfolio (social proof) and capabilities pitch (conversion). These serve different visitors at different stages, so they've been split into dedicated pages:
+- **Explore** (`/explore`) — Pure portfolio: "Look at what they've built"
+- **Build** (`/build`) — Capabilities + conversion: "Here's how they can build for me"
+
+### Build Page Sections
+1. **BuildHero** — Gradient background, "From Idea to Launch" headline, dual CTAs (Start a Project → #inquire, See Our Work → /explore)
+2. **TerritoryCards** — 5 territory cards (Web, Database, SaaS, Automations, Pro-Bono) with accent colors and "See examples" links
+3. **TechLogoGrid** — Grayscale tech logos with hover color reveal (migrated from Explore)
+4. **BuildProcessTimeline** — 5-step timeline: Discovery → Blueprint → Build → Launch → Grow (horizontal desktop, vertical mobile)
+5. **EngagementCards** — 3 cards: Project Build, Strategic AI Guidance, Nonprofit & Community
+6. **ProofStrip** — 3 stats (20+ projects, 3 countries, 60% time saved)
+7. **InquirySection** — Full ApplicationForm with source_page tracking (shared with /apply)
+8. **AdvisoryLink** — Subtle link to /apply for strategic engagements
+
+### Explore Page Changes
+- **Removed**: TechStackShowcase, ProcessTimeline, TerritoryGrid, ExplorationCta (all moved to Build)
+- **Removed**: ExplorationLeadForm modal from hero
+- **Updated hero**: Dual CTAs — "Browse Projects" (scroll) + "Work With Us" (→ /build), lighthouse background kept
+- **Added**: ExploreBottomCTA strip — "Inspired by what you see? Start a Project →" linking to /build
+- **Added**: CategoryFilter component (pills: All, Web, Database, SaaS, Automations, Pro-Bono) — ready for project filtering
+
+### Shared Infrastructure
+- **ApplicationForm** (`components/forms/ApplicationForm.tsx`) — 10 fields, shared between /build and /apply, `sourcePage` prop tracks origin
+- **CTAStrip** (`components/sections/CTAStrip.tsx`) — Reusable headline + CTA component
+- **DB migration** (`009_application_source_page.sql`) — `source_page` column + `desired_outcome` column on applications table
+
+### Navigation
+Nav updated from 5 to 6 links: HonuHub, Explore, **Build**, Learn, About, Contact
+
+### New File Count (Build Page + Explore Restructure)
+- **8 build components** (`components/build/`)
+- **1 form component** (`components/forms/ApplicationForm.tsx`)
+- **1 page route** (`app/[locale]/build/page.tsx`)
+- **1 CTA strip** (`components/sections/CTAStrip.tsx`)
+- **1 explore CTA** (`components/sections/exploration/explore-bottom-cta.tsx`)
+- **1 category filter** (`components/exploration/CategoryFilter.tsx`)
+- **1 SQL migration** (`supabase/migrations/009_application_source_page.sql`)
+- **Modified**: nav, explore page, explore hero, explore barrel exports, API route, sitemap, i18n (EN+JP)
+
+### Analytics Events
+`build_territory_click`, `build_engage_card_click`, `build_form_submit`, `build_advisory_click`, `explore_filter_change`, `explore_to_build_click`
+
+---
+
+## ESL Lesson Generator (2026-03-06)
+
+### Overview
+Auto-generates supplemental ESL (English as a Second Language) content from course materials using Claude API, with TTS pronunciation audio via OpenAI. Designed for Japanese professionals learning AI skills while improving their English. Configurable per course — some bundle ESL free, others sell as Stripe add-on.
+
+### Phase 1: Database + Types + Access (Foundation)
+- [x] Migration `supabase/migrations/010_esl_schema.sql` — ALTER courses (5 ESL columns), 4 new tables (`esl_lessons`, `esl_audio`, `esl_progress`, `esl_purchases`), RLS policies, indexes
+- [x] TypeScript types `lib/esl/types.ts` — VocabularyItem, GrammarPoint, CulturalNote, ComprehensionItem, ESLSettings, ESLLesson, ESLAudio, ESLProgress, ESLPurchase, ESLLessonWithAudio, WeekESLContext, ESLAccessResult
+- [x] Zod validation schemas `lib/esl/schemas.ts` — validates Claude API JSON output
+- [x] Access control `lib/esl/access.ts` — `checkESLAccess(userId, courseId)` (admin bypass → esl_included + enrollment → esl_purchases)
+- [x] Queries `lib/esl/queries.ts` — getESLLessonForWeek, getESLLessonsForCourse, getESLProgress, getESLProgressForCourse
+
+### Phase 2: Generation Pipeline (Core Value)
+- [x] ESL generator `lib/esl/generator.ts` — Claude API (`claude-sonnet-4-20250514`), specialized ESL prompt, Zod validation
+- [x] TTS generator `lib/esl/tts.ts` — OpenAI TTS API (`tts-1`, `nova` voice, 0.9 speed), Supabase Storage upload, concurrency limiter (3 parallel)
+- [x] `POST /api/esl/generate` — admin-only, accepts `{ courseId, weekIds? }`, background generation via `after()`
+- [x] `GET /api/esl/[weekId]` — authenticated, checks ESL access, returns ESLLessonWithAudio
+- [x] `POST /api/esl/[weekId]/publish` — admin-only, status → published
+- [x] `POST /api/esl/audio/generate` — admin-only, background TTS via `after()`
+- [x] `POST /api/esl/progress` — authenticated, upserts vocabulary_completed/comprehension_score/flashcard_known
+- [x] `POST /api/admin/esl/update` — admin-only, saves manual edits to ESL content
+
+### Phase 3: Student UI Components (10 new)
+- [x] `AudioPlayButton` — inline play/pause using HTMLAudioElement, loading/playing/idle states
+- [x] `VocabularyCard` — expandable card with term, IPA, translation, definition, usage sentences, audio, difficulty badge, "learned" toggle
+- [x] `GrammarSpotlight` — collapsible grammar card with pattern, EN/JP explanation, examples with audio, common mistakes
+- [x] `CulturalNoteCard` — collapsible card with category icon/color, bilingual content, practical tip
+- [x] `ComprehensionCheck` — interactive quiz (multiple choice, fill-in-blank), progress indicator, score tracking
+- [x] `ESLProgressBar` — horizontal bar showing vocab learned count + comprehension score
+- [x] `FlashcardMode` — full-screen flip cards (EN↔JP), known/unknown marking, shuffle, progress tracking
+- [x] `ESLPurchaseCard` — locked-state upsell CTA with bilingual copy, triggers Stripe checkout
+- [x] `ESLLessonView` — container: progress bar → vocabulary + flashcard button → grammar → cultural notes → comprehension
+- [x] `ESLTab` — week selector + data fetching + access check → renders ESLLessonView or ESLPurchaseCard
+- [x] CourseHub integration — conditional ESL tab when `course.esl_enabled` (~10 lines changed)
+
+### Phase 4: Admin Integration
+- [x] `ESLAdminDashboard` — per-week status table (generating/review/published/failed/not started), Generate All/per-week actions
+- [x] `ESLReviewPanel` — view/edit generated ESL content, Save Changes button
+- [x] Admin ESL page `app/[locale]/admin/courses/[id]/esl/page.tsx` — server component with auth check
+- [x] Wizard ESL settings in `WizardStepBasicInfo` — enable checkbox, vocab depth, grammar count, pricing (included vs add-on)
+- [x] `createCourseFromParsedData` — passes ESL fields when inserting course
+
+### Phase 5: Monetization (Stripe Add-on)
+- [x] `POST /api/esl/purchase` — creates Stripe Checkout Session with `metadata.type = 'esl_addon'`
+- [x] Webhook extension in `lib/stripe/webhooks.ts` — routes `esl_addon` checkouts to `handleESLPurchaseCompleted()`
+- [x] i18n: full `esl` namespace (~50 keys each) in `messages/en.json` and `messages/ja.json`
+
+### New File Count (ESL Lesson Generator)
+- **7 lib modules** (`lib/esl/types.ts`, `schemas.ts`, `access.ts`, `queries.ts`, `generator.ts`, `tts.ts`)
+- **8 API routes** (`app/api/esl/generate/`, `[weekId]/`, `[weekId]/publish/`, `audio/generate/`, `progress/`, `purchase/`, `app/api/admin/esl/update/`)
+- **10 ESL components** (`components/esl/`)
+- **2 admin components** (`components/admin/ESLAdminDashboard.tsx`, `ESLReviewPanel.tsx`)
+- **1 admin page** (`app/[locale]/admin/courses/[id]/esl/page.tsx`)
+- **1 SQL migration** (`supabase/migrations/010_esl_schema.sql`)
+- **Modified**: `lib/courses/types.ts`, `components/learn/CourseHub.tsx`, `components/admin/wizard/WizardStepBasicInfo.tsx`, `lib/courses/actions.ts`, `lib/stripe/webhooks.ts`, `messages/en.json`, `messages/ja.json`
+
+### Verification
+- [x] TypeScript: zero errors (`tsc --noEmit`)
+- [ ] Run migration against Supabase
+- [ ] Create `esl-audio` storage bucket in Supabase dashboard
+- [ ] Verify `OPENAI_API_KEY` is set in `.env.local`
+- [ ] End-to-end testing: admin generates → reviews → publishes → student accesses ESL → plays audio → uses flashcards → completes quiz
 
 ---
 
