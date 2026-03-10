@@ -79,6 +79,13 @@ export async function createCourseFromParsedData(
   parsedData: ParsedCourseData,
   uploadId: string,
   startDate?: string,
+  eslOptions?: {
+    eslEnabled?: boolean;
+    eslIncluded?: boolean;
+    eslPriceUsd?: number;
+    eslPriceJpy?: number;
+    eslSettings?: Record<string, unknown>;
+  },
 ) {
   const supabase = await createClient();
 
@@ -131,6 +138,11 @@ export async function createCourseFromParsedData(
       tags: course.tags,
       is_published: false,
       status: 'draft' as const,
+      esl_enabled: eslOptions?.eslEnabled ?? false,
+      esl_included: eslOptions?.eslIncluded ?? false,
+      esl_price_usd: eslOptions?.eslPriceUsd ?? null,
+      esl_price_jpy: eslOptions?.eslPriceJpy ?? null,
+      esl_settings_json: eslOptions?.eslSettings ?? null,
     })
     .select()
     .single();
