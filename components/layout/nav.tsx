@@ -4,6 +4,7 @@ import { NavClient } from './nav-client';
 const navLinks = [
   { href: '/honuhub', key: 'honuhub' },
   { href: '/explore', key: 'exploration' },
+  { href: '/build', key: 'build' },
   { href: '/learn', key: 'learn' },
   { href: '/about', key: 'about' },
   { href: '/contact', key: 'contact' },

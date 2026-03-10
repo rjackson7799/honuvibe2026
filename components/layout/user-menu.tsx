@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, LayoutDashboard, Shield, User } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
@@ -25,7 +25,9 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -84,6 +86,30 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
     }
   }, [open]);
 
+  const updateDropdownPosition = useCallback(() => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    if (dropdownPosition === 'above') {
+      setDropdownStyle({
+        position: 'fixed',
+        bottom: window.innerHeight - rect.top + 4,
+        left: rect.left,
+      });
+    } else {
+      setDropdownStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+  }, [dropdownPosition]);
+
+  useEffect(() => {
+    if (open) {
+      updateDropdownPosition();
+    }
+  }, [open, updateDropdownPosition]);
+
   // Close on Escape
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
@@ -136,6 +162,7 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
   return (
     <div ref={menuRef} className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setOpen(!open)}
         className={cn(
           'inline-flex items-center justify-center',
@@ -156,14 +183,12 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
       {open && (
         <div
           className={cn(
-            'absolute w-52',
+            'w-52',
             'rounded-lg border border-border-secondary',
             'bg-bg-secondary shadow-lg',
-            'py-1 z-[250]',
-            dropdownPosition === 'above'
-              ? 'bottom-full mb-2 left-0'
-              : 'top-full mt-2 right-0',
+            'py-1 z-[9999]',
           )}
+          style={dropdownStyle}
           role="menu"
         >
           {/* User info */}
