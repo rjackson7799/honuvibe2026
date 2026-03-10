@@ -1,16 +1,136 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe/client';
+import { createClient } from '@/lib/supabase/server';
 
-// Stripe checkout session creator — skeleton for future integration
-// When ready:
-// 1. Accept courseId + locale in request body
-// 2. Create Stripe Checkout Session with course price (USD or JPY based on locale)
-// 3. Return session URL for redirect
-// Note: JPY is zero-decimal currency — store yen directly, not cents
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClient();
 
-export async function POST() {
-  // TODO: Implement when Stripe is integrated
-  return NextResponse.json(
-    { error: 'Stripe checkout not yet configured' },
-    { status: 501 },
-  );
+    // Authenticate user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    // Parse request body
+    const { courseId, locale } = (await request.json()) as {
+      courseId: string;
+      locale: string;
+    };
+
+    if (!courseId) {
+      return NextResponse.json(
+        { error: 'courseId is required' },
+        { status: 400 },
+      );
+    }
+
+    // Fetch course from DB
+    const { data: course, error: courseError } = await supabase
+      .from('courses')
+      .select(
+        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published',
+      )
+      .eq('id', courseId)
+      .single();
+
+    if (courseError || !course) {
+      return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+    }
+
+    if (!course.is_published) {
+      return NextResponse.json(
+        { error: 'Course is not available' },
+        { status: 400 },
+      );
+    }
+
+    // Check capacity
+    if (
+      course.max_enrollment &&
+      course.current_enrollment >= course.max_enrollment
+    ) {
+      return NextResponse.json({ error: 'Course is full' }, { status: 400 });
+    }
+
+    // Check for existing enrollment
+    const { data: existing } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('course_id', courseId)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'Already enrolled' },
+        { status: 400 },
+      );
+    }
+
+    // Determine currency and price based on locale
+    const isJapanese = locale === 'ja';
+    const currency = isJapanese ? 'jpy' : 'usd';
+    const unitAmount = isJapanese ? course.price_jpy : course.price_usd;
+
+    if (!unitAmount || unitAmount <= 0) {
+      return NextResponse.json(
+        { error: 'Course has no price configured' },
+        { status: 400 },
+      );
+    }
+
+    const courseTitle = isJapanese
+      ? (course.title_jp ?? course.title_en)
+      : course.title_en;
+
+    // Build origin for success/cancel URLs
+    const origin =
+      request.headers.get('origin') ??
+      process.env.NEXT_PUBLIC_SITE_URL ??
+      'http://localhost:3000';
+
+    const localePrefix = isJapanese ? '/ja' : '';
+
+    // Create Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      customer_email: user.email ?? undefined,
+      line_items: [
+        {
+          price_data: {
+            currency,
+            product_data: {
+              name: courseTitle,
+              metadata: { course_id: courseId },
+            },
+            unit_amount: unitAmount, // USD in cents, JPY in yen (zero-decimal)
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        user_id: user.id,
+        course_id: courseId,
+        course_slug: course.slug,
+        currency,
+        locale,
+      },
+      success_url: `${origin}${localePrefix}/learn/dashboard/${course.slug}?enrolled=true`,
+      cancel_url: `${origin}${localePrefix}/learn/${course.slug}`,
+      locale: isJapanese ? 'ja' : 'en',
+    });
+
+    return NextResponse.json({ url: session.url });
+  } catch (error) {
+    console.error('[Stripe Checkout] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create checkout session' },
+      { status: 500 },
+    );
+  }
 }
