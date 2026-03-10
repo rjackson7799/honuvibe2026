@@ -58,9 +58,21 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', upload.id);
 
+    // Extract ESL options from wizard params to pass through to course creation
+    const eslOptions = wizardParams.eslEnabled
+      ? {
+          eslEnabled: true,
+          eslIncluded: wizardParams.eslIncluded ?? false,
+          eslPriceUsd: wizardParams.eslPriceUsd,
+          eslPriceJpy: wizardParams.eslPriceJpy,
+          eslSettings: wizardParams.eslSettings,
+        }
+      : undefined;
+
     return NextResponse.json({
       uploadId: upload.id,
       parsedData,
+      eslOptions,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Generation failed';

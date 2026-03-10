@@ -27,8 +27,16 @@ const DEFAULT_WIZARD_DATA: WizardParams = {
   targetAudience: '',
 };
 
+type ESLOptions = {
+  eslEnabled: boolean;
+  eslIncluded: boolean;
+  eslPriceUsd?: number;
+  eslPriceJpy?: number;
+  eslSettings?: Record<string, unknown>;
+};
+
 type CourseWizardProps = {
-  onGenerated: (data: ParsedCourseData, uploadId: string) => void;
+  onGenerated: (data: ParsedCourseData, uploadId: string, eslOptions?: ESLOptions) => void;
 };
 
 export function CourseWizard({ onGenerated }: CourseWizardProps) {
@@ -58,7 +66,7 @@ export function CourseWizard({ onGenerated }: CourseWizardProps) {
       }
 
       const data = await res.json();
-      onGenerated(data.parsedData, data.uploadId);
+      onGenerated(data.parsedData, data.uploadId, data.eslOptions);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Generation failed');
     } finally {

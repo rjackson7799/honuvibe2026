@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { parsedData, uploadId, startDate } = await request.json();
+    const { parsedData, uploadId, startDate, eslOptions } = await request.json();
 
     if (!parsedData || !uploadId) {
       return NextResponse.json({ error: 'Parsed data and upload ID are required' }, { status: 400 });
@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
       parsedData as ParsedCourseData,
       uploadId,
       startDate,
+      eslOptions,
     );
 
     return NextResponse.json(result);

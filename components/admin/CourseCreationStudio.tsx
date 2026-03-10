@@ -9,6 +9,14 @@ import { EditablePreview } from './EditablePreview';
 import { cn } from '@/lib/utils';
 import type { ParsedCourseData } from '@/lib/courses/types';
 
+type ESLOptions = {
+  eslEnabled: boolean;
+  eslIncluded: boolean;
+  eslPriceUsd?: number;
+  eslPriceJpy?: number;
+  eslSettings?: Record<string, unknown>;
+};
+
 type ActiveTab = 'wizard' | 'upload';
 type Step = 'input' | 'parsing' | 'preview' | 'saving' | 'done';
 
@@ -20,11 +28,13 @@ export function CourseCreationStudio() {
   const [error, setError] = useState('');
   const [parsedData, setParsedData] = useState<ParsedCourseData | null>(null);
   const [uploadId, setUploadId] = useState('');
+  const [eslOptions, setEslOptions] = useState<ESLOptions | undefined>();
 
   // Called by the wizard when AI generation completes
-  function handleWizardGenerated(data: ParsedCourseData, id: string) {
+  function handleWizardGenerated(data: ParsedCourseData, id: string, esl?: ESLOptions) {
     setParsedData(data);
     setUploadId(id);
+    setEslOptions(esl);
     setStep('preview');
   }
 
@@ -70,6 +80,7 @@ export function CourseCreationStudio() {
           parsedData: data,
           uploadId,
           startDate: startDate || undefined,
+          eslOptions,
         }),
       });
 
