@@ -4,6 +4,14 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type { ParsedCourseData } from './types';
 
+export async function invalidateSyllabusCache(courseId: string) {
+  const supabase = await createClient();
+  await supabase
+    .from('courses')
+    .update({ syllabus_url_en: null, syllabus_url_jp: null })
+    .eq('id', courseId);
+}
+
 export async function updateCourse(
   courseId: string,
   updates: Record<string, unknown>,
@@ -21,6 +29,9 @@ export async function updateCourse(
     .eq('id', courseId);
 
   if (error) throw error;
+
+  // Invalidate cached syllabus PDFs when course content changes
+  await invalidateSyllabusCache(courseId);
 
   revalidatePath('/learn');
   revalidatePath('/admin/courses');
@@ -64,12 +75,31 @@ export async function updateCourseSession(
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
+  // Get the course ID via the session's week
+  const { data: session } = await supabase
+    .from('course_sessions')
+    .select('week_id')
+    .eq('id', sessionId)
+    .single();
+
   const { error } = await supabase
     .from('course_sessions')
     .update(updates)
     .eq('id', sessionId);
 
   if (error) throw error;
+
+  // Invalidate cached syllabus when session content changes
+  if (session?.week_id) {
+    const { data: week } = await supabase
+      .from('course_weeks')
+      .select('course_id')
+      .eq('id', session.week_id)
+      .single();
+    if (week?.course_id) {
+      await invalidateSyllabusCache(week.course_id);
+    }
+  }
 
   revalidatePath('/learn');
   revalidatePath('/admin/courses');

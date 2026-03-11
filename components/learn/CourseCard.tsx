@@ -9,6 +9,7 @@ import { PriceDisplay } from './PriceDisplay';
 import { AvailabilityBadge } from './AvailabilityBadge';
 import type { Course } from '@/lib/courses/types';
 import { ArrowRight } from 'lucide-react';
+import { SyllabusDownloadLink } from './SyllabusDownloadLink';
 import { cn } from '@/lib/utils';
 
 type CourseCardProps = {
@@ -111,6 +112,11 @@ export function CourseCard({ course, variant = 'catalog', className }: CourseCar
           priceJpy={course.price_jpy}
           size="md"
         />
+
+        {/* Syllabus Download */}
+        {course.is_published && (
+          <SyllabusDownloadLink courseId={course.id} variant="card" />
+        )}
 
         {/* CTA */}
         <Button

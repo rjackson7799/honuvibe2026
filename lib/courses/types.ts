@@ -79,6 +79,10 @@ export interface Course {
   esl_price_jpy: number | null;
   esl_settings_json: Record<string, unknown> | null;
 
+  // Cached syllabus PDF URLs (null = needs generation)
+  syllabus_url_en: string | null;
+  syllabus_url_jp: string | null;
+
   created_at: string;
   updated_at: string;
 }

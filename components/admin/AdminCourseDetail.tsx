@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
@@ -11,6 +11,7 @@ import { ManualEnrollForm } from './ManualEnrollForm';
 import { publishCourse, unpublishCourse, archiveCourse, updateCourse } from '@/lib/courses/actions';
 import { CourseImageUploader } from './course-image-uploader';
 import { InstructorAssignControl } from './InstructorAssignControl';
+import { ESLAdminDashboard } from './ESLAdminDashboard';
 import type { CourseWithCurriculum } from '@/lib/courses/types';
 
 type InstructorOption = {
@@ -56,10 +57,25 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
     }
   }
 
+  const [eslLessons, setEslLessons] = useState<{ id: string; week_id: string; status: string; generation_error: string | null; updated_at: string }[]>([]);
+
+  // Fetch ESL lessons when ESL tab is activated
+  useEffect(() => {
+    if (activeTab === 'esl' && course.esl_enabled && eslLessons.length === 0) {
+      fetch(`/api/admin/esl/lessons?courseId=${course.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.lessons) setEslLessons(data.lessons);
+        })
+        .catch(() => {/* silently fail */});
+    }
+  }, [activeTab, course.esl_enabled, course.id, eslLessons.length]);
+
   const tabs = [
     { key: 'overview', label: 'Overview' },
     { key: 'curriculum', label: 'Curriculum' },
     { key: 'students', label: 'Students' },
+    ...(course.esl_enabled ? [{ key: 'esl', label: 'ESL Content' }] : []),
   ];
 
   async function handlePublish() {
@@ -114,6 +130,14 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.open(`/api/courses/${course.id}/syllabus?locale=en&preview=true`, '_blank')}
+            >
+              <Download size={14} className="mr-1" />
+              Preview Syllabus
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -317,6 +341,28 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
             </p>
           </div>
         </div>
+      )}
+
+      {/* ESL Content */}
+      {activeTab === 'esl' && course.esl_enabled && (
+        <ESLAdminDashboard
+          course={{
+            id: course.id,
+            title_en: course.title_en,
+            title_jp: course.title_jp,
+            esl_enabled: course.esl_enabled,
+            esl_included: course.esl_included,
+            esl_settings_json: course.esl_settings_json,
+          }}
+          weeks={course.weeks.map((w) => ({
+            id: w.id,
+            week_number: w.week_number,
+            title_en: w.title_en,
+            title_jp: w.title_jp,
+          }))}
+          eslLessons={eslLessons}
+          locale="en"
+        />
       )}
     </div>
   );

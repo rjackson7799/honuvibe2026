@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { PriceDisplay } from './PriceDisplay';
 import { EnrollButton } from './EnrollButton';
 import { AvailabilityBadge } from './AvailabilityBadge';
+import { SyllabusDownloadLink } from './SyllabusDownloadLink';
 
 type StickyEnrollSidebarProps = {
   title: string;
@@ -95,6 +96,8 @@ export function StickyEnrollSidebar({
           priceJpy={priceJpy}
           fullWidth
         />
+
+        <SyllabusDownloadLink courseId={courseId} variant="sidebar" />
 
         <a
           href="/contact"
