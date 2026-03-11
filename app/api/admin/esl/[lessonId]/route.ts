@@ -38,7 +38,13 @@ export async function GET(
       return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ data });
+    // Include audio records for preview support
+    const { data: audio } = await supabase
+      .from('esl_audio')
+      .select('*')
+      .eq('esl_lesson_id', lessonId);
+
+    return NextResponse.json({ data: { ...data, audio: audio ?? [] } });
   } catch (error) {
     console.error('[Admin ESL GET] Error:', error);
     return NextResponse.json(

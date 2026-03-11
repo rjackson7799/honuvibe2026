@@ -1534,6 +1534,9 @@
     "publish": "公開",
     "publish_all": "レビュー済みをすべて公開",
     "edit": "編集",
+    "preview": "プレビュー",
+    "preview_banner": "管理者プレビュー — 学生に表示される内容です",
+    "back_to_dashboard": "ダッシュボードに戻る",
     "esl_dashboard_title": "ESLコンテンツステータス"
   },
   "vault": {

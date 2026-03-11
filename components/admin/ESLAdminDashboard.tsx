@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { RefreshCw, Check, AlertCircle, Loader2, Clock, Play } from 'lucide-react';
+import { RefreshCw, Check, AlertCircle, Loader2, Clock, Play, Eye, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ESLReviewPanel } from './ESLReviewPanel';
+import { ESLLessonView } from '@/components/esl/ESLLessonView';
+import type { ESLLessonWithAudio } from '@/lib/esl/types';
 
 type ESLLesson = {
   id: string;
@@ -56,6 +58,9 @@ export function ESLAdminDashboard({
   const [generating, setGenerating] = useState(false);
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
   const [reviewLessonId, setReviewLessonId] = useState<string | null>(null);
+  const [previewLessonId, setPreviewLessonId] = useState<string | null>(null);
+  const [previewLesson, setPreviewLesson] = useState<ESLLessonWithAudio | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const generatingLessons = eslLessons.filter((l) => l.status === 'generating');
@@ -197,8 +202,61 @@ export function ESLAdminDashboard({
     }
   };
 
+  const handlePreview = async (lessonId: string) => {
+    setPreviewLessonId(lessonId);
+    setPreviewLoading(true);
+    try {
+      const res = await fetch(`/api/admin/esl/${lessonId}`);
+      if (res.ok) {
+        const json = await res.json();
+        setPreviewLesson(json.data as ESLLessonWithAudio);
+      }
+    } catch (err) {
+      console.error('Preview fetch failed:', err);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const courseTitle =
     displayLocale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
+
+  if (previewLessonId) {
+    return (
+      <div className="space-y-6">
+        {/* Preview banner */}
+        <div className="flex items-center gap-3 rounded-xl bg-[var(--accent-teal)]/10 border border-[var(--accent-teal)]/20 px-4 py-3">
+          <Eye size={16} className="text-[var(--accent-teal)] shrink-0" />
+          <span className="text-sm text-[var(--accent-teal)]">
+            {t('preview_banner')}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setPreviewLessonId(null);
+            setPreviewLesson(null);
+          }}
+          className="flex items-center gap-1.5 text-sm text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] transition-colors"
+        >
+          <ArrowLeft size={14} />
+          {t('back_to_dashboard')}
+        </button>
+        {previewLoading && (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 size={24} className="animate-spin text-[var(--fg-muted)]" />
+          </div>
+        )}
+        {!previewLoading && previewLesson && (
+          <ESLLessonView
+            lesson={previewLesson}
+            progress={null}
+            eslLessonId={previewLesson.id}
+          />
+        )}
+      </div>
+    );
+  }
 
   if (reviewLessonId) {
     return (
@@ -302,6 +360,14 @@ export function ESLAdminDashboard({
                         <>
                           <button
                             type="button"
+                            onClick={() => handlePreview(lesson!.id)}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent-teal)]/10 text-[var(--accent-teal)]"
+                          >
+                            <Eye size={12} className="inline mr-1" />
+                            {t('preview')}
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => setReviewLessonId(lesson!.id)}
                             className="text-xs px-3 py-1.5 rounded-lg bg-[var(--bg-tertiary)] text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
                           >
@@ -325,6 +391,14 @@ export function ESLAdminDashboard({
                       )}
                       {status === 'published' && (
                         <>
+                          <button
+                            type="button"
+                            onClick={() => handlePreview(lesson!.id)}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent-teal)]/10 text-[var(--accent-teal)]"
+                          >
+                            <Eye size={12} className="inline mr-1" />
+                            {t('preview')}
+                          </button>
                           <button
                             type="button"
                             onClick={() => setReviewLessonId(lesson!.id)}

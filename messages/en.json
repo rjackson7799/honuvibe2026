@@ -1534,6 +1534,9 @@
     "publish": "Publish",
     "publish_all": "Publish All Reviewed",
     "edit": "Edit",
+    "preview": "Preview",
+    "preview_banner": "Admin Preview — This is what students see",
+    "back_to_dashboard": "Back to dashboard",
     "esl_dashboard_title": "ESL Content Status"
   },
   "vault": {
