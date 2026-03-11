@@ -10,7 +10,7 @@ import { getFeaturedCourses } from '@/lib/courses/queries';
 import type { Course } from '@/lib/courses/types';
 
 /* ── Translation-based fallback (when DB has no featured courses) ── */
-const fallbackKeys = ['ai_foundations', 'micro_saas', 'ai_automation'] as const;
+const fallbackKeys = ['claude_code', 'micro_saas', 'ai_automation'] as const;
 
 function FallbackCards({ t }: { t: Awaited<ReturnType<typeof getTranslations<'featured_courses'>>> }) {
   return (

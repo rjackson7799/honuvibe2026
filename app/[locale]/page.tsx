@@ -7,6 +7,7 @@ import {
   ExplorationPreview,
   NewsletterSignup,
   SocialProof,
+  PartnerStrip,
 } from '@/components/sections';
 
 type Props = {
@@ -38,6 +39,7 @@ export default async function HomePage({ params }: Props) {
       </div>
       <NewsletterSignup />
       <SocialProof />
+      <PartnerStrip />
     </>
   );
 }

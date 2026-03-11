@@ -6,3 +6,4 @@ export { EngagementCards } from './engagement-card';
 export { ProofStrip } from './proof-strip';
 export { InquirySection } from './inquiry-section';
 export { AdvisoryLink } from './advisory-link';
+export { ClaudeWorkflowCallout } from './claude-workflow-callout';

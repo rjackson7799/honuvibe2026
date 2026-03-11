@@ -4,6 +4,7 @@ import {
   BuildHero,
   TerritoryCards,
   TechLogoGrid,
+  ClaudeWorkflowCallout,
   BuildProcessTimeline,
   EngagementCards,
   ProofStrip,
@@ -53,6 +54,7 @@ export default async function BuildPage({ params }: Props) {
       <BuildHero />
       <TerritoryCards />
       <TechLogoGrid />
+      <ClaudeWorkflowCallout />
       <BuildProcessTimeline />
       <EngagementCards />
       <ProofStrip />

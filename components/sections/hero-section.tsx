@@ -4,6 +4,7 @@ import { Link } from '@/i18n/navigation';
 import { HeroBackground, ScrollHint } from './hero-background';
 
 interface CardTranslations {
+  badge: string;
   course_title: string;
   course_modules: string;
   progress: string;
@@ -32,7 +33,7 @@ function HeroFloatingCards({ cards }: { cards: CardTranslations }) {
 
         <div className="flex items-center gap-3 mb-4">
           <div className="h-10 w-10 rounded-lg bg-accent-teal-subtle flex items-center justify-center shadow-[0_0_12px_var(--glow-teal)]">
-            <span className="text-accent-teal text-lg font-semibold">AI</span>
+            <span className="text-accent-teal text-lg font-semibold">{cards.badge}</span>
           </div>
           <div>
             <p className="text-sm font-medium text-fg-primary">{cards.course_title}</p>
@@ -152,6 +153,7 @@ export async function HeroSection() {
 
           {/* Right: Floating UI cards */}
           <HeroFloatingCards cards={{
+            badge: t('cards.badge'),
             course_title: t('cards.course_title'),
             course_modules: t('cards.course_modules'),
             progress: t('cards.progress'),

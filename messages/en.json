@@ -26,15 +26,16 @@
     "cta_secondary": "Join the Community",
     "scroll_hint": "Scroll to discover",
     "cards": {
-      "course_title": "AI Foundations",
-      "course_modules": "12 modules",
+      "badge": "CC",
+      "course_title": "Introduction to Claude Code",
+      "course_modules": "8 modules",
       "progress": "Progress",
-      "lesson_1": "Prompt Engineering Basics",
-      "lesson_2": "Building AI Workflows",
-      "lesson_3": "Deploying Your First App",
+      "lesson_1": "Claude vs ChatGPT",
+      "lesson_2": "Claude Code Fundamentals",
+      "lesson_3": "Workflow Automation",
       "achievement_label": "Achievement",
-      "achievement_title": "First Build",
-      "achievement_desc": "Shipped a micro-SaaS prototype"
+      "achievement_title": "First Agent",
+      "achievement_desc": "Built an autonomous Claude agent"
     }
   },
   "mission": {
@@ -73,6 +74,12 @@
       "ai_foundations": {
         "title": "AI Foundations for Entrepreneurs",
         "description": "Master the fundamentals of AI and learn to identify opportunities in your business. No coding required.",
+        "level": "Beginner",
+        "language": "EN"
+      },
+      "claude_code": {
+        "title": "Introduction to Claude Code",
+        "description": "Master Claude Code for AI-powered development. Learn agent building, workflow automation, and professional coding with Anthropic's CLI tool.",
         "level": "Beginner",
         "language": "EN"
       },
@@ -518,8 +525,22 @@
     },
     "tech": {
       "overline": "OUR TOOLKIT",
-      "headline": "Technologies We Work With",
-      "sub": "Modern tools and frameworks for building fast, scalable, and intelligent applications."
+      "headline": "Built With Claude at the Core",
+      "sub": "Modern tools and frameworks for building fast, scalable, and intelligent applications.",
+      "claude_tagline": "AI pair programmer powering every build",
+      "tier_ai": "AI & Development",
+      "tier_infra": "Framework & Infrastructure"
+    },
+    "claude_workflow": {
+      "overline": "POWERED BY CLAUDE",
+      "heading": "AI-Native Development",
+      "sub": "Claude isn't just in our toolkit — it's woven into every stage of how we build.",
+      "card1_title": "Rapid Prototyping",
+      "card1_desc": "Claude Code turns ideas into working prototypes in hours, not weeks. First draft to functional demo in a single session.",
+      "card2_title": "Architecture & Review",
+      "card2_desc": "Every system design goes through Claude for architecture review, security analysis, and optimization before a single line ships.",
+      "card3_title": "Continuous Refinement",
+      "card3_desc": "From code review to documentation to testing — Claude is our pair programmer throughout the entire development lifecycle."
     },
     "process": {
       "overline": "OUR PROCESS",
@@ -1691,5 +1712,16 @@
     "status_past_due": "Payment issue — please update",
     "cancel": "Cancel Subscription",
     "reactivate": "Reactivate"
+  },
+  "partner_strip": {
+    "overline": "Our Stack",
+    "heading": "Built With",
+    "logos": {
+      "claude": "Claude by Anthropic",
+      "nextjs": "Next.js",
+      "supabase": "Supabase",
+      "vercel": "Vercel",
+      "stripe": "Stripe"
+    }
   }
 }

@@ -7,3 +7,4 @@ export { RyanBioStrip } from './ryan-bio-strip';
 export { NewsletterSignup } from './newsletter-signup';
 export { SocialProof } from './social-proof';
 export { CtaStrip } from './cta-strip';
+export { PartnerStrip } from './partner-strip';

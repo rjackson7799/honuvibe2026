@@ -26,15 +26,16 @@
     "cta_secondary": "コミュニティに参加",
     "scroll_hint": "スクロールして発見",
     "cards": {
-      "course_title": "AI基礎",
-      "course_modules": "12モジュール",
+      "badge": "CC",
+      "course_title": "Claude Code入門",
+      "course_modules": "8モジュール",
       "progress": "進捗",
-      "lesson_1": "プロンプトエンジニアリングの基本",
-      "lesson_2": "AIワークフローの構築",
-      "lesson_3": "初めてのアプリをデプロイ",
+      "lesson_1": "Claude vs ChatGPT",
+      "lesson_2": "Claude Codeの基礎",
+      "lesson_3": "ワークフロー自動化",
       "achievement_label": "達成",
-      "achievement_title": "初めてのビルド",
-      "achievement_desc": "マイクロSaaSのプロトタイプを出荷"
+      "achievement_title": "初めてのエージェント",
+      "achievement_desc": "自律型Claudeエージェントを構築"
     }
   },
   "mission": {
@@ -73,6 +74,12 @@
       "ai_foundations": {
         "title": "起業家のためのAI基礎",
         "description": "AIの基礎をマスターし、ビジネスにおける機会を見つける方法を学びます。コーディング不要。",
+        "level": "初級",
+        "language": "EN"
+      },
+      "claude_code": {
+        "title": "Claude Code入門",
+        "description": "AI搭載の開発のためにClaude Codeをマスター。エージェント構築、ワークフロー自動化、AnthropicのCLIツールを使ったプロフェッショナルコーディングを学びます。",
         "level": "初級",
         "language": "EN"
       },
@@ -518,8 +525,22 @@
     },
     "tech": {
       "overline": "使用技術",
-      "headline": "活用するテクノロジー",
-      "sub": "高速でスケーラブルなアプリケーションを構築するためのモダンなツールとフレームワーク。"
+      "headline": "Claudeを中核に構築",
+      "sub": "高速でスケーラブル、インテリジェントなアプリケーションを構築するためのモダンツールとフレームワーク。",
+      "claude_tagline": "すべてのビルドを支えるAIペアプログラマー",
+      "tier_ai": "AI＆開発",
+      "tier_infra": "フレームワーク＆インフラ"
+    },
+    "claude_workflow": {
+      "overline": "CLAUDEで開発",
+      "heading": "AIネイティブ開発",
+      "sub": "Claudeは単なるツールキットの一部ではありません — 構築のすべての段階に組み込まれています。",
+      "card1_title": "ラピッドプロトタイピング",
+      "card1_desc": "Claude Codeがアイデアを数週間ではなく数時間で動作するプロトタイプに変えます。1セッションで初期ドラフトから機能するデモまで。",
+      "card2_title": "アーキテクチャ＆レビュー",
+      "card2_desc": "すべてのシステム設計は、コードを出荷する前にClaudeのアーキテクチャレビュー、セキュリティ分析、最適化を経ます。",
+      "card3_title": "継続的改善",
+      "card3_desc": "コードレビューからドキュメンテーション、テストまで — Claudeは開発ライフサイクル全体を通じてペアプログラマーとして機能します。"
     },
     "process": {
       "overline": "開発プロセス",
@@ -1691,5 +1712,16 @@
     "status_past_due": "お支払いに問題があります — 更新してください",
     "cancel": "サブスクリプションをキャンセル",
     "reactivate": "再有効化"
+  },
+  "partner_strip": {
+    "overline": "技術スタック",
+    "heading": "使用ツール",
+    "logos": {
+      "claude": "Claude by Anthropic",
+      "nextjs": "Next.js",
+      "supabase": "Supabase",
+      "vercel": "Vercel",
+      "stripe": "Stripe"
+    }
   }
 }

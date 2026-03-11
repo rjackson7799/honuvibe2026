@@ -3,23 +3,28 @@ import type { ReactNode } from 'react';
 
 export type TechItem = {
   key: string;
+  label: string;
   color: string;
+  tier: 'featured' | 'ai' | 'infra';
 };
 
 export const techItems: TechItem[] = [
-  { key: 'nextjs', color: 'var(--fg-primary)' },
-  { key: 'react', color: 'var(--accent-teal)' },
-  { key: 'typescript', color: 'var(--territory-db)' },
-  { key: 'tailwind', color: 'var(--accent-teal)' },
-  { key: 'supabase', color: 'var(--territory-pro)' },
-  { key: 'stripe', color: 'var(--territory-auto)' },
-  { key: 'openai', color: 'var(--fg-primary)' },
-  { key: 'nodejs', color: 'var(--territory-pro)' },
-  { key: 'vercel', color: 'var(--fg-primary)' },
-  { key: 'figma', color: 'var(--territory-auto)' },
-  { key: 'claude', color: 'var(--accent-gold)' },
-  { key: 'cursor', color: 'var(--accent-teal)' },
-  { key: 'lovable', color: 'var(--territory-auto)' },
+  // Featured
+  { key: 'claude', label: 'Claude by Anthropic', color: 'var(--accent-gold)', tier: 'featured' },
+  // AI & Development
+  { key: 'cursor', label: 'Cursor', color: 'var(--accent-teal)', tier: 'ai' },
+  { key: 'openai', label: 'OpenAI', color: 'var(--fg-primary)', tier: 'ai' },
+  { key: 'lovable', label: 'Lovable', color: 'var(--territory-auto)', tier: 'ai' },
+  // Framework & Infrastructure
+  { key: 'nextjs', label: 'Next.js', color: 'var(--fg-primary)', tier: 'infra' },
+  { key: 'react', label: 'React', color: 'var(--accent-teal)', tier: 'infra' },
+  { key: 'typescript', label: 'TypeScript', color: 'var(--territory-db)', tier: 'infra' },
+  { key: 'tailwind', label: 'Tailwind CSS', color: 'var(--accent-teal)', tier: 'infra' },
+  { key: 'supabase', label: 'Supabase', color: 'var(--territory-pro)', tier: 'infra' },
+  { key: 'stripe', label: 'Stripe', color: 'var(--territory-auto)', tier: 'infra' },
+  { key: 'nodejs', label: 'Node.js', color: 'var(--territory-pro)', tier: 'infra' },
+  { key: 'vercel', label: 'Vercel', color: 'var(--fg-primary)', tier: 'infra' },
+  { key: 'figma', label: 'Figma', color: 'var(--territory-auto)', tier: 'infra' },
 ];
 
 export function renderTechIcon(key: string, size: number): ReactNode {
