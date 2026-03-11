@@ -48,15 +48,6 @@ REQUIREMENTS:
    - correct_answer should be the text of the correct option (for multiple choice) or the correct text (for fill_in_blank/translation)
    - Assign sequential IDs: check_0, check_1, etc.
 
-OUTPUT FORMAT:
-Respond with a single JSON object matching this exact structure:
-{
-  "vocabulary": [VocabularyItem, ...],
-  "grammar": [GrammarPoint, ...],
-  "cultural_notes": [CulturalNote, ...],
-  "comprehension": [ComprehensionItem, ...]
-}
-
 QUALITY STANDARDS:
 - Japanese translations must be natural and accurate — not machine-translation quality
 - Phonetic transcriptions must use IPA notation
@@ -66,7 +57,124 @@ QUALITY STANDARDS:
 - All IDs must be sequential as specified above
 - All audio_keys must follow the naming convention exactly
 
-Respond ONLY with valid JSON. No markdown, no preamble, no explanation.`;
+Call the submit_esl_content tool with your generated content.`;
+
+// Tool definition that forces Claude to return structured JSON via tool_use
+const ESL_CONTENT_TOOL = {
+  name: 'submit_esl_content',
+  description: 'Submit the generated ESL learning content for a course week',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      vocabulary: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            id: { type: 'string' as const },
+            term_en: { type: 'string' as const },
+            reading_en: { type: 'string' as const },
+            definition_en: { type: 'string' as const },
+            definition_jp: { type: 'string' as const },
+            term_jp: { type: 'string' as const },
+            part_of_speech: { type: 'string' as const, enum: ['noun', 'verb', 'adjective', 'adverb', 'phrase'] },
+            difficulty: { type: 'string' as const, enum: ['essential', 'intermediate', 'advanced'] },
+            usage_sentences: {
+              type: 'array' as const,
+              items: {
+                type: 'object' as const,
+                properties: {
+                  sentence_en: { type: 'string' as const },
+                  sentence_jp: { type: 'string' as const },
+                  highlight_indices: { type: 'array' as const, items: { type: 'number' as const } },
+                },
+                required: ['sentence_en', 'sentence_jp', 'highlight_indices'],
+              },
+            },
+            notes_jp: { type: 'string' as const },
+            audio_keys: {
+              type: 'object' as const,
+              properties: {
+                word: { type: 'string' as const },
+                sentences: { type: 'array' as const, items: { type: 'string' as const } },
+              },
+              required: ['word', 'sentences'],
+            },
+          },
+          required: ['id', 'term_en', 'reading_en', 'definition_en', 'definition_jp', 'term_jp', 'part_of_speech', 'difficulty', 'usage_sentences', 'audio_keys'],
+        },
+      },
+      grammar: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            id: { type: 'string' as const },
+            title_en: { type: 'string' as const },
+            title_jp: { type: 'string' as const },
+            explanation_en: { type: 'string' as const },
+            explanation_jp: { type: 'string' as const },
+            pattern: { type: 'string' as const },
+            examples: {
+              type: 'array' as const,
+              items: {
+                type: 'object' as const,
+                properties: {
+                  sentence_en: { type: 'string' as const },
+                  sentence_jp: { type: 'string' as const },
+                  annotation_jp: { type: 'string' as const },
+                },
+                required: ['sentence_en', 'sentence_jp'],
+              },
+            },
+            common_mistakes_jp: { type: 'string' as const },
+            audio_keys: {
+              type: 'object' as const,
+              properties: {
+                examples: { type: 'array' as const, items: { type: 'string' as const } },
+              },
+              required: ['examples'],
+            },
+          },
+          required: ['id', 'title_en', 'title_jp', 'explanation_en', 'explanation_jp', 'pattern', 'examples', 'audio_keys'],
+        },
+      },
+      cultural_notes: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            id: { type: 'string' as const },
+            title_en: { type: 'string' as const },
+            title_jp: { type: 'string' as const },
+            content_en: { type: 'string' as const },
+            content_jp: { type: 'string' as const },
+            category: { type: 'string' as const, enum: ['professional', 'cultural', 'linguistic'] },
+            tip_jp: { type: 'string' as const },
+          },
+          required: ['id', 'title_en', 'title_jp', 'content_en', 'content_jp', 'category'],
+        },
+      },
+      comprehension: {
+        type: 'array' as const,
+        items: {
+          type: 'object' as const,
+          properties: {
+            id: { type: 'string' as const },
+            type: { type: 'string' as const, enum: ['vocabulary_match', 'fill_in_blank', 'sentence_order', 'translation'] },
+            question_en: { type: 'string' as const },
+            question_jp: { type: 'string' as const },
+            options: { type: 'array' as const, items: { type: 'string' as const } },
+            correct_answer: { oneOf: [{ type: 'string' as const }, { type: 'number' as const }] },
+            explanation_jp: { type: 'string' as const },
+          },
+          required: ['id', 'type', 'question_en', 'question_jp', 'correct_answer', 'explanation_jp'],
+        },
+      },
+    },
+    required: ['vocabulary', 'grammar', 'cultural_notes', 'comprehension'],
+  },
+};
 
 function buildESLUserPrompt(context: WeekESLContext): string {
   const vocabCount =
@@ -134,8 +242,10 @@ export async function generateESLForWeek(
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 8192,
+      max_tokens: 16384,
       system: ESL_GENERATION_SYSTEM_PROMPT,
+      tools: [ESL_CONTENT_TOOL],
+      tool_choice: { type: 'tool', name: 'submit_esl_content' },
       messages: [
         {
           role: 'user',
@@ -151,25 +261,16 @@ export async function generateESLForWeek(
   }
 
   const result = await response.json();
-  const textBlock = result.content?.find(
-    (block: { type: string }) => block.type === 'text',
+  const toolUseBlock = result.content?.find(
+    (block: { type: string }) => block.type === 'tool_use',
   );
 
-  if (!textBlock?.text) {
-    throw new Error('No text response from Claude API');
+  if (!toolUseBlock?.input) {
+    throw new Error('No tool_use response from Claude API');
   }
 
-  // Extract JSON from response (may be wrapped in ```json blocks)
-  let jsonStr = textBlock.text.trim();
-  const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonMatch) {
-    jsonStr = jsonMatch[1].trim();
-  }
-
-  const parsed = JSON.parse(jsonStr);
-
-  // Validate with Zod schema
-  const validated = generatedESLContentSchema.parse(parsed);
+  // tool_use input is already a parsed object — no JSON.parse needed
+  const validated = generatedESLContentSchema.parse(toolUseBlock.input);
 
   return validated;
 }

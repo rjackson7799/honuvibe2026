@@ -38,7 +38,17 @@ export async function GET(
   }
 
   // Generate PDF
-  const pdfBuffer = await generateSyllabusPdf(course, locale);
+  let pdfBuffer: Buffer;
+  try {
+    pdfBuffer = await generateSyllabusPdf(course, locale);
+  } catch (err) {
+    console.error('[syllabus] PDF generation failed:', err);
+    const message = err instanceof Error ? err.message : 'PDF generation failed';
+    return NextResponse.json(
+      { error: message },
+      { status: 500 },
+    );
+  }
 
   // Upload to Supabase Storage and cache the URL
   const storagePath = `${courseId}/syllabus-${locale}.pdf`;
