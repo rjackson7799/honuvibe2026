@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { RefreshCw, Check, AlertCircle, Loader2, Clock, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -56,6 +56,51 @@ export function ESLAdminDashboard({
   const [generating, setGenerating] = useState(false);
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
   const [reviewLessonId, setReviewLessonId] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const generatingLessons = eslLessons.filter((l) => l.status === 'generating');
+
+  const pollStatus = useCallback(async () => {
+    const ids = eslLessons
+      .filter((l) => l.status === 'generating')
+      .map((l) => l.id);
+    if (ids.length === 0) return;
+
+    try {
+      const res = await fetch(`/api/esl/status?lessonIds=${ids.join(',')}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const updated = data.lessons as ESLLesson[];
+      if (!updated || updated.length === 0) return;
+
+      setEslLessons((prev) =>
+        prev.map((lesson) => {
+          const match = updated.find((u) => u.id === lesson.id);
+          if (match && match.status !== lesson.status) {
+            return { ...lesson, status: match.status, generation_error: match.generation_error };
+          }
+          return lesson;
+        }),
+      );
+    } catch {
+      // Silently ignore polling errors
+    }
+  }, [eslLessons]);
+
+  useEffect(() => {
+    if (generatingLessons.length > 0) {
+      pollRef.current = setInterval(pollStatus, 3000);
+    } else if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [generatingLessons.length, pollStatus]);
 
   const getLessonForWeek = (weekId: string) =>
     eslLessons.find((l) => l.week_id === weekId);
