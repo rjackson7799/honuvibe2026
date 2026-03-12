@@ -37,7 +37,7 @@ export function CurriculumAccordion({ weeks }: CurriculumAccordionProps) {
             ? t(`format_${session.format}`)
             : null;
           const duration = session?.duration_minutes
-            ? `${session.duration_minutes} min`
+            ? t('duration_minutes', { count: session.duration_minutes })
             : null;
 
           return (
@@ -93,7 +93,7 @@ export function CurriculumAccordion({ weeks }: CurriculumAccordionProps) {
                   )}
 
                   {/* Topics */}
-                  {session?.topics_en && (
+                  {(session?.topics_en || session?.topics_jp) && (
                     <div>
                       <h4 className="text-sm font-medium text-fg-primary mb-2">
                         {t('topics_covered')}
@@ -130,7 +130,7 @@ export function CurriculumAccordion({ weeks }: CurriculumAccordionProps) {
                   )}
 
                   {/* Materials */}
-                  {session?.materials_en && (
+                  {(session?.materials_en || session?.materials_jp) && (
                     <div>
                       <h4 className="text-sm font-medium text-fg-primary mb-2">
                         {t('session_materials')}

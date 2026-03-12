@@ -1063,6 +1063,10 @@
     "beginner": "Beginner",
     "intermediate": "Intermediate",
     "advanced": "Advanced",
+    "lang_en": "EN",
+    "lang_ja": "JP",
+    "lang_both": "EN (JP Materials)",
+    "duration_minutes": "{count} min",
     "enrolled_success": "Welcome! You're enrolled.",
     "no_courses": "No courses available yet. Check back soon!",
     "progress": "{percent}% complete",
@@ -1119,6 +1123,13 @@
         "price": "Free",
         "cta": "Explore Library"
       }
+    },
+    "checkout": {
+      "title": "Complete Your Enrollment",
+      "spots_remaining": "{count} spots remaining",
+      "secure": "Secure checkout",
+      "refund_policy": "14-day refund policy",
+      "back_to_course": "← Back to course"
     }
   },
   "resources_page": {
@@ -1393,7 +1404,7 @@
   "vertice": {
     "heading": "AI Mastery",
     "subheading": "From Curious to Confident",
-    "program_label": "An 8-Week AI Education Program",
+    "program_label": "A 5-Week AI Education Program",
     "exclusive_label": "Exclusively for Vertice Society Members",
     "form": {
       "full_name": "Full Name",
@@ -1446,27 +1457,24 @@
     "image_alt": "AI-powered ocean technology landscape",
     "overview_title": "What You'll Learn",
     "week_label": "Week {number}",
-    "week_1": "The Real State of AI: What the US Is Using Now",
-    "week_2": "Meet Claude: Your New AI Partner",
-    "week_3": "Claude Deep Dive: Projects, Artifacts & Research",
-    "week_4": "Prompt Engineering & Professional AI Communication",
-    "week_5": "AI-Powered Workflows & Team Collaboration",
-    "week_6": "Building with AI: Custom Assistants & Practical Tools",
-    "week_7": "AI Project Development",
-    "week_8": "Showcase, Assessment & What's Next",
+    "week_1": "The AI Landscape + Meet Claude",
+    "week_2": "Claude Deep Dive",
+    "week_3": "Prompt Engineering",
+    "week_4": "Workflows & Custom Assistants",
+    "week_5": "Showcase & Future Outlook",
     "benefits": {
-      "workshops": "10 students max, 5 live + 3 recorded",
+      "workshops": "10 students max, 5 live sessions",
       "bilingual": "Bilingual EN-JP with ESL module",
       "certificate": "Certificate of completion"
     },
     "endorsement": "An AI education program recommended by Vertice Society",
     "right_panel": {
       "takeaways_title": "What You'll Gain",
-      "takeaway_1": "Practical AI skills from a US insider perspective",
-      "takeaway_2": "Claude mastery: Projects, Artifacts & Research",
-      "takeaway_3": "Professional prompt engineering techniques",
-      "takeaway_4": "AI-powered workflows & team collaboration",
-      "takeaway_5": "Build your own custom AI tools",
+      "takeaway_1": "Global AI landscape assessment",
+      "takeaway_2": "Advanced Claude features: Projects, Artifacts & Research Mode",
+      "takeaway_3": "Professional prompt engineering (EN + JP)",
+      "takeaway_4": "Practical AI for writing, research, analysis & translation",
+      "takeaway_5": "Custom workflow and assistant building",
       "preview_label": "Course Curriculum Preview",
       "cta_prompt": "Complete the form to receive the full course description as a PDF.",
       "privacy_note": "Your information will only be used to share details about this course."

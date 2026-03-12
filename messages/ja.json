@@ -1063,6 +1063,10 @@
     "beginner": "初級",
     "intermediate": "中級",
     "advanced": "上級",
+    "lang_en": "英語",
+    "lang_ja": "日本語",
+    "lang_both": "英語（日本語教材あり）",
+    "duration_minutes": "{count}分",
     "enrolled_success": "ようこそ！登録が完了しました。",
     "no_courses": "現在利用可能なコースはありません。近日中にご確認ください。",
     "progress": "{percent}%完了",
@@ -1119,6 +1123,13 @@
         "price": "無料",
         "cta": "ライブラリを探す"
       }
+    },
+    "checkout": {
+      "title": "お申し込みの完了",
+      "spots_remaining": "残り{count}席",
+      "secure": "セキュアな決済",
+      "refund_policy": "14日間返金保証",
+      "back_to_course": "← コースに戻る"
     }
   },
   "resources_page": {
@@ -1393,7 +1404,7 @@
   "vertice": {
     "heading": "AI Mastery",
     "subheading": "好奇心から自信へ",
-    "program_label": "8週間のAI教育プログラム",
+    "program_label": "5週間のAI教育プログラム",
     "exclusive_label": "Vertice Societyメンバー限定",
     "form": {
       "full_name": "お名前",
@@ -1446,27 +1457,24 @@
     "image_alt": "AIを活用したオーシャンテクノロジーの風景",
     "overview_title": "学べること",
     "week_label": "第{number}週",
-    "week_1": "AIの最新事情：アメリカで今使われているもの",
-    "week_2": "Claudeとの出会い：あなたの新しいAIパートナー",
-    "week_3": "Claude徹底解説：プロジェクト・アーティファクト・リサーチ",
-    "week_4": "プロンプトエンジニアリングとプロフェッショナルAIコミュニケーション",
-    "week_5": "AI活用ワークフローとチームコラボレーション",
-    "week_6": "AIで構築：カスタムアシスタントと実用ツール",
-    "week_7": "AIプロジェクト開発",
-    "week_8": "発表・評価・今後の展望",
+    "week_1": "AIランドスケープ + Claudeとの出会い",
+    "week_2": "Claude徹底解説",
+    "week_3": "プロンプトエンジニアリング",
+    "week_4": "ワークフローとカスタムアシスタント",
+    "week_5": "発表・評価・今後の展望",
     "benefits": {
-      "workshops": "定員10名、ライブ5回＋録画3回",
+      "workshops": "定員10名、ライブ5回（各90分）",
       "bilingual": "バイリンガルEN-JP＋ESLモジュール",
       "certificate": "修了証書発行"
     },
     "endorsement": "Vertice Societyが推薦するAI教育プログラム",
     "right_panel": {
       "takeaways_title": "得られるスキル",
-      "takeaway_1": "アメリカ発の実践的AIスキル",
-      "takeaway_2": "Claude完全習得：プロジェクト・アーティファクト・リサーチ",
-      "takeaway_3": "プロフェッショナルなプロンプトエンジニアリング",
-      "takeaway_4": "AI活用ワークフローとチーム連携",
-      "takeaway_5": "カスタムAIツールの構築",
+      "takeaway_1": "グローバルAIランドスケープの把握",
+      "takeaway_2": "Claude高度活用：プロジェクト・アーティファクト・リサーチモード",
+      "takeaway_3": "プロフェッショナルなプロンプトエンジニアリング（EN + JP）",
+      "takeaway_4": "ライティング・リサーチ・分析・翻訳への実践的AI活用",
+      "takeaway_5": "カスタムワークフローとアシスタントの構築",
       "preview_label": "講座カリキュラムプレビュー",
       "cta_prompt": "フォームを送信すると、講座の詳細をPDFでお届けします。",
       "privacy_note": "ご入力いただいた情報は、本講座のご案内のみに使用いたします。"

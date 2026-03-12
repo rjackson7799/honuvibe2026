@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Globe, Bot, Search, MessageSquare, Zap, Wrench, FolderCode, Award, Check } from 'lucide-react';
+import { Globe, Bot, Search, MessageSquare, Zap, Check } from 'lucide-react';
 import { VerticeForm } from './vertice-form';
 import { VerticeConfirmation } from './vertice-confirmation';
 import { trackEvent } from '@/lib/analytics';
@@ -16,8 +16,8 @@ type ConfirmationData = {
   isReturning: boolean;
 };
 
-const WEEK_ICONS = [Globe, Bot, Search, MessageSquare, Zap, Wrench, FolderCode, Award] as const;
-const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5', 'week_6', 'week_7', 'week_8'] as const;
+const WEEK_ICONS = [Globe, Bot, Search, MessageSquare, Zap] as const;
+const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5'] as const;
 const BENEFIT_KEYS = ['workshops', 'bilingual', 'certificate'] as const;
 const TAKEAWAY_KEYS = ['takeaway_1', 'takeaway_2', 'takeaway_3', 'takeaway_4', 'takeaway_5'] as const;
 

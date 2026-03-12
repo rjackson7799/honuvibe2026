@@ -71,12 +71,17 @@ export default async function CourseDetailPage({ params }: Props) {
     !!course.max_enrollment &&
     course.current_enrollment >= course.max_enrollment;
 
+  const languageLabel =
+    course.language === 'both'
+      ? t('lang_both')
+      : course.language === 'ja'
+        ? t('lang_ja')
+        : t('lang_en');
+
   const overlineParts = [
     course.level ? t(course.level) : null,
     course.format,
-    course.language === 'both'
-      ? 'EN (JP Materials)'
-      : course.language?.toUpperCase(),
+    languageLabel,
   ].filter(Boolean) as string[];
 
   return (
@@ -212,13 +217,13 @@ export default async function CourseDetailPage({ params }: Props) {
               )}
 
               {/* Logistics */}
-              {(course.schedule_notes_en || course.cancellation_policy_en) && (
+              {(course.schedule_notes_en || course.schedule_notes_jp || course.cancellation_policy_en || course.cancellation_policy_jp) && (
                 <>
                   <h2 className="text-xl font-serif text-fg-primary mb-4">
                     {t('logistics')}
                   </h2>
                   <div className="space-y-3 text-sm">
-                    {course.schedule_notes_en && (
+                    {(course.schedule_notes_en || course.schedule_notes_jp) && (
                       <div className="flex gap-3">
                         <span className="font-medium text-fg-primary w-24 shrink-0">
                           {t('schedule')}
@@ -230,7 +235,7 @@ export default async function CourseDetailPage({ params }: Props) {
                         </span>
                       </div>
                     )}
-                    {course.cancellation_policy_en && (
+                    {(course.cancellation_policy_en || course.cancellation_policy_jp) && (
                       <div className="flex gap-3">
                         <span className="font-medium text-fg-primary w-24 shrink-0">
                           {t('cancellation_policy')}
@@ -249,7 +254,7 @@ export default async function CourseDetailPage({ params }: Props) {
               )}
 
               {/* Materials */}
-              {course.materials_summary_en && (
+              {(course.materials_summary_en || course.materials_summary_jp) && (
                 <>
                   <h2 className="text-xl font-serif text-fg-primary mb-4">
                     {t('materials')}

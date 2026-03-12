@@ -78,29 +78,15 @@ export function EnrollButton({
     setError(null);
 
     try {
+      const prefix = locale === 'ja' ? '/ja' : '';
       if (isPaid) {
-        // Paid course: redirect to Stripe Checkout
-        const response = await fetch('/api/stripe/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ courseId, locale }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error ?? 'Failed to start checkout');
-        }
-
-        if (data.url) {
-          window.location.href = data.url;
-          return; // User is navigating away
-        }
+        // Paid course: navigate to embedded checkout page
+        router.push(`${prefix}/learn/${courseSlug}/checkout`);
+        return;
       } else {
         // Free course: direct enrollment
         const result = await simulatedEnroll(courseId, locale);
         if (result.success) {
-          const prefix = locale === 'ja' ? '/ja' : '';
           router.push(
             `${prefix}/learn/dashboard/${courseSlug}?enrolled=true`,
           );
