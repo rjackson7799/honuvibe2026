@@ -14,7 +14,7 @@ export const techItems: TechItem[] = [
   // AI & Development
   { key: 'cursor', label: 'Cursor', color: 'var(--accent-teal)', tier: 'ai' },
   { key: 'openai', label: 'OpenAI', color: 'var(--fg-primary)', tier: 'ai' },
-  { key: 'lovable', label: 'Lovable', color: 'var(--territory-auto)', tier: 'ai' },
+  { key: 'gemini', label: 'Gemini', color: 'var(--accent-teal)', tier: 'ai' },
   // Framework & Infrastructure
   { key: 'nextjs', label: 'Next.js', color: 'var(--fg-primary)', tier: 'infra' },
   { key: 'react', label: 'React', color: 'var(--accent-teal)', tier: 'infra' },

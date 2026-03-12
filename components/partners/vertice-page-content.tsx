@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Brain, MessageSquare, ImageIcon, Zap, Bot, Check } from 'lucide-react';
+import { Globe, Bot, Search, MessageSquare, Zap, Wrench, FolderCode, Award, Check } from 'lucide-react';
 import { VerticeForm } from './vertice-form';
 import { VerticeConfirmation } from './vertice-confirmation';
 import { trackEvent } from '@/lib/analytics';
@@ -16,8 +16,8 @@ type ConfirmationData = {
   isReturning: boolean;
 };
 
-const WEEK_ICONS = [Brain, MessageSquare, ImageIcon, Zap, Bot] as const;
-const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5'] as const;
+const WEEK_ICONS = [Globe, Bot, Search, MessageSquare, Zap, Wrench, FolderCode, Award] as const;
+const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5', 'week_6', 'week_7', 'week_8'] as const;
 const BENEFIT_KEYS = ['workshops', 'bilingual', 'certificate'] as const;
 const TAKEAWAY_KEYS = ['takeaway_1', 'takeaway_2', 'takeaway_3', 'takeaway_4', 'takeaway_5'] as const;
 
@@ -132,7 +132,7 @@ export function VerticePageContent() {
                   </p>
                 </div>
 
-                {/* ─── Value Content: 5-Week Overview ─── */}
+                {/* ─── Value Content: 8-Week Overview ─── */}
                 <div className="mb-5 rounded-lg border border-border-secondary bg-bg-secondary p-4">
                   <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
                     {t('overview_title')}
@@ -146,7 +146,7 @@ export function VerticePageContent() {
                             <Icon size={14} className="text-accent-teal" />
                           </div>
                           <span className="text-sm text-fg-secondary">
-                            <span className="font-medium text-fg-primary">Week {i + 1}</span>
+                            <span className="font-medium text-fg-primary">{t('week_label', { number: i + 1 })}</span>
                             {' · '}
                             {t(key)}
                           </span>

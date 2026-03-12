@@ -105,6 +105,12 @@ export function TechIcon({ name, size = 28, className }: TechIconProps) {
           <path d="M10 10l1.5 3 1.5-1.5L15 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" style={{ filter: 'invert(1)', mixBlendMode: 'difference' }} />
         </svg>
       );
+    case 'gemini':
+      return (
+        <svg {...props} viewBox="0 0 24 24">
+          <path d="M12 2C12 2 14.5 7.5 17 10c2.5 2.5 5 5 5 5s-2.5 2.5-5 5c-2.5 2.5-5 5-5 5s-2.5-2.5-5-5C4.5 17.5 2 15 2 15s2.5-7.5 5-10C9.5 2.5 12 2 12 2z" fill="currentColor" opacity="0.85" />
+        </svg>
+      );
     default:
       return (
         <svg {...props} viewBox="0 0 24 24">

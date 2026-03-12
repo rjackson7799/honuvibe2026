@@ -19,8 +19,11 @@ export function HonuHubHero() {
         <div className="flex flex-col items-center text-center">
           <Overline className="mb-4">{t('overline')}</Overline>
           <h1 className="font-serif text-h1 text-fg-primary mb-4">{t('heading')}</h1>
-          <p className="max-w-[540px] text-base md:text-lg text-fg-secondary leading-relaxed mb-4">
+          <p className="max-w-[540px] text-base md:text-lg text-fg-secondary leading-relaxed mb-2">
             {t('sub')}
+          </p>
+          <p className="text-sm font-semibold tracking-wide uppercase text-accent-teal mb-4">
+            {t('coming')}
           </p>
 
           <div className="flex items-center gap-2 text-fg-tertiary text-sm mb-8">

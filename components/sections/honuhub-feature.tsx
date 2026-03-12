@@ -33,6 +33,9 @@ export function HonuHubFeature() {
             <p className="text-base text-fg-secondary leading-relaxed">
               {t('description')}
             </p>
+            <p className="text-sm font-semibold tracking-wide uppercase text-accent-teal">
+              {t('coming')}
+            </p>
             <div className="mt-2">
               <Link href="/honuhub">
                 <Button variant="gradient">{t('cta')}</Button>
