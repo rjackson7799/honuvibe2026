@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-03-07 (Phase 2C — Self-Study Mode, remaining items complete)
+**Last updated:** 2026-03-12 (Stripe Embedded Checkout — dedicated on-site checkout page)
 
 ### Status Legend
 - [ ] Not started
@@ -817,6 +817,21 @@ Dark:  Footer
 - [x] Admin nav — Revenue item added
 - [ ] End-to-end payment flow testing (needs Stripe Price IDs configured)
 - [ ] Stripe CLI webhook forwarding testing
+
+### Stripe Embedded Checkout (2026-03-12)
+- [x] Replaced hosted Stripe redirect with Embedded Checkout — users stay on HonuVibe throughout payment
+- [x] New `/api/stripe/checkout-embed` route — returns `clientSecret` for embedded UI (`ui_mode: 'embedded'`)
+- [x] New `/learn/[slug]/checkout` dedicated checkout page — two-column layout (course summary left, Stripe form right)
+- [x] New `/learn/[slug]/checkout/return` post-payment handler — verifies session, redirects to dashboard on success
+- [x] `CourseCheckoutSummary` component — conversion-optimized left column: thumbnail, price, scarcity (spots remaining, color-coded), learning outcomes, instructor mini-card, trust strip ("Secure checkout · 14-day refund policy")
+- [x] `EmbeddedCheckoutForm` client component — wraps `@stripe/react-stripe-js` `<EmbeddedCheckout>` with `fetchClientSecret` callback
+- [x] `EnrollButton` updated — paid courses navigate to `/learn/[slug]/checkout` (no more API call + redirect)
+- [x] Auth guard on checkout page — unauthenticated users redirect to `/learn/auth?redirect=/learn/[slug]/checkout`
+- [x] Bilingual: JP locale uses JPY pricing + Stripe JP locale on embedded form
+- [x] Translation keys added: `learn.checkout.*` namespace (EN + JP)
+- [x] Installed `@stripe/react-stripe-js` + `@stripe/stripe-js`
+- [x] Live Stripe webhook endpoint configured at `https://honuvibe.ai/api/stripe/webhook`
+- [x] Live Stripe keys + webhook secret deployed to Vercel environment variables
 
 ### Certificates
 - [ ] Auto-generated certificate on course completion
