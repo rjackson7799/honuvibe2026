@@ -9,7 +9,7 @@
     "about": "概要",
     "resources": "リソース",
     "library": "ライブラリ",
-    "build": "Build",
+    "build": "ビルド",
     "contact": "お問い合わせ",
     "sign_in": "ログイン",
     "dashboard": "ダッシュボード",
@@ -1481,6 +1481,14 @@
       "view_course": "コース詳細を見る",
       "enroll_now": "今すぐ申し込む",
       "price_note": "$500 · 一括払い"
+    },
+    "enroll": {
+      "access_code_label": "Vertice Societyアクセスコード",
+      "access_code_placeholder": "コードを入力",
+      "submit": "受講申し込みへ進む",
+      "submitting": "確認中...",
+      "invalid_code": "アクセスコードが無効です。Vertice Societyにご確認ください。",
+      "note": "安全な決済ページにてお申し込みを完了してください。"
     }
   },
   "billing": {

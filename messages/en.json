@@ -1481,6 +1481,14 @@
       "view_course": "View Full Course Details",
       "enroll_now": "Enroll Now",
       "price_note": "$500 · One-time"
+    },
+    "enroll": {
+      "access_code_label": "Vertice Society Access Code",
+      "access_code_placeholder": "Enter your code",
+      "submit": "Proceed to Enrollment",
+      "submitting": "Verifying...",
+      "invalid_code": "Invalid access code. Please check with Vertice Society.",
+      "note": "You'll be taken to our secure checkout to complete enrollment."
     }
   },
   "billing": {

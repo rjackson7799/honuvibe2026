@@ -1,21 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
+import { useEffect } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Globe, Bot, Search, MessageSquare, Zap, Check } from 'lucide-react';
-import { VerticeForm } from './vertice-form';
-import { VerticeConfirmation } from './vertice-confirmation';
+import { VerticeEnrollPanel } from './vertice-enroll-panel';
 import { trackEvent } from '@/lib/analytics';
 import { TechIcon } from '@/components/sections/exploration/tech-icon';
-
-type ConfirmationData = {
-  firstName: string;
-  isReturning: boolean;
-};
 
 const WEEK_ICONS = [Globe, Bot, Search, MessageSquare, Zap] as const;
 const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5'] as const;
@@ -60,15 +53,10 @@ export function VerticePageContent() {
   const t = useTranslations('vertice');
   const locale = useLocale();
   const prefersReducedMotion = useReducedMotion();
-  const [confirmation, setConfirmation] = useState<ConfirmationData | null>(null);
 
   useEffect(() => {
     trackEvent('vertice_page_view', { locale });
   }, [locale]);
-
-  const handleSuccess = (data: ConfirmationData) => {
-    setConfirmation(data);
-  };
 
   const localePrefix = locale === 'ja' ? '/ja' : '';
   const courseDetailUrl = `${localePrefix}/learn/ai-mastery-curious-to-confident`;
@@ -94,99 +82,77 @@ export function VerticePageContent() {
             </span>
           </div>
 
-          <AnimatePresence mode="wait">
-            {confirmation ? (
-              <motion.div
-                key="confirmation"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <VerticeConfirmation
-                  firstName={confirmation.firstName}
-                  isReturning={confirmation.isReturning}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="form"
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Heading block */}
-                <div className="mb-6 text-center lg:text-left">
-                  <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-fg-primary leading-tight">
-                    {t('heading')}
-                  </h1>
-                  <p className="mt-2 text-lg sm:text-xl text-fg-secondary font-light">
-                    {t('subheading')}
-                  </p>
+          {/* Heading block */}
+          <div className="mb-6 text-center lg:text-left">
+            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-fg-primary leading-tight">
+              {t('heading')}
+            </h1>
+            <p className="mt-2 text-lg sm:text-xl text-fg-secondary font-light">
+              {t('subheading')}
+            </p>
 
-                  {/* Gold divider ornament */}
-                  <div className="flex items-center gap-3 mt-5 justify-center lg:justify-start">
-                    <div className="h-px w-10 bg-accent-gold/40" />
-                    <span className="text-accent-gold text-sm">&#10022;</span>
-                    <div className="h-px w-10 bg-accent-gold/40" />
-                  </div>
+            {/* Gold divider ornament */}
+            <div className="flex items-center gap-3 mt-5 justify-center lg:justify-start">
+              <div className="h-px w-10 bg-accent-gold/40" />
+              <span className="text-accent-gold text-sm">&#10022;</span>
+              <div className="h-px w-10 bg-accent-gold/40" />
+            </div>
 
-                  <p className="mt-5 text-sm font-medium text-accent-teal">
-                    {t('program_label')}
-                  </p>
-                  <p className="text-sm text-fg-secondary">
-                    {t('exclusive_label')}
-                  </p>
-                </div>
+            <p className="mt-5 text-sm font-medium text-accent-teal">
+              {t('program_label')}
+            </p>
+            <p className="text-sm text-fg-secondary">
+              {t('exclusive_label')}
+            </p>
+          </div>
 
-                {/* ─── Value Content: 8-Week Overview ─── */}
-                <div className="mb-5 rounded-lg border border-border-secondary bg-bg-secondary p-4">
-                  <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
-                    {t('overview_title')}
-                  </h3>
-                  <div className="flex flex-col gap-2">
-                    {WEEK_KEYS.map((key, i) => {
-                      const Icon = WEEK_ICONS[i];
-                      return (
-                        <div key={key} className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-7 h-7 rounded bg-accent-teal-subtle flex items-center justify-center">
-                            <Icon size={14} className="text-accent-teal" />
-                          </div>
-                          <span className="text-sm text-fg-secondary">
-                            <span className="font-medium text-fg-primary">{t('week_label', { number: i + 1 })}</span>
-                            {' · '}
-                            {t(key)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* ─── Benefits ─── */}
-                <div className="mb-5 flex flex-col sm:flex-row gap-2 sm:gap-4">
-                  {BENEFIT_KEYS.map((key) => (
-                    <div key={key} className="flex items-center gap-2">
-                      <Check size={14} className="text-accent-teal flex-shrink-0" />
-                      <span className="text-xs text-fg-secondary">
-                        {t(`benefits.${key}`)}
-                      </span>
+          {/* ─── Value Content: Week Overview ─── */}
+          <div className="mb-5 rounded-lg border border-border-secondary bg-bg-secondary p-4">
+            <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
+              {t('overview_title')}
+            </h3>
+            <div className="flex flex-col gap-2">
+              {WEEK_KEYS.map((key, i) => {
+                const Icon = WEEK_ICONS[i];
+                return (
+                  <div key={key} className="flex items-center gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded bg-accent-teal-subtle flex items-center justify-center">
+                      <Icon size={14} className="text-accent-teal" />
                     </div>
-                  ))}
-                </div>
+                    <span className="text-sm text-fg-secondary">
+                      <span className="font-medium text-fg-primary">{t('week_label', { number: i + 1 })}</span>
+                      {' · '}
+                      {t(key)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-                {/* ─── Endorsement ─── */}
-                <p className="mb-6 text-xs text-fg-tertiary italic text-center lg:text-left">
-                  {t('endorsement')}
-                </p>
+          {/* ─── Benefits ─── */}
+          <div className="mb-5 flex flex-col sm:flex-row gap-2 sm:gap-4">
+            {BENEFIT_KEYS.map((key) => (
+              <div key={key} className="flex items-center gap-2">
+                <Check size={14} className="text-accent-teal flex-shrink-0" />
+                <span className="text-xs text-fg-secondary">
+                  {t(`benefits.${key}`)}
+                </span>
+              </div>
+            ))}
+          </div>
 
-                <VerticeForm onSuccess={handleSuccess} />
+          {/* ─── Endorsement ─── */}
+          <p className="mb-6 text-xs text-fg-tertiary italic text-center lg:text-left">
+            {t('endorsement')}
+          </p>
 
-                {/* Footer note */}
-                <p className="mt-8 text-xs text-fg-tertiary text-center lg:text-left">
-                  {t('footer_note')}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <VerticeEnrollPanel />
+
+          {/* Footer note */}
+          <p className="mt-8 text-xs text-fg-tertiary text-center lg:text-left">
+            {t('footer_note')}
+          </p>
         </div>
       </div>
 
