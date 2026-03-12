@@ -57,11 +57,13 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
     }
   }
 
+  const [eslEnabled, setEslEnabled] = useState(course.esl_enabled);
+  const [eslToggling, setEslToggling] = useState(false);
   const [eslLessons, setEslLessons] = useState<{ id: string; week_id: string; status: string; generation_error: string | null; updated_at: string }[]>([]);
 
   // Fetch ESL lessons when ESL tab is activated
   useEffect(() => {
-    if (activeTab === 'esl' && course.esl_enabled && eslLessons.length === 0) {
+    if (activeTab === 'esl' && eslEnabled && eslLessons.length === 0) {
       fetch(`/api/admin/esl/lessons?courseId=${course.id}`)
         .then((res) => res.json())
         .then((data) => {
@@ -69,13 +71,13 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
         })
         .catch(() => {/* silently fail */});
     }
-  }, [activeTab, course.esl_enabled, course.id, eslLessons.length]);
+  }, [activeTab, eslEnabled, course.id, eslLessons.length]);
 
   const tabs = [
     { key: 'overview', label: 'Overview' },
     { key: 'curriculum', label: 'Curriculum' },
     { key: 'students', label: 'Students' },
-    ...(course.esl_enabled ? [{ key: 'esl', label: 'ESL Content' }] : []),
+    ...(eslEnabled ? [{ key: 'esl', label: 'ESL Content' }] : []),
   ];
 
   async function handlePublish() {
@@ -286,6 +288,42 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
               </div>
             </div>
           )}
+
+          {/* ESL Settings */}
+          <div className="border-t border-border-default pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-fg-primary">ESL Lessons</h3>
+                <p className="text-xs text-fg-tertiary mt-0.5">
+                  Generate English-as-a-Second-Language lesson content from course material
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={eslToggling}
+                onClick={async () => {
+                  setEslToggling(true);
+                  try {
+                    const next = !eslEnabled;
+                    await updateCourse(course.id, { esl_enabled: next });
+                    setEslEnabled(next);
+                    router.refresh();
+                  } finally {
+                    setEslToggling(false);
+                  }
+                }}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  eslEnabled ? 'bg-accent-teal' : 'bg-bg-tertiary'
+                } ${eslToggling ? 'opacity-50' : ''}`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    eslEnabled ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -352,7 +390,7 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
       )}
 
       {/* ESL Content */}
-      {activeTab === 'esl' && course.esl_enabled && (
+      {activeTab === 'esl' && eslEnabled && (
         <ESLAdminDashboard
           course={{
             id: course.id,
