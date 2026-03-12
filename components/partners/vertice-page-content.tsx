@@ -214,11 +214,6 @@ export function VerticePageContent() {
             className="rounded-lg max-h-[26vh] w-full object-cover"
             style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1)' }}
           />
-          <div className="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2 text-center w-full max-w-[320px]">
-            <p className="text-[12px] text-slate-700 leading-snug font-medium">
-              {t('right_panel.cta_prompt')}
-            </p>
-          </div>
         </div>
 
         {/* Layer 3: Content overlay (desktop only) */}
@@ -238,16 +233,6 @@ export function VerticePageContent() {
               className="rounded-xl w-full max-h-[42vh] object-cover"
               style={{ boxShadow: '0 16px 40px rgba(0,0,0,0.22), 0 6px 16px rgba(0,0,0,0.1)' }}
             />
-
-            {/* CTA + privacy note */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2.5 text-center w-full">
-              <p className="text-[12.5px] text-slate-700 leading-snug font-medium">
-                {t('right_panel.cta_prompt')}
-              </p>
-              <p className="text-[10.5px] text-slate-500 leading-snug mt-0.5">
-                {t('right_panel.privacy_note')}
-              </p>
-            </div>
 
             {/* Key takeaways */}
             <div className="w-full bg-white/60 backdrop-blur-md rounded-xl px-4 py-3 shadow-lg border border-white/40">
