@@ -60,7 +60,6 @@ export function VerticePageContent() {
 
   const localePrefix = locale === 'ja' ? '/ja' : '';
   const courseDetailUrl = `${localePrefix}/learn/ai-mastery-curious-to-confident`;
-  const checkoutUrl = `${localePrefix}/learn/ai-mastery-curious-to-confident/checkout`;
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-start min-h-screen">
@@ -220,12 +219,6 @@ export function VerticePageContent() {
               {t('right_panel.cta_prompt')}
             </p>
           </div>
-          <Link
-            href={checkoutUrl}
-            className="w-full max-w-[320px] text-center py-2.5 px-4 rounded-lg bg-accent-teal text-white text-sm font-semibold shadow-md hover:opacity-90 transition-opacity"
-          >
-            {t('right_panel.enroll_now')} · {t('right_panel.price_note')}
-          </Link>
         </div>
 
         {/* Layer 3: Content overlay (desktop only) */}
@@ -273,21 +266,13 @@ export function VerticePageContent() {
               </div>
             </div>
 
-            {/* Enroll CTAs */}
-            <div className="w-full flex flex-col gap-2">
-              <Link
-                href={checkoutUrl}
-                className="w-full text-center py-2.5 px-4 rounded-lg bg-accent-teal text-white text-sm font-semibold shadow-md hover:opacity-90 transition-opacity"
-              >
-                {t('right_panel.enroll_now')} · {t('right_panel.price_note')}
-              </Link>
-              <Link
-                href={courseDetailUrl}
-                className="w-full text-center text-[11.5px] text-slate-600 hover:text-slate-800 underline-offset-2 hover:underline transition-colors"
-              >
-                {t('right_panel.view_course')} →
-              </Link>
-            </div>
+            {/* Course detail link */}
+            <Link
+              href={courseDetailUrl}
+              className="w-full text-center text-[11.5px] text-slate-600 hover:text-slate-800 underline-offset-2 hover:underline transition-colors"
+            >
+              {t('right_panel.view_course')} →
+            </Link>
           </motion.div>
         </div>
       </div>
