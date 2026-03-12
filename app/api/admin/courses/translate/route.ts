@@ -4,7 +4,7 @@ import { getAdminCourseById } from '@/lib/courses/queries';
 import { buildTranslationInput, translateCourseContent } from '@/lib/courses/translator';
 import { revalidatePath } from 'next/cache';
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   // Auth check
@@ -63,44 +63,45 @@ export async function POST(request: NextRequest) {
 
     if (courseError) throw courseError;
 
-    // 2. Update weeks
-    for (const week of output.weeks) {
-      await supabase
+    // 2. Update weeks, sessions, and assignments in parallel batches
+    const weekUpdates = output.weeks.map((week) =>
+      supabase
         .from('course_weeks')
         .update({
           title_jp: week.title_jp,
           subtitle_jp: week.subtitle_jp,
           description_jp: week.description_jp,
         })
-        .eq('id', week.id);
-    }
+        .eq('id', week.id)
+    );
+    await Promise.all(weekUpdates);
 
-    // 3. Update sessions
-    for (const week of output.weeks) {
-      for (const session of week.sessions) {
-        await supabase
+    const sessionUpdates = output.weeks.flatMap((week) =>
+      week.sessions.map((session) =>
+        supabase
           .from('course_sessions')
           .update({
             title_jp: session.title_jp,
             materials_jp: session.materials_jp,
             topics_jp: session.topics_jp,
           })
-          .eq('id', session.id);
-      }
-    }
+          .eq('id', session.id)
+      )
+    );
+    await Promise.all(sessionUpdates);
 
-    // 4. Update assignments
-    for (const week of output.weeks) {
-      for (const assignment of week.assignments) {
-        await supabase
+    const assignmentUpdates = output.weeks.flatMap((week) =>
+      week.assignments.map((assignment) =>
+        supabase
           .from('course_assignments')
           .update({
             title_jp: assignment.title_jp,
             description_jp: assignment.description_jp,
           })
-          .eq('id', assignment.id);
-      }
-    }
+          .eq('id', assignment.id)
+      )
+    );
+    await Promise.all(assignmentUpdates);
 
     revalidatePath('/learn');
     revalidatePath('/admin/courses');

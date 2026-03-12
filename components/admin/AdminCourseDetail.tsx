@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
@@ -137,6 +137,14 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
             >
               <Download size={14} className="mr-1" />
               Preview Syllabus
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.open(`/api/courses/${course.id}/syllabus?locale=ja&preview=true`, '_blank')}
+            >
+              <Globe size={14} className="mr-1" />
+              プレビュー JP
             </Button>
             <Button
               variant="ghost"
