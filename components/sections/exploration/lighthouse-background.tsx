@@ -109,6 +109,7 @@ function StarCanvas({ reducedMotion }: { reducedMotion: boolean }) {
     }
 
     let frame = 0;
+    let hasSpawnedInitial = false;
     const render = () => {
       const cw = canvas.width / dpr;
       const ch = canvas.height / dpr;
@@ -120,6 +121,13 @@ function StarCanvas({ reducedMotion }: { reducedMotion: boolean }) {
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
         ctx.fill();
+      }
+
+      // Spawn an initial shooting star shortly after load so the user sees one immediately
+      if (!hasSpawnedInitial && frame > 5) {
+        spawnShootingStar(cw, ch);
+        lastSpawnFrame = frame;
+        hasSpawnedInitial = true;
       }
 
       // Spawn shooting stars randomly (~0.2% chance per frame, with cooldown)
