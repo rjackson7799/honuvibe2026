@@ -58,7 +58,7 @@ export function VerticeEnrollPanel() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+    <form id="enroll" onSubmit={handleSubmit} className="flex flex-col gap-4 scroll-mt-8" noValidate>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="vertice-code" className="text-sm font-medium text-fg-secondary flex items-center gap-1.5">
           <Lock size={13} className="text-fg-tertiary" />

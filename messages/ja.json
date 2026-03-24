@@ -1453,12 +1453,12 @@
       "questions": "ご質問は？",
       "returning_user": "おかえりなさい！情報が更新されました。"
     },
-    "footer_note": "2026年3月23日開講 · ホノルル、ハワイ",
+    "footer_note": "2026年春開講 · ホノルル、ハワイ",
     "image_alt": "AIを活用したオーシャンテクノロジーの風景",
     "differentiators": {
       "diff_1_title": "実践者が教える、講義型ではない授業",
       "diff_1_desc": "Ryanは毎日AIを使って実際のプロダクトを構築 — 教科書のスライドではありません。",
-      "diff_2_title": "定員10名の少人数制",
+      "diff_2_title": "定員15名の少人数制",
       "diff_2_desc": "毎回のセッションで講師に直接質問できる、きめ細やかな学習環境。",
       "diff_3_title": "無料ESLコンパニオンモジュール",
       "diff_3_desc": "言語がAI学習の障壁になってはいけません。バイリンガルサポートを標準装備。"
@@ -1486,7 +1486,7 @@
     "week_5_bullet_2": "パーソナルAIロードマップ：3ツール、3ワークフロー、3目標",
     "week_5_bullet_3": "修了式と証書授与",
     "benefits": {
-      "workshops": "定員10名、Zoomライブ5回（各60分）",
+      "workshops": "定員15名、Zoomライブ5回（各60分）",
       "bilingual": "バイリンガルEN-JP＋無料ESLモジュール",
       "certificate": "修了証書＋30日間コミュニティアクセス"
     },
@@ -1505,7 +1505,7 @@
       "language_label": "言語",
       "language_value": "英語（日本語サポート教材付き）",
       "capacity_label": "定員",
-      "capacity_value": "最大10名",
+      "capacity_value": "最大15名",
       "fee_label": "受講料",
       "fee_value": "$1,250 USD（一括払い）",
       "platform_label": "プラットフォーム",
@@ -1560,7 +1560,8 @@
       "preview_label": "講座カリキュラムプレビュー",
       "cta_prompt": "フォームを送信すると、講座の詳細をPDFでお届けします。",
       "privacy_note": "ご入力いただいた情報は、本講座のご案内のみに使用いたします。",
-      "view_course": "コース詳細を見る",
+      "register_cta": "今すぐ登録",
+      "spots_left": "定員15名 · 残りわずか",
       "enroll_now": "今すぐ申し込む",
       "price_note": "$1,250 · 一括払い"
     },

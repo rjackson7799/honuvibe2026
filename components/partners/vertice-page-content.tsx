@@ -3,9 +3,8 @@
 import { useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
-import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
-import { Sparkles, Wand2, Users, Cpu, Map, Check, Download, BookOpen, Award, Globe2, Wrench } from 'lucide-react';
+import { Sparkles, Wand2, Users, Cpu, Map, Check, FileText, BookOpen, Award, Globe2, Wrench, ArrowRight } from 'lucide-react';
 import { VerticeEnrollPanel } from './vertice-enroll-panel';
 import { trackEvent } from '@/lib/analytics';
 import { TechIcon } from '@/components/sections/exploration/tech-icon';
@@ -70,9 +69,6 @@ export function VerticePageContent() {
   useEffect(() => {
     trackEvent('vertice_page_view', { locale });
   }, [locale]);
-
-  const localePrefix = locale === 'ja' ? '/ja' : '';
-  const courseDetailUrl = `${localePrefix}/learn/ai-essentials`;
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-start min-h-screen">
@@ -226,33 +222,6 @@ export function VerticePageContent() {
             </div>
           </div>
 
-          {/* ─── Syllabus Downloads ─── */}
-          <div className="mb-5">
-            <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
-              {t('syllabus.section_title')}
-            </h3>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <a
-                href="/downloads/AI_Essentials_Syllabus_EN_1.0.pdf"
-                download
-                onClick={() => trackEvent('syllabus_download', { locale, lang: 'en' })}
-                className="flex items-center justify-center gap-2 h-10 flex-1 rounded-lg border border-border-secondary bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary text-sm font-medium text-fg-secondary transition-colors duration-[var(--duration-fast)]"
-              >
-                <Download size={13} className="text-accent-teal flex-shrink-0" />
-                {t('syllabus.en_label')}
-              </a>
-              <a
-                href="/downloads/AI_Essentials_Syllabus_JP_1.0.pdf"
-                download
-                onClick={() => trackEvent('syllabus_download', { locale, lang: 'jp' })}
-                className="flex items-center justify-center gap-2 h-10 flex-1 rounded-lg border border-border-secondary bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary text-sm font-medium text-fg-secondary transition-colors duration-[var(--duration-fast)]"
-              >
-                <Download size={13} className="text-accent-teal flex-shrink-0" />
-                {t('syllabus.jp_label')}
-              </a>
-            </div>
-          </div>
-
           {/* ─── Endorsement ─── */}
           <p className="mb-6 text-xs text-fg-tertiary italic text-center lg:text-left">
             {t('endorsement')}
@@ -317,15 +286,33 @@ export function VerticePageContent() {
         </div>
 
         {/* Mobile course cover + CTA overlay */}
-        <div className="flex lg:hidden absolute inset-0 z-[2] flex-col items-center justify-center px-6 gap-2.5">
+        <div className="flex lg:hidden absolute inset-0 z-[2] flex-col items-center justify-end px-6 pb-6 gap-2">
           <Image
             src="/images/partners/course_cover.jpg"
             alt={t('right_panel.preview_label')}
             width={300}
             height={200}
-            className="rounded-lg max-h-[26vh] w-full object-cover"
+            className="rounded-lg max-h-[22vh] w-full object-cover"
             style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1)' }}
           />
+          <div className="w-full max-w-[300px] flex gap-1.5">
+            <a
+              href="/downloads/AI_Essentials_Syllabus_EN_1.0.pdf"
+              download
+              className="flex items-center justify-center gap-1 h-8 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/30 text-[11px] font-medium text-slate-700"
+            >
+              <FileText size={11} className="text-slate-500" />
+              {t('syllabus.en_label')}
+            </a>
+            <a
+              href="/downloads/AI_Essentials_Syllabus_JP_1.0.pdf"
+              download
+              className="flex items-center justify-center gap-1 h-8 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/30 text-[11px] font-medium text-slate-700"
+            >
+              <FileText size={11} className="text-slate-500" />
+              {t('syllabus.jp_label')}
+            </a>
+          </div>
         </div>
 
         {/* Layer 3: Content overlay (desktop only) */}
@@ -363,13 +350,40 @@ export function VerticePageContent() {
               </div>
             </div>
 
-            {/* Course detail link */}
-            <Link
-              href={courseDetailUrl}
-              className="w-full text-center text-[11.5px] text-slate-600 hover:text-slate-800 underline-offset-2 hover:underline transition-colors"
+            {/* Syllabus downloads */}
+            <div className="w-full flex gap-2">
+              <a
+                href="/downloads/AI_Essentials_Syllabus_EN_1.0.pdf"
+                download
+                onClick={() => trackEvent('syllabus_download', { locale, lang: 'en' })}
+                className="flex items-center justify-center gap-1.5 h-9 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/40 text-[12px] font-medium text-slate-700 hover:bg-white/70 transition-colors"
+              >
+                <FileText size={13} className="text-slate-500 flex-shrink-0" />
+                {t('syllabus.en_label')}
+              </a>
+              <a
+                href="/downloads/AI_Essentials_Syllabus_JP_1.0.pdf"
+                download
+                onClick={() => trackEvent('syllabus_download', { locale, lang: 'jp' })}
+                className="flex items-center justify-center gap-1.5 h-9 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/40 text-[12px] font-medium text-slate-700 hover:bg-white/70 transition-colors"
+              >
+                <FileText size={13} className="text-slate-500 flex-shrink-0" />
+                {t('syllabus.jp_label')}
+              </a>
+            </div>
+
+            {/* Register CTA */}
+            <a
+              href="#enroll"
+              onClick={() => trackEvent('vertice_register_cta_click', { locale })}
+              className="w-full h-12 rounded-xl bg-accent-teal text-white font-semibold text-base flex items-center justify-center gap-2 hover:brightness-110 shadow-lg transition-all duration-[var(--duration-normal)]"
             >
-              {t('right_panel.view_course')} →
-            </Link>
+              {t('right_panel.register_cta')}
+              <ArrowRight size={18} />
+            </a>
+            <p className="text-[11px] text-slate-500 font-medium tracking-wide text-center">
+              {t('right_panel.spots_left')}
+            </p>
           </motion.div>
         </div>
       </div>

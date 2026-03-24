@@ -1453,12 +1453,12 @@
       "questions": "Questions?",
       "returning_user": "Welcome back! Your information has been updated."
     },
-    "footer_note": "Starting March 23, 2026 · Honolulu, Hawaii",
+    "footer_note": "Starting Spring 2026 · Honolulu, Hawaii",
     "image_alt": "AI-powered ocean technology landscape",
     "differentiators": {
       "diff_1_title": "Practitioner-led, not lecture-based",
       "diff_1_desc": "Ryan teaches from daily AI experience building real products — not slides from a textbook.",
-      "diff_2_title": "Max 10 students",
+      "diff_2_title": "Max 15 participants",
       "diff_2_desc": "Intimate, personalized learning with direct instructor access every session.",
       "diff_3_title": "Free ESL companion modules",
       "diff_3_desc": "Language should never be a barrier to AI learning. Bilingual support built in."
@@ -1486,7 +1486,7 @@
     "week_5_bullet_2": "Personal AI roadmap: 3 tools, 3 workflows, 3 goals",
     "week_5_bullet_3": "Celebration and certificates",
     "benefits": {
-      "workshops": "10 students max, 5 live Zoom sessions",
+      "workshops": "15 participants max, 5 live Zoom sessions",
       "bilingual": "Bilingual EN-JP with free ESL modules",
       "certificate": "Certificate + 30-day community access"
     },
@@ -1505,7 +1505,7 @@
       "language_label": "Language",
       "language_value": "English (JP support materials)",
       "capacity_label": "Capacity",
-      "capacity_value": "Max 10 students",
+      "capacity_value": "Max 15 participants",
       "fee_label": "Fee",
       "fee_value": "$1,250 USD (one-time)",
       "platform_label": "Platform",
@@ -1560,7 +1560,8 @@
       "preview_label": "Course Curriculum Preview",
       "cta_prompt": "Complete the form to receive the full course description as a PDF.",
       "privacy_note": "Your information will only be used to share details about this course.",
-      "view_course": "View Full Course Details",
+      "register_cta": "Register Now",
+      "spots_left": "Only 15 spots available",
       "enroll_now": "Enroll Now",
       "price_note": "$1,250 · One-time"
     },
