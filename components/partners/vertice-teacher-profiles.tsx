@@ -53,7 +53,7 @@ export function VerticeTeacherProfiles() {
 
             {/* Right: Info */}
             <div className="flex flex-col flex-1 text-center sm:text-left">
-              <h4 className="text-xl font-bold tracking-tight text-white mb-1">
+              <h4 className="text-xl font-bold tracking-tight text-fg-primary mb-1">
                 {t(`instructors.${nameKey}`)}
               </h4>
               <p className="text-accent-teal font-medium text-sm mb-3">
