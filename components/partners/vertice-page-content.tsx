@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
-import { Sparkles, Wand2, Users, Cpu, Map, Check, Download } from 'lucide-react';
+import { Sparkles, Wand2, Users, Cpu, Map, Check, Download, BookOpen, Award, Globe2, Wrench } from 'lucide-react';
 import { VerticeEnrollPanel } from './vertice-enroll-panel';
 import { trackEvent } from '@/lib/analytics';
 import { TechIcon } from '@/components/sections/exploration/tech-icon';
@@ -13,8 +13,27 @@ import { VerticeTeacherProfiles } from './vertice-teacher-profiles';
 
 const WEEK_ICONS = [Sparkles, Wand2, Users, Cpu, Map] as const;
 const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5'] as const;
+const WEEK_BULLETS = [
+  ['week_1_bullet_1', 'week_1_bullet_2', 'week_1_bullet_3'],
+  ['week_2_bullet_1', 'week_2_bullet_2', 'week_2_bullet_3'],
+  ['week_3_bullet_1', 'week_3_bullet_2', 'week_3_bullet_3'],
+  ['week_4_bullet_1', 'week_4_bullet_2', 'week_4_bullet_3'],
+  ['week_5_bullet_1', 'week_5_bullet_2', 'week_5_bullet_3'],
+] as const;
+const DIFFERENTIATOR_KEYS = ['diff_1', 'diff_2', 'diff_3'] as const;
 const BENEFIT_KEYS = ['workshops', 'bilingual', 'certificate'] as const;
 const TAKEAWAY_KEYS = ['takeaway_1', 'takeaway_2', 'takeaway_3', 'takeaway_4', 'takeaway_5'] as const;
+const DETAIL_ITEMS = [
+  'course_code', 'duration', 'format',
+  'session', 'weekly', 'language',
+  'capacity', 'fee', 'platform',
+] as const;
+const INCLUDED_GROUPS = [
+  { titleKey: 'materials_title', icon: BookOpen, items: ['materials_1', 'materials_2', 'materials_3'] },
+  { titleKey: 'esl_title', icon: Globe2, items: ['esl_1', 'esl_2', 'esl_3'] },
+  { titleKey: 'toolkit_title', icon: Wrench, items: ['toolkit_1', 'toolkit_2'] },
+  { titleKey: 'community_title', icon: Award, items: ['community_1', 'community_2', 'community_3'] },
+] as const;
 
 // Display names for AI tool icons
 const TECH_LABELS: Record<string, string> = {
@@ -99,24 +118,51 @@ export function VerticePageContent() {
             </p>
           </div>
 
+          {/* ─── Why This Course Is Different ─── */}
+          <div className="mb-5 flex flex-col gap-3">
+            {DIFFERENTIATOR_KEYS.map((key) => (
+              <div key={key} className="flex items-start gap-2.5">
+                <span className="text-accent-gold text-xs mt-0.5 flex-shrink-0">&#10022;</span>
+                <div>
+                  <span className="text-sm font-semibold text-fg-primary">
+                    {t(`differentiators.${key}_title`)}
+                  </span>
+                  <span className="text-sm text-fg-tertiary">
+                    {' — '}{t(`differentiators.${key}_desc`)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* ─── Value Content: Week Overview ─── */}
           <div className="mb-5 rounded-lg border border-border-secondary bg-bg-secondary p-4">
             <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
               {t('overview_title')}
             </h3>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {WEEK_KEYS.map((key, i) => {
                 const Icon = WEEK_ICONS[i];
                 return (
-                  <div key={key} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-7 h-7 rounded bg-accent-teal-subtle flex items-center justify-center">
-                      <Icon size={14} className="text-accent-teal" />
+                  <div key={key}>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-7 h-7 rounded bg-accent-teal-subtle flex items-center justify-center">
+                        <Icon size={14} className="text-accent-teal" />
+                      </div>
+                      <span className="text-sm text-fg-secondary">
+                        <span className="font-medium text-fg-primary">{t('week_label', { number: i + 1 })}</span>
+                        {' · '}
+                        {t(key)}
+                      </span>
                     </div>
-                    <span className="text-sm text-fg-secondary">
-                      <span className="font-medium text-fg-primary">{t('week_label', { number: i + 1 })}</span>
-                      {' · '}
-                      {t(key)}
-                    </span>
+                    <div className="ml-10 mt-1.5 flex flex-col gap-1">
+                      {WEEK_BULLETS[i].map((bulletKey) => (
+                        <div key={bulletKey} className="flex items-start gap-2">
+                          <span className="text-fg-tertiary text-[10px] mt-1 flex-shrink-0">•</span>
+                          <span className="text-xs text-fg-tertiary leading-relaxed">{t(bulletKey)}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })}
@@ -135,12 +181,49 @@ export function VerticePageContent() {
             ))}
           </div>
 
+          {/* ─── Course Details ─── */}
+          <div className="mb-5 rounded-lg border border-border-secondary bg-bg-secondary p-4">
+            <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
+              {t('details.section_title')}
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2.5">
+              {DETAIL_ITEMS.map((key) => (
+                <div key={key}>
+                  <p className="text-[10px] text-fg-tertiary uppercase tracking-wider">{t(`details.${key}_label`)}</p>
+                  <p className="text-xs text-fg-primary font-medium">{t(`details.${key}_value`)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* ─── Instructor Profiles ─── */}
           <div className="mb-5">
             <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-4">
               {t('instructors.section_title')}
             </h3>
             <VerticeTeacherProfiles />
+          </div>
+
+          {/* ─── What's Included ─── */}
+          <div className="mb-5 rounded-lg border border-border-secondary bg-bg-secondary p-4">
+            <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
+              {t('included.section_title')}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {INCLUDED_GROUPS.map(({ titleKey, icon: GroupIcon, items }) => (
+                <div key={titleKey}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <GroupIcon size={13} className="text-accent-teal flex-shrink-0" />
+                    <p className="text-xs font-semibold text-fg-primary">{t(`included.${titleKey}`)}</p>
+                  </div>
+                  <div className="flex flex-col gap-1 ml-5">
+                    {items.map((itemKey) => (
+                      <p key={itemKey} className="text-xs text-fg-tertiary leading-relaxed">{t(`included.${itemKey}`)}</p>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* ─── Syllabus Downloads ─── */}
