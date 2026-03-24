@@ -12,19 +12,21 @@ const INSTRUCTOR_DATA = [
     bioKey: 'ryan_bio',
     hasEducation: true
   },
-  { 
+  {
     id: 'mizuho',
-    imgSrc: '/images/partners/instructors/mizuho.webp', 
-    nameKey: 'mizuho_name', 
-    roleKey: 'mizuho_role', 
-    bioKey: 'mizuho_bio' 
+    imgSrc: '/images/partners/instructors/mizuho.webp',
+    nameKey: 'mizuho_name',
+    roleKey: 'mizuho_role',
+    bioKey: 'mizuho_bio',
+    hasEducation: false
   },
-  { 
+  {
     id: 'chimi',
-    imgSrc: '/images/partners/instructors/chimi.webp', 
-    nameKey: 'chimi_name', 
-    roleKey: 'chimi_role', 
-    bioKey: 'chimi_bio' 
+    imgSrc: '/images/partners/instructors/chimi.webp',
+    nameKey: 'chimi_name',
+    roleKey: 'chimi_role',
+    bioKey: 'chimi_bio',
+    hasEducation: false
   },
 ] as const;
 
