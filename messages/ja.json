@@ -1402,8 +1402,8 @@
     "open_in_tab": "新しいタブで動画URLを開く"
   },
   "vertice": {
-    "heading": "AI Mastery",
-    "subheading": "好奇心から自信へ",
+    "heading": "AI Essentials",
+    "subheading": "未来へのはじめの一歩",
     "program_label": "5週間のAI教育プログラム",
     "exclusive_label": "Vertice Societyメンバー限定",
     "form": {
@@ -1443,10 +1443,10 @@
     "confirmation": {
       "title": "登録完了！",
       "greeting": "{firstName}さん、ありがとうございます。",
-      "welcome": "AI Masteryへようこそ。",
-      "download_label": "講座カリキュラムをダウンロードしてください：",
-      "file_title_en": "AI Mastery — Course Curriculum（英語）",
-      "file_title_jp": "AI Mastery — 講座カリキュラム（日本語）",
+      "welcome": "AI Essentialsへようこそ。",
+      "download_label": "講座シラバスをダウンロードしてください：",
+      "file_title_en": "AI Essentials — Course Syllabus（英語）",
+      "file_title_jp": "AI Essentials — 講座シラバス（日本語）",
       "file_info": "PDF",
       "download_button": "PDFをダウンロード",
       "followup": "今後のスケジュールと詳細については、近日中にご連絡いたします。",
@@ -1457,30 +1457,50 @@
     "image_alt": "AIを活用したオーシャンテクノロジーの風景",
     "overview_title": "学べること",
     "week_label": "第{number}週",
-    "week_1": "AIランドスケープ + Claudeとの出会い",
-    "week_2": "Claude徹底解説",
-    "week_3": "プロンプトエンジニアリング",
-    "week_4": "ワークフローとカスタムアシスタント",
-    "week_5": "発表・評価・今後の展望",
+    "week_1": "重要なAIツールを知る",
+    "week_2": "AIに仕事をさせる",
+    "week_3": "チームでAIを活用する",
+    "week_4": "はじめてのAIツールを作る",
+    "week_5": "自分のAIアクションプラン",
     "benefits": {
-      "workshops": "定員10名、ライブ5回（各90分）",
-      "bilingual": "バイリンガルEN-JP＋ESLモジュール",
-      "certificate": "修了証書発行"
+      "workshops": "定員10名、Zoomライブ5回（各60分）",
+      "bilingual": "バイリンガルEN-JP＋無料ESLモジュール",
+      "certificate": "修了証書＋30日間コミュニティアクセス"
     },
     "endorsement": "Vertice Societyが推薦するAI教育プログラム",
+    "instructors": {
+      "section_title": "講師紹介",
+      "ryan_name": "Ryan J.",
+      "ryan_role": "AI教育ディレクター",
+      "ryan_bio": "HonuVibe.AIの創業者。ビジネス戦略、国際市場経験、実践的なAI専門知識を独自に組み合わせた人物。カリフォルニアの起業家エコシステムと日本のビジネスコミュニティの両方に深いルーツを持ち、アメリカのAIイノベーションと国際的なプロフェッショナルのニーズを繋ぐ架け橋。毎日Claude、ChatGPT、その他の幅広いAIツールを使って仕事をしており、ハワイとカリフォルニアの起業家、AI、ベンチャーキャピタルコミュニティに積極的に参加。教え方は実践的でわかりやすく、すべてのセッションは「やってみる」ことを中心に構成。",
+      "ryan_education_title": "学歴",
+      "ryan_education_1": "MBA（国際ビジネス）— USCマーシャル・スクール・オブ・ビジネス",
+      "ryan_education_2": "BS（ビジネスコミュニケーション・経済学）— ノースウェスタン大学",
+      "mizuho_name": "Mizuho H.",
+      "mizuho_role": "リードAIトレーナー",
+      "mizuho_bio": "豊富な企業ビジネス経験とネイティブ日本語の視点を持つ。リードAIトレーナーとして、すべてのレッスンが日本のプロフェッショナルの実際のニーズに合致するよう、最先端のAIコンセプトを実践的で文化的に適切な形に翻訳。企業のビジネスオペレーションの経験から、日本のプロフェッショナルが日々直面するワークフローと組織のダイナミクスを深く理解。Ryanと協力して、真のバイリンガル学習体験を提供。",
+      "chimi_name": "Chimi M.",
+      "chimi_role": "AIコンサルタント・トレーナー",
+      "chimi_bio": "ヘルスケアの専門知識、ビジネスオペレーション、AIコンサルティングを独自に組み合わせた人物。認定作業療法士として、人々がどのように学び、新しいツールを業務に統合するかを理解し、AIトレーナーとして独自の効果を発揮。組織に新しいシステムやプロセスを導入してきた実践的な経験をAI教育に応用。Ryan、Mizuhoと共にすべての受講生に実践的なサポートを提供。丁寧で細やかなアプローチはAI初心者に特に好評。"
+    },
+    "syllabus": {
+      "section_title": "シラバスをダウンロード",
+      "en_label": "英語シラバス",
+      "jp_label": "日本語シラバス"
+    },
     "right_panel": {
       "takeaways_title": "得られるスキル",
-      "takeaway_1": "グローバルAIランドスケープの把握",
-      "takeaway_2": "Claude高度活用：プロジェクト・アーティファクト・リサーチモード",
-      "takeaway_3": "プロフェッショナルなプロンプトエンジニアリング（EN + JP）",
-      "takeaway_4": "ライティング・リサーチ・分析・翻訳への実践的AI活用",
-      "takeaway_5": "カスタムワークフローとアシスタントの構築",
+      "takeaway_1": "プロが毎日使うAIツールをマスターする",
+      "takeaway_2": "AIでライティング・リサーチ・翻訳・要約を行う",
+      "takeaway_3": "AIワークフローで業務を効率化する",
+      "takeaway_4": "自分の仕事に合ったAIアシスタントを構築する",
+      "takeaway_5": "3ヶ月間のAIアクションプランを作成する",
       "preview_label": "講座カリキュラムプレビュー",
       "cta_prompt": "フォームを送信すると、講座の詳細をPDFでお届けします。",
       "privacy_note": "ご入力いただいた情報は、本講座のご案内のみに使用いたします。",
       "view_course": "コース詳細を見る",
       "enroll_now": "今すぐ申し込む",
-      "price_note": "$500 · 一括払い"
+      "price_note": "$1,250 · 一括払い"
     },
     "enroll": {
       "access_code_label": "Vertice Societyアクセスコード",

@@ -11,17 +11,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isJP = locale === 'ja';
 
   return {
-    title: 'AI Mastery — Vertice Society × HonuVibe.AI',
+    title: 'AI Essentials — Vertice Society × HonuVibe.AI',
     description: isJP
-      ? 'Vertice Societyメンバー限定の5週間AI教育プログラム。好奇心から自信へ。'
-      : 'A 5-week AI education program exclusively for Vertice Society members. From curious to confident.',
+      ? 'Vertice Societyメンバー限定の5週間AI教育プログラム。未来へのはじめの一歩。'
+      : 'A 5-week AI education program exclusively for Vertice Society members. Your first steps into the future.',
     robots: {
       index: false,
       follow: false,
     },
     openGraph: {
-      title: 'AI Mastery — From Curious to Confident',
-      description: 'Vertice Society × HonuVibe.AI — Exclusive AI Education Program',
+      title: 'AI Essentials — Vertice Society × HonuVibe.AI',
+      description: 'A 5-week beginner AI program for Vertice Society members. Powered by HonuVibe.AI.',
     },
   };
 }

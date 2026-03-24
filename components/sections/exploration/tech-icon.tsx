@@ -111,6 +111,14 @@ export function TechIcon({ name, size = 28, className }: TechIconProps) {
           <path d="M12 2C12 2 14.5 7.5 17 10c2.5 2.5 5 5 5 5s-2.5 2.5-5 5c-2.5 2.5-5 5-5 5s-2.5-2.5-5-5C4.5 17.5 2 15 2 15s2.5-7.5 5-10C9.5 2.5 12 2 12 2z" fill="currentColor" opacity="0.85" />
         </svg>
       );
+    case 'perplexity':
+      return (
+        <svg {...props} viewBox="0 0 24 24">
+          <path d="M12 2L4 7v5l8 5 8-5V7L12 2z" fill="currentColor" opacity="0.15" stroke="currentColor" strokeWidth="1.2" />
+          <path d="M4 12v5l8 5 8-5v-5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+          <path d="M4 7l8 5 8-5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        </svg>
+      );
     default:
       return (
         <svg {...props} viewBox="0 0 24 24">

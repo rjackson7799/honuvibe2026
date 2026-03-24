@@ -16,7 +16,7 @@ export function VerticeEnrollPanel() {
   const [loading, setLoading] = useState(false);
 
   const localePrefix = locale === 'ja' ? '/ja' : '';
-  const checkoutUrl = `${localePrefix}/learn/ai-mastery-curious-to-confident/checkout`;
+  const checkoutUrl = `${localePrefix}/learn/ai-essentials/checkout`;
 
   const inputClasses =
     'h-12 w-full rounded-lg bg-bg-tertiary px-4 text-[16px] text-fg-primary border border-border-primary placeholder:text-fg-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors duration-[var(--duration-fast)] font-mono tracking-widest uppercase';

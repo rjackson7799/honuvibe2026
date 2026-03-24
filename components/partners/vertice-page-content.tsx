@@ -5,49 +5,43 @@ import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
-import { Globe, Bot, Search, MessageSquare, Zap, Check } from 'lucide-react';
+import { Sparkles, Wand2, Users, Cpu, Map, Check, Download } from 'lucide-react';
 import { VerticeEnrollPanel } from './vertice-enroll-panel';
 import { trackEvent } from '@/lib/analytics';
 import { TechIcon } from '@/components/sections/exploration/tech-icon';
+import { VerticeTeacherProfiles } from './vertice-teacher-profiles';
 
-const WEEK_ICONS = [Globe, Bot, Search, MessageSquare, Zap] as const;
+const WEEK_ICONS = [Sparkles, Wand2, Users, Cpu, Map] as const;
 const WEEK_KEYS = ['week_1', 'week_2', 'week_3', 'week_4', 'week_5'] as const;
 const BENEFIT_KEYS = ['workshops', 'bilingual', 'certificate'] as const;
 const TAKEAWAY_KEYS = ['takeaway_1', 'takeaway_2', 'takeaway_3', 'takeaway_4', 'takeaway_5'] as const;
 
-// Display names for tech icons
+// Display names for AI tool icons
 const TECH_LABELS: Record<string, string> = {
-  react: 'React', nextjs: 'Next.js', typescript: 'TypeScript', tailwind: 'Tailwind',
-  claude: 'Claude', openai: 'OpenAI', supabase: 'Supabase', stripe: 'Stripe',
-  cursor: 'Cursor', vercel: 'Vercel', figma: 'Figma', lovable: 'Lovable', nodejs: 'Node.js',
+  openai: 'ChatGPT',
+  claude: 'Claude',
+  gemini: 'Gemini',
+  perplexity: 'Perplexity',
 };
 
-// Curated tech icons — light-mode colors, larger sizes with labels
+// AI tool floating icons for right panel
 const FLOATING_ICONS = [
-  // Row 1: top area
-  { key: 'react', color: '#0e7490', top: '3%', left: '8%', duration: 4.2, delay: 0, size: 42 },
-  { key: 'claude', color: '#b45309', top: '4%', left: '70%', duration: 5.0, delay: 0.3, size: 46 },
-  { key: 'nextjs', color: '#334155', top: '11%', left: '38%', duration: 4.6, delay: 0.7, size: 40 },
-  // Row 2: upper-mid
-  { key: 'typescript', color: '#1d4ed8', top: '21%', left: '6%', duration: 3.8, delay: 0.5, size: 44 },
-  { key: 'openai', color: '#475569', top: '19%', left: '75%', duration: 4.4, delay: 1.0, size: 42 },
-  // Row 3: middle
-  { key: 'tailwind', color: '#0891b2', top: '36%', left: '70%', duration: 5.2, delay: 0.2, size: 40 },
-  { key: 'supabase', color: '#059669', top: '34%', left: '4%', duration: 4.8, delay: 0.8, size: 44 },
-  // Row 4: lower-mid
-  { key: 'stripe', color: '#7c3aed', top: '50%', left: '12%', duration: 4.0, delay: 0.45, size: 42 },
-  { key: 'cursor', color: '#0e7490', top: '53%', left: '78%', duration: 3.6, delay: 1.1, size: 40 },
-  { key: 'vercel', color: '#1e293b', top: '48%', left: '42%', duration: 5.4, delay: 0.6, size: 38 },
-  // Row 5: lower
-  { key: 'figma', color: '#c2410c', top: '66%', left: '6%', duration: 4.3, delay: 0.35, size: 42 },
-  { key: 'lovable', color: '#be185d', top: '68%', left: '68%', duration: 4.9, delay: 0.9, size: 44 },
-  // Row 6: bottom
-  { key: 'nodejs', color: '#15803d', top: '80%', left: '38%', duration: 3.9, delay: 0.15, size: 40 },
-  { key: 'react', color: '#0e7490', top: '83%', left: '74%', duration: 4.7, delay: 0.55, size: 38 },
-  { key: 'claude', color: '#b45309', top: '86%', left: '10%', duration: 5.1, delay: 1.2, size: 42 },
-  // Row 7: very bottom
-  { key: 'typescript', color: '#1d4ed8', top: '94%', left: '52%', duration: 4.1, delay: 0.75, size: 40 },
-] as const;
+  { key: 'openai', color: '#475569', top: '4%', left: '8%', duration: 4.2, delay: 0, size: 44 },
+  { key: 'claude', color: '#b45309', top: '5%', left: '68%', duration: 5.0, delay: 0.3, size: 46 },
+  { key: 'gemini', color: '#1d4ed8', top: '14%', left: '38%', duration: 4.6, delay: 0.7, size: 40 },
+  { key: 'perplexity', color: '#0891b2', top: '22%', left: '6%', duration: 3.8, delay: 0.5, size: 44 },
+  { key: 'openai', color: '#475569', top: '20%', left: '74%', duration: 4.4, delay: 1.0, size: 42 },
+  { key: 'claude', color: '#b45309', top: '36%', left: '70%', duration: 5.2, delay: 0.2, size: 40 },
+  { key: 'gemini', color: '#1d4ed8', top: '35%', left: '4%', duration: 4.8, delay: 0.8, size: 42 },
+  { key: 'perplexity', color: '#0891b2', top: '50%', left: '12%', duration: 4.0, delay: 0.45, size: 42 },
+  { key: 'openai', color: '#475569', top: '52%', left: '76%', duration: 3.6, delay: 1.1, size: 40 },
+  { key: 'claude', color: '#b45309', top: '67%', left: '6%', duration: 4.3, delay: 0.35, size: 42 },
+  { key: 'gemini', color: '#1d4ed8', top: '69%', left: '66%', duration: 4.9, delay: 0.9, size: 44 },
+  { key: 'perplexity', color: '#0891b2', top: '81%', left: '38%', duration: 3.9, delay: 0.15, size: 40 },
+  { key: 'openai', color: '#475569', top: '84%', left: '74%', duration: 4.7, delay: 0.55, size: 38 },
+  { key: 'claude', color: '#b45309', top: '87%', left: '10%', duration: 5.1, delay: 1.2, size: 42 },
+  { key: 'gemini', color: '#1d4ed8', top: '94%', left: '52%', duration: 4.1, delay: 0.75, size: 40 },
+];
 
 export function VerticePageContent() {
   const t = useTranslations('vertice');
@@ -59,7 +53,7 @@ export function VerticePageContent() {
   }, [locale]);
 
   const localePrefix = locale === 'ja' ? '/ja' : '';
-  const courseDetailUrl = `${localePrefix}/learn/ai-mastery-curious-to-confident`;
+  const courseDetailUrl = `${localePrefix}/learn/ai-essentials`;
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-start min-h-screen">
@@ -141,6 +135,41 @@ export function VerticePageContent() {
             ))}
           </div>
 
+          {/* ─── Instructor Profiles ─── */}
+          <div className="mb-5">
+            <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-4">
+              {t('instructors.section_title')}
+            </h3>
+            <VerticeTeacherProfiles />
+          </div>
+
+          {/* ─── Syllabus Downloads ─── */}
+          <div className="mb-5">
+            <h3 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-3">
+              {t('syllabus.section_title')}
+            </h3>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <a
+                href="/downloads/AI_Essentials_Syllabus_EN_1.0.pdf"
+                download
+                onClick={() => trackEvent('syllabus_download', { locale, lang: 'en' })}
+                className="flex items-center justify-center gap-2 h-10 flex-1 rounded-lg border border-border-secondary bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary text-sm font-medium text-fg-secondary transition-colors duration-[var(--duration-fast)]"
+              >
+                <Download size={13} className="text-accent-teal flex-shrink-0" />
+                {t('syllabus.en_label')}
+              </a>
+              <a
+                href="/downloads/AI_Essentials_Syllabus_JP_1.0.pdf"
+                download
+                onClick={() => trackEvent('syllabus_download', { locale, lang: 'jp' })}
+                className="flex items-center justify-center gap-2 h-10 flex-1 rounded-lg border border-border-secondary bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary text-sm font-medium text-fg-secondary transition-colors duration-[var(--duration-fast)]"
+              >
+                <Download size={13} className="text-accent-teal flex-shrink-0" />
+                {t('syllabus.jp_label')}
+              </a>
+            </div>
+          </div>
+
           {/* ─── Endorsement ─── */}
           <p className="mb-6 text-xs text-fg-tertiary italic text-center lg:text-left">
             {t('endorsement')}
@@ -171,7 +200,7 @@ export function VerticePageContent() {
           {/* Subtle noise texture overlay for depth */}
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
 
-          {/* Layer 2: Floating tech icons with labels — spread across full height */}
+          {/* Layer 2: Floating AI tool icons with labels */}
           {FLOATING_ICONS.map(({ key, color, top, left, duration, delay, size }, i) => (
             <motion.div
               key={`${key}-${i}`}

@@ -1402,8 +1402,8 @@
     "open_in_tab": "Open video URL in new tab"
   },
   "vertice": {
-    "heading": "AI Mastery",
-    "subheading": "From Curious to Confident",
+    "heading": "AI Essentials",
+    "subheading": "Your First Steps into the Future",
     "program_label": "A 5-Week AI Education Program",
     "exclusive_label": "Exclusively for Vertice Society Members",
     "form": {
@@ -1443,10 +1443,10 @@
     "confirmation": {
       "title": "You're In!",
       "greeting": "Thank you, {firstName}.",
-      "welcome": "Welcome to AI Mastery.",
-      "download_label": "Download your course curriculum below:",
-      "file_title_en": "AI Mastery — Course Curriculum (English)",
-      "file_title_jp": "AI Mastery — 講座カリキュラム (日本語)",
+      "welcome": "Welcome to AI Essentials.",
+      "download_label": "Download your course syllabus below:",
+      "file_title_en": "AI Essentials — Course Syllabus (English)",
+      "file_title_jp": "AI Essentials — 講座シラバス (日本語)",
       "file_info": "PDF",
       "download_button": "Download PDF",
       "followup": "We'll be in touch with next steps and scheduling details soon.",
@@ -1457,30 +1457,50 @@
     "image_alt": "AI-powered ocean technology landscape",
     "overview_title": "What You'll Learn",
     "week_label": "Week {number}",
-    "week_1": "The AI Landscape + Meet Claude",
-    "week_2": "Claude Deep Dive",
-    "week_3": "Prompt Engineering",
-    "week_4": "Workflows & Custom Assistants",
-    "week_5": "Showcase & Future Outlook",
+    "week_1": "The AI Tools That Matter",
+    "week_2": "Make AI Do Your Work",
+    "week_3": "AI at Work — With Your Team",
+    "week_4": "Build Your First AI Tool",
+    "week_5": "Your AI Action Plan",
     "benefits": {
-      "workshops": "10 students max, 5 live sessions",
-      "bilingual": "Bilingual EN-JP with ESL module",
-      "certificate": "Certificate of completion"
+      "workshops": "10 students max, 5 live Zoom sessions",
+      "bilingual": "Bilingual EN-JP with free ESL modules",
+      "certificate": "Certificate + 30-day community access"
     },
     "endorsement": "An AI education program recommended by Vertice Society",
+    "instructors": {
+      "section_title": "Your Instructors",
+      "ryan_name": "Ryan J.",
+      "ryan_role": "Director of AI Education",
+      "ryan_bio": "Founder of HonuVibe.AI. Uniquely combines business strategy, international market experience, and practical AI expertise. With deep roots in both the California entrepreneurial ecosystem and the Japanese business community, he acts as a bridge connecting American AI innovation with the needs of international professionals. Using Claude, ChatGPT, and a wide array of AI tools daily in his work, he actively participates in the AI, venture capital, and entrepreneurial communities across Hawaii and California. His teaching style is practical and easy to understand, with every session centered around 'learning by doing'.",
+      "ryan_education_title": "Education",
+      "ryan_education_1": "MBA (International Business) — USC Marshall School of Business",
+      "ryan_education_2": "BS (Business Communication & Economics) — Northwestern University",
+      "mizuho_name": "Mizuho H.",
+      "mizuho_role": "Lead AI Trainer",
+      "mizuho_bio": "Brings extensive corporate business experience and a native Japanese perspective. As Lead AI Trainer, she translates cutting-edge AI concepts into practical, culturally relevant applications, ensuring every lesson aligns with the real-world needs of Japanese professionals. Through her corporate operations background, she deeply understands the workflows and organizational dynamics Japanese professionals face daily. Working alongside Ryan, she helps deliver a truly bilingual learning experience.",
+      "chimi_name": "Chimi M.",
+      "chimi_role": "AI Consultant & Trainer",
+      "chimi_bio": "Uniquely combines healthcare expertise, business operations, and AI consulting. As a certified Occupational Therapist, she understands how people learn and integrate new tools into their work, making her uniquely effective as an AI Trainer. She applies her practical experience in implementing new systems and processes into organizations to AI education. Together with Ryan and Mizuho, she provides hands-on support to every student. Her careful, detailed approach is particularly popular among AI beginners."
+    },
+    "syllabus": {
+      "section_title": "Download the Syllabus",
+      "en_label": "English Syllabus",
+      "jp_label": "日本語シラバス"
+    },
     "right_panel": {
       "takeaways_title": "What You'll Gain",
-      "takeaway_1": "Global AI landscape assessment",
-      "takeaway_2": "Advanced Claude features: Projects, Artifacts & Research Mode",
-      "takeaway_3": "Professional prompt engineering (EN + JP)",
-      "takeaway_4": "Practical AI for writing, research, analysis & translation",
-      "takeaway_5": "Custom workflow and assistant building",
+      "takeaway_1": "Master the top AI tools professionals use daily",
+      "takeaway_2": "Write, research, translate, and summarize with AI",
+      "takeaway_3": "Streamline your workday with AI workflows",
+      "takeaway_4": "Build a personal AI assistant tailored to your job",
+      "takeaway_5": "Create a 3-month AI action plan for continued growth",
       "preview_label": "Course Curriculum Preview",
       "cta_prompt": "Complete the form to receive the full course description as a PDF.",
       "privacy_note": "Your information will only be used to share details about this course.",
       "view_course": "View Full Course Details",
       "enroll_now": "Enroll Now",
-      "price_note": "$500 · One-time"
+      "price_note": "$1,250 · One-time"
     },
     "enroll": {
       "access_code_label": "Vertice Society Access Code",
