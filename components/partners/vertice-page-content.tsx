@@ -295,23 +295,33 @@ export function VerticePageContent() {
             className="rounded-lg max-h-[22vh] w-full object-cover"
             style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1)' }}
           />
-          <div className="w-full max-w-[300px] flex gap-1.5">
+          <div className="w-full max-w-[300px] flex flex-col gap-2">
             <a
-              href="/downloads/AI_Essentials_Syllabus_EN_1.0.pdf"
-              download
-              className="flex items-center justify-center gap-1 h-8 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/30 text-[11px] font-medium text-slate-700"
+              href="#enroll"
+              onClick={() => trackEvent('vertice_register_cta_click', { locale, source: 'mobile' })}
+              className="w-full h-10 rounded-lg bg-accent-teal text-white font-semibold text-sm flex items-center justify-center gap-1.5 shadow-lg"
             >
-              <FileText size={11} className="text-slate-500" />
-              {t('syllabus.en_label')}
+              {t('right_panel.register_cta')}
+              <ArrowRight size={15} />
             </a>
-            <a
-              href="/downloads/AI_Essentials_Syllabus_JP_1.0.pdf"
-              download
-              className="flex items-center justify-center gap-1 h-8 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/30 text-[11px] font-medium text-slate-700"
-            >
-              <FileText size={11} className="text-slate-500" />
-              {t('syllabus.jp_label')}
-            </a>
+            <div className="flex gap-1.5">
+              <a
+                href="/downloads/AI_Essentials_Syllabus_EN_1.0.pdf"
+                download
+                className="flex items-center justify-center gap-1 h-8 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/30 text-[11px] font-medium text-slate-700"
+              >
+                <FileText size={11} className="text-slate-500" />
+                {t('syllabus.en_label')}
+              </a>
+              <a
+                href="/downloads/AI_Essentials_Syllabus_JP_1.0.pdf"
+                download
+                className="flex items-center justify-center gap-1 h-8 flex-1 rounded-lg bg-white/50 backdrop-blur-sm border border-white/30 text-[11px] font-medium text-slate-700"
+              >
+                <FileText size={11} className="text-slate-500" />
+                {t('syllabus.jp_label')}
+              </a>
+            </div>
           </div>
         </div>
 
