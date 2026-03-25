@@ -37,7 +37,10 @@ export async function PartnerStrip() {
                 alt={t(`logos.${partner.key}` as const)}
                 width={partner.width}
                 height={partner.height}
-                className={partner.featured ? 'h-10 w-auto' : 'h-6 w-auto'}
+                className={cn(
+                  partner.featured ? 'h-10 w-auto' : 'h-6 w-auto',
+                  'invert',
+                )}
               />
             </div>
           ))}
