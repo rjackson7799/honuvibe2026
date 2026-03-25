@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 import { Section } from '@/components/layout/section';
 import { Container } from '@/components/layout/container';
 import { Overline } from '@/components/ui';
@@ -13,12 +14,14 @@ export function AboutFounder() {
     <Section>
       <Container>
         <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
-          {/* Photo placeholder */}
+          {/* Photo */}
           <div className="relative mx-auto aspect-[3/4] max-w-[400px] overflow-hidden rounded-xl md:mx-0">
-            <div className="absolute inset-0 rounded-xl border border-border-default bg-gradient-to-br from-accent-teal/15 via-bg-secondary to-accent-gold/10" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm tracking-wide text-fg-tertiary">Ryan Jackson</span>
-            </div>
+            <Image
+              src="/images/partners/instructors/ryan.webp"
+              alt={t('heading')}
+              fill
+              className="object-cover"
+            />
           </div>
 
           {/* Bio */}
@@ -32,6 +35,20 @@ export function AboutFounder() {
             </div>
             <p className="text-base leading-relaxed text-fg-secondary">{t('bio_p1')}</p>
             <p className="text-base leading-relaxed text-fg-secondary">{t('bio_p2')}</p>
+            <p className="text-base leading-relaxed text-fg-secondary">{t('bio_p3')}</p>
+
+            {/* Education */}
+            <div className="mt-2 pt-4 border-t border-border-secondary/50">
+              <p className="text-xs font-semibold text-accent-teal uppercase tracking-wider mb-2">
+                {t('education_title')}
+              </p>
+              <p className="text-sm text-fg-secondary leading-snug">
+                {t('education_1')}
+              </p>
+              <p className="text-sm text-fg-secondary leading-snug mt-1">
+                {t('education_2')}
+              </p>
+            </div>
           </div>
         </div>
       </Container>

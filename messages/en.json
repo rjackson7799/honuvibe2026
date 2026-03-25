@@ -694,10 +694,14 @@
     "founder": {
       "overline": "The Founder",
       "heading": "Ryan Jackson",
-      "role": "Founder & AI Educator",
-      "location": "Honolulu, Hawaii",
-      "bio_p1": "Born and raised in Hawaii, Ryan grew up surrounded by a culture that values community, connection, and giving back. After years of building AI products and leading engineering teams, he realized something was missing from the education landscape: practical, human-centered AI learning that bridges cultures and empowers entrepreneurs.",
-      "bio_p2": "HonuVibe was born from that gap — a platform dedicated to making cutting-edge AI education approachable and actionable for everyone from Honolulu to Tokyo."
+      "role": "Director of AI Education | HonuVibe.AI",
+      "location": "Waikiki, Honolulu, Hawaii",
+      "bio_p1": "Ryan is the founder of HonuVibe.AI and brings a unique combination of business strategy, international market experience, and hands-on AI expertise. With deep roots in both the California entrepreneurial ecosystem and the Japanese business community, Ryan bridges the gap between American AI innovation and the needs of international professionals.",
+      "bio_p2": "Ryan works daily with the latest AI platforms — Claude, ChatGPT, and a wide range of professional AI tools — and brings that practitioner experience directly into the classroom. His teaching style is hands-on and jargon-free: every session is built around doing, not just watching.",
+      "bio_p3": "As a leader in the AI education space, Ryan is actively involved in the entrepreneurial, AI, and venture capital communities across Hawaii and California — bringing real-world insights on how AI is transforming American businesses into every lesson.",
+      "education_title": "Education",
+      "education_1": "MBA, International Business — USC Marshall School of Business",
+      "education_2": "BS, Business/Corporate Communications and Economics — Northwestern University"
     },
     "social": {
       "overline": "Connect",
