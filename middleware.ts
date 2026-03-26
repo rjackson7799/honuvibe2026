@@ -38,8 +38,23 @@ function getPathWithoutLocale(pathname: string): string {
 }
 
 export default async function middleware(request: NextRequest) {
-  // Vertice Society: default to Japanese locale when no locale cookie is set
   const pathname = request.nextUrl.pathname;
+
+  // Supabase auth: catch code param from email links (password reset, signup confirm, etc.)
+  // Supabase PKCE flow redirects to redirectTo URL with ?code=xxx — forward to our auth callback
+  const code = request.nextUrl.searchParams.get('code');
+  if (code) {
+    const callbackUrl = new URL('/api/auth/callback', request.url);
+    callbackUrl.searchParams.set('code', code);
+    // Use the current path as redirect destination (e.g., /learn/auth/reset for password reset)
+    const logicalPath = getPathWithoutLocale(pathname);
+    if (logicalPath !== '/') {
+      callbackUrl.searchParams.set('redirect', pathname);
+    }
+    return NextResponse.redirect(callbackUrl);
+  }
+
+  // Vertice Society: default to Japanese locale when no locale cookie is set
   if (
     pathname === '/partners/vertice-society' &&
     !request.cookies.get('NEXT_LOCALE')

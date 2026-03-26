@@ -33,8 +33,18 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      // If redirect points to the reset page, honor it
+      if (redirectTo.includes('/learn/auth/reset')) {
+        return NextResponse.redirect(new URL(redirectTo, origin));
+      }
       return NextResponse.redirect(new URL(redirectTo, origin));
     }
+  }
+
+  // Handle password recovery flow — Supabase may redirect here with type=recovery
+  const type = searchParams.get('type');
+  if (type === 'recovery') {
+    return NextResponse.redirect(new URL('/learn/auth/reset', origin));
   }
 
   // Return to auth page on error

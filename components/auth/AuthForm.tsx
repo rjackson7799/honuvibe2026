@@ -91,8 +91,9 @@ export function AuthForm() {
     setLoading(true);
     setError(null);
 
+    const resetPath = locale === 'ja' ? '/ja/learn/auth/reset' : '/learn/auth/reset';
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(`/${locale === 'ja' ? 'ja/' : ''}learn/auth/reset`)}`,
+      redirectTo: `${window.location.origin}${resetPath}`,
     });
 
     if (resetError) {
