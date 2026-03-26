@@ -93,7 +93,7 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
       setDropdownStyle({
         position: 'fixed',
         bottom: window.innerHeight - rect.top + 4,
-        left: rect.left,
+        left: rect.right + 8,
       });
     } else {
       setDropdownStyle({
