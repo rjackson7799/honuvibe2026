@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-03-12 (Stripe Embedded Checkout — dedicated on-site checkout page)
+**Last updated:** 2026-03-25 (Forgot password flow + branded Supabase auth emails via Resend)
 
 ### Status Legend
 - [ ] Not started
@@ -186,6 +186,10 @@
 - [x] AuthGuard (session check) and AdminGuard (role check) server components
 - [x] Protected routes: `/learn/dashboard/*`, `/learn/account`, `/admin/*`
 - [x] i18n strings for auth namespace (EN + JA)
+- [x] Forgot password flow — "Forgot password?" link on sign-in, sends reset email via `supabase.auth.resetPasswordForEmail()`
+- [x] Password reset page at `/learn/auth/reset` — new password + confirm form via `supabase.auth.updateUser()`
+- [x] Branded auth emails via Resend SMTP — custom HTML templates for reset password, confirm signup, magic link, change email (dark theme, teal accent, HonuVibe.AI branding)
+- [x] Resend domain verified (`honuvibe.ai`) + Supabase custom SMTP configured (sender: `hello@honuvibe.ai`)
 
 ### Stage 3: Data Layer (Queries + Server Actions)
 - [x] Course queries: `getPublishedCourses`, `getCourseBySlug`, `getCourseWithCurriculum`, `getAdminCourses`, `getAdminCourseById`
@@ -871,7 +875,7 @@ Dark:  Footer
 - **AI Glossary**: bilingual EN/JP terminology reference with search, category filters, A-Z navigation, related terms, SEO-optimized term pages
 - **Newsletter Archive**: bilingual EN/JP newsletter archive with issue pages, share buttons, prev/next navigation, subscribe blocks, course CTAs
 - **Library**: bilingual EN/JP quick-learn video tutorials with search, category filters, access tier gating, favorite/progress tracking, placeholder player, dashboard tab, related videos
-- **Supabase Auth**: email/password + Google OAuth, middleware-based session management
+- **Supabase Auth**: email/password + Google OAuth, middleware-based session management, forgot password/reset flow, branded auth emails via Resend SMTP (`hello@honuvibe.ai`)
 - **Full LMS**: course catalog (hero + level filters), course detail (full-bleed hero header), enrollment, student dashboard, tabbed course hub
 - **Admin panel**: dashboard with stats, course management with session editor, AI-powered course upload, student/application management, library video management (CRUD + YouTube preview + thumbnail upload), ESL lesson management (generate/review/publish per week)
 - **AI course parser**: Claude API integration for markdown → structured course data
@@ -886,7 +890,7 @@ Dark:  Footer
 - **7 API routes** (`app/api/`)
 - **19 learn components** (`components/learn/`)
 - **11 admin components** (`components/admin/`)
-- **3 auth components** (`components/auth/`)
+- **4 auth components** (`components/auth/`) + password reset page (`app/[locale]/learn/auth/reset/`)
 
 ### New File Count (Glossary)
 - **7 glossary components** (`components/glossary/`)
