@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 
-type AuthMode = 'sign-in' | 'sign-up';
+type AuthMode = 'sign-in' | 'sign-up' | 'forgot';
 
 export function AuthForm() {
   const t = useTranslations('auth');
@@ -23,6 +23,7 @@ export function AuthForm() {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
 
   const supabase = createClient();
 
@@ -83,6 +84,23 @@ export function AuthForm() {
       setError(oauthError.message);
       setLoading(false);
     }
+  }
+
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(`/${locale === 'ja' ? 'ja/' : ''}learn/auth/reset`)}`,
+    });
+
+    if (resetError) {
+      setError(resetError.message);
+    } else {
+      setResetSent(true);
+    }
+    setLoading(false);
   }
 
   return (
@@ -153,69 +171,126 @@ export function AuthForm() {
           <div className="flex-1 h-px bg-border-default" />
         </div>
 
-        {/* Email form */}
-        <form onSubmit={handleEmailAuth} className="flex flex-col gap-4">
-          {mode === 'sign-up' && (
-            <Input
-              label={t('name')}
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              locale={locale}
-              autoComplete="name"
-            />
-          )}
-          <Input
-            label={t('email')}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            locale={locale}
-            autoComplete="email"
-          />
-          <Input
-            label={t('password')}
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            locale={locale}
-            minLength={6}
-            autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
-          />
+        {/* Forgot password form */}
+        {mode === 'forgot' ? (
+          <div className="flex flex-col gap-4">
+            {resetSent ? (
+              <p className="text-sm text-green-400 text-center">{t('reset_success')}</p>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
+                <Input
+                  label={t('email')}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  locale={locale}
+                  autoComplete="email"
+                />
 
-          {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
-          )}
+                {error && (
+                  <p className="text-sm text-red-500 text-center">{error}</p>
+                )}
 
-          <Button
-            type="submit"
-            variant="primary"
-            fullWidth
-            disabled={loading}
-            className="mt-2"
-          >
-            {loading
-              ? '...'
-              : mode === 'sign-in'
-                ? t('sign_in')
-                : t('sign_up')}
-          </Button>
-        </form>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  disabled={loading}
+                  className="mt-2"
+                >
+                  {loading ? '...' : t('send_reset_link')}
+                </Button>
+              </form>
+            )}
 
-        {/* Toggle prompt */}
-        <p className="mt-6 text-sm text-fg-tertiary text-center">
-          {mode === 'sign-in' ? t('no_account') : t('has_account')}{' '}
-          <button
-            type="button"
-            onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setError(null); }}
-            className="text-accent-teal hover:underline"
-          >
-            {mode === 'sign-in' ? t('sign_up') : t('sign_in')}
-          </button>
-        </p>
+            <p className="text-sm text-fg-tertiary text-center">
+              <button
+                type="button"
+                onClick={() => { setMode('sign-in'); setError(null); setResetSent(false); }}
+                className="text-accent-teal hover:underline"
+              >
+                {t('back_to_sign_in')}
+              </button>
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Email form */}
+            <form onSubmit={handleEmailAuth} className="flex flex-col gap-4">
+              {mode === 'sign-up' && (
+                <Input
+                  label={t('name')}
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  locale={locale}
+                  autoComplete="name"
+                />
+              )}
+              <Input
+                label={t('email')}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                locale={locale}
+                autoComplete="email"
+              />
+              <Input
+                label={t('password')}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                locale={locale}
+                minLength={6}
+                autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
+              />
+
+              {mode === 'sign-in' && (
+                <button
+                  type="button"
+                  onClick={() => { setMode('forgot'); setError(null); }}
+                  className="text-sm text-fg-tertiary hover:text-accent-teal text-right -mt-2"
+                >
+                  {t('forgot_password')}
+                </button>
+              )}
+
+              {error && (
+                <p className="text-sm text-red-500 text-center">{error}</p>
+              )}
+
+              <Button
+                type="submit"
+                variant="primary"
+                fullWidth
+                disabled={loading}
+                className="mt-2"
+              >
+                {loading
+                  ? '...'
+                  : mode === 'sign-in'
+                    ? t('sign_in')
+                    : t('sign_up')}
+              </Button>
+            </form>
+
+            {/* Toggle prompt */}
+            <p className="mt-6 text-sm text-fg-tertiary text-center">
+              {mode === 'sign-in' ? t('no_account') : t('has_account')}{' '}
+              <button
+                type="button"
+                onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setError(null); }}
+                className="text-accent-teal hover:underline"
+              >
+                {mode === 'sign-in' ? t('sign_up') : t('sign_in')}
+              </button>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
