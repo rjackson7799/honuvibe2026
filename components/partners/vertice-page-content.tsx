@@ -98,6 +98,9 @@ export function VerticePageContent() {
             <p className="mt-2 text-lg sm:text-xl text-fg-secondary font-light">
               {t('subheading')}
             </p>
+            <span className="text-sm font-medium text-accent-teal bg-bg-secondary border border-accent-teal/30 rounded-full px-4 py-1 inline-block mt-3 mb-2">
+              {t('hero_deadline')}
+            </span>
 
             {/* Gold divider ornament */}
             <div className="flex items-center gap-3 mt-5 justify-center lg:justify-start">

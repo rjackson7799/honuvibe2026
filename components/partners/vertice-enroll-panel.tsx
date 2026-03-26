@@ -59,6 +59,10 @@ export function VerticeEnrollPanel() {
 
   return (
     <form id="enroll" onSubmit={handleSubmit} className="flex flex-col gap-4 scroll-mt-8" noValidate>
+      {/* Change 12: Exclusivity reminder */}
+      <p className="text-xs text-slate-400 italic mb-2">
+        {t('enroll.exclusivity_note')}
+      </p>
       <div className="flex flex-col gap-1.5">
         <label htmlFor="vertice-code" className="text-sm font-medium text-fg-secondary flex items-center gap-1.5">
           <Lock size={13} className="text-fg-tertiary" />
@@ -79,6 +83,12 @@ export function VerticeEnrollPanel() {
         />
         {error && <p className="text-xs text-red-500">{error}</p>}
       </div>
+
+      {/* Change 8: Scarcity badge */}
+      {/* TODO: replace 〇 with actual seat count from enrollment data */}
+      <p className="text-sm font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/40 rounded px-3 py-1.5 inline-flex items-center gap-2 mb-3">
+        {t('enroll.scarcity_badge')}
+      </p>
 
       <button
         type="submit"

@@ -56,9 +56,14 @@ export function VerticeTeacherProfiles() {
               <h4 className="text-xl font-bold tracking-tight text-fg-primary mb-1">
                 {t(`instructors.${nameKey}`)}
               </h4>
-              <p className="text-accent-teal font-medium text-sm mb-3">
+              <p className="text-accent-teal font-medium text-sm mb-1">
                 {t(`instructors.${roleKey}`)}
               </p>
+              {hasEducation && (
+                <span className="text-xs text-accent-teal font-medium tracking-wide block mb-3">
+                  MBA, USC Marshall · AI実践者 · 日米起業家エコシステム
+                </span>
+              )}
               <p className="text-sm text-fg-secondary leading-relaxed whitespace-pre-wrap">
                 {t(`instructors.${bioKey}`)}
               </p>

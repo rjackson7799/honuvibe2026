@@ -1407,9 +1407,10 @@
   },
   "vertice": {
     "heading": "AI Essentials",
-    "subheading": "未来へのはじめの一歩",
+    "subheading": "AIを先に知る、仕事で差をつける。",
+    "hero_deadline": "📅 2026年4月1日（火）開講 — 申込締切：3月28日（土）",
     "program_label": "5週間のAI教育プログラム",
-    "exclusive_label": "Vertice Societyメンバー限定",
+    "exclusive_label": "Vertice Societyメンバーへの特別招待",
     "form": {
       "full_name": "お名前",
       "full_name_placeholder": "山田太郎",
@@ -1457,15 +1458,15 @@
       "questions": "ご質問は？",
       "returning_user": "おかえりなさい！情報が更新されました。"
     },
-    "footer_note": "2026年春開講 · ホノルル、ハワイ",
+    "footer_note": "2026年4月1日開講 · 申込締切3月28日 · ホノルル、ハワイ",
     "image_alt": "AIを活用したオーシャンテクノロジーの風景",
     "differentiators": {
-      "diff_1_title": "実践者が教える、講義型ではない授業",
-      "diff_1_desc": "Ryanは毎日AIを使って実際のプロダクトを構築 — 教科書のスライドではありません。",
-      "diff_2_title": "定員15名の少人数制",
-      "diff_2_desc": "毎回のセッションで講師に直接質問できる、きめ細やかな学習環境。",
-      "diff_3_title": "無料ESLコンパニオンモジュール",
-      "diff_3_desc": "言語がAI学習の障壁になってはいけません。バイリンガルサポートを標準装備。"
+      "diff_1_title": "USCマーシャルMBA × 毎日AIを使う起業家が教える、講義型ではない授業",
+      "diff_1_desc": "教科書ではなく、現場から。",
+      "diff_2_title": "Vertice Societyメンバーへの特別招待",
+      "diff_2_desc": "このプログラムは一般公開されていません。定員15名の非公開AI集中プログラム。",
+      "diff_3_title": "Verticeメンバー限定特典：AIを学びながら英語も強くなる",
+      "diff_3_desc": "無料ESLコンパニオンモジュール付き。"
     },
     "overview_title": "学べること",
     "week_label": "第{number}週",
@@ -1537,7 +1538,7 @@
     "instructors": {
       "section_title": "講師紹介",
       "ryan_name": "Ryan Jackson",
-      "ryan_role": "AI教育ディレクター",
+      "ryan_role": "AI教育ディレクター · MBA, USC Marshall",
       "ryan_bio": "HonuVibe.AIの創業者。ビジネス戦略、国際市場経験、実践的なAI専門知識を独自に組み合わせた人物。カリフォルニアの起業家エコシステムと日本のビジネスコミュニティの両方に深いルーツを持ち、アメリカのAIイノベーションと国際的なプロフェッショナルのニーズを繋ぐ架け橋。毎日Claude、ChatGPT、その他の幅広いAIツールを使って仕事をしており、ハワイとカリフォルニアの起業家、AI、ベンチャーキャピタルコミュニティに積極的に参加。教え方は実践的でわかりやすく、すべてのセッションは「やってみる」ことを中心に構成。",
       "ryan_education_title": "学歴",
       "ryan_education_1": "MBA（国際ビジネス）— USCマーシャル・スクール・オブ・ビジネス",
@@ -1555,7 +1556,7 @@
       "jp_label": "日本語シラバス"
     },
     "right_panel": {
-      "takeaways_title": "得られるスキル",
+      "takeaways_title": "このコースで身につくもの",
       "takeaway_1": "プロが毎日使うAIツールをマスターする",
       "takeaway_2": "AIでライティング・リサーチ・翻訳・要約を行う",
       "takeaway_3": "AIワークフローで業務を効率化する",
@@ -1564,15 +1565,17 @@
       "preview_label": "講座カリキュラムプレビュー",
       "cta_prompt": "フォームを送信すると、講座の詳細をPDFでお届けします。",
       "privacy_note": "ご入力いただいた情報は、本講座のご案内のみに使用いたします。",
-      "register_cta": "今すぐ登録",
+      "register_cta": "参加を申し込む →",
       "spots_left": "定員15名 · 残りわずか",
-      "enroll_now": "今すぐ申し込む",
+      "enroll_now": "参加を申し込む →",
       "price_note": "$1,250 · 一括払い"
     },
     "enroll": {
+      "exclusivity_note": "このプログラムはVertice Societyメンバーにのみご案内しています。",
+      "scarcity_badge": "定員15名限定 · 残り〇席 · 締切3月28日",
       "access_code_label": "Vertice Societyアクセスコード",
       "access_code_placeholder": "コードを入力",
-      "submit": "受講申し込みへ進む",
+      "submit": "このプログラムへの参加を確定する",
       "submitting": "確認中...",
       "invalid_code": "アクセスコードが無効です。Vertice Societyにご確認ください。",
       "note": "安全な決済ページにてお申し込みを完了してください。"
