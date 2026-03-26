@@ -30,21 +30,19 @@ export async function GET(request: Request) {
       },
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // If redirect points to the reset page, honor it
-      if (redirectTo.includes('/learn/auth/reset')) {
-        return NextResponse.redirect(new URL(redirectTo, origin));
+      // Check if this is a password recovery session
+      const isRecovery = data.session?.user?.recovery_sent_at &&
+        Date.now() - new Date(data.session.user.recovery_sent_at).getTime() < 600000; // within 10 min
+
+      if (isRecovery || redirectTo.includes('/learn/auth/reset')) {
+        return NextResponse.redirect(new URL('/learn/auth/reset', origin));
       }
+
       return NextResponse.redirect(new URL(redirectTo, origin));
     }
-  }
-
-  // Handle password recovery flow — Supabase may redirect here with type=recovery
-  const type = searchParams.get('type');
-  if (type === 'recovery') {
-    return NextResponse.redirect(new URL('/learn/auth/reset', origin));
   }
 
   // Return to auth page on error
