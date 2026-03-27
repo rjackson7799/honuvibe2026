@@ -63,6 +63,16 @@ export interface ApplicationStatusEmailData {
   notes?: string;
 }
 
+export interface InstructorWelcomeEmailData {
+  locale: Locale;
+  displayName: string;
+  email: string;
+  titleEn: string | null;
+  titleJp: string | null;
+  actionLink: string;
+  type: 'new' | 'promoted';
+}
+
 export interface VerticeLeadEmailData {
   locale: Locale;
   fullName: string;

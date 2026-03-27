@@ -16,6 +16,7 @@ import type {
   HonuHubContactEmailData,
   ExplorationInquiryEmailData,
   ApplicationStatusEmailData,
+  InstructorWelcomeEmailData,
   VerticeLeadEmailData,
 } from './types';
 
@@ -482,7 +483,114 @@ export async function sendApplicationStatusUpdate(
   });
 }
 
-// ─── 8. Vertice Society Lead ──────────────────────────────
+// ─── 8. Instructor Welcome ──────────────────────────────
+
+export async function sendInstructorWelcomeEmail(data: InstructorWelcomeEmailData): Promise<void> {
+  const { locale, displayName, email, titleEn, titleJp, actionLink, type } = data;
+  const isJP = locale === 'ja';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const title = isJP ? (titleJp || titleEn || '') : (titleEn || titleJp || '');
+
+  const isNew = type === 'new';
+
+  const body = [
+    accentBanner(
+      isJP ? '講師チームへようこそ！' : 'Welcome to the Teaching Team!',
+    ),
+    heading(
+      isJP
+        ? `${displayName} さん、おめでとうございます！`
+        : `Congratulations, ${displayName}!`,
+    ),
+    paragraph(
+      isJP
+        ? isNew
+          ? 'HonuVibe.AIの講師としてアカウントが作成されました。下のボタンからパスワードを設定して、ダッシュボードにアクセスしてください。'
+          : 'HonuVibe.AIの講師に昇格されました。ダッシュボードからコース管理が可能です。'
+        : isNew
+          ? 'Your instructor account has been created on HonuVibe.AI. Click the button below to set your password and access your dashboard.'
+          : "You've been promoted to instructor on HonuVibe.AI. You can now manage courses from your dashboard.",
+    ),
+    ...(title
+      ? [
+          detailsTable([
+            { label: isJP ? '役職' : 'Title', value: title },
+            { label: isJP ? 'メール' : 'Email', value: email },
+          ]),
+        ]
+      : []),
+    ctaButton({
+      href: actionLink,
+      label: isJP
+        ? isNew
+          ? 'パスワードを設定する'
+          : 'ダッシュボードにログイン'
+        : isNew
+          ? 'Set Your Password'
+          : 'Log In to Your Dashboard',
+    }),
+    ...(isNew
+      ? [
+          paragraph(
+            isJP
+              ? 'このリンクは24時間有効です。期限が切れた場合は、ログインページの「パスワードを忘れた方」からリセットできます。'
+              : 'This link expires in 24 hours. If it expires, you can use "Forgot Password" on the login page to get a new one.',
+          ),
+        ]
+      : []),
+    divider(),
+    paragraph(
+      isJP
+        ? 'ご質問がありましたら、お気軽にお問い合わせください。'
+        : "If you have any questions, don't hesitate to reach out.",
+    ),
+    ctaButton({
+      href: `${siteUrl}/${isJP ? 'ja/' : ''}contact`,
+      label: isJP ? 'お問い合わせ' : 'Contact Us',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? '【HonuVibe.AI】講師チームへようこそ！'
+      : 'Welcome to the HonuVibe.AI Teaching Team!',
+    html: baseLayout({
+      locale,
+      preheader: isJP ? '講師アカウントが準備できました' : 'Your instructor account is ready',
+      body,
+    }),
+  });
+}
+
+export async function sendInstructorWelcomeAdminNotification(data: {
+  displayName: string;
+  email: string;
+  type: 'new' | 'promoted';
+  emailSent: boolean;
+}): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const body = [
+    accentBanner(data.type === 'new' ? 'New Instructor Created' : 'Instructor Promoted'),
+    detailsTable([
+      { label: 'Name', value: data.displayName },
+      { label: 'Email', value: data.email },
+      { label: 'Type', value: data.type === 'new' ? 'New account' : 'Promoted from student' },
+      { label: 'Welcome Email', value: data.emailSent ? 'Sent' : 'Not sent' },
+    ]),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Instructor] ${data.type === 'new' ? 'New' : 'Promoted'}: ${data.displayName}`,
+    html: baseLayout({ locale: 'en', body }),
+  });
+}
+
+// ─── 9. Vertice Society Lead ──────────────────────────────
 
 export async function sendVerticeLeadConfirmation(data: VerticeLeadEmailData): Promise<void> {
   const { locale, fullName, email } = data;

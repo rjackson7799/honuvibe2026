@@ -7,6 +7,11 @@ import type {
   InstructorProfileUpdateInput,
   CourseInstructorRole,
 } from './types';
+import {
+  sendInstructorWelcomeEmail,
+  sendInstructorWelcomeAdminNotification,
+} from '@/lib/email/send';
+import type { Locale } from '@/lib/email/types';
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -156,6 +161,67 @@ export async function createNewUserAndInstructor(
   }
 
   return createInstructorProfile(newUserId, profileData);
+}
+
+export async function sendInstructorWelcomeEmailAction(
+  email: string,
+  displayName: string,
+  titleEn: string | null,
+  titleJp: string | null,
+  type: 'new' | 'promoted',
+  locale: Locale,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin();
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+  const adminClient = createAdminClient();
+
+  try {
+    // For new users: invite link → they set a password
+    // For promoted users: magic link → they log in directly
+    const linkType = type === 'new' ? 'invite' : 'magiclink';
+    const redirectTo =
+      type === 'new'
+        ? `${siteUrl}/api/auth/callback?redirect=/learn/auth/reset`
+        : `${siteUrl}/api/auth/callback?redirect=/learn/dashboard`;
+
+    const { data: linkData, error: linkError } =
+      await adminClient.auth.admin.generateLink({
+        type: linkType,
+        email,
+        options: { redirectTo },
+      });
+
+    if (linkError || !linkData?.properties?.action_link) {
+      console.error('[Instructor Email] Failed to generate link:', linkError?.message);
+      return { success: false, error: linkError?.message ?? 'Failed to generate login link' };
+    }
+
+    await sendInstructorWelcomeEmail({
+      locale,
+      displayName,
+      email,
+      titleEn,
+      titleJp,
+      actionLink: linkData.properties.action_link,
+      type,
+    });
+
+    await sendInstructorWelcomeAdminNotification({
+      displayName,
+      email,
+      type,
+      emailSent: true,
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error('[Instructor Email] Unexpected error:', err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to send welcome email',
+    };
+  }
 }
 
 export async function updateInstructorProfile(
