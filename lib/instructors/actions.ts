@@ -177,9 +177,9 @@ export async function sendInstructorWelcomeEmailAction(
   const adminClient = createAdminClient();
 
   try {
-    // For new users: invite link → they set a password
+    // For new users: recovery link → they set a password (invite fails for already-created users)
     // For promoted users: magic link → they log in directly
-    const linkType = type === 'new' ? 'invite' : 'magiclink';
+    const linkType = type === 'new' ? 'recovery' : 'magiclink';
     const redirectTo =
       type === 'new'
         ? `${siteUrl}/api/auth/callback?redirect=/learn/auth/reset`

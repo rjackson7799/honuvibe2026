@@ -47,6 +47,7 @@ export function AddInstructorFlow() {
   // Step 3: Done
   const [newProfileId, setNewProfileId] = useState('');
   const [emailStatus, setEmailStatus] = useState<'pending' | 'sent' | 'failed' | 'skipped'>('pending');
+  const [emailError, setEmailError] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
 
   async function handleSearch() {
@@ -92,8 +93,10 @@ export function AddInstructorFlow() {
         emailLocale,
       );
       setEmailStatus(result.success ? 'sent' : 'failed');
-    } catch {
+      if (!result.success) setEmailError(result.error ?? 'Unknown error');
+    } catch (err) {
       setEmailStatus('failed');
+      setEmailError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setSendingEmail(false);
     }
@@ -452,6 +455,9 @@ export function AddInstructorFlow() {
                   <MailX size={14} className="text-red-400" />
                   <span className="text-red-400">Welcome email failed to send</span>
                 </div>
+                {emailError && (
+                  <p className="text-xs text-red-400/70">{emailError}</p>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
