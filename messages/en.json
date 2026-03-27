@@ -1321,6 +1321,18 @@
     "action_challenge": "Action Challenge",
     "project": "Project"
   },
+  "instructor": {
+    "my_classes": "My Classes",
+    "role_lead": "Lead",
+    "role_instructor": "Instructor",
+    "role_guest": "Guest",
+    "upcoming_sessions": "Upcoming Sessions",
+    "next_session": "Next",
+    "no_classes": "You don't have any teaching assignments yet.",
+    "students_enrolled": "{count} students",
+    "banner_title": "You have {count, plural, one {# assigned class} other {# assigned classes}}",
+    "banner_subtitle": "View your teaching assignments"
+  },
   "glossary": {
     "title": "AI Glossary",
     "subtitle": "Plain-language definitions for the AI era. Every term explained for real people, not researchers.",

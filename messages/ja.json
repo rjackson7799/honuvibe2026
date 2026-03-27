@@ -1321,6 +1321,18 @@
     "action_challenge": "アクションチャレンジ",
     "project": "プロジェクト"
   },
+  "instructor": {
+    "my_classes": "担当クラス",
+    "role_lead": "主任",
+    "role_instructor": "講師",
+    "role_guest": "ゲスト",
+    "upcoming_sessions": "今後のセッション",
+    "next_session": "次回",
+    "no_classes": "まだ担当クラスはありません。",
+    "students_enrolled": "{count}名の受講生",
+    "banner_title": "担当クラスが{count}件あります",
+    "banner_subtitle": "担当クラスを確認する"
+  },
   "glossary": {
     "title": "AI用語辞典",
     "subtitle": "AIの時代に必要な用語を、わかりやすい言葉で解説します。",

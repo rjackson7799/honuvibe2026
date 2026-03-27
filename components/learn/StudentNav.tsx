@@ -18,14 +18,24 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Route,
+  GraduationCap,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
+import { createClient } from '@/lib/supabase/client';
 
 const STORAGE_KEY = 'honuvibe-sidebar-collapsed';
 
-const navItems = [
+type NavItem = {
+  href: string;
+  labelKey: string;
+  icon: typeof LayoutDashboard;
+  exact: boolean;
+  ns?: string;
+};
+
+const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard', labelKey: 'nav_overview', icon: LayoutDashboard, exact: true },
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/dashboard/schedule', labelKey: 'nav_schedule', icon: Calendar, exact: false },
@@ -38,16 +48,54 @@ const navItems = [
   { href: '/learn/dashboard/settings', labelKey: 'nav_settings', icon: Settings, exact: false },
 ];
 
+const instructorNavItem: NavItem = {
+  href: '/learn/dashboard/my-classes',
+  labelKey: 'my_classes',
+  icon: GraduationCap,
+  exact: false,
+  ns: 'instructor',
+};
+
 export function StudentNav() {
   const pathname = usePathname();
   const t = useTranslations('dashboard');
+  const tInstructor = useTranslations('instructor');
   const navT = useTranslations('nav');
   const [collapsed, setCollapsed] = useState(false);
+  const [isInstructor, setIsInstructor] = useState(false);
 
   // Load collapse state from localStorage
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored === 'true') setCollapsed(true);
+  }, []);
+
+  // Check if user is an instructor
+  useEffect(() => {
+    async function checkInstructor() {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile?.role === 'instructor' || profile?.role === 'admin') {
+        // Confirm they have an instructor profile
+        const { data: instrProfile } = await supabase
+          .from('instructor_profiles')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        setIsInstructor(!!instrProfile);
+      }
+    }
+    checkInstructor();
   }, []);
 
   const toggleCollapse = () => {
@@ -58,6 +106,18 @@ export function StudentNav() {
 
   // Strip locale prefix for matching
   const logicalPath = pathname.replace(/^\/(en|ja)/, '') || '/';
+
+  // Build nav items — insert instructor item after "My Library" if applicable
+  const navItems: NavItem[] = isInstructor
+    ? [
+        ...baseNavItems.slice(0, 7), // up to and including "My Library"
+        instructorNavItem,
+        ...baseNavItems.slice(7),     // "Community", "Billing", "Settings"
+      ]
+    : baseNavItems;
+
+  const getLabel = (item: NavItem) =>
+    item.ns === 'instructor' ? tInstructor(item.labelKey) : t(item.labelKey);
 
   const userMenuLabels = {
     signIn: navT('sign_in'),
@@ -95,11 +155,12 @@ export function StudentNav() {
             ? logicalPath === item.href
             : logicalPath.startsWith(item.href);
           const Icon = item.icon;
+          const label = getLabel(item);
           return (
             <Link
               key={item.href}
               href={item.href}
-              title={collapsed ? t(item.labelKey) : undefined}
+              title={collapsed ? label : undefined}
               className={cn(
                 'flex items-center rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
                 collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5',
@@ -109,7 +170,7 @@ export function StudentNav() {
               )}
             >
               <Icon size={18} />
-              {!collapsed && t(item.labelKey)}
+              {!collapsed && label}
             </Link>
           );
         })}
@@ -136,6 +197,7 @@ export function StudentNav() {
             ? logicalPath === item.href
             : logicalPath.startsWith(item.href);
           const Icon = item.icon;
+          const label = getLabel(item);
           return (
             <Link
               key={item.href}
@@ -146,7 +208,7 @@ export function StudentNav() {
               )}
             >
               <Icon size={20} />
-              <span className="truncate max-w-full px-1">{t(item.labelKey)}</span>
+              <span className="truncate max-w-full px-1">{label}</span>
             </Link>
           );
         })}

@@ -12,6 +12,8 @@ import { BookOpen, CheckCircle, Calendar, Clock, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { getVaultCourseRecommendations } from '@/lib/vault/queries';
 import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
+import { getInstructorByUserId } from '@/lib/instructors/queries';
+import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingBanner';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -50,11 +52,22 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     .eq('id', user.id)
     .single();
 
-  const [dashboardData, vaultRecommendations, studyPaths] = await Promise.all([
+  const [dashboardData, vaultRecommendations, studyPaths, instructorProfile] = await Promise.all([
     getStudentDashboardData(user.id),
     getVaultCourseRecommendations(user.id, 6),
     getUserPaths(user.id),
+    getInstructorByUserId(user.id),
   ]);
+
+  // Count instructor's assigned classes (lightweight — just count rows)
+  let instructorClassCount = 0;
+  if (instructorProfile?.is_active) {
+    const { count } = await supabase
+      .from('course_instructors')
+      .select('*', { count: 'exact', head: true })
+      .eq('instructor_id', instructorProfile.id);
+    instructorClassCount = count ?? 0;
+  }
   const { enrollments, upcomingSessions, pendingAssignments, stats } = dashboardData;
   const tPaths = await getTranslations({ locale, namespace: 'study_paths' });
 
@@ -75,6 +88,11 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           </div>
         )}
       </div>
+
+      {/* Instructor teaching banner */}
+      {instructorClassCount > 0 && (
+        <InstructorTeachingBanner classCount={instructorClassCount} />
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
