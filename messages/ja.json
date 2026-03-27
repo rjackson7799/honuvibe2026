@@ -1039,6 +1039,9 @@
     "who_is_for": "対象者",
     "prerequisites": "前提条件",
     "instructor": "講師",
+    "instructors": "講師陣",
+    "lead_instructor": "主任講師",
+    "guest_instructor": "ゲスト講師",
     "logistics": "コース詳細",
     "materials": "提供される教材",
     "week": "第{number}週",
@@ -1109,6 +1112,28 @@
     "all_levels": "すべてのレベル",
     "showing_courses": "{count}件のコースを表示中",
     "breadcrumb_learn": "学ぶ",
+    "freemium": {
+      "freePreview": "無料プレビュー",
+      "loginToAccess": "ログインしてアクセス",
+      "enrollToUnlock": "アクセスするには登録してください",
+      "firstNFree": "最初の{count}セッション無料",
+      "freePreviewCount": "無料プレビューセッション数",
+      "freePreviewHelper": "最初から無料で利用できるセッション数。0に設定すると完全有料になります。"
+    },
+    "bonusSessions": {
+      "title": "ボーナスセッション",
+      "officeHours": "オフィスアワー",
+      "guestSpeaker": "ゲストスピーカー",
+      "workshop": "ワークショップ",
+      "qa": "Q&Aセッション",
+      "addBonus": "ボーナスセッションを追加",
+      "description": "説明",
+      "bonusType": "セッションタイプ",
+      "noBonus": "ボーナスセッションはまだありません",
+      "joinZoom": "セッションに参加",
+      "watchReplay": "リプレイを見る",
+      "enrollToAccess": "セッションリンクにアクセスするには登録してください"
+    },
     "paths": {
       "overline": "学習パスを選ぶ",
       "heading": "3つの学び方",

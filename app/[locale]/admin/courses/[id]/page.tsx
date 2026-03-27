@@ -1,6 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { getAdminCourseById } from '@/lib/courses/queries';
+import { getAdminCourseById, getEnrolledStudents } from '@/lib/courses/queries';
 import { getActiveInstructorOptions } from '@/lib/instructors/queries';
 import { AdminCourseDetail } from '@/components/admin/AdminCourseDetail';
 
@@ -25,5 +25,7 @@ export default async function AdminCourseDetailPage({ params }: Props) {
 
   if (!course) notFound();
 
-  return <AdminCourseDetail course={course} instructors={instructors} />;
+  const enrolledStudents = await getEnrolledStudents(course.id);
+
+  return <AdminCourseDetail course={course} instructors={instructors} enrolledStudents={enrolledStudents} />;
 }

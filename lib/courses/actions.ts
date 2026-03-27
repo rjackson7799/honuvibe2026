@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import type { ParsedCourseData } from './types';
+import type { BonusSessionType, ParsedCourseData } from './types';
 
 export async function invalidateSyllabusCache(courseId: string) {
   const supabase = await createClient();
@@ -65,6 +65,7 @@ export async function updateCourseSession(
     transcript_url?: string;
     slide_deck_url?: string;
     zoom_link?: string | null;
+    instructor_id?: string | null;
     status?: 'upcoming' | 'live' | 'completed';
   },
 ) {
@@ -279,4 +280,119 @@ export async function createCourseFromParsedData(
   revalidatePath('/admin/courses');
 
   return { courseId: newCourse.id, slug: newCourse.slug };
+}
+
+// --- Bonus Session Actions ---
+
+export async function createBonusSession(
+  courseId: string,
+  data: {
+    bonus_type: BonusSessionType;
+    title_en: string;
+    title_jp?: string;
+    description_en?: string;
+    description_jp?: string;
+    instructor_id?: string | null;
+    zoom_link?: string | null;
+    replay_url?: string;
+    scheduled_at?: string | null;
+    duration_minutes?: number | null;
+  },
+) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { error } = await supabase.from('course_sessions').insert({
+    course_id: courseId,
+    is_bonus: true,
+    week_id: null,
+    session_number: null,
+    bonus_type: data.bonus_type,
+    title_en: data.title_en,
+    title_jp: data.title_jp ?? null,
+    description_en: data.description_en ?? null,
+    description_jp: data.description_jp ?? null,
+    instructor_id: data.instructor_id ?? null,
+    zoom_link: data.zoom_link ?? null,
+    replay_url: data.replay_url ?? null,
+    scheduled_at: data.scheduled_at ?? null,
+    duration_minutes: data.duration_minutes ?? null,
+    format: 'live' as const,
+    status: 'upcoming' as const,
+  });
+
+  if (error) throw error;
+
+  revalidatePath('/learn');
+  revalidatePath('/admin/courses');
+}
+
+export async function updateBonusSession(
+  sessionId: string,
+  updates: {
+    bonus_type?: BonusSessionType;
+    title_en?: string;
+    title_jp?: string | null;
+    description_en?: string | null;
+    description_jp?: string | null;
+    zoom_link?: string | null;
+    replay_url?: string | null;
+    transcript_url?: string | null;
+    slide_deck_url?: string | null;
+    scheduled_at?: string | null;
+    duration_minutes?: number | null;
+    instructor_id?: string | null;
+    status?: 'upcoming' | 'live' | 'completed';
+  },
+) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { error } = await supabase
+    .from('course_sessions')
+    .update(updates)
+    .eq('id', sessionId);
+
+  if (error) throw error;
+
+  revalidatePath('/learn');
+  revalidatePath('/admin/courses');
+}
+
+export async function deleteBonusSession(sessionId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  // Safety check: only delete bonus sessions
+  const { data: session } = await supabase
+    .from('course_sessions')
+    .select('is_bonus')
+    .eq('id', sessionId)
+    .single();
+
+  if (!session?.is_bonus) {
+    throw new Error('Cannot delete a curriculum session via this action');
+  }
+
+  const { error } = await supabase
+    .from('course_sessions')
+    .delete()
+    .eq('id', sessionId);
+
+  if (error) throw error;
+
+  revalidatePath('/learn');
+  revalidatePath('/admin/courses');
 }

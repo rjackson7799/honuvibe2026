@@ -4,6 +4,7 @@ import type {
   InstructorWithUser,
   InstructorCardData,
   InstructorListItem,
+  CourseInstructorWithProfile,
 } from './types';
 
 export async function getAdminInstructors(): Promise<InstructorListItem[]> {
@@ -25,18 +26,16 @@ export async function getAdminInstructors(): Promise<InstructorListItem[]> {
     .select('id, email')
     .in('id', userIds);
 
-  // Count courses per instructor
+  // Count courses per instructor (via join table)
   const { data: courses } = await supabase
-    .from('courses')
+    .from('course_instructors')
     .select('instructor_id')
     .in('instructor_id', profiles.map((p) => p.id));
 
   const courseCounts = new Map<string, number>();
   if (courses) {
     for (const c of courses) {
-      if (c.instructor_id) {
-        courseCounts.set(c.instructor_id, (courseCounts.get(c.instructor_id) ?? 0) + 1);
-      }
+      courseCounts.set(c.instructor_id, (courseCounts.get(c.instructor_id) ?? 0) + 1);
     }
   }
 
@@ -74,12 +73,20 @@ export async function getAdminInstructorById(
     .eq('id', profile.user_id)
     .single();
 
-  // Fetch assigned courses
-  const { data: courses } = await supabase
-    .from('courses')
-    .select('id, title_en, status, start_date')
-    .eq('instructor_id', id)
-    .order('created_at', { ascending: false });
+  // Fetch assigned courses via join table
+  const { data: courseLinks } = await supabase
+    .from('course_instructors')
+    .select('course_id')
+    .eq('instructor_id', id);
+
+  const courseIds = courseLinks?.map((cl) => cl.course_id) ?? [];
+  const { data: courses } = courseIds.length > 0
+    ? await supabase
+        .from('courses')
+        .select('id, title_en, status, start_date')
+        .in('id', courseIds)
+        .order('created_at', { ascending: false })
+    : { data: [] as { id: string; title_en: string; status: string; start_date: string | null }[] };
 
   return {
     ...profile,
@@ -136,4 +143,38 @@ export async function getActiveInstructorOptions(): Promise<
 
   if (error) throw error;
   return data ?? [];
+}
+
+// Fetch all instructors for a course (many-to-many via join table)
+export async function getInstructorsForCourse(
+  courseId: string,
+): Promise<CourseInstructorWithProfile[]> {
+  const supabase = await createClient();
+
+  const { data: links, error } = await supabase
+    .from('course_instructors')
+    .select('id, course_id, instructor_id, role, sort_order, created_at')
+    .eq('course_id', courseId)
+    .order('sort_order', { ascending: true });
+
+  if (error || !links || links.length === 0) return [];
+
+  // Fetch instructor profiles
+  const instructorIds = links.map((l) => l.instructor_id);
+  const { data: profiles } = await supabase
+    .from('instructor_profiles')
+    .select('id, display_name, title_en, title_jp, bio_short_en, bio_short_jp, bio_long_en, bio_long_jp, photo_url, website_url')
+    .in('id', instructorIds)
+    .eq('is_active', true);
+
+  const profileMap = new Map(
+    (profiles ?? []).map((p) => [p.id, p]),
+  );
+
+  return links
+    .filter((l) => profileMap.has(l.instructor_id))
+    .map((l) => ({
+      ...l,
+      instructor: profileMap.get(l.instructor_id)!,
+    }));
 }

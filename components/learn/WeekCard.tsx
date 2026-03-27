@@ -15,9 +15,12 @@ type WeekCardProps = {
   week: CourseWeekWithContent;
   state: WeekState;
   defaultOpen?: boolean;
+  freeSessionIds?: string[];
+  isLoggedIn?: boolean;
+  isEnrolled?: boolean;
 };
 
-export function WeekCard({ week, state, defaultOpen = false }: WeekCardProps) {
+export function WeekCard({ week, state, defaultOpen = false, freeSessionIds = [], isLoggedIn = false, isEnrolled = false }: WeekCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -110,6 +113,9 @@ export function WeekCard({ week, state, defaultOpen = false }: WeekCardProps) {
                   key={session.id}
                   session={session}
                   isUnlocked={isUnlocked}
+                  isFree={freeSessionIds.includes(session.id)}
+                  isLoggedIn={isLoggedIn}
+                  isEnrolled={isEnrolled}
                 />
               ))}
             </div>

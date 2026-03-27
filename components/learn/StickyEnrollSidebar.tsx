@@ -20,6 +20,7 @@ type StickyEnrollSidebarProps = {
   isLoggedIn: boolean;
   isEnrolled: boolean;
   thumbnailUrl?: string | null;
+  freePreviewCount?: number;
 };
 
 export function StickyEnrollSidebar({
@@ -35,6 +36,7 @@ export function StickyEnrollSidebar({
   isLoggedIn,
   isEnrolled,
   thumbnailUrl,
+  freePreviewCount = 0,
 }: StickyEnrollSidebarProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
@@ -73,6 +75,12 @@ export function StickyEnrollSidebar({
           priceJpy={priceJpy}
           size="lg"
         />
+
+        {freePreviewCount > 0 && !isEnrolled && (
+          <p className="text-sm font-medium text-accent-teal">
+            {t('freemium.firstNFree', { count: freePreviewCount })}
+          </p>
+        )}
 
         {startDateFormatted && (
           <p className="text-sm text-fg-secondary">

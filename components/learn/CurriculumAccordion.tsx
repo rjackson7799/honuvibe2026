@@ -8,9 +8,12 @@ import type { CourseWeekWithContent } from '@/lib/courses/types';
 
 type CurriculumAccordionProps = {
   weeks: CourseWeekWithContent[];
+  freeSessionIds?: string[];
+  isLoggedIn?: boolean;
+  isEnrolled?: boolean;
 };
 
-export function CurriculumAccordion({ weeks }: CurriculumAccordionProps) {
+export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = false, isEnrolled = false }: CurriculumAccordionProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
   const [openWeek, setOpenWeek] = useState<number | null>(null);
@@ -39,6 +42,9 @@ export function CurriculumAccordion({ weeks }: CurriculumAccordionProps) {
           const duration = session?.duration_minutes
             ? t('duration_minutes', { count: session.duration_minutes })
             : null;
+          const hasFreeSession = week.sessions.some(
+            (s) => freeSessionIds.includes(s.id),
+          );
 
           return (
             <div
@@ -66,6 +72,14 @@ export function CurriculumAccordion({ weeks }: CurriculumAccordionProps) {
                       <>
                         <span>·</span>
                         <span>{duration}</span>
+                      </>
+                    )}
+                    {hasFreeSession && !isEnrolled && (
+                      <>
+                        <span>·</span>
+                        <span className="text-accent-teal font-medium">
+                          {t('freemium.freePreview')}
+                        </span>
                       </>
                     )}
                   </div>

@@ -1,6 +1,6 @@
 // Course-related TypeScript types
 // Mirrors Supabase schema from supabase/migrations/001_phase2_schema.sql
-import type { InstructorCardData } from '@/lib/instructors/types';
+import type { InstructorCardData, CourseInstructorWithProfile } from '@/lib/instructors/types';
 
 export type CourseType = 'cohort' | 'self-study';
 export type CourseStatus = 'draft' | 'published' | 'in-progress' | 'completed' | 'archived';
@@ -8,6 +8,7 @@ export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type CourseLanguage = 'en' | 'ja' | 'both';
 export type SessionFormat = 'live' | 'recorded' | 'hybrid';
 export type SessionStatus = 'upcoming' | 'live' | 'completed';
+export type BonusSessionType = 'office-hours' | 'guest-speaker' | 'workshop' | 'qa';
 export type AssignmentType = 'homework' | 'action-challenge' | 'project';
 export type ResourceType = 'article' | 'video' | 'tool' | 'template' | 'download' | 'guide';
 
@@ -79,6 +80,9 @@ export interface Course {
   esl_price_jpy: number | null;
   esl_settings_json: Record<string, unknown> | null;
 
+  // Freemium: number of sessions from the beginning available for free
+  free_preview_count: number;
+
   // Cached syllabus PDF URLs (null = needs generation)
   syllabus_url_en: string | null;
   syllabus_url_jp: string | null;
@@ -105,8 +109,8 @@ export interface CourseWeek {
 
 export interface CourseSession {
   id: string;
-  week_id: string;
-  session_number: number;
+  week_id: string | null;
+  session_number: number | null;
   title_en: string;
   title_jp: string | null;
   format: SessionFormat;
@@ -120,8 +124,15 @@ export interface CourseSession {
   replay_url: string | null;
   transcript_url: string | null;
   slide_deck_url: string | null;
+  instructor_id: string | null;
+  is_bonus: boolean;
+  bonus_type: BonusSessionType | null;
+  description_en: string | null;
+  description_jp: string | null;
   status: SessionStatus;
   created_at: string;
+  // Resolved instructor data (populated by queries, not stored in DB)
+  instructor?: InstructorCardData | null;
 }
 
 export interface CourseAssignment {
@@ -172,7 +183,20 @@ export interface CourseWeekWithContent extends CourseWeek {
 
 export interface CourseWithCurriculum extends Course {
   weeks: CourseWeekWithContent[];
+  bonusSessions: CourseSession[];
+  instructors: CourseInstructorWithProfile[];
+  // Backward compat: lead instructor (first with role='lead', or first in list)
   instructor?: InstructorCardData | null;
+}
+
+// Enrolled student (for admin roster)
+export interface EnrolledStudent {
+  id: string;
+  user_id: string;
+  full_name: string | null;
+  email: string | null;
+  enrolled_at: string;
+  status: string;
 }
 
 // Wizard types

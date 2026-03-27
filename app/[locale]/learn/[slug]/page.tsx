@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
+import { getFreeSessionIds } from '@/lib/courses/utils';
 import { checkEnrollment } from '@/lib/enrollments/queries';
 import { Container } from '@/components/layout/container';
 import { Section } from '@/components/layout/section';
@@ -11,6 +12,7 @@ import { LearningOutcomes } from '@/components/learn/LearningOutcomes';
 import { ToolsBadges } from '@/components/learn/ToolsBadges';
 import { HowItWorks } from '@/components/learn/HowItWorks';
 import { CurriculumAccordion } from '@/components/learn/CurriculumAccordion';
+import { BonusSessionsSection } from '@/components/learn/BonusSessionsSection';
 import { StickyEnrollSidebar } from '@/components/learn/StickyEnrollSidebar';
 import { StickyEnrollBar } from '@/components/learn/StickyEnrollBar';
 import { InstructorCard } from '@/components/learn/InstructorCard';
@@ -58,6 +60,9 @@ export default async function CourseDetailPage({ params }: Props) {
     const enrollment = await checkEnrollment(user.id, slug);
     isEnrolled = enrollment.is_enrolled;
   }
+
+  // Compute which sessions are free previews
+  const freeSessionIds = getFreeSessionIds(course.free_preview_count, course.weeks);
 
   const title =
     locale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
@@ -157,7 +162,23 @@ export default async function CourseDetailPage({ params }: Props) {
               <Divider className="my-8" />
 
               {/* Curriculum */}
-              <CurriculumAccordion weeks={course.weeks} />
+              <CurriculumAccordion
+                weeks={course.weeks}
+                isEnrolled={isEnrolled}
+                isLoggedIn={!!user}
+                freeSessionIds={Array.from(freeSessionIds)}
+              />
+
+              {/* Bonus Sessions */}
+              {course.bonusSessions && course.bonusSessions.length > 0 && (
+                <>
+                  <Divider className="my-8" />
+                  <BonusSessionsSection
+                    sessions={course.bonusSessions}
+                    isEnrolled={isEnrolled}
+                  />
+                </>
+              )}
 
               <Divider className="my-8" />
 
@@ -201,17 +222,42 @@ export default async function CourseDetailPage({ params }: Props) {
                 </>
               )}
 
-              {/* Instructor */}
-              {(course.instructor || course.instructor_name) && (
+              {/* Instructor(s) */}
+              {((course.instructors ?? []).length > 0 || course.instructor || course.instructor_name) && (
                 <>
                   <h2 className="text-xl font-serif text-fg-primary mb-4">
-                    {t('instructor')}
+                    {(course.instructors ?? []).length > 1
+                      ? t('instructors')
+                      : t('instructor')}
                   </h2>
-                  <InstructorCard
-                    instructor={course.instructor ?? null}
-                    fallbackName={course.instructor_name}
-                    locale={locale}
-                  />
+                  {(course.instructors ?? []).length > 0 ? (
+                    <div className="space-y-4">
+                      {course.instructors.map((ci) => (
+                        <div key={ci.id}>
+                          {(course.instructors ?? []).length > 1 && (
+                            <span className="text-xs text-fg-tertiary uppercase tracking-[0.12em] mb-1 block">
+                              {ci.role === 'lead'
+                                ? t('lead_instructor')
+                                : ci.role === 'guest'
+                                  ? t('guest_instructor')
+                                  : null}
+                            </span>
+                          )}
+                          <InstructorCard
+                            instructor={ci.instructor}
+                            fallbackName={null}
+                            locale={locale}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <InstructorCard
+                      instructor={course.instructor ?? null}
+                      fallbackName={course.instructor_name}
+                      locale={locale}
+                    />
+                  )}
                   <Divider className="my-8" />
                 </>
               )}
@@ -320,6 +366,7 @@ export default async function CourseDetailPage({ params }: Props) {
               isLoggedIn={!!user}
               isEnrolled={isEnrolled}
               thumbnailUrl={course.thumbnail_url}
+              freePreviewCount={course.free_preview_count}
             />
           </div>
         </Container>

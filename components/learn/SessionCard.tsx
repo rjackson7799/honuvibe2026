@@ -2,13 +2,16 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { Video, Play, Clock, ExternalLink } from 'lucide-react';
+import { Video, Play, Clock, ExternalLink, Lock, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { CourseSession } from '@/lib/courses/types';
 
 type SessionCardProps = {
   session: CourseSession;
   isUnlocked: boolean;
+  isFree?: boolean;
+  isLoggedIn?: boolean;
+  isEnrolled?: boolean;
 };
 
 function getSessionState(session: CourseSession): 'upcoming' | 'live-soon' | 'live' | 'completed' {
@@ -26,12 +29,17 @@ function getSessionState(session: CourseSession): 'upcoming' | 'live-soon' | 'li
   return 'upcoming';
 }
 
-export function SessionCard({ session, isUnlocked }: SessionCardProps) {
+export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = false, isEnrolled = false }: SessionCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
 
   const title = locale === 'ja' && session.title_jp ? session.title_jp : session.title_en;
   const state = getSessionState(session);
+
+  // Access: enrolled users always have access; free sessions require login
+  const canAccessContent = isEnrolled || (isFree && isLoggedIn);
+  const showLock = !isEnrolled && !isFree;
+  const showLoginCta = isFree && !isLoggedIn;
 
   const dateFormatted = session.scheduled_at
     ? new Date(session.scheduled_at).toLocaleDateString(
@@ -48,16 +56,16 @@ export function SessionCard({ session, isUnlocked }: SessionCardProps) {
     <div
       className={cn(
         'border border-border-default rounded-lg p-4 space-y-3',
-        !isUnlocked && 'opacity-50',
-        state === 'live' && 'border-accent-teal bg-accent-teal/5',
-        state === 'live-soon' && 'border-accent-gold bg-accent-gold/5',
+        showLock && 'opacity-60',
+        state === 'live' && canAccessContent && 'border-accent-teal bg-accent-teal/5',
+        state === 'live-soon' && canAccessContent && 'border-accent-gold bg-accent-gold/5',
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 text-xs text-fg-tertiary mb-1">
-            <span>{t('session', { number: session.session_number })}</span>
+            <span>{t('session', { number: session.session_number! })}</span>
             <span>·</span>
             <span>{t(`format_${session.format}`)}</span>
             {session.duration_minutes && (
@@ -75,8 +83,16 @@ export function SessionCard({ session, isUnlocked }: SessionCardProps) {
             <p className="text-xs text-fg-tertiary mt-1">{dateFormatted}</p>
           )}
         </div>
-        <div className="shrink-0">
-          {state === 'live' && (
+        <div className="shrink-0 flex items-center gap-2">
+          {isFree && (
+            <span className="inline-flex items-center text-xs font-medium text-accent-teal px-2 py-0.5 bg-accent-teal/10 rounded-full">
+              {t('freemium.freePreview')}
+            </span>
+          )}
+          {showLock && (
+            <Lock size={14} className="text-fg-tertiary" />
+          )}
+          {state === 'live' && canAccessContent && (
             <span className="inline-flex items-center gap-1 text-xs font-medium text-accent-teal px-2 py-0.5 bg-accent-teal/10 rounded-full">
               <span className="w-1.5 h-1.5 bg-accent-teal rounded-full animate-pulse" />
               {t('live_now')}
@@ -93,8 +109,8 @@ export function SessionCard({ session, isUnlocked }: SessionCardProps) {
         </div>
       </div>
 
-      {/* Topics (collapsed for brevity) */}
-      {isUnlocked && topics && topics.length > 0 && (
+      {/* Topics (visible for all — metadata is public) */}
+      {topics && topics.length > 0 && (
         <div className="text-xs text-fg-secondary space-y-1">
           {(topics as { title: string }[]).map((topic, i) => (
             <span key={i} className="block">• {topic.title}</span>
@@ -103,7 +119,7 @@ export function SessionCard({ session, isUnlocked }: SessionCardProps) {
       )}
 
       {/* Actions */}
-      {isUnlocked && (
+      {canAccessContent ? (
         <div className="flex flex-wrap gap-2">
           {state === 'live' && session.zoom_link && (
             <Button
@@ -161,7 +177,20 @@ export function SessionCard({ session, isUnlocked }: SessionCardProps) {
             </p>
           )}
         </div>
-      )}
+      ) : showLoginCta ? (
+        <a
+          href={`/${locale === 'ja' ? 'ja/' : ''}learn/auth`}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-teal hover:underline"
+        >
+          <LogIn size={14} />
+          {t('freemium.loginToAccess')}
+        </a>
+      ) : showLock ? (
+        <p className="text-xs text-fg-tertiary italic flex items-center gap-1.5">
+          <Lock size={12} />
+          {t('freemium.enrollToUnlock')}
+        </p>
+      ) : null}
     </div>
   );
 }

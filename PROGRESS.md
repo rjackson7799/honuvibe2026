@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-03-25 (Forgot password flow + branded Supabase auth emails via Resend)
+**Last updated:** 2026-03-26 (Teacher prep materials — presentation PDF + lesson plan DOCX per session, enrolled students roster)
 
 ### Status Legend
 - [ ] Not started
@@ -1120,6 +1120,200 @@ Auto-generates supplemental ESL (English as a Second Language) content from cour
 - [ ] Create `esl-audio` storage bucket in Supabase dashboard
 - [ ] Verify `OPENAI_API_KEY` is set in `.env.local`
 - [ ] End-to-end testing: admin generates → reviews → publishes → student accesses ESL → plays audio → uses flashcards → completes quiz
+
+---
+
+## Multi-Instructor Support
+
+### Database
+- [x] Migration `015_multi_instructor.sql` — `course_instructors` join table (course_id, instructor_id, role, sort_order)
+- [x] `course_sessions.instructor_id` column for per-session instructor assignment
+- [x] RLS policies: public read (published courses), admin full access
+- [x] Data migration: existing `courses.instructor_id` → join table rows with `role = 'lead'`
+- [x] Migration run on Supabase — verified successful
+
+### Types & Data Layer
+- [x] `CourseInstructor`, `CourseInstructorWithProfile`, `CourseInstructorRole` types (`lib/instructors/types.ts`)
+- [x] `CourseSession` updated with `instructor_id` + resolved `instructor` field (`lib/courses/types.ts`)
+- [x] `CourseWithCurriculum` updated with `instructors` array (backward-compat `instructor` kept as lead)
+- [x] `getInstructorsForCourse(courseId)` query — fetches from join table, resolves profiles (`lib/instructors/queries.ts`)
+- [x] `getAdminCourseById` and `getCourseWithCurriculum` — fetch multi-instructor data + session-level instructor resolution
+- [x] Instructor course counts now query `course_instructors` table (not legacy `courses.instructor_id`)
+
+### Server Actions
+- [x] `addInstructorToCourse(courseId, instructorId, role?)` — insert into join table, first instructor auto-lead
+- [x] `removeInstructorFromCourse(courseId, instructorId)` — delete + clear session assignments for that instructor
+- [x] `updateCourseInstructorRole(courseInstructorId, role)` — change role (lead/instructor/guest)
+- [x] `syncLegacyInstructorId()` helper — keeps `courses.instructor_id` in sync for backward compat
+- [x] `updateCourseSession` — now accepts `instructor_id` for per-session assignment
+- [x] `demoteToStudent` — checks `course_instructors` table for active course assignments
+
+### Admin UI
+- [x] `InstructorAssignControl` rewritten for multi-instructor — list with role badges (Lead/Instructor/Guest), role dropdown, add/remove
+- [x] `SessionEditor` — instructor dropdown appears when course has 2+ instructors ("Default" + all course instructors)
+- [x] `AdminCourseDetail` — wired with new props, Instructor(s) info field shows comma-separated names
+
+### Public UI
+- [x] Course detail page — renders multiple `InstructorCard` components with role labels (Lead Instructor, Guest Instructor)
+- [x] Heading pluralizes: "Your Instructor" vs "Your Instructors"
+- [x] Backward-compatible: falls back to single `InstructorCard` + legacy `instructor_name`
+
+### i18n
+- [x] EN: `instructors`, `lead_instructor`, `guest_instructor`
+- [x] JP: `講師陣`, `主任講師`, `ゲスト講師`
+
+### Syllabus PDF
+- [x] `generate-pdf.ts` — instructor field now lists all instructor display names (comma-separated)
+
+### Files Modified/Created
+- **Created**: `supabase/migrations/015_multi_instructor.sql`
+- **Modified**: `lib/instructors/types.ts`, `lib/courses/types.ts`, `lib/instructors/queries.ts`, `lib/courses/queries.ts`, `lib/instructors/actions.ts`, `lib/courses/actions.ts`, `components/admin/InstructorAssignControl.tsx`, `components/admin/SessionEditor.tsx`, `components/admin/AdminCourseDetail.tsx`, `app/[locale]/learn/[slug]/page.tsx`, `lib/syllabus/generate-pdf.ts`, `messages/en.json`, `messages/ja.json`
+
+### Verification
+- [x] TypeScript: zero errors (`tsc --noEmit`)
+- [x] Production build: compiled successfully (pre-existing vertice i18n warnings unrelated)
+- [x] Migration: run on Supabase, verified successful
+
+---
+
+## Bonus Sessions for Courses
+
+Ad-hoc bonus sessions (office hours, guest speakers, workshops, Q&A) that are not tied to weekly curriculum. Extends `course_sessions` with `is_bonus` flag approach — reuses existing infrastructure.
+
+### Database
+- [x] Migration `016_bonus_sessions.sql` — `is_bonus`, `bonus_type`, `description_en/jp` columns
+- [x] `week_id` and `session_number` made nullable for bonus sessions
+- [x] Check constraints: bonus sessions must have no week + must have a type; curriculum sessions must have a week + no type
+- [x] Index on `(course_id, is_bonus, scheduled_at)` for efficient queries
+
+### TypeScript Types
+- [x] `BonusSessionType` union: `'office-hours' | 'guest-speaker' | 'workshop' | 'qa'`
+- [x] `CourseSession` — `week_id` and `session_number` now nullable; added `is_bonus`, `bonus_type`, `description_en/jp`
+- [x] `CourseWithCurriculum` — added `bonusSessions: CourseSession[]`
+
+### Queries
+- [x] `getCourseWithCurriculum` — filters `is_bonus = false` for curriculum; separate query for bonus sessions ordered by `scheduled_at`
+- [x] `getAdminCourseById` — same separation; bonus sessions attached as `bonusSessions`
+- [x] Instructor resolution applied to bonus sessions via existing instructor map
+
+### Server Actions
+- [x] `createBonusSession(courseId, data)` — insert with `is_bonus: true`, `week_id: null`
+- [x] `updateBonusSession(sessionId, updates)` — all bonus session fields
+- [x] `deleteBonusSession(sessionId)` — safety check: only deletes if `is_bonus = true`
+
+### Admin UI
+- [x] `BonusSessionEditor` — type dropdown, title EN/JP, description EN/JP, instructor dropdown, Zoom paste-parser, replay/transcript/slides URLs, date/time, duration, status, delete with confirmation
+- [x] `AdminCourseDetail` — "Bonus Sessions" tab (after Curriculum, before Students) with count badge, "Add Bonus Session" button
+
+### Public UI
+- [x] `BonusSessionsSection` — renders on course detail page below curriculum
+- [x] Cards with type badges (icon + color per type), title, description, instructor, date, duration, status
+- [x] Enrollment gating: Zoom link hidden for non-enrolled, replay hidden until completed
+- [x] Sorted: upcoming first, completed below, no-date last
+
+### i18n
+- [x] EN + JP keys under `learn.bonusSessions`: title, type labels, action labels, empty state
+
+### Files Created/Modified
+- **Created**: `supabase/migrations/016_bonus_sessions.sql`, `components/admin/BonusSessionEditor.tsx`, `components/learn/BonusSessionsSection.tsx`
+- **Modified**: `lib/courses/types.ts`, `lib/courses/queries.ts`, `lib/courses/actions.ts`, `components/admin/AdminCourseDetail.tsx`, `components/learn/SessionCard.tsx`, `lib/syllabus/generate-pdf.ts`, `app/[locale]/learn/[slug]/page.tsx`, `messages/en.json`, `messages/ja.json`
+
+### Verification
+- [x] Production build: compiled successfully with zero type errors
+
+---
+
+## Teacher Prep Materials
+
+On-demand generation of instructor teaching materials per session, plus an enrolled students roster in the admin panel. No new database tables — all data sourced from existing session, course, and enrollment records.
+
+### Teacher's Presentation (PDF)
+- [x] Landscape slide-style PDF via `@react-pdf/renderer`
+- [x] 5 slide types: title, agenda (with time allocation), topic slides (subtopics + discussion prompt), materials checklist, wrap-up (takeaways + next session preview)
+- [x] HonuVibe branding (dark header, teal accent, DM Sans / Noto Sans JP fonts)
+- [x] Bilingual support (EN/JP via locale parameter)
+- [x] API route: `GET /api/courses/[courseId]/sessions/[sessionId]/presentation?locale=en`
+
+### Teacher's Notes (DOCX)
+- [x] Editable lesson plan document via `docx` npm package (opens in Google Docs/Word)
+- [x] Sections: header, session overview (metadata table), materials, detailed topic breakdown (time allocation, key points, discussion questions, vocabulary), resources, personal notes area
+- [x] Template-based discussion questions (5 EN + 5 JP templates, rotated per topic)
+- [x] Key vocabulary extraction from topic/subtopic text
+- [x] Bilingual support (EN/JP)
+- [x] API route: `GET /api/courses/[courseId]/sessions/[sessionId]/notes?locale=en`
+
+### Admin UI
+- [x] "Teacher Prep" section in `SessionEditor` — Download Presentation + Download Teacher's Notes buttons
+- [x] Buttons only appear for sessions with topics; loading state during generation
+- [x] Auth: admin + instructor roles allowed
+
+### Enrolled Students Roster
+- [x] `getEnrolledStudents(courseId)` query — joins `enrollments` + `users`
+- [x] `EnrolledStudent` type (name, email, enrolled date, status)
+- [x] Inline roster table on existing Students tab in `AdminCourseDetail` (replaces link-only display)
+- [x] Status badges (active=teal, completed=gold)
+- [x] Empty state for no enrollments
+
+### Files Created/Modified
+- **Created**: `lib/teaching-materials/types.ts`, `lib/teaching-materials/templates.ts`, `lib/teaching-materials/generate-presentation.ts`, `lib/teaching-materials/generate-notes.ts`, `app/api/courses/[courseId]/sessions/[sessionId]/presentation/route.ts`, `app/api/courses/[courseId]/sessions/[sessionId]/notes/route.ts`
+- **Modified**: `components/admin/SessionEditor.tsx`, `components/admin/AdminCourseDetail.tsx`, `app/[locale]/admin/courses/[id]/page.tsx`, `lib/courses/queries.ts`, `lib/courses/types.ts`, `package.json`
+- **New dependency**: `docx` (pure JS DOCX generation)
+
+### Verification
+- [x] TypeScript: zero type errors
+- [x] Production build: compiled successfully
+
+---
+
+## Freemium Course Sessions
+
+Per-course "try before you buy" — the first N sessions of any course are freely accessible to logged-in users. Drives enrollment conversions by letting students sample real content before paying.
+
+### Database
+- [x] Migration `017_freemium_sessions.sql` — `free_preview_count INTEGER NOT NULL DEFAULT 0` on `courses` table
+- [x] No RLS changes needed — session metadata already public; content gating is at component level
+
+### TypeScript Types
+- [x] `Course` — added `free_preview_count: number`
+
+### Utility Functions
+- [x] `lib/courses/utils.ts` (new file) — `isSessionFree()` and `getFreeSessionIds()`
+- [x] Pure functions: sort non-bonus sessions by `week_number ASC, session_number ASC`, first N are free
+- [x] Bonus sessions excluded (always enrolled-only)
+
+### Queries & Actions
+- [x] No code changes needed — queries use `select('*')` which includes the new column; `updateCourse()` accepts `Record<string, unknown>`
+
+### Public UI
+- [x] `SessionCard` — new `isFree`, `isLoggedIn`, `isEnrolled` props; "Free Preview" badge, lock icon, login CTA, enroll CTA
+- [x] `CurriculumAccordion` — "Free Preview" indicator on weeks containing free sessions
+- [x] `WeekCard` — passes free session context to SessionCards
+- [x] `StickyEnrollSidebar` — "First {N} session(s) free" marketing copy below price
+
+### Admin UI
+- [x] `AdminCourseDetail` overview tab — number input for "Free Preview Sessions" with save button
+
+### Course Detail Page
+- [x] Computes `freeSessionIds` via `getFreeSessionIds()`, passes to CurriculumAccordion and sidebar
+
+### i18n
+- [x] EN + JP keys under `learn.freemium`: freePreview, loginToAccess, enrollToUnlock, firstNFree, freePreviewCount, freePreviewHelper
+
+### Access Control
+- Enrolled: full access (unchanged)
+- Logged in + free session: full access (replay, Zoom, slides, transcript)
+- Logged in + paid session: metadata + lock icon + enroll CTA
+- Not logged in + free session: metadata + login CTA
+- Bonus sessions: always enrolled-only
+
+### Files Created/Modified
+- **Created**: `supabase/migrations/017_freemium_sessions.sql`, `lib/courses/utils.ts`, `docs/superpowers/specs/2026-03-26-freemium-sessions-design.md`
+- **Modified**: `lib/courses/types.ts`, `components/learn/SessionCard.tsx`, `components/learn/CurriculumAccordion.tsx`, `components/learn/WeekCard.tsx`, `components/learn/StickyEnrollSidebar.tsx`, `components/admin/AdminCourseDetail.tsx`, `app/[locale]/learn/[slug]/page.tsx`, `messages/en.json`, `messages/ja.json`
+
+### Verification
+- [x] TypeScript: zero type errors from freemium changes
+- [ ] Migration: apply `017_freemium_sessions.sql` to Supabase
+- [ ] End-to-end: set `free_preview_count` on test course, verify all access tiers
 
 ---
 

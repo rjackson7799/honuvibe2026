@@ -327,14 +327,19 @@ export async function generateSyllabusPdf(
       React.createElement(
         View,
         { style: styles.metaRow },
-        course.instructor_name
-          ? React.createElement(
-              View,
-              { style: styles.metaItem },
-              React.createElement(Text, { style: styles.metaLabel }, s.instructor),
-              React.createElement(Text, { style: styles.metaValue }, course.instructor_name),
-            )
-          : null,
+        (() => {
+          const instructorNames = (course.instructors ?? []).length > 0
+            ? course.instructors.map((ci) => ci.instructor.display_name).join(', ')
+            : course.instructor_name;
+          return instructorNames
+            ? React.createElement(
+                View,
+                { style: styles.metaItem },
+                React.createElement(Text, { style: styles.metaLabel }, s.instructor),
+                React.createElement(Text, { style: styles.metaValue }, instructorNames),
+              )
+            : null;
+        })(),
         startDateFormatted
           ? React.createElement(
               View,
@@ -457,7 +462,7 @@ export async function generateSyllabusPdf(
 
                   // Sessions
                   ...week.sessions
-                    .sort((a, b) => a.session_number - b.session_number)
+                    .sort((a, b) => (a.session_number ?? 0) - (b.session_number ?? 0))
                     .map((session) => {
                       const sessionTitle = localized(session.title_en, session.title_jp, locale);
                       const topics = isJp && session.topics_jp?.length
@@ -475,7 +480,7 @@ export async function generateSyllabusPdf(
                         React.createElement(
                           View,
                           { style: styles.sessionHeader },
-                          React.createElement(Text, { style: styles.sessionNumber }, s.session(session.session_number)),
+                          React.createElement(Text, { style: styles.sessionNumber }, s.session(session.session_number ?? 0)),
                           React.createElement(Text, { style: styles.sessionTitle }, sessionTitle),
                         ),
                         metaParts

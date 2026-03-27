@@ -1039,6 +1039,9 @@
     "who_is_for": "Who This Course Is For",
     "prerequisites": "Prerequisites",
     "instructor": "Your Instructor",
+    "instructors": "Your Instructors",
+    "lead_instructor": "Lead Instructor",
+    "guest_instructor": "Guest Instructor",
     "logistics": "Course Logistics",
     "materials": "Materials You'll Receive",
     "week": "Week {number}",
@@ -1109,6 +1112,28 @@
     "all_levels": "All Levels",
     "showing_courses": "Showing {count} courses",
     "breadcrumb_learn": "Learn",
+    "freemium": {
+      "freePreview": "Free Preview",
+      "loginToAccess": "Login to access",
+      "enrollToUnlock": "Enroll to unlock",
+      "firstNFree": "First {count} session(s) free",
+      "freePreviewCount": "Free Preview Sessions",
+      "freePreviewHelper": "Number of sessions from the beginning available for free. Set to 0 for fully paid."
+    },
+    "bonusSessions": {
+      "title": "Bonus Sessions",
+      "officeHours": "Office Hours",
+      "guestSpeaker": "Guest Speaker",
+      "workshop": "Workshop",
+      "qa": "Q&A Session",
+      "addBonus": "Add Bonus Session",
+      "description": "Description",
+      "bonusType": "Session Type",
+      "noBonus": "No bonus sessions scheduled yet",
+      "joinZoom": "Join Session",
+      "watchReplay": "Watch Replay",
+      "enrollToAccess": "Enroll to access session links"
+    },
     "paths": {
       "overline": "CHOOSE YOUR PATH",
       "heading": "3 Ways to Learn",

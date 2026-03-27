@@ -70,3 +70,19 @@ export interface InstructorProfileCreateInput {
 export interface InstructorProfileUpdateInput extends Partial<InstructorProfileCreateInput> {
   is_active?: boolean;
 }
+
+// Join table: course_instructors (many-to-many)
+export type CourseInstructorRole = 'lead' | 'instructor' | 'guest';
+
+export interface CourseInstructor {
+  id: string;
+  course_id: string;
+  instructor_id: string;
+  role: CourseInstructorRole;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface CourseInstructorWithProfile extends CourseInstructor {
+  instructor: InstructorCardData;
+}

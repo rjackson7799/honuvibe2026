@@ -2,40 +2,51 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Video, Copy, Check, ChevronDown, ChevronRight, ExternalLink, X, FileText, Presentation, Loader2 } from 'lucide-react';
+import { Video, Copy, Check, ChevronDown, ChevronRight, ExternalLink, X, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from './StatusBadge';
-import { updateCourseSession } from '@/lib/courses/actions';
+import { updateBonusSession, deleteBonusSession } from '@/lib/courses/actions';
 import { parseZoomInvite } from '@/lib/courses/parse-zoom-invite';
 import type { ParsedZoomInvite } from '@/lib/courses/parse-zoom-invite';
-import type { CourseSession } from '@/lib/courses/types';
+import type { CourseSession, BonusSessionType } from '@/lib/courses/types';
 
 type CourseInstructorOption = {
   instructor_id: string;
   display_name: string;
 };
 
-type SessionEditorProps = {
+type BonusSessionEditorProps = {
   session: CourseSession;
-  courseId: string;
   courseInstructors?: CourseInstructorOption[];
 };
 
-export function SessionEditor({ session, courseId, courseInstructors }: SessionEditorProps) {
+const BONUS_TYPE_OPTIONS: { value: BonusSessionType; label: string }[] = [
+  { value: 'office-hours', label: 'Office Hours' },
+  { value: 'guest-speaker', label: 'Guest Speaker' },
+  { value: 'workshop', label: 'Workshop' },
+  { value: 'qa', label: 'Q&A' },
+];
+
+export function BonusSessionEditor({ session, courseInstructors }: BonusSessionEditorProps) {
   const router = useRouter();
+  const [bonusType, setBonusType] = useState<BonusSessionType>(session.bonus_type ?? 'office-hours');
+  const [titleEn, setTitleEn] = useState(session.title_en);
+  const [titleJp, setTitleJp] = useState(session.title_jp ?? '');
+  const [descEn, setDescEn] = useState(session.description_en ?? '');
+  const [descJp, setDescJp] = useState(session.description_jp ?? '');
   const [replayUrl, setReplayUrl] = useState(session.replay_url ?? '');
   const [transcriptUrl, setTranscriptUrl] = useState(session.transcript_url ?? '');
   const [slideDeckUrl, setSlideDeckUrl] = useState(session.slide_deck_url ?? '');
   const [instructorId, setInstructorId] = useState(session.instructor_id ?? '');
   const [status, setStatus] = useState(session.status);
+  const [scheduledAt, setScheduledAt] = useState(session.scheduled_at ?? '');
+  const [durationMinutes, setDurationMinutes] = useState(session.duration_minutes?.toString() ?? '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [downloadingPres, setDownloadingPres] = useState(false);
-  const [downloadingNotes, setDownloadingNotes] = useState(false);
-  const showInstructorDropdown = courseInstructors && courseInstructors.length > 1;
-  const hasTopics = (session.topics_en?.length ?? 0) > 0;
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Zoom state
   const [zoomLink, setZoomLink] = useState(session.zoom_link ?? '');
@@ -79,55 +90,50 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
     setShowZoomPaste(true);
   }
 
-  async function handleDownload(type: 'presentation' | 'notes') {
-    const setLoading = type === 'presentation' ? setDownloadingPres : setDownloadingNotes;
-    setLoading(true);
-    try {
-      const res = await fetch(
-        `/api/courses/${courseId}/sessions/${session.id}/${type}?locale=en`,
-      );
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Download failed' }));
-        console.error(`Failed to download ${type}:`, err.error);
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const ext = type === 'presentation' ? 'pdf' : 'docx';
-      a.download = `Session-${session.session_number ?? 0}-${type === 'presentation' ? 'Presentation' : 'Teacher-Notes'}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(`Failed to download ${type}:`, err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function handleSave() {
     setSaving(true);
     setSaved(false);
     try {
-      await updateCourseSession(session.id, {
-        replay_url: replayUrl || undefined,
-        transcript_url: transcriptUrl || undefined,
-        slide_deck_url: slideDeckUrl || undefined,
+      await updateBonusSession(session.id, {
+        bonus_type: bonusType,
+        title_en: titleEn,
+        title_jp: titleJp || null,
+        description_en: descEn || null,
+        description_jp: descJp || null,
+        replay_url: replayUrl || null,
+        transcript_url: transcriptUrl || null,
+        slide_deck_url: slideDeckUrl || null,
         zoom_link: zoomLink || null,
         instructor_id: instructorId || null,
         status,
+        scheduled_at: scheduledAt || null,
+        duration_minutes: durationMinutes ? parseInt(durationMinutes, 10) : null,
       });
       setSaved(true);
       if (zoomLink) setShowZoomPaste(false);
       router.refresh();
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
-      console.error('Failed to update session:', err);
+      console.error('Failed to update bonus session:', err);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteBonusSession(session.id);
+      router.refresh();
+    } catch (err) {
+      console.error('Failed to delete bonus session:', err);
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -135,13 +141,94 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
     <div className="border border-border-default rounded-lg p-4 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <span className="text-xs text-fg-tertiary">Session {session.session_number}</span>
-          <h4 className="text-sm font-medium text-fg-primary">{session.title_en}</h4>
+          <span className="text-xs text-fg-tertiary capitalize">{bonusType.replace('-', ' ')}</span>
+          <h4 className="text-sm font-medium text-fg-primary">{titleEn || 'Untitled Bonus Session'}</h4>
         </div>
         <StatusBadge status={status} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Bonus Type */}
+        <div>
+          <label className="block text-xs text-fg-tertiary mb-1">Session Type</label>
+          <select
+            value={bonusType}
+            onChange={(e) => setBonusType(e.target.value as BonusSessionType)}
+            className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary"
+          >
+            {BONUS_TYPE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Status */}
+        <div>
+          <label className="block text-xs text-fg-tertiary mb-1">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value as 'upcoming' | 'live' | 'completed')}
+            className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary"
+          >
+            <option value="upcoming">Upcoming</option>
+            <option value="live">Live</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        {/* Title EN */}
+        <Input
+          label="Title (EN)"
+          value={titleEn}
+          onChange={(e) => setTitleEn(e.target.value)}
+          placeholder="Bonus session title"
+        />
+
+        {/* Title JP */}
+        <Input
+          label="Title (JP)"
+          value={titleJp}
+          onChange={(e) => setTitleJp(e.target.value)}
+          placeholder="ボーナスセッションタイトル"
+        />
+
+        {/* Scheduled Date/Time */}
+        <Input
+          label="Scheduled Date/Time"
+          type="datetime-local"
+          value={scheduledAt ? scheduledAt.slice(0, 16) : ''}
+          onChange={(e) => setScheduledAt(e.target.value ? new Date(e.target.value).toISOString() : '')}
+        />
+
+        {/* Duration */}
+        <Input
+          label="Duration (minutes)"
+          type="number"
+          value={durationMinutes}
+          onChange={(e) => setDurationMinutes(e.target.value)}
+          placeholder="60"
+        />
+
+        {/* Instructor */}
+        {courseInstructors && courseInstructors.length > 0 && (
+          <div>
+            <label className="block text-xs text-fg-tertiary mb-1">Instructor</label>
+            <select
+              value={instructorId}
+              onChange={(e) => setInstructorId(e.target.value)}
+              className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary"
+            >
+              <option value="">Select instructor</option>
+              {courseInstructors.map((ci) => (
+                <option key={ci.instructor_id} value={ci.instructor_id}>
+                  {ci.display_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Replay URL */}
         <Input
           label="Replay URL"
           value={replayUrl}
@@ -160,38 +247,27 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
           onChange={(e) => setSlideDeckUrl(e.target.value)}
           placeholder="https://docs.google.com/..."
         />
-        <div>
-          <label className="block text-xs text-fg-tertiary mb-1">Status</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as 'upcoming' | 'live' | 'completed')}
-            className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary"
-          >
-            <option value="upcoming">Upcoming</option>
-            <option value="live">Live</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-        {showInstructorDropdown && (
-          <div>
-            <label className="block text-xs text-fg-tertiary mb-1">Session Instructor</label>
-            <select
-              value={instructorId}
-              onChange={(e) => setInstructorId(e.target.value)}
-              className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary"
-            >
-              <option value="">Default (course instructor)</option>
-              {courseInstructors.map((ci) => (
-                <option key={ci.instructor_id} value={ci.instructor_id}>
-                  {ci.display_name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
       </div>
 
-      {/* Zoom Meeting Section */}
+      {/* Description EN */}
+      <Textarea
+        label="Description (EN)"
+        value={descEn}
+        onChange={(e) => setDescEn(e.target.value)}
+        placeholder="Describe what this bonus session covers..."
+        className="min-h-[60px]"
+      />
+
+      {/* Description JP */}
+      <Textarea
+        label="Description (JP)"
+        value={descJp}
+        onChange={(e) => setDescJp(e.target.value)}
+        placeholder="このボーナスセッションの説明..."
+        className="min-h-[60px]"
+      />
+
+      {/* Zoom Meeting Section — reused from SessionEditor pattern */}
       <div className="space-y-2">
         <button
           type="button"
@@ -208,7 +284,6 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
 
         {zoomExpanded && (
           <div className="space-y-3 pl-7">
-            {/* Current zoom link display */}
             {zoomLink && !showZoomPaste && (
               <div className="bg-bg-secondary border border-border-default rounded-lg p-3">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -241,7 +316,6 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
               </div>
             )}
 
-            {/* Paste area */}
             {showZoomPaste && (
               <>
                 <Textarea
@@ -252,13 +326,11 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
                   className="min-h-[100px] text-xs font-mono"
                 />
 
-                {/* Parsed result card */}
                 {zoomInviteText.trim() && parsedZoom?.meetingUrl && (
                   <div className="bg-bg-secondary border border-border-default rounded-lg p-3 space-y-2">
                     <span className="text-[11px] font-semibold text-fg-tertiary uppercase tracking-[0.18em]">
                       Parsed Meeting Info
                     </span>
-
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-fg-tertiary">Link:</span>
                       <a
@@ -270,7 +342,6 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
                         {parsedZoom.meetingUrl}
                       </a>
                     </div>
-
                     {parsedZoom.meetingId && (
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-fg-tertiary">Meeting ID:</span>
@@ -284,7 +355,6 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
                         </button>
                       </div>
                     )}
-
                     {parsedZoom.passcode && (
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-fg-tertiary">Passcode:</span>
@@ -298,7 +368,6 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
                         </button>
                       </div>
                     )}
-
                     {parsedZoom.dateTime && (
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-fg-tertiary">Time:</span>
@@ -308,7 +377,6 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
                   </div>
                 )}
 
-                {/* No URL found hint */}
                 {zoomInviteText.trim() && !parsedZoom?.meetingUrl && (
                   <p className="text-xs text-fg-tertiary">
                     No Zoom meeting URL found in pasted text.
@@ -320,55 +388,51 @@ export function SessionEditor({ session, courseId, courseInstructors }: SessionE
         )}
       </div>
 
-      {/* Teacher Prep Materials */}
-      {hasTopics && (
-        <div className="border-t border-border-default pt-3 space-y-2">
-          <span className="text-[11px] font-semibold text-fg-tertiary uppercase tracking-[0.18em]">
-            Teacher Prep
-          </span>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDownload('presentation')}
-              disabled={downloadingPres}
-            >
-              {downloadingPres ? (
-                <Loader2 size={14} className="animate-spin mr-1" />
-              ) : (
-                <Presentation size={14} className="mr-1" />
-              )}
-              {downloadingPres ? 'Generating...' : 'Download Presentation'}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDownload('notes')}
-              disabled={downloadingNotes}
-            >
-              {downloadingNotes ? (
-                <Loader2 size={14} className="animate-spin mr-1" />
-              ) : (
-                <FileText size={14} className="mr-1" />
-              )}
-              {downloadingNotes ? 'Generating...' : 'Download Teacher\'s Notes'}
-            </Button>
-          </div>
-        </div>
-      )}
-
+      {/* Actions */}
       <div className="flex items-center gap-2">
         <Button
           variant="primary"
           size="sm"
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || !titleEn.trim()}
         >
           {saving ? 'Saving...' : 'Save'}
         </Button>
         {saved && (
           <span className="text-xs text-accent-teal">Saved!</span>
         )}
+        <div className="ml-auto">
+          {confirmDelete ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-red-400">Delete this session?</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="text-red-400 hover:text-red-300"
+              >
+                {deleting ? 'Deleting...' : 'Confirm'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setConfirmDelete(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="text-fg-tertiary hover:text-red-400 transition-colors p-1"
+              title="Delete bonus session"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,17 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, Globe } from 'lucide-react';
+import { ArrowLeft, Download, Globe, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
 import { SessionEditor } from './SessionEditor';
+import { BonusSessionEditor } from './BonusSessionEditor';
 import { ManualEnrollForm } from './ManualEnrollForm';
-import { publishCourse, unpublishCourse, archiveCourse, updateCourse } from '@/lib/courses/actions';
+import { publishCourse, unpublishCourse, archiveCourse, updateCourse, createBonusSession } from '@/lib/courses/actions';
 import { CourseImageUploader } from './course-image-uploader';
 import { InstructorAssignControl } from './InstructorAssignControl';
 import { ESLAdminDashboard } from './ESLAdminDashboard';
-import type { CourseWithCurriculum } from '@/lib/courses/types';
+import type { CourseWithCurriculum, EnrolledStudent } from '@/lib/courses/types';
 
 type InstructorOption = {
   id: string;
@@ -23,9 +24,10 @@ type InstructorOption = {
 type AdminCourseDetailProps = {
   course: CourseWithCurriculum;
   instructors?: InstructorOption[];
+  enrolledStudents?: EnrolledStudent[];
 };
 
-export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetailProps) {
+export function AdminCourseDetail({ course, instructors = [], enrolledStudents = [] }: AdminCourseDetailProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('overview');
   const [actionLoading, setActionLoading] = useState(false);
@@ -57,6 +59,9 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
     }
   }
 
+  const [freePreviewCount, setFreePreviewCount] = useState(course.free_preview_count ?? 0);
+  const [savingPreview, setSavingPreview] = useState(false);
+
   const [eslEnabled, setEslEnabled] = useState(course.esl_enabled);
   const [eslToggling, setEslToggling] = useState(false);
   const [eslLessons, setEslLessons] = useState<{ id: string; week_id: string; status: string; generation_error: string | null; updated_at: string }[]>([]);
@@ -73,9 +78,13 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
     }
   }, [activeTab, eslEnabled, course.id, eslLessons.length]);
 
+  const bonusCount = course.bonusSessions?.length ?? 0;
+  const [addingBonus, setAddingBonus] = useState(false);
+
   const tabs = [
     { key: 'overview', label: 'Overview' },
     { key: 'curriculum', label: 'Curriculum' },
+    { key: 'bonus', label: bonusCount > 0 ? `Bonus Sessions (${bonusCount})` : 'Bonus Sessions' },
     { key: 'students', label: 'Students' },
     ...(eslEnabled ? [{ key: 'esl', label: 'ESL Content' }] : []),
   ];
@@ -234,9 +243,18 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
           {/* Instructor Assignment */}
           <InstructorAssignControl
             courseId={course.id}
-            currentInstructorId={course.instructor_id}
-            currentInstructorName={course.instructor_name}
-            instructors={instructors}
+            courseInstructors={(course.instructors ?? []).map((ci) => ({
+              id: ci.id,
+              instructor_id: ci.instructor_id,
+              role: ci.role,
+              sort_order: ci.sort_order,
+              instructor: {
+                display_name: ci.instructor.display_name,
+                photo_url: ci.instructor.photo_url,
+              },
+            }))}
+            allInstructors={instructors}
+            legacyInstructorName={course.instructor_name}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -258,7 +276,14 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
                   })
                 : '—'}
             />
-            <InfoField label="Instructor" value={course.instructor?.display_name ?? course.instructor_name ?? '—'} />
+            <InfoField
+              label="Instructor(s)"
+              value={
+                (course.instructors ?? []).length > 0
+                  ? course.instructors.map((ci) => ci.instructor.display_name).join(', ')
+                  : course.instructor_name ?? '—'
+              }
+            />
             <InfoField label="Community" value={course.community_platform ?? '—'} />
             <InfoField label="Max Enrollment" value={course.max_enrollment?.toString() ?? 'Unlimited'} />
           </div>
@@ -288,6 +313,43 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
               </div>
             </div>
           )}
+
+          {/* Free Preview Sessions */}
+          <div className="border-t border-border-default pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-fg-primary">Free Preview Sessions</h3>
+                <p className="text-xs text-fg-tertiary mt-0.5">
+                  Number of sessions from the beginning available for free to logged-in users. Set to 0 for fully paid.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <input
+                  type="number"
+                  min={0}
+                  value={freePreviewCount}
+                  onChange={(e) => setFreePreviewCount(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-16 text-center text-sm bg-bg-tertiary border border-border-default rounded px-2 py-1 text-fg-primary"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={savingPreview || freePreviewCount === (course.free_preview_count ?? 0)}
+                  onClick={async () => {
+                    setSavingPreview(true);
+                    try {
+                      await updateCourse(course.id, { free_preview_count: freePreviewCount });
+                      router.refresh();
+                    } finally {
+                      setSavingPreview(false);
+                    }
+                  }}
+                >
+                  {savingPreview ? 'Saving...' : 'Save'}
+                </Button>
+              </div>
+            </div>
+          </div>
 
           {/* ESL Settings */}
           <div className="border-t border-border-default pt-4">
@@ -346,7 +408,15 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
 
                 {/* Sessions with inline editor */}
                 {week.sessions.map((session) => (
-                  <SessionEditor key={session.id} session={session} />
+                  <SessionEditor
+                    key={session.id}
+                    session={session}
+                    courseId={course.id}
+                    courseInstructors={(course.instructors ?? []).map((ci) => ({
+                      instructor_id: ci.instructor_id,
+                      display_name: ci.instructor.display_name,
+                    }))}
+                  />
                 ))}
 
                 {/* Assignments summary */}
@@ -368,23 +438,111 @@ export function AdminCourseDetail({ course, instructors = [] }: AdminCourseDetai
         </div>
       )}
 
+      {/* Bonus Sessions */}
+      {activeTab === 'bonus' && (
+        <div className="space-y-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={addingBonus}
+            onClick={async () => {
+              setAddingBonus(true);
+              try {
+                await createBonusSession(course.id, {
+                  bonus_type: 'office-hours',
+                  title_en: 'New Bonus Session',
+                });
+                router.refresh();
+              } finally {
+                setAddingBonus(false);
+              }
+            }}
+          >
+            <Plus size={14} className="mr-1" />
+            {addingBonus ? 'Adding...' : 'Add Bonus Session'}
+          </Button>
+
+          {bonusCount === 0 ? (
+            <p className="text-fg-tertiary text-center py-8">No bonus sessions yet.</p>
+          ) : (
+            course.bonusSessions.map((session) => (
+              <BonusSessionEditor
+                key={session.id}
+                session={session}
+                courseInstructors={(course.instructors ?? []).map((ci) => ({
+                  instructor_id: ci.instructor_id,
+                  display_name: ci.instructor.display_name,
+                }))}
+              />
+            ))
+          )}
+        </div>
+      )}
+
       {/* Students */}
       {activeTab === 'students' && (
         <div className="space-y-6">
           <ManualEnrollForm courseId={course.id} />
-          <div className="border-t border-border-default pt-4">
-            <p className="text-sm text-fg-tertiary">
-              {course.current_enrollment} student(s) currently enrolled.
-              View full student list in the{' '}
+
+          {/* Enrolled Students Roster */}
+          <div className="border-t border-border-default pt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-fg-primary">
+                Enrolled Students ({enrolledStudents.length})
+              </h3>
               <button
                 type="button"
                 onClick={() => router.push('/admin/students')}
-                className="text-accent-teal hover:underline"
+                className="text-xs text-accent-teal hover:underline"
               >
-                Students
-              </button>{' '}
-              section.
-            </p>
+                View all students
+              </button>
+            </div>
+
+            {enrolledStudents.length === 0 ? (
+              <p className="text-sm text-fg-tertiary py-4 text-center">
+                No students enrolled yet.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border-default">
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Name</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Email</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Enrolled</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {enrolledStudents.map((student) => (
+                      <tr key={student.id} className="border-b border-border-default/50 hover:bg-bg-secondary/50">
+                        <td className="py-2 px-3 text-fg-primary">{student.full_name ?? '—'}</td>
+                        <td className="py-2 px-3 text-fg-secondary">{student.email ?? '—'}</td>
+                        <td className="py-2 px-3 text-fg-tertiary">
+                          {new Date(student.enrolled_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </td>
+                        <td className="py-2 px-3">
+                          <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                            student.status === 'active'
+                              ? 'bg-accent-teal/10 text-accent-teal'
+                              : student.status === 'completed'
+                                ? 'bg-accent-gold/10 text-accent-gold'
+                                : 'bg-fg-muted/10 text-fg-muted'
+                          }`}>
+                            {student.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}
