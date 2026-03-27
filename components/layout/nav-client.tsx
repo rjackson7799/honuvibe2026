@@ -52,11 +52,11 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
     <>
       <nav
         className={cn(
-          'dark-zone',
+          !isAuthRoute && 'dark-zone',
           'fixed top-0 left-0 right-0 z-[200] h-14 md:h-16',
           'flex items-center justify-between px-5 md:px-8',
           'transition-all duration-[400ms]',
-          scrolled || isLightZonePage
+          scrolled || isLightZonePage || isAuthRoute
             ? 'bg-bg-glass backdrop-blur-[24px] backdrop-saturate-[180%] border-b border-border-secondary'
             : 'bg-transparent',
         )}
