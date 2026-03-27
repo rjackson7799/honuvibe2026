@@ -2,6 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { getStudentDetail } from '@/lib/admin/queries';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { DeleteStudentButton } from '@/components/admin/DeleteStudentButton';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -34,11 +35,19 @@ export default async function AdminStudentDetailPage({ params }: Props) {
       </Link>
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-serif text-fg-primary">
-          {student.full_name || 'Unknown Student'}
-        </h1>
-        <p className="text-sm text-fg-tertiary">{student.email}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-serif text-fg-primary">
+            {student.full_name || 'Unknown Student'}
+          </h1>
+          <p className="text-sm text-fg-tertiary">{student.email}</p>
+        </div>
+        {student.role === 'student' && (
+          <DeleteStudentButton
+            studentId={student.id}
+            studentName={student.full_name || student.email || 'Unknown'}
+          />
+        )}
       </div>
 
       {/* Info grid */}

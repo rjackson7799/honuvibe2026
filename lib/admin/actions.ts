@@ -1,8 +1,73 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type { ApplicationStatus } from './types';
+
+async function requireAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') throw new Error('Not authorized');
+
+  return { supabase, adminId: user.id };
+}
+
+export async function deleteStudent(studentId: string) {
+  const { adminId } = await requireAdmin();
+
+  if (studentId === adminId) {
+    throw new Error('Cannot delete your own account');
+  }
+
+  const supabase = await createClient();
+
+  // Verify the user exists and is a student
+  const { data: student, error: fetchError } = await supabase
+    .from('users')
+    .select('id, role')
+    .eq('id', studentId)
+    .single();
+
+  if (fetchError || !student) throw new Error('Student not found');
+  if (student.role === 'admin') throw new Error('Cannot delete an admin account');
+  if (student.role === 'instructor') {
+    throw new Error('Cannot delete an instructor. Demote to student first.');
+  }
+
+  // Delete enrollments
+  await supabase
+    .from('enrollments')
+    .delete()
+    .eq('user_id', studentId);
+
+  // Delete from public.users (cascades handled by DB)
+  const { error: deleteError } = await supabase
+    .from('users')
+    .delete()
+    .eq('id', studentId);
+
+  if (deleteError) throw new Error(`Failed to delete student: ${deleteError.message}`);
+
+  // Delete from auth system
+  const adminClient = createAdminClient();
+  const { error: authError } = await adminClient.auth.admin.deleteUser(studentId);
+
+  if (authError) {
+    console.error('[DeleteStudent] Auth deletion failed (public.users already removed):', authError.message);
+  }
+
+  revalidatePath('/admin/students');
+}
 
 export async function updateApplicationStatus(
   applicationId: string,
