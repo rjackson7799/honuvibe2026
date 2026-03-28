@@ -205,6 +205,24 @@ export async function manualEnroll(
   revalidatePath('/admin/students');
 }
 
+export async function searchUsers(query: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  if (query.trim().length < 2) return [];
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, email, full_name, role, avatar_url')
+    .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+    .order('full_name')
+    .limit(20);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function updateSessionContent(
   sessionId: string,
   updates: {

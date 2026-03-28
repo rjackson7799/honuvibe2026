@@ -453,6 +453,9 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                   title_en: 'New Bonus Session',
                 });
                 router.refresh();
+              } catch (err) {
+                console.error('Failed to create bonus session:', err);
+                alert('Failed to create bonus session. Please try again.');
               } finally {
                 setAddingBonus(false);
               }
@@ -482,7 +485,7 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
       {/* Students */}
       {activeTab === 'students' && (
         <div className="space-y-6">
-          <ManualEnrollForm courseId={course.id} />
+          <ManualEnrollForm courseId={course.id} enrolledStudentIds={enrolledStudents.map(s => s.user_id)} />
 
           {/* Enrolled Students Roster */}
           <div className="border-t border-border-default pt-4 space-y-3">
