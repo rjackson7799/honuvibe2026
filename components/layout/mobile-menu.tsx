@@ -77,12 +77,11 @@ export function MobileMenu({ open, onClose, links, userMenuLabels }: MobileMenuP
         ))}
       </nav>
 
-      {/* User menu */}
-      <div className="px-5 py-4 border-t border-border-secondary" onClick={onClose}>
-        <UserMenu labels={userMenuLabels} />
+      {/* Bottom: User links + controls */}
+      <div className="px-5 py-4 border-t border-border-secondary">
+        <UserMenu labels={userMenuLabels} onNavigate={onClose} />
       </div>
 
-      {/* Bottom: Theme + Lang */}
       <div className="flex items-center justify-between px-5 py-6 border-t border-border-secondary">
         <div className="flex items-center gap-2">
           <ThemeToggle />

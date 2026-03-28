@@ -176,16 +176,16 @@ export function StudentNav() {
         })}
 
         {/* Bottom controls — pushed down with mt-auto */}
-        <div
-          className={cn(
-            'mt-auto pt-4 border-t border-border-default',
-            collapsed ? 'flex flex-col items-center gap-1' : 'flex items-center gap-1',
-          )}
-        >
-          <ThemeToggle />
-          <LangToggle compact={collapsed} />
-          <div className={collapsed ? '' : 'ml-auto'}>
-            <UserMenu labels={userMenuLabels} dropdownPosition="above" />
+        <div className="mt-auto pt-4 border-t border-border-default flex flex-col gap-1">
+          <UserMenu labels={userMenuLabels} compact={collapsed} />
+          <div
+            className={cn(
+              'pt-2 border-t border-border-default',
+              collapsed ? 'flex flex-col items-center gap-1' : 'flex items-center gap-1',
+            )}
+          >
+            <ThemeToggle />
+            <LangToggle compact={collapsed} />
           </div>
         </div>
       </nav>

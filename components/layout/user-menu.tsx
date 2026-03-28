@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, LayoutDashboard, Shield, User } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
@@ -16,18 +16,16 @@ type UserMenuLabels = {
 
 type UserMenuProps = {
   labels: UserMenuLabels;
-  dropdownPosition?: 'below' | 'above';
+  compact?: boolean;
+  direction?: 'vertical' | 'horizontal';
+  onNavigate?: () => void;
 };
 
-export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) {
+export function UserMenu({ labels, compact = false, direction = 'vertical', onNavigate }: UserMenuProps) {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -73,60 +71,11 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
     return () => subscription.unsubscribe();
   }, []);
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [open]);
-
-  const updateDropdownPosition = useCallback(() => {
-    if (!buttonRef.current) return;
-    const rect = buttonRef.current.getBoundingClientRect();
-    if (dropdownPosition === 'above') {
-      setDropdownStyle({
-        position: 'fixed',
-        bottom: window.innerHeight - rect.top + 4,
-        left: rect.right + 8,
-      });
-    } else {
-      setDropdownStyle({
-        position: 'fixed',
-        top: rect.bottom + 4,
-        right: window.innerWidth - rect.right,
-      });
-    }
-  }, [dropdownPosition]);
-
-  useEffect(() => {
-    if (open) {
-      updateDropdownPosition();
-    }
-  }, [open, updateDropdownPosition]);
-
-  // Close on Escape
-  useEffect(() => {
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpen(false);
-    }
-    if (open) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [open]);
-
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
     setIsAdmin(false);
-    setOpen(false);
     router.refresh();
   }
 
@@ -134,11 +83,11 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
     return <div className="min-h-[44px] min-w-[44px]" />;
   }
 
-  // Logged out: show Sign In link
   if (!user) {
     return (
       <Link
         href="/learn/auth"
+        onClick={onNavigate}
         className={cn(
           'inline-flex items-center gap-1.5 px-3 py-2 rounded',
           'text-sm text-fg-secondary hover:text-fg-primary',
@@ -146,92 +95,39 @@ export function UserMenu({ labels, dropdownPosition = 'below' }: UserMenuProps) 
         )}
       >
         <User size={16} />
-        <span className="hidden sm:inline">{labels.signIn}</span>
+        {!compact && <span>{labels.signIn}</span>}
       </Link>
     );
   }
 
-  // Logged in: avatar + dropdown
-  const initials = user.name
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || '?';
+  const linkClass = cn(
+    'flex items-center rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
+    compact ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5',
+    'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
+  );
 
   return (
-    <div ref={menuRef} className="relative">
-      <button
-        ref={buttonRef}
-        onClick={() => setOpen(!open)}
-        className={cn(
-          'inline-flex items-center justify-center',
-          'h-8 w-8 rounded-full',
-          'bg-accent-teal/20 text-accent-teal',
-          'text-xs font-semibold',
-          'hover:bg-accent-teal/30',
-          'transition-colors duration-[var(--duration-fast)]',
-          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-teal',
-        )}
-        aria-label={user.name}
-        aria-expanded={open}
-        aria-haspopup="true"
-      >
-        {initials}
-      </button>
+    <div className={cn('flex gap-0.5', direction === 'horizontal' ? 'flex-row items-center' : 'flex-col')}>
+      <Link href="/learn/dashboard" onClick={onNavigate} className={linkClass} title={compact ? labels.dashboard : undefined}>
+        <LayoutDashboard size={18} />
+        {!compact && labels.dashboard}
+      </Link>
 
-      {open && (
-        <div
-          className={cn(
-            'w-52',
-            'rounded-lg border border-border-secondary',
-            'bg-bg-secondary shadow-lg',
-            'py-1 z-[9999]',
-          )}
-          style={dropdownStyle}
-          role="menu"
-        >
-          {/* User info */}
-          <div className="px-3 py-2 border-b border-border-secondary">
-            <p className="text-sm font-medium text-fg-primary truncate">{user.name}</p>
-            <p className="text-xs text-fg-muted truncate">{user.email}</p>
-          </div>
-
-          {/* Links */}
-          <Link
-            href="/learn/dashboard"
-            onClick={() => setOpen(false)}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
-            role="menuitem"
-          >
-            <LayoutDashboard size={16} />
-            {labels.dashboard}
-          </Link>
-
-          {isAdmin && (
-            <Link
-              href="/admin"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
-              role="menuitem"
-            >
-              <Shield size={16} />
-              {labels.admin}
-            </Link>
-          )}
-
-          <div className="border-t border-border-secondary my-1" />
-
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
-            role="menuitem"
-          >
-            <LogOut size={16} />
-            {labels.signOut}
-          </button>
-        </div>
+      {isAdmin && (
+        <Link href="/admin" onClick={onNavigate} className={linkClass} title={compact ? labels.admin : undefined}>
+          <Shield size={18} />
+          {!compact && labels.admin}
+        </Link>
       )}
+
+      <button
+        onClick={handleSignOut}
+        className={cn(linkClass, 'w-full')}
+        title={compact ? labels.signOut : undefined}
+      >
+        <LogOut size={18} />
+        {!compact && labels.signOut}
+      </button>
     </div>
   );
 }

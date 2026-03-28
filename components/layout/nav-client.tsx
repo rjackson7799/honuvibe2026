@@ -84,8 +84,8 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
         {/* Right side: User + Theme + Lang + Hamburger */}
         <div className="flex items-center gap-1">
           {/* On auth routes, controls move to sidebar on desktop — show only on mobile */}
-          <div className={isAuthRoute ? 'md:hidden' : 'hidden lg:block'}>
-            <UserMenu labels={userMenuLabels} />
+          <div className={isAuthRoute ? 'md:hidden' : 'hidden lg:flex items-center'}>
+            <UserMenu labels={userMenuLabels} compact direction="horizontal" />
           </div>
           <div className={isAuthRoute ? 'md:hidden flex items-center gap-1' : 'flex items-center gap-1'}>
             <LangToggle />
