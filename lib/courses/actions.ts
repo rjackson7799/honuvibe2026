@@ -58,6 +58,53 @@ export async function archiveCourse(courseId: string) {
   });
 }
 
+/**
+ * Permanently delete a course. Only allowed when:
+ * - No students are enrolled
+ * - Course has not started yet (start_date is in the future or null)
+ * All child records (weeks, sessions, assignments, vocabulary, resources, uploads)
+ * are cascade-deleted by the database.
+ */
+export async function deleteCourse(courseId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  // Check for enrolled students
+  const { count } = await supabase
+    .from('enrollments')
+    .select('id', { count: 'exact', head: true })
+    .eq('course_id', courseId);
+
+  if (count && count > 0) {
+    throw new Error('Cannot delete a course with enrolled students');
+  }
+
+  // Check that course hasn't started
+  const { data: course } = await supabase
+    .from('courses')
+    .select('start_date')
+    .eq('id', courseId)
+    .single();
+
+  if (course?.start_date && new Date(course.start_date) <= new Date()) {
+    throw new Error('Cannot delete a course that has already started');
+  }
+
+  const { error } = await supabase
+    .from('courses')
+    .delete()
+    .eq('id', courseId);
+
+  if (error) throw error;
+
+  revalidatePath('/learn');
+  revalidatePath('/admin/courses');
+}
+
 export async function updateCourseSession(
   sessionId: string,
   updates: {
@@ -214,6 +261,7 @@ export async function createCourseFromParsedData(
     if (week.sessions?.length) {
       await supabase.from('course_sessions').insert(
         week.sessions.map((s) => ({
+          course_id: newCourse.id,
           week_id: newWeek.id,
           session_number: s.session_number,
           title_en: s.title_en,

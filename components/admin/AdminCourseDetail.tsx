@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, Globe, Plus } from 'lucide-react';
+import { ArrowLeft, Download, Globe, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
 import { SessionEditor } from './SessionEditor';
 import { BonusSessionEditor } from './BonusSessionEditor';
 import { ManualEnrollForm } from './ManualEnrollForm';
-import { publishCourse, unpublishCourse, archiveCourse, updateCourse, createBonusSession } from '@/lib/courses/actions';
+import { publishCourse, unpublishCourse, archiveCourse, deleteCourse, updateCourse, createBonusSession } from '@/lib/courses/actions';
 import { CourseImageUploader } from './course-image-uploader';
 import { InstructorAssignControl } from './InstructorAssignControl';
 import { ESLAdminDashboard } from './ESLAdminDashboard';
@@ -113,6 +113,23 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     }
   }
 
+  const canDelete =
+    course.current_enrollment === 0 &&
+    (!course.start_date || new Date(course.start_date) > new Date());
+
+  async function handleDelete() {
+    if (!confirm('Permanently delete this course? This cannot be undone.')) return;
+    setActionLoading(true);
+    try {
+      await deleteCourse(course.id);
+      router.push('/admin/courses');
+    } catch (err) {
+      console.error('Failed to delete course:', err);
+      alert(err instanceof Error ? err.message : 'Failed to delete course');
+      setActionLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-6 max-w-[1100px]">
       {/* Back link */}
@@ -181,6 +198,18 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                 disabled={actionLoading}
               >
                 Archive
+              </Button>
+            )}
+            {canDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                disabled={actionLoading}
+                className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+              >
+                <Trash2 size={14} className="mr-1" />
+                Delete
               </Button>
             )}
           </div>
