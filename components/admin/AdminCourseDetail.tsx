@@ -143,7 +143,7 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
       </button>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div className="space-y-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-2xl font-serif text-fg-primary">{course.title_en}</h1>
@@ -156,8 +156,8 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
             {course.course_id_code} · {course.current_enrollment}/{course.max_enrollment ?? '∞'} enrolled
           </p>
         </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          <div className="flex gap-2">
+        <div className="flex flex-col items-start gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="ghost"
               size="sm"
