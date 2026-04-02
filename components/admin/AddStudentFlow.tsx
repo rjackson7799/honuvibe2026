@@ -96,6 +96,10 @@ export function AddStudentFlow({ activeCourses }: Props) {
   }
 
   async function handleSave() {
+    if (mode === 'create' && !fullName.trim()) {
+      setSaveError('Full name is required.');
+      return;
+    }
     setSaving(true);
     setSaveError('');
 
@@ -103,10 +107,6 @@ export function AddStudentFlow({ activeCourses }: Props) {
       let userId: string;
 
       if (mode === 'create') {
-        if (!fullName.trim()) {
-          setSaveError('Full name is required.');
-          return;
-        }
         const result = await createNewUserAndStudent(
           email.trim().toLowerCase(),
           fullName.trim(),
@@ -127,7 +127,7 @@ export function AddStudentFlow({ activeCourses }: Props) {
 
       if (sendWelcome) {
         setEmailStatus('pending');
-        handleSendWelcomeEmail(userId, selectedCourseId);
+        void handleSendWelcomeEmail(userId, selectedCourseId);
       } else {
         setEmailStatus('skipped');
       }
