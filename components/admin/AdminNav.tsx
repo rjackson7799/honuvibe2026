@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, BookOpen, GraduationCap, Library, Lock, Route, Users, FileText, DollarSign } from 'lucide-react';
+import { LayoutDashboard, BookOpen, GraduationCap, Library, Lock, Route, Users, FileText, DollarSign, ClipboardList } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
@@ -18,6 +18,7 @@ const navItems = [
   { href: '/admin/paths', label: 'Study Paths', icon: Route },
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/applications', label: 'Applications', icon: FileText },
+  { href: '/admin/surveys', label: 'Surveys', icon: ClipboardList },
   { href: '/admin/revenue', label: 'Revenue', icon: DollarSign },
 ];
 
