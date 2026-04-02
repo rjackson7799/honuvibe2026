@@ -17,6 +17,7 @@ import type {
   ExplorationInquiryEmailData,
   ApplicationStatusEmailData,
   InstructorWelcomeEmailData,
+  StudentWelcomeEmailData,
   VerticeLeadEmailData,
 } from './types';
 
@@ -706,5 +707,90 @@ export async function sendVerticeLeadAdminNotification(
     subject: `[Vertice] ${data.isReturning ? 'Updated' : 'New'} lead: ${data.fullName}`,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
+  });
+}
+
+// ─── 9. Student Welcome ──────────────────────────────────────
+
+export async function sendStudentWelcomeEmail(data: StudentWelcomeEmailData): Promise<void> {
+  const { locale, fullName, email, actionLink, type } = data;
+  const isJP = locale === 'ja';
+  const isNew = type === 'new';
+
+  const body = [
+    accentBanner(
+      isJP ? 'HonuVibe.AIへようこそ！' : 'Welcome to HonuVibe.AI!',
+    ),
+    heading(
+      isJP
+        ? `${fullName} さん、ようこそ！`
+        : `Welcome, ${fullName}!`,
+    ),
+    paragraph(
+      isJP
+        ? isNew
+          ? 'HonuVibe.AIの学習プラットフォームへのアクセスが付与されました。下のボタンからパスワードを設定して、ダッシュボードにアクセスしてください。'
+          : 'コースへの登録が完了しました。下のボタンからダッシュボードにアクセスできます。'
+        : isNew
+          ? "You've been granted access to the HonuVibe.AI learning platform. Click below to set your password and access your dashboard."
+          : "You've been enrolled in a course. Click below to access your student dashboard.",
+    ),
+    ctaButton({
+      href: actionLink,
+      label: isJP
+        ? isNew ? 'パスワードを設定する' : 'ダッシュボードへ'
+        : isNew ? 'Set Your Password' : 'Go to Dashboard',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'ご不明な点はお気軽にお問い合わせください。'
+        : 'If you have any questions, feel free to reach out.',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? '【HonuVibe.AI】アカウントのご案内'
+      : 'Welcome to HonuVibe.AI — Account Ready',
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'HonuVibe.AIへようこそ' : 'Your HonuVibe.AI account is ready',
+      body,
+    }),
+  });
+}
+
+export async function sendStudentWelcomeAdminNotification(data: {
+  fullName: string;
+  email: string;
+  type: 'new' | 'existing';
+  courseTitle?: string;
+  notes?: string;
+  emailSent: boolean;
+}): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const rows: { label: string; value: string }[] = [
+    { label: 'Name', value: data.fullName },
+    { label: 'Email', value: data.email },
+    { label: 'Account', value: data.type === 'new' ? 'New (created)' : 'Existing (found)' },
+    { label: 'Email sent', value: data.emailSent ? 'Yes' : 'No' },
+  ];
+
+  if (data.courseTitle) rows.push({ label: 'Enrolled in', value: data.courseTitle });
+  if (data.notes) rows.push({ label: 'Notes', value: data.notes });
+
+  const body = [
+    accentBanner('[Admin] Manual Student Added'),
+    detailsTable(rows),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Students] ${data.fullName} added manually`,
+    html: baseLayout({ locale: 'en', body }),
   });
 }
