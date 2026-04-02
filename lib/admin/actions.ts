@@ -116,13 +116,9 @@ export async function manualEnroll(
   userId: string,
   courseId: string,
   notes?: string,
+  skipEnrollmentEmail?: boolean,
 ) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { supabase } = await requireAdmin();
 
   // Check for existing enrollment
   const { data: existing } = await supabase
@@ -173,7 +169,7 @@ export async function manualEnroll(
     .eq('id', courseId)
     .single();
 
-  if (student?.email && courseForEmail) {
+  if (!skipEnrollmentEmail && student?.email && courseForEmail) {
     const emailLocale = (student.locale_preference === 'ja' ? 'ja' : 'en') as 'en' | 'ja';
     const courseTitle =
       emailLocale === 'ja'

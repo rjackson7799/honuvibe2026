@@ -119,7 +119,7 @@ export function AddStudentFlow({ activeCourses }: Props) {
 
       // Enroll in course if one was selected
       if (selectedCourseId) {
-        await manualEnroll(userId, selectedCourseId, notes.trim() || undefined);
+        await manualEnroll(userId, selectedCourseId, notes.trim() || undefined, true);
       }
 
       setAddedUserId(userId);

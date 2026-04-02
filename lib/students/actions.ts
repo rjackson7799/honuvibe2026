@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 import {
   sendStudentWelcomeEmail,
   sendStudentWelcomeAdminNotification,
@@ -79,6 +80,7 @@ export async function createNewUserAndStudent(
     throw new Error('User profile was not created. Please try again.');
   }
 
+  revalidatePath('/admin/students');
   return { userId: newUserId };
 }
 
@@ -115,13 +117,19 @@ export async function sendStudentWelcomeEmailAction(
       return { success: false, error: linkError?.message ?? 'Failed to generate login link' };
     }
 
-    await sendStudentWelcomeEmail({
-      locale,
-      fullName,
-      email,
-      actionLink: linkData.properties.action_link,
-      type,
-    });
+    let emailSent = false;
+    try {
+      await sendStudentWelcomeEmail({
+        locale,
+        fullName,
+        email,
+        actionLink: linkData.properties.action_link,
+        type,
+      });
+      emailSent = true;
+    } catch (emailErr) {
+      console.error('[Student Email] Failed to send welcome email:', emailErr);
+    }
 
     await sendStudentWelcomeAdminNotification({
       fullName,
@@ -129,10 +137,12 @@ export async function sendStudentWelcomeEmailAction(
       type,
       courseTitle,
       notes,
-      emailSent: true,
+      emailSent,
     });
 
-    return { success: true };
+    return emailSent
+      ? { success: true }
+      : { success: false, error: 'Failed to send welcome email' };
   } catch (err) {
     console.error('[Student Email] Unexpected error:', err);
     return {
