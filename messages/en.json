@@ -1453,7 +1453,7 @@
   "vertice": {
     "heading": "AI Essentials",
     "subheading": "Your First Steps into the Future",
-    "hero_deadline": "📅 Course begins April 11th, 2026 (Saturday) — Application deadline: March 28th (Saturday)",
+    "hero_deadline": "📅 Course begins April 11th, 2026 (Saturday) — Application deadline: April 9th (Thursday)",
     "program_label": "A 5-Week AI Education Program",
     "exclusive_label": "Exclusively for Vertice Society Members",
     "form": {
@@ -1616,6 +1616,8 @@
       "price_note": "$1,250 · One-time"
     },
     "enroll": {
+      "exclusivity_note": "This program is only available to Vertice Society members.",
+      "scarcity_badge": "Limited to 15 people · Only 〇 seats left · Deadline: April 9th",
       "access_code_label": "Vertice Society Access Code",
       "access_code_placeholder": "Enter your code",
       "submit": "Proceed to Enrollment",
