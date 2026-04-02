@@ -140,5 +140,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/((?!api|trpc|_next|_vercel|studio|.*\\..*).*)',
+  matcher: '/((?!api|trpc|_next|_vercel|studio|survey|.*\\..*).*)',
 };
