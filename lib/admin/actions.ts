@@ -141,6 +141,7 @@ export async function manualEnroll(
     amount_paid: 0,
     currency: 'usd',
     status: 'active',
+    notes: notes ?? null,
   });
 
   if (enrollError) throw enrollError;
