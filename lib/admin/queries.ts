@@ -271,3 +271,22 @@ export async function getTransactions(): Promise<TransactionRecord[]> {
     };
   });
 }
+
+export interface ActiveCourse {
+  id: string;
+  title_en: string;
+  title_jp: string | null;
+}
+
+export async function getActiveCourses(): Promise<ActiveCourse[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('courses')
+    .select('id, title_en, title_jp')
+    .in('status', ['published', 'in-progress'])
+    .order('title_en', { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}
