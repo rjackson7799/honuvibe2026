@@ -73,6 +73,14 @@ export interface InstructorWelcomeEmailData {
   type: 'new' | 'promoted';
 }
 
+export interface StudentWelcomeEmailData {
+  locale: Locale;
+  fullName: string;
+  email: string;
+  actionLink: string;
+  type: 'new' | 'existing';
+}
+
 export interface VerticeLeadEmailData {
   locale: Locale;
   fullName: string;
