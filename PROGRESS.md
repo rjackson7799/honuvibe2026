@@ -458,7 +458,7 @@
 - [x] AdminNav: ThemeToggle, LangToggle, UserMenu added to sidebar bottom (`mt-auto`)
 - [x] StudentNav: same controls with collapsed-mode support (icons only when collapsed)
 - [x] LangToggle: added `compact` prop — Globe icon button that cycles locale (for collapsed sidebar)
-- [x] UserMenu: added `dropdownPosition="above"` prop — dropdown opens upward from sidebar bottom
+- [x] ~~UserMenu: added `dropdownPosition="above"` prop~~ — replaced with persistent inline links (see "UserMenu: Popup → Persistent Inline Links" section)
 
 ### Top Nav Cleanup on Auth Routes
 - [x] Desktop: ThemeToggle, LangToggle, UserMenu hidden from top nav bar on admin/dashboard routes (controls in sidebar)
@@ -471,7 +471,7 @@
 
 ### Files Modified
 - `components/layout/conditional-footer.tsx` (new)
-- `components/layout/user-menu.tsx` (dropdownPosition prop)
+- `components/layout/user-menu.tsx` (persistent inline links — no more popup)
 - `components/layout/lang-toggle.tsx` (compact prop)
 - `components/layout/nav-client.tsx` (hide controls on desktop auth routes)
 - `components/admin/AdminNav.tsx` (sticky + sidebar controls)
@@ -1314,6 +1314,27 @@ Per-course "try before you buy" — the first N sessions of any course are freel
 - [x] TypeScript: zero type errors from freemium changes
 - [ ] Migration: apply `017_freemium_sessions.sql` to Supabase
 - [ ] End-to-end: set `free_preview_count` on test course, verify all access tiers
+
+---
+
+## UserMenu: Popup → Persistent Inline Links
+
+Replaced the avatar-button + portal dropdown pattern with persistent, always-visible navigation links rendered inline in the menu/sidebar.
+
+### Changes
+- [x] `UserMenu` refactored — removed popup/dropdown (portal, outside-click, escape-key, positioning). Now renders Dashboard, Admin, Sign Out as persistent inline links
+- [x] New props: `compact` (icon-only mode for collapsed sidebar/navbar), `direction` (horizontal for top nav, vertical for sidebars), `onNavigate` (callback for closing mobile menu)
+- [x] `StudentNav` — user links render persistently above theme/lang toggles, respects collapsed state
+- [x] `AdminNav` — same persistent layout above theme/lang toggles
+- [x] `MobileMenu` — passes `onNavigate={onClose}` so each link closes the drawer
+- [x] `NavClient` — desktop top nav uses compact horizontal icon row
+
+### Files Modified
+- `components/layout/user-menu.tsx` (full rewrite — no more popup)
+- `components/layout/mobile-menu.tsx` (onNavigate prop)
+- `components/layout/nav-client.tsx` (compact + direction props)
+- `components/learn/StudentNav.tsx` (new bottom layout)
+- `components/admin/AdminNav.tsx` (new bottom layout)
 
 ---
 
