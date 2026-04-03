@@ -79,6 +79,8 @@ export interface StudentWelcomeEmailData {
   email: string;
   actionLink: string;
   type: 'new' | 'existing';
+  courseTitle?: string;
+  surveyUrl?: string;
 }
 
 export interface VerticeLeadEmailData {
