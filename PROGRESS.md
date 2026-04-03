@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-03-26 (Teacher prep materials — presentation PDF + lesson plan DOCX per session, enrolled students roster)
+**Last updated:** 2026-04-02 (Manual student add, AI cohort survey summary, survey assignment)
 
 ### Status Legend
 - [ ] Not started
@@ -1335,6 +1335,117 @@ Replaced the avatar-button + portal dropdown pattern with persistent, always-vis
 - `components/layout/nav-client.tsx` (compact + direction props)
 - `components/learn/StudentNav.tsx` (new bottom layout)
 - `components/admin/AdminNav.tsx` (new bottom layout)
+
+---
+
+## Survey Assignment — Pre-Course Surveys for Students
+
+Token-based pre-course surveys optionally assigned when creating a student in the admin panel. Survey link is included in the welcome email (no login required). Responses are linked to the specific student for AI learning profile building, with pending/completed tracking in the admin UI.
+
+### Database
+- [x] Migration `022_surveys.sql` — `surveys` registry table (slug, title_en, title_jp, is_active), `survey_assignments` table (user_id, survey_id, token UUID, status, completed_at), token index
+- [x] `survey_responses` — added nullable `user_id` and `assignment_id` columns (backward-compatible; anonymous submissions unchanged)
+- [x] Migration `023_survey_summaries.sql` — `survey_summaries` table for AI-generated cohort analysis (survey_id, response_count, stats JSONB, summary_text, key_takeaways, tool_recommendations, instructor_notes, generated_at)
+- [x] Seed: AI Essentials survey row in `surveys` table
+
+### Backend
+- [x] `lib/survey/actions.ts` — `validateSurveyToken(token)` server action: looks up assignment + survey + user via service role client, returns `{ userId, assignmentId, userName, surveySlug, status }` or null (graceful fallback to anonymous mode)
+- [x] `lib/admin/actions.ts` — `assignSurvey(userId, surveyId)`: inserts `survey_assignments` row, returns `{ token, slug }`
+- [x] `lib/admin/queries.ts` — `getActiveSurveys()`: fetches active surveys; `getStudentList()`: updated to include `survey_status` (most recent assignment per student)
+- [x] `lib/admin/types.ts` — `ActiveSurvey` interface; `survey_status` added to `StudentListItem`
+
+### Welcome Email
+- [x] `lib/email/types.ts` — `courseTitle?` and `surveyUrl?` added to `StudentWelcomeEmailData`
+- [x] `lib/email/send.ts` — `sendStudentWelcomeEmail()` fully rewritten: personalized greeting, conditional course block, password/dashboard CTA, link expiry note, conditional survey CTA, `help@honuvibe.com` support footer; bilingual (EN/JP)
+- [x] `lib/students/actions.ts` — `sendStudentWelcomeEmailAction()` accepts optional `surveyUrl` and `courseTitle`
+
+### Admin UI
+- [x] `app/[locale]/admin/students/new/page.tsx` — fetches `activeSurveys` via `getActiveSurveys()` alongside courses
+- [x] `components/admin/AddStudentFlow.tsx` — Step 2: "Assign Survey" dropdown; after save: calls `assignSurvey()`, constructs token URL (`NEXT_PUBLIC_SITE_URL/survey/[slug]?token=[uuid]`), passes to welcome email; Step 3: survey confirmation line; retry/resend buttons include survey URL
+- [x] `components/admin/AdminStudentList.tsx` — Survey column with `Pending` (amber) / `Completed` (teal) / `—` badges
+
+### Survey Page
+- [x] `app/[locale]/survey/ai-essentials/page.tsx` — thin server wrapper, reads `searchParams.token`, passes to client component
+- [x] `app/[locale]/survey/ai-essentials/survey-form.tsx` (new) — client component; on mount calls `validateSurveyToken`; shows "already completed" screen if status=completed; pre-fills name from token; includes `assignmentId` in submit payload
+
+### Submit Route
+- [x] `app/api/survey/submit/route.ts` — accepts optional `assignmentId`; looks up `user_id` from `survey_assignments`; stores both on `survey_responses` insert; marks assignment `status=completed` + `completed_at` after successful insert; fires `regenerateSurveySummary` via `after()` in background
+
+### Verification
+- [x] TypeScript: zero errors
+- [x] Production build: clean
+- [ ] DB migrations applied (`supabase db push`)
+- [ ] End-to-end: create student → assign survey → check email → submit survey → verify completion status
+
+---
+
+## Manual Student Add (Admin)
+
+Allows admins to manually create or find students and optionally enroll them in a course, bypassing Stripe. Designed for students who pay through Vertice Society, in-person, or other offline methods.
+
+### Database
+- [x] Migration `020_enrollment_notes.sql` — adds `notes TEXT` nullable column to `enrollments` for audit trail
+
+### Server Actions
+- [x] `lib/students/actions.ts` — `createNewUserAndStudent()`: creates auth user via admin client, polls for `handle_new_user()` trigger row, rolls back on failure
+- [x] `lib/students/actions.ts` — `sendStudentWelcomeEmailAction()`: generates recovery/magic link, sends bilingual welcome email, always fires admin notification
+
+### Queries & Actions
+- [x] `lib/admin/queries.ts` — `getActiveCourses()` returns courses with status `published` or `in-progress` for the enrollment picker
+- [x] `lib/admin/actions.ts` — `manualEnroll()` updated: `requireAdmin()` guard added, `notes` field persisted, `skipEnrollmentEmail` param to prevent double-email
+
+### Email
+- [x] `lib/email/types.ts` — `StudentWelcomeEmailData` interface
+- [x] `lib/email/send.ts` — `sendStudentWelcomeEmail()` (bilingual, new/existing account variants) + `sendStudentWelcomeAdminNotification()`
+
+### UI
+- [x] `components/admin/AddStudentFlow.tsx` — 3-step wizard (Search → Enroll → Done): email search, existing user card or create-new form, course picker, notes field, welcome email toggle with EN/JP locale selector, post-completion email status with resend option
+- [x] `app/[locale]/admin/students/new/page.tsx` — server page wrapper fetching active courses
+- [x] `app/[locale]/admin/students/page.tsx` — "Add Student" button added to page header
+
+### Files Created/Modified
+- **Created**: `supabase/migrations/020_enrollment_notes.sql`, `lib/students/actions.ts`, `components/admin/AddStudentFlow.tsx`, `app/[locale]/admin/students/new/page.tsx`
+- **Modified**: `lib/admin/actions.ts`, `lib/admin/queries.ts`, `lib/email/types.ts`, `lib/email/send.ts`, `app/[locale]/admin/students/page.tsx`
+
+### Verification
+- [x] TypeScript: zero type errors
+- [x] Production build: compiled successfully
+- [ ] Migration: apply `020_enrollment_notes.sql` to Supabase
+
+---
+
+## AI Cohort Survey Summary (Admin)
+
+Auto-generated AI panel at the top of `/admin/surveys` showing cohort-level insights after each submission. Triggered fire-and-forget via Next.js `after()`. Designed to help instructors understand the cohort's background, goals, and tool usage before the course begins.
+
+### Database
+- [x] Migration `023_survey_summaries.sql` — `survey_summaries` table: `survey_id` FK to `surveys`, `response_count`, `stats JSONB`, `summary_text`, `key_takeaways TEXT[]`, `tool_recommendations`, `instructor_notes`, `generated_at` (depends on migration 022 from survey-assignment spec)
+
+### Background Job
+- [x] `lib/survey/summarize.ts` — `regenerateSurveySummary(courseSlug)`:
+  - Looks up `survey_id` from `surveys` table by slug (graceful early return if table missing)
+  - Fetches all `survey_responses` for the course slug; aggregates stats across 5 fields
+  - Calls Claude API (`claude-sonnet-4-6`) with anonymized data — no PII sent
+  - Parses JSON response with strict type guard; upserts `survey_summaries` on conflict
+  - 20s AbortSignal timeout; full try/catch — never throws (safe for `after()`)
+
+### API Route
+- [x] `app/api/survey/submit/route.ts` — `after(() => regenerateSurveySummary('ai-essentials'))` fires after successful insert; does not block the 200 response
+
+### UI
+- [x] `components/admin/SurveySummaryPanel.tsx` — server component: null state placeholder, or populated panel with stat chips, key takeaways list, narrative summary, teal AI tool callout, gold instructor notes callout, generation timestamp footer
+- [x] `app/[locale]/admin/surveys/page.tsx` — fetches summary via `surveys!inner(slug)` join; renders `<SurveySummaryPanel>` above `<AdminSurveyList>`; try/catch handles missing `surveys` table gracefully
+
+### Files Created/Modified
+- **Created**: `supabase/migrations/023_survey_summaries.sql`, `lib/survey/summarize.ts`, `components/admin/SurveySummaryPanel.tsx`
+- **Modified**: `app/api/survey/submit/route.ts`, `app/[locale]/admin/surveys/page.tsx`
+
+### Verification
+- [x] TypeScript: zero type errors
+- [x] Production build: compiled successfully
+- [ ] Migrations: apply 022 (survey-assignment spec) then 023 to Supabase
+- [ ] End-to-end: submit survey, verify `survey_summaries` row appears within seconds
+- [ ] Admin panel: confirm panel renders at `/admin/surveys`
 
 ---
 
