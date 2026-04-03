@@ -90,6 +90,7 @@ export async function sendStudentWelcomeEmailAction(
   type: 'new' | 'existing',
   locale: Locale,
   courseTitle?: string,
+  surveyUrl?: string,
   notes?: string,
 ): Promise<{ success: boolean; error?: string }> {
   await requireAdmin();
@@ -125,6 +126,8 @@ export async function sendStudentWelcomeEmailAction(
         email,
         actionLink: linkData.properties.action_link,
         type,
+        courseTitle,
+        surveyUrl,
       });
       emailSent = true;
     } catch (emailErr) {
