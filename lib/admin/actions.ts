@@ -202,6 +202,34 @@ export async function manualEnroll(
   revalidatePath('/admin/students');
 }
 
+export async function assignSurvey(
+  userId: string,
+  surveyId: string,
+): Promise<{ token: string; slug: string }> {
+  await requireAdmin();
+
+  // Use service role to bypass RLS on survey_assignments table
+  const adminClient = createAdminClient();
+
+  const { data: survey, error: surveyError } = await adminClient
+    .from('surveys')
+    .select('slug')
+    .eq('id', surveyId)
+    .single();
+
+  if (surveyError || !survey) throw new Error('Survey not found');
+
+  const { data: assignment, error } = await adminClient
+    .from('survey_assignments')
+    .insert({ user_id: userId, survey_id: surveyId })
+    .select('token')
+    .single();
+
+  if (error) throw new Error(`Failed to create survey assignment: ${error.message}`);
+
+  return { token: assignment.token as string, slug: survey.slug };
+}
+
 export async function searchUsers(query: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
