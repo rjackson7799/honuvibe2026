@@ -112,8 +112,8 @@ export default function SurveySummaryPanel({ summary, responseCount }: Props) {
       </div>
 
       {/* Amber callout — Instructor Notes */}
-      <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 px-4 py-3 space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-amber-400">
+      <div className="rounded-lg bg-accent-gold/10 border border-accent-gold/30 px-4 py-3 space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-accent-gold">
           Instructor Notes
         </p>
         <p className="text-sm text-fg-secondary">{summary.instructor_notes}</p>
