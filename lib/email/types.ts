@@ -98,6 +98,11 @@ export interface RecommendedTool {
   reason: string;
 }
 
+export interface SuggestedProject {
+  title: string;
+  description: string;
+}
+
 export interface StudentProfileEmailData {
   locale: Locale;
   fullName: string;
@@ -105,5 +110,7 @@ export interface StudentProfileEmailData {
   levelLabel: string;
   levelDescription: string;
   recommendedTools: RecommendedTool[];  // exactly 3
+  suggestedProjects: SuggestedProject[];  // exactly 3
+  aiForYourWork: string;
   learningPath: string;
 }

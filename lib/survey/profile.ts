@@ -25,10 +25,17 @@ interface RecommendedTool {
   reason: string;
 }
 
+interface SuggestedProject {
+  title: string;
+  description: string;
+}
+
 interface ClaudeStudentProfile {
   level_label: string;
   level_description: string;
   recommended_tools: RecommendedTool[];
+  suggested_projects: SuggestedProject[];
+  ai_for_your_work: string;
   learning_path: string;
 }
 
@@ -42,6 +49,12 @@ function isRecommendedTool(value: unknown): value is RecommendedTool {
   return typeof obj.name === 'string' && typeof obj.reason === 'string';
 }
 
+function isSuggestedProject(value: unknown): value is SuggestedProject {
+  if (typeof value !== 'object' || value === null) return false;
+  const obj = value as Record<string, unknown>;
+  return typeof obj.title === 'string' && typeof obj.description === 'string';
+}
+
 function isClaudeStudentProfile(value: unknown): value is ClaudeStudentProfile {
   if (typeof value !== 'object' || value === null) return false;
   const obj = value as Record<string, unknown>;
@@ -51,6 +64,10 @@ function isClaudeStudentProfile(value: unknown): value is ClaudeStudentProfile {
     Array.isArray(obj.recommended_tools) &&
     (obj.recommended_tools as unknown[]).length === 3 &&
     (obj.recommended_tools as unknown[]).every(isRecommendedTool) &&
+    Array.isArray(obj.suggested_projects) &&
+    (obj.suggested_projects as unknown[]).length === 3 &&
+    (obj.suggested_projects as unknown[]).every(isSuggestedProject) &&
+    typeof obj.ai_for_your_work === 'string' &&
     typeof obj.learning_path === 'string'
   );
 }
@@ -88,7 +105,7 @@ export async function generateAndSendStudentProfile(params: {
     const { surveyData } = params;
 
     // 2. Build Claude prompt
-    const userMessage = `Create a personalized AI study profile for the following student.
+    const userMessage = `Create a personalized AI study profile for the following student enrolling in an AI Essentials course.
 
 Student Information:
 - Name: ${surveyData.name}
@@ -106,20 +123,29 @@ ${surveyData.specific_interests ? `- Additional thoughts: ${surveyData.specific_
 Respond with exactly this JSON shape — no markdown, no code fences, no extra text:
 {
   "level_label": "Short evocative label for their AI level (e.g. 'Curious Beginner', 'Confident Explorer', 'Strategic Practitioner')",
-  "level_description": "2 sentences describing their current level and what it means for this course",
+  "level_description": "2 sentences describing their current level and what that means for this course",
   "recommended_tools": [
-    {"name": "tool name", "reason": "1 sentence specific to their goals and background"},
-    {"name": "tool name", "reason": "1 sentence specific to their goals and background"},
-    {"name": "tool name", "reason": "1 sentence specific to their goals and background"}
+    {"name": "tool name", "reason": "1 sentence — why this tool fits their specific role and goals"},
+    {"name": "tool name", "reason": "1 sentence"},
+    {"name": "tool name", "reason": "1 sentence"}
   ],
-  "learning_path": "2-3 sentences of personalized course advice based on their background and goals"
+  "suggested_projects": [
+    {"title": "Short project title", "description": "2 sentences — what to build and how it will improve their AI skills in a way relevant to their work"},
+    {"title": "Short project title", "description": "2 sentences"},
+    {"title": "Short project title", "description": "2 sentences"}
+  ],
+  "ai_for_your_work": "3 sentences explaining specifically how AI can help with their stated interests, role, and goals — be concrete and practical, not generic",
+  "learning_path": "2-3 sentences of personalized advice for how they should approach this course given their background"
 }
 
-Important: recommended_tools must contain exactly 3 items. Choose tools genuinely suited to this student's specific background and goals.`;
+Important:
+- recommended_tools must contain exactly 3 items
+- suggested_projects must contain exactly 3 items
+- All recommendations must be specific to this student's background, role, and goals — not generic AI advice`;
 
     // 3. Call Claude API
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25_000);
+    const timeoutId = setTimeout(() => controller.abort(), 30_000);
     const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       signal: controller.signal,
       method: 'POST',
@@ -130,7 +156,7 @@ Important: recommended_tools must contain exactly 3 items. Choose tools genuinel
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 800,
+        max_tokens: 1200,
         temperature: 0.3,
         system:
           'You are an AI education specialist creating personalized AI study profiles. Return JSON only — no markdown, no explanation.',
@@ -176,6 +202,8 @@ Important: recommended_tools must contain exactly 3 items. Choose tools genuinel
       levelLabel: parsed.level_label,
       levelDescription: parsed.level_description,
       recommendedTools: parsed.recommended_tools,
+      suggestedProjects: parsed.suggested_projects,
+      aiForYourWork: parsed.ai_for_your_work,
       learningPath: parsed.learning_path,
     });
 

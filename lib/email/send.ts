@@ -852,7 +852,7 @@ export async function sendStudentWelcomeAdminNotification(data: {
 // ─── Student AI Study Profile ────────────────────────────────
 
 export async function sendStudentProfileEmail(data: StudentProfileEmailData): Promise<void> {
-  const { locale, fullName, email, levelLabel, levelDescription, recommendedTools, learningPath } = data;
+  const { locale, fullName, email, levelLabel, levelDescription, recommendedTools, suggestedProjects, aiForYourWork, learningPath } = data;
   const isJP = locale === 'ja';
 
   const body = [
@@ -862,7 +862,7 @@ export async function sendStudentProfileEmail(data: StudentProfileEmailData): Pr
       : `Thank you for completing the survey, ${fullName}!`),
     paragraph(isJP
       ? 'あなたの回答をもとに、パーソナライズされたAI学習プロフィールを作成しました。コースをより有意義なものにするために、ぜひご活用ください。'
-      : "Based on your survey responses, we've created a personalized AI study profile for you. Use it to get the most out of your course."),
+      : "Based on your survey responses, we've put together a personalized AI study profile just for you."),
     divider(),
     heading(isJP ? 'あなたのAIレベル' : 'Your AI Level'),
     accentBanner(levelLabel),
@@ -873,6 +873,15 @@ export async function sendStudentProfileEmail(data: StudentProfileEmailData): Pr
       ? 'あなたの目標と経験レベルに合わせた、特におすすめの3つのツールです。'
       : 'Three tools chosen specifically for your goals and current experience level.'),
     detailsTable(recommendedTools.map((t) => ({ label: t.name, value: t.reason }))),
+    divider(),
+    heading(isJP ? 'AIがあなたの仕事・関心をどう助けるか' : 'How AI Can Help You'),
+    paragraph(aiForYourWork),
+    divider(),
+    heading(isJP ? 'スキルアップのためのプロジェクトアイデア' : 'Projects to Build Your Skills'),
+    paragraph(isJP
+      ? 'あなたの背景と目標に合わせた、実践的なプロジェクトアイデアです。'
+      : 'Hands-on projects tailored to your background and goals — great to tackle during or after the course.'),
+    detailsTable(suggestedProjects.map((p) => ({ label: p.title, value: p.description }))),
     divider(),
     heading(isJP ? 'あなたへの学習アドバイス' : 'Your Personalized Learning Path'),
     paragraph(learningPath),
