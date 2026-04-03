@@ -28,7 +28,7 @@ type Props = {
   responseCount: number;
 };
 
-export default function SurveySummaryPanel({ summary, responseCount }: Props) {
+export function SurveySummaryPanel({ summary, responseCount }: Props) {
   if (!summary) {
     return (
       <div className="rounded-xl border border-border-primary bg-bg-secondary px-6 py-8 text-center">
