@@ -46,6 +46,23 @@ export async function POST(request: NextRequest) {
 
     if (supabaseUrl && serviceRoleKey) {
       const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+      // Resolve user_id from assignment if assignmentId provided
+      const assignmentId =
+        typeof data.assignmentId === 'string' && data.assignmentId.length > 0
+          ? data.assignmentId
+          : null;
+
+      let userId: string | null = null;
+      if (assignmentId) {
+        const { data: assignment } = await supabase
+          .from('survey_assignments')
+          .select('user_id')
+          .eq('id', assignmentId)
+          .single();
+        userId = (assignment as { user_id: string } | null)?.user_id ?? null;
+      }
+
       const { error: dbError } = await supabase.from('survey_responses').insert({
         course_slug: 'ai-essentials',
         name: data.name,
@@ -61,11 +78,25 @@ export async function POST(request: NextRequest) {
         specific_interests: data.specific_interests ?? null,
         has_laptop: data.has_laptop,
         used_zoom_before: data.used_zoom_before,
+        user_id: userId,
+        assignment_id: assignmentId,
       });
 
       if (dbError) {
         console.error('[Survey] DB insert failed:', dbError.message);
         return NextResponse.json({ error: 'Failed to save response' }, { status: 500 });
+      }
+
+      // Mark assignment completed
+      if (assignmentId) {
+        const { error: assignmentError } = await supabase
+          .from('survey_assignments')
+          .update({ status: 'completed', completed_at: new Date().toISOString() })
+          .eq('id', assignmentId);
+
+        if (assignmentError) {
+          console.error('[Survey] Failed to mark assignment completed:', assignmentError.message);
+        }
       }
     }
 
