@@ -433,7 +433,7 @@ export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId)}
+                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId, resolvedSurveyUrl || undefined)}
                   disabled={sendingEmail}
                 >
                   <RefreshCw size={14} className={`mr-1.5 ${sendingEmail ? 'animate-spin' : ''}`} />
@@ -450,7 +450,7 @@ export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId)}
+                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId, resolvedSurveyUrl || undefined)}
                   disabled={sendingEmail}
                 >
                   <Mail size={14} className="mr-1.5" />
