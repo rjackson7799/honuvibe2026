@@ -111,18 +111,24 @@ export async function POST(request: NextRequest) {
           surveyData: data as Parameters<typeof generateAndSendStudentProfile>[0]['surveyData'],
         }));
       }
-    }
 
-    // Fire-and-forget admin notification email
-    const notificationEmail =
-      process.env.SURVEY_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL;
+      // Build admin notification recipient list: fixed admins + all instructors from DB
+      const fixedRecipients = ['sperrygroup@gmail.com', 'ryan.jackson.2009@gmail.com'];
+      const { data: instructorRows } = await supabase
+        .from('users')
+        .select('email')
+        .eq('role', 'instructor');
+      const instructorEmails = (instructorRows ?? [])
+        .map((r: { email: string | null }) => r.email)
+        .filter((e): e is string => !!e);
+      const notifyRecipients = [...new Set([...fixedRecipients, ...instructorEmails])];
 
-    if (notificationEmail) {
+      // Fire-and-forget admin notification email
       const resend = getResendClient();
-      if (resend) {
+      if (resend && notifyRecipients.length > 0) {
         void resend.emails.send({
           from: getFromAddress(),
-          to: notificationEmail,
+          to: notifyRecipients,
           subject: `[AI Essentials] New survey response — ${data.name}`,
           html: buildSurveyEmailHtml(data),
         });
