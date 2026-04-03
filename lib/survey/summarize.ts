@@ -81,6 +81,7 @@ function isClaudeSummary(value: unknown): value is ClaudeSummary {
   return (
     typeof obj.summary_text === 'string' &&
     Array.isArray(obj.key_takeaways) &&
+    (obj.key_takeaways as unknown[]).every((t) => typeof t === 'string') &&
     typeof obj.tool_recommendations === 'string' &&
     typeof obj.instructor_notes === 'string'
   );
@@ -171,7 +172,10 @@ Respond with exactly this JSON shape — no markdown, no code fences, no extra t
 }`;
 
     // 5. Call Claude API
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20_000);
     const apiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      signal: controller.signal,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -186,7 +190,7 @@ Respond with exactly this JSON shape — no markdown, no code fences, no extra t
           'You are an AI education specialist analyzing pre-course survey data for an AI Essentials cohort. Return JSON only — no markdown, no explanation.',
         messages: [{ role: 'user', content: userMessage }],
       }),
-    });
+    }).finally(() => clearTimeout(timeoutId));
 
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text().catch(() => '(unreadable)');
@@ -204,7 +208,7 @@ Respond with exactly this JSON shape — no markdown, no code fences, no extra t
     const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (fenceMatch) jsonStr = fenceMatch[1].trim();
 
-    // 5. Parse Claude response
+    // 6. Parse Claude response
     let parsed: unknown;
     try {
       parsed = JSON.parse(jsonStr);
@@ -221,7 +225,7 @@ Respond with exactly this JSON shape — no markdown, no code fences, no extra t
       return;
     }
 
-    // 6. Upsert to survey_summaries
+    // 7. Upsert to survey_summaries
     const { error: upsertError } = await supabase.from('survey_summaries').upsert(
       {
         survey_id: surveyId,
