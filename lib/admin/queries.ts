@@ -105,8 +105,9 @@ export async function getStudentList(): Promise<StudentListItem[]> {
 
   if (error) throw error;
 
-  // Get enrollments for each student
   const studentIds = (students ?? []).map((s) => s.id);
+
+  // Fetch enrollments
   const { data: enrollments } = await supabase
     .from('enrollments')
     .select('user_id, course:courses(title_en)')
@@ -122,6 +123,20 @@ export async function getStudentList(): Promise<StudentListItem[]> {
     enrollmentMap.set(e.user_id, existing);
   }
 
+  // Fetch survey assignments (most recent per student)
+  const { data: surveyAssignments } = await supabase
+    .from('survey_assignments')
+    .select('user_id, status')
+    .in('user_id', studentIds)
+    .order('assigned_at', { ascending: false });
+
+  const surveyStatusMap = new Map<string, 'pending' | 'completed'>();
+  for (const sa of surveyAssignments ?? []) {
+    if (!surveyStatusMap.has(sa.user_id)) {
+      surveyStatusMap.set(sa.user_id, sa.status as 'pending' | 'completed');
+    }
+  }
+
   return (students ?? []).map((s) => ({
     id: s.id,
     email: s.email,
@@ -129,6 +144,7 @@ export async function getStudentList(): Promise<StudentListItem[]> {
     enrolled_courses: enrollmentMap.get(s.id) ?? [],
     subscription_status: s.subscription_status ?? 'none',
     subscription_tier: s.subscription_tier ?? 'free',
+    survey_status: surveyStatusMap.get(s.id) ?? null,
     created_at: s.created_at,
   }));
 }
@@ -285,6 +301,26 @@ export async function getActiveCourses(): Promise<ActiveCourse[]> {
     .from('courses')
     .select('id, title_en, title_jp')
     .in('status', ['published', 'in-progress'])
+    .order('title_en', { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export interface ActiveSurvey {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_jp: string;
+}
+
+export async function getActiveSurveys(): Promise<ActiveSurvey[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('surveys')
+    .select('id, slug, title_en, title_jp')
+    .eq('is_active', true)
     .order('title_en', { ascending: true });
 
   if (error) throw error;

@@ -65,6 +65,7 @@ export interface StudentListItem {
   enrolled_courses: string[];
   subscription_status: string;
   subscription_tier: string;
+  survey_status: 'pending' | 'completed' | null;
   created_at: string;
 }
 
