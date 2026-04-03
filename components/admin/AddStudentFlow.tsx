@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, UserPlus, CheckCircle, Mail, MailX, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Search, UserPlus, CheckCircle, Mail, MailX, RefreshCw, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { searchUserByEmail } from '@/lib/instructors/actions';
 import { createNewUserAndStudent, sendStudentWelcomeEmailAction } from '@/lib/students/actions';
-import { manualEnroll } from '@/lib/admin/actions';
-import type { ActiveCourse } from '@/lib/admin/queries';
+import { manualEnroll, assignSurvey } from '@/lib/admin/actions';
+import type { ActiveCourse, ActiveSurvey } from '@/lib/admin/queries';
 
 type FoundUser = {
   id: string;
@@ -18,9 +18,10 @@ type FoundUser = {
 
 type Props = {
   activeCourses: ActiveCourse[];
+  activeSurveys: ActiveSurvey[];
 };
 
-export function AddStudentFlow({ activeCourses }: Props) {
+export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<'search' | 'enroll' | 'done'>('search');
 
@@ -39,6 +40,10 @@ export function AddStudentFlow({ activeCourses }: Props) {
   const [emailLocale, setEmailLocale] = useState<'en' | 'ja'>('en');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+
+  // Survey assignment
+  const [selectedSurveyId, setSelectedSurveyId] = useState('');
+  const [resolvedSurveyUrl, setResolvedSurveyUrl] = useState('');
 
   // Step 3: Done
   const [addedUserId, setAddedUserId] = useState('');
@@ -73,7 +78,7 @@ export function AddStudentFlow({ activeCourses }: Props) {
     }
   }
 
-  async function handleSendWelcomeEmail(userId: string, courseId: string) {
+  async function handleSendWelcomeEmail(userId: string, courseId: string, surveyUrlArg?: string) {
     setSendingEmail(true);
     const selectedCourse = activeCourses.find((c) => c.id === courseId);
     try {
@@ -83,6 +88,7 @@ export function AddStudentFlow({ activeCourses }: Props) {
         mode === 'create' ? 'new' : 'existing',
         emailLocale,
         selectedCourse?.title_en,
+        surveyUrlArg,
         notes.trim() || undefined,
       );
       setEmailStatus(result.success ? 'sent' : 'failed');
@@ -122,12 +128,21 @@ export function AddStudentFlow({ activeCourses }: Props) {
         await manualEnroll(userId, selectedCourseId, notes.trim() || undefined, true);
       }
 
+      // Assign survey if selected
+      let builtSurveyUrl: string | undefined;
+      if (selectedSurveyId) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+        const { token, slug } = await assignSurvey(userId, selectedSurveyId);
+        builtSurveyUrl = `${siteUrl}/survey/${slug}?token=${token}`;
+        setResolvedSurveyUrl(builtSurveyUrl);
+      }
+
       setAddedUserId(userId);
       setStep('done');
 
       if (sendWelcome) {
         setEmailStatus('pending');
-        void handleSendWelcomeEmail(userId, selectedCourseId);
+        void handleSendWelcomeEmail(userId, selectedCourseId, builtSurveyUrl);
       } else {
         setEmailStatus('skipped');
       }
@@ -271,6 +286,24 @@ export function AddStudentFlow({ activeCourses }: Props) {
 
             <div>
               <label className="block text-xs text-fg-tertiary mb-1">
+                Survey <span className="text-fg-tertiary">(optional)</span>
+              </label>
+              <select
+                value={selectedSurveyId}
+                onChange={(e) => setSelectedSurveyId(e.target.value)}
+                className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
+              >
+                <option value="">— No survey —</option>
+                {activeSurveys.map((survey) => (
+                  <option key={survey.id} value={survey.id}>
+                    {survey.title_en}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs text-fg-tertiary mb-1">
                 Notes <span className="text-fg-tertiary">(optional)</span>
               </label>
               <textarea
@@ -369,6 +402,12 @@ export function AddStudentFlow({ activeCourses }: Props) {
               </strong>
             </p>
           )}
+          {resolvedSurveyUrl && (
+            <p className="text-sm text-fg-secondary flex items-center justify-center gap-1.5">
+              <ClipboardList size={14} className="text-accent-teal" />
+              Survey assigned — link included in email
+            </p>
+          )}
 
           {/* Email status */}
           <div className="flex items-center justify-center gap-2 text-sm">
@@ -394,7 +433,7 @@ export function AddStudentFlow({ activeCourses }: Props) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId)}
+                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId, resolvedSurveyUrl || undefined)}
                   disabled={sendingEmail}
                 >
                   <RefreshCw size={14} className={`mr-1.5 ${sendingEmail ? 'animate-spin' : ''}`} />
@@ -411,7 +450,7 @@ export function AddStudentFlow({ activeCourses }: Props) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId)}
+                  onClick={() => handleSendWelcomeEmail(addedUserId, selectedCourseId, resolvedSurveyUrl || undefined)}
                   disabled={sendingEmail}
                 >
                   <Mail size={14} className="mr-1.5" />
@@ -445,6 +484,8 @@ export function AddStudentFlow({ activeCourses }: Props) {
                 setAddedUserId('');
                 setEmailStatus('pending');
                 setEmailError('');
+                setSelectedSurveyId('');
+                setResolvedSurveyUrl('');
               }}
             >
               Add Another

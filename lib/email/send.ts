@@ -713,27 +713,47 @@ export async function sendVerticeLeadAdminNotification(
 // ─── 9. Student Welcome ──────────────────────────────────────
 
 export async function sendStudentWelcomeEmail(data: StudentWelcomeEmailData): Promise<void> {
-  const { locale, fullName, email, actionLink, type } = data;
+  const { locale, fullName, email, actionLink, type, courseTitle, surveyUrl } = data;
   const isJP = locale === 'ja';
   const isNew = type === 'new';
 
   const body = [
-    accentBanner(
-      isJP ? 'HonuVibe.AIへようこそ！' : 'Welcome to HonuVibe.AI!',
-    ),
     heading(
       isJP
         ? `${fullName} さん、ようこそ！`
-        : `Welcome, ${fullName}!`,
+        : `Hi ${fullName},`,
     ),
     paragraph(
       isJP
+        ? 'HonuVibe.AIへようこそ！一緒に学べることをとても楽しみにしています。'
+        : "Welcome to HonuVibe.AI! We're excited to have you join us.",
+    ),
+
+    // Course block — only if enrolled
+    ...(courseTitle
+      ? [
+          divider(),
+          detailsTable([
+            {
+              label: isJP ? 'ご登録コース' : 'Your Class',
+              value: courseTitle,
+            },
+          ]),
+        ]
+      : []),
+
+    divider(),
+
+    // Login instructions
+    heading(isJP ? 'はじめ方' : 'Getting Started'),
+    paragraph(
+      isJP
         ? isNew
-          ? 'HonuVibe.AIの学習プラットフォームへのアクセスが付与されました。下のボタンからパスワードを設定して、ダッシュボードにアクセスしてください。'
-          : 'コースへの登録が完了しました。下のボタンからダッシュボードにアクセスできます。'
+          ? 'アカウントの準備ができました。下のボタンからパスワードを設定して、学習ダッシュボードにアクセスしてください。'
+          : 'アカウントにログインして、コース教材にアクセスしてください。'
         : isNew
-          ? "You've been granted access to the HonuVibe.AI learning platform. Click below to set your password and access your dashboard."
-          : "You've been enrolled in a course. Click below to access your student dashboard.",
+          ? 'Your account is ready. Click below to set your password and access your student dashboard.'
+          : 'Your account is ready. Click below to access your student dashboard.',
     ),
     ctaButton({
       href: actionLink,
@@ -741,22 +761,55 @@ export async function sendStudentWelcomeEmail(data: StudentWelcomeEmailData): Pr
         ? isNew ? 'パスワードを設定する' : 'ダッシュボードへ'
         : isNew ? 'Set Your Password' : 'Go to Dashboard',
     }),
+    ...(isNew
+      ? [
+          paragraph(
+            isJP
+              ? 'このリンクは24時間有効です。期限が切れた場合は、ログインページの「パスワードをお忘れですか？」からリセットできます。'
+              : 'This link expires in 24 hours. If it expires, use "Forgot Password" on the login page to get a new one.',
+          ),
+        ]
+      : []),
+
+    // Survey block — only if assigned
+    ...(surveyUrl
+      ? [
+          divider(),
+          heading(isJP ? '授業の前に' : 'Before Your First Class'),
+          paragraph(
+            isJP
+              ? 'あなたのことをもっとよく知ることで、より充実した学習体験を提供できます。アンケートにご協力をお願いします。'
+              : "We'd love to learn a bit about you so we can make this experience as valuable as possible.",
+          ),
+          ctaButton({
+            href: surveyUrl,
+            label: isJP ? '受講前アンケートに答える' : 'Complete Your Pre-Course Survey',
+          }),
+        ]
+      : []),
+
     divider(),
+
     paragraph(
       isJP
-        ? 'ご不明な点はお気軽にお問い合わせください。'
-        : 'If you have any questions, feel free to reach out.',
+        ? `ご質問は <a href="mailto:help@honuvibe.com" style="color:#5eaaa8;text-decoration:none;">help@honuvibe.com</a> までお気軽にどうぞ。`
+        : `Questions? Email us at <a href="mailto:help@honuvibe.com" style="color:#5eaaa8;text-decoration:none;">help@honuvibe.com</a> — we're happy to help.`,
+    ),
+    paragraph(
+      isJP
+        ? 'またクラスでお会いしましょう、<br>HonuVibe.AI チームより'
+        : 'See you in class,<br>The HonuVibe.AI Team',
     ),
   ].join('');
 
   await sendEmail({
     to: email,
     subject: isJP
-      ? '【HonuVibe.AI】アカウントのご案内'
-      : 'Welcome to HonuVibe.AI — Account Ready',
+      ? `【HonuVibe.AI】ようこそ、${fullName} さん！`
+      : `Welcome to HonuVibe.AI, ${fullName} — you're in!`,
     html: baseLayout({
       locale,
-      preheader: isJP ? 'HonuVibe.AIへようこそ' : 'Your HonuVibe.AI account is ready',
+      preheader: isJP ? 'HonuVibe.AIへようこそ！' : "Welcome to HonuVibe.AI — you're in!",
       body,
     }),
   });

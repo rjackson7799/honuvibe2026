@@ -45,6 +45,27 @@ export function AdminStudentList({ students }: AdminStudentListProps) {
           : '—',
     },
     {
+      key: 'survey',
+      header: 'Survey',
+      render: (student: StudentListItem) => {
+        if (student.survey_status === 'completed') {
+          return (
+            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-accent-teal/15 text-accent-teal">
+              Completed
+            </span>
+          );
+        }
+        if (student.survey_status === 'pending') {
+          return (
+            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-amber-400/15 text-amber-400">
+              Pending
+            </span>
+          );
+        }
+        return <span className="text-fg-tertiary text-xs">—</span>;
+      },
+    },
+    {
       key: 'subscription',
       header: 'Subscription',
       render: (student: StudentListItem) => {
