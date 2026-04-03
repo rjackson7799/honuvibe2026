@@ -1,6 +1,8 @@
 import { setRequestLocale } from 'next-intl/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { AdminSurveyList } from '@/components/admin/AdminSurveyList';
+import { SurveySummaryPanel } from '@/components/admin/SurveySummaryPanel';
+import type { SurveySummary } from '@/components/admin/SurveySummaryPanel';
 
 export const metadata = {
   title: 'Survey Responses — Admin',
@@ -46,6 +48,22 @@ export default async function AdminSurveysPage({ params, searchParams }: Props) 
     console.error('[Admin/Surveys] Failed to load responses:', error.message);
   }
 
+  let summary: SurveySummary | null = null;
+  try {
+    const { data: summaryData } = await supabase
+      .from('survey_summaries')
+      .select(`
+        id, survey_id, response_count, stats, summary_text,
+        key_takeaways, tool_recommendations, instructor_notes, generated_at,
+        surveys!inner(slug)
+      `)
+      .eq('surveys.slug', course)
+      .maybeSingle();
+    summary = summaryData as SurveySummary | null;
+  } catch {
+    // surveys table may not exist yet (migration 022 pending)
+  }
+
   return (
     <div className="max-w-[1100px] space-y-6">
       <div className="flex items-center justify-between">
@@ -54,6 +72,7 @@ export default async function AdminSurveysPage({ params, searchParams }: Props) 
           {responses?.length ?? 0} response{responses?.length !== 1 ? 's' : ''} · {course}
         </span>
       </div>
+      <SurveySummaryPanel summary={summary} responseCount={responses?.length ?? 0} />
       <AdminSurveyList responses={(responses as SurveyResponse[]) ?? []} />
     </div>
   );
