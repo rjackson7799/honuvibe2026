@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse, after } from 'next/server';
+import { regenerateSurveySummary } from '@/lib/survey/summarize';
 import { createClient } from '@supabase/supabase-js';
 import { getResendClient, getFromAddress } from '@/lib/email/client';
 
@@ -67,6 +68,9 @@ export async function POST(request: NextRequest) {
         console.error('[Survey] DB insert failed:', dbError.message);
         return NextResponse.json({ error: 'Failed to save response' }, { status: 500 });
       }
+
+      // Fire-and-forget: regenerate cohort AI summary in background
+      after(() => regenerateSurveySummary('ai-essentials'));
     }
 
     // Fire-and-forget admin notification email
