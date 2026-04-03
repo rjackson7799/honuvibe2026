@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
       'ai_help_with',
       'success_definition',
       'current_feeling',
-      'has_laptop',
       'used_zoom_before',
     ];
 
@@ -65,9 +64,13 @@ export async function POST(request: NextRequest) {
         userId = (assignment as { user_id: string } | null)?.user_id ?? null;
       }
 
+      const submitterEmail =
+        typeof data.email === 'string' && data.email.trim() ? data.email.trim() : null;
+
       const { error: dbError } = await supabase.from('survey_responses').insert({
         course_slug: 'ai-essentials',
         name: data.name,
+        email: submitterEmail,
         professional_background: data.professional_background,
         role_description: data.role_description,
         ai_knowledge_level: data.ai_knowledge_level,
@@ -78,7 +81,6 @@ export async function POST(request: NextRequest) {
         success_definition: data.success_definition,
         current_feeling: data.current_feeling,
         specific_interests: data.specific_interests ?? null,
-        has_laptop: data.has_laptop,
         used_zoom_before: data.used_zoom_before,
         user_id: userId,
         assignment_id: assignmentId,
@@ -105,11 +107,11 @@ export async function POST(request: NextRequest) {
       after(() => regenerateSurveySummary('ai-essentials'));
 
       // Fire-and-forget: generate + send personalized AI study profile to student
+      const surveyData = data as Parameters<typeof generateAndSendStudentProfile>[0]['surveyData'];
       if (assignmentId && userId) {
-        after(() => generateAndSendStudentProfile({
-          userId,
-          surveyData: data as Parameters<typeof generateAndSendStudentProfile>[0]['surveyData'],
-        }));
+        after(() => generateAndSendStudentProfile({ userId, surveyData }));
+      } else if (submitterEmail) {
+        after(() => generateAndSendStudentProfile({ email: submitterEmail, surveyData }));
       }
 
       // Build admin notification recipient list: fixed admins + all instructors from DB
@@ -178,7 +180,6 @@ function buildSurveyEmailHtml(data: Record<string, unknown>): string {
     ${interests}
     <hr>
     <h3>Logistics</h3>
-    <p><strong>Has Laptop:</strong> ${data.has_laptop}</p>
     <p><strong>Used Zoom Before:</strong> ${data.used_zoom_before}</p>
   `;
 }

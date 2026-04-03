@@ -117,117 +117,126 @@ export async function manualEnroll(
   courseId: string,
   notes?: string,
   skipEnrollmentEmail?: boolean,
-) {
-  const { supabase } = await requireAdmin();
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    const { supabase } = await requireAdmin();
 
-  // Check for existing enrollment
-  const { data: existing } = await supabase
-    .from('enrollments')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('course_id', courseId)
-    .maybeSingle();
+    // Check for existing enrollment
+    const { data: existing } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .maybeSingle();
 
-  if (existing) throw new Error('Student is already enrolled');
+    if (existing) return { success: false, error: 'Student is already enrolled in this course.' };
 
-  // Create enrollment (comp/scholarship — no payment)
-  const { error: enrollError } = await supabase.from('enrollments').insert({
-    user_id: userId,
-    course_id: courseId,
-    amount_paid: 0,
-    currency: 'usd',
-    status: 'active',
-    notes: notes ?? null,
-  });
+    // Create enrollment (comp/scholarship — no payment)
+    const { error: enrollError } = await supabase.from('enrollments').insert({
+      user_id: userId,
+      course_id: courseId,
+      amount_paid: 0,
+      currency: 'usd',
+      status: 'active',
+      notes: notes ?? null,
+    });
 
-  if (enrollError) throw enrollError;
+    if (enrollError) return { success: false, error: enrollError.message };
 
-  // Increment enrollment count
-  const { data: course } = await supabase
-    .from('courses')
-    .select('current_enrollment')
-    .eq('id', courseId)
-    .single();
-
-  if (course) {
-    await supabase
+    // Increment enrollment count
+    const { data: course } = await supabase
       .from('courses')
-      .update({ current_enrollment: (course.current_enrollment ?? 0) + 1 })
-      .eq('id', courseId);
+      .select('current_enrollment')
+      .eq('id', courseId)
+      .single();
+
+    if (course) {
+      await supabase
+        .from('courses')
+        .update({ current_enrollment: (course.current_enrollment ?? 0) + 1 })
+        .eq('id', courseId);
+    }
+
+    // Send enrollment welcome email to student (fire-and-forget)
+    const { data: student } = await supabase
+      .from('users')
+      .select('full_name, email, locale_preference')
+      .eq('id', userId)
+      .single();
+
+    const { data: courseForEmail } = await supabase
+      .from('courses')
+      .select('title_en, title_jp, slug, course_type, start_date')
+      .eq('id', courseId)
+      .single();
+
+    if (!skipEnrollmentEmail && student?.email && courseForEmail) {
+      const emailLocale = (student.locale_preference === 'ja' ? 'ja' : 'en') as 'en' | 'ja';
+      const courseTitle =
+        emailLocale === 'ja'
+          ? (courseForEmail.title_jp ?? courseForEmail.title_en)
+          : courseForEmail.title_en;
+
+      const { sendEnrollmentConfirmation, sendEnrollmentAdminNotification } =
+        await import('@/lib/email/send');
+
+      const enrollmentData = {
+        locale: emailLocale,
+        studentName: student.full_name ?? 'Student',
+        studentEmail: student.email,
+        courseTitle,
+        courseSlug: courseForEmail.slug,
+        courseType: (courseForEmail.course_type ?? 'self-study') as 'cohort' | 'self-study',
+        startDate: courseForEmail.start_date,
+        amountPaid: 0,
+        currency: 'usd' as const,
+        isManualEnroll: true,
+      };
+
+      void Promise.all([
+        sendEnrollmentConfirmation(enrollmentData),
+        sendEnrollmentAdminNotification(enrollmentData),
+      ]);
+    }
+
+    revalidatePath('/admin/courses');
+    revalidatePath('/admin/students');
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to enroll student' };
   }
-
-  // Send enrollment welcome email to student (fire-and-forget)
-  const { data: student } = await supabase
-    .from('users')
-    .select('full_name, email, locale_preference')
-    .eq('id', userId)
-    .single();
-
-  const { data: courseForEmail } = await supabase
-    .from('courses')
-    .select('title_en, title_jp, slug, course_type, start_date')
-    .eq('id', courseId)
-    .single();
-
-  if (!skipEnrollmentEmail && student?.email && courseForEmail) {
-    const emailLocale = (student.locale_preference === 'ja' ? 'ja' : 'en') as 'en' | 'ja';
-    const courseTitle =
-      emailLocale === 'ja'
-        ? (courseForEmail.title_jp ?? courseForEmail.title_en)
-        : courseForEmail.title_en;
-
-    const { sendEnrollmentConfirmation, sendEnrollmentAdminNotification } =
-      await import('@/lib/email/send');
-
-    const enrollmentData = {
-      locale: emailLocale,
-      studentName: student.full_name ?? 'Student',
-      studentEmail: student.email,
-      courseTitle,
-      courseSlug: courseForEmail.slug,
-      courseType: (courseForEmail.course_type ?? 'self-study') as 'cohort' | 'self-study',
-      startDate: courseForEmail.start_date,
-      amountPaid: 0,
-      currency: 'usd' as const,
-      isManualEnroll: true,
-    };
-
-    void Promise.all([
-      sendEnrollmentConfirmation(enrollmentData),
-      sendEnrollmentAdminNotification(enrollmentData),
-    ]);
-  }
-
-  revalidatePath('/admin/courses');
-  revalidatePath('/admin/students');
 }
 
 export async function assignSurvey(
   userId: string,
   surveyId: string,
-): Promise<{ token: string; slug: string }> {
-  await requireAdmin();
+): Promise<{ success: true; token: string; slug: string } | { success: false; error: string }> {
+  try {
+    await requireAdmin();
 
-  // Use service role to bypass RLS on survey_assignments table
-  const adminClient = createAdminClient();
+    // Use service role to bypass RLS on survey_assignments table
+    const adminClient = createAdminClient();
 
-  const { data: survey, error: surveyError } = await adminClient
-    .from('surveys')
-    .select('slug')
-    .eq('id', surveyId)
-    .single();
+    const { data: survey, error: surveyError } = await adminClient
+      .from('surveys')
+      .select('slug')
+      .eq('id', surveyId)
+      .single();
 
-  if (surveyError || !survey) throw new Error('Survey not found');
+    if (surveyError || !survey) return { success: false, error: 'Survey not found' };
 
-  const { data: assignment, error } = await adminClient
-    .from('survey_assignments')
-    .insert({ user_id: userId, survey_id: surveyId })
-    .select('token')
-    .single();
+    const { data: assignment, error } = await adminClient
+      .from('survey_assignments')
+      .insert({ user_id: userId, survey_id: surveyId })
+      .select('token')
+      .single();
 
-  if (error) throw new Error(`Failed to create survey assignment: ${error.message}`);
+    if (error) return { success: false, error: `Failed to create survey assignment: ${error.message}` };
 
-  return { token: assignment.token as string, slug: survey.slug };
+    return { success: true, token: assignment.token as string, slug: survey.slug };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to assign survey' };
+  }
 }
 
 export async function searchUsers(query: string) {

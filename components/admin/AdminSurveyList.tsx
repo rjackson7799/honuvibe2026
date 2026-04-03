@@ -58,7 +58,6 @@ function ExpandedRow({ r }: { r: SurveyResponse }) {
       {r.specific_interests && (
         <DetailRow label="Free writing" value={r.specific_interests} />
       )}
-      <DetailRow label="Has laptop" value={r.has_laptop} />
       <DetailRow label="Used Zoom before" value={r.used_zoom_before} />
     </div>
   );

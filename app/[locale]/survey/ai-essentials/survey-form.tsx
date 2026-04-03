@@ -114,12 +114,6 @@ const CURRENT_FEELINGS: Option[] = [
   { en: "Overwhelmed — There is so much out there, I don't know where to start", jp: '圧倒されている ― 情報が多すぎて、どこから始めればいいかわからない' },
 ];
 
-const HAS_LAPTOP_OPTIONS: Option[] = [
-  { en: 'Yes, I will bring my own laptop', jp: 'はい、自分のノートパソコンを持参します' },
-  { en: 'No, I will need to borrow one', jp: 'いいえ、借りる必要があります' },
-  { en: "I'm not sure yet", jp: 'まだわかりません' },
-];
-
 const ZOOM_OPTIONS: Option[] = [
   { en: 'Yes, I use Zoom regularly', jp: 'はい、定期的に使っています' },
   { en: "I've used it once or twice", jp: '1〜2回使ったことがあります' },
@@ -130,6 +124,7 @@ const ZOOM_OPTIONS: Option[] = [
 
 type FormData = {
   name: string;
+  email: string;
   professional_background: string;
   role_description: string;
   ai_knowledge_level: string;
@@ -140,12 +135,12 @@ type FormData = {
   success_definition: string;
   current_feeling: string;
   specific_interests: string;
-  has_laptop: string;
   used_zoom_before: string;
 };
 
 const EMPTY_FORM: FormData = {
   name: '',
+  email: '',
   professional_background: '',
   role_description: '',
   ai_knowledge_level: '',
@@ -156,7 +151,6 @@ const EMPTY_FORM: FormData = {
   success_definition: '',
   current_feeling: '',
   specific_interests: '',
-  has_laptop: '',
   used_zoom_before: '',
 };
 
@@ -376,7 +370,6 @@ export function SurveyForm({ token }: { token?: string }) {
     if (form.ai_help_with.length === 0) next.ai_help_with = 'Please select at least one. / 1つ以上選択してください。';
     if (!form.success_definition) next.success_definition = 'Please select an option. / 選択してください。';
     if (!form.current_feeling) next.current_feeling = 'Please select an option. / 選択してください。';
-    if (!form.has_laptop) next.has_laptop = 'Please select an option. / 選択してください。';
     if (!form.used_zoom_before) next.used_zoom_before = 'Please select an option. / 選択してください。';
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -421,6 +414,11 @@ export function SurveyForm({ token }: { token?: string }) {
           <p className="mb-2 text-fg-secondary">
             Your response has been received. We&apos;ll review it before Session 1 to make the course as relevant as possible for your background and goals.
           </p>
+          {form.email && (
+            <p className="mb-2 text-sm text-accent-teal">
+              A personalized AI profile is on its way to {form.email}.
+            </p>
+          )}
           <p className="text-sm text-fg-tertiary">
             ご回答ありがとうございます。第1回セッション前に内容を確認し、できる限りお役に立てる授業を準備いたします。
           </p>
@@ -476,6 +474,30 @@ export function SurveyForm({ token }: { token?: string }) {
                 )}
               />
               {errors.name && <p className="mt-1.5 text-sm text-red-500">{errors.name}</p>}
+            </div>
+
+            <div className="mb-8">
+              <div className="mb-3">
+                <p className="text-sm font-semibold text-fg-secondary">
+                  Email address <span className="font-normal text-fg-muted">(optional)</span>
+                </p>
+                <p className="mt-0.5 text-xs text-fg-tertiary">メールアドレス（任意）</p>
+              </div>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => set('email', e.target.value)}
+                placeholder="you@example.com"
+                className={cn(
+                  'h-12 w-full rounded-lg border bg-bg-secondary px-4 text-[16px] text-fg-primary',
+                  'placeholder:text-fg-muted focus:outline-none focus:ring-1',
+                  'border-border-default focus:border-accent-teal focus:ring-accent-teal',
+                )}
+              />
+              <p className="mt-1.5 text-xs text-fg-muted">
+                We&apos;ll send your personalized AI profile here after you submit.
+                <span className="ml-1 text-fg-tertiary">送信後、パーソナライズされたAIプロファイルをお送りします。</span>
+              </p>
             </div>
 
             <div className="mb-8" data-error={errors.professional_background ? true : undefined}>
@@ -575,14 +597,8 @@ export function SurveyForm({ token }: { token?: string }) {
           <section>
             <SectionHeader en="Logistics" jp="確認事項" />
 
-            <div className="mb-8" data-error={errors.has_laptop ? true : undefined}>
-              <QuestionLabel num={12} en="Will you have a laptop available during the course sessions?" jp="コースのセッション中、ノートパソコンを使用できますか？" required />
-              <RadioGroup name="has_laptop" options={HAS_LAPTOP_OPTIONS} value={form.has_laptop} onChange={(v) => set('has_laptop', v)} />
-              {errors.has_laptop && <p className="mt-1.5 text-sm text-red-500">{errors.has_laptop}</p>}
-            </div>
-
             <div className="mb-2" data-error={errors.used_zoom_before ? true : undefined}>
-              <QuestionLabel num={13} en="Have you used Zoom for video calls before?" jp="Zoomを使ったビデオ通話の経験はありますか？" required />
+              <QuestionLabel num={12} en="Have you used Zoom for video calls before?" jp="Zoomを使ったビデオ通話の経験はありますか？" required />
               <RadioGroup name="used_zoom_before" options={ZOOM_OPTIONS} value={form.used_zoom_before} onChange={(v) => set('used_zoom_before', v)} />
               {errors.used_zoom_before && <p className="mt-1.5 text-sm text-red-500">{errors.used_zoom_before}</p>}
             </div>

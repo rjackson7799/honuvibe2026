@@ -92,13 +92,13 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
     const errors: { name: string; message: string }[] = [];
 
     for (const [id, user] of selected) {
-      try {
-        await manualEnroll(id, courseId);
+      const result = await manualEnroll(id, courseId);
+      if (result.success) {
         enrolled.push(user.full_name ?? user.email ?? id);
-      } catch (err) {
+      } else {
         errors.push({
           name: user.full_name ?? user.email ?? id,
-          message: err instanceof Error ? err.message : 'Failed to enroll',
+          message: result.error,
         });
       }
     }
@@ -117,17 +117,16 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
     setUuidError('');
     setUuidSuccess(false);
 
-    try {
-      await manualEnroll(userId.trim(), courseId);
+    const result = await manualEnroll(userId.trim(), courseId);
+    if (result.success) {
       setUuidSuccess(true);
       setUserId('');
       router.refresh();
       setTimeout(() => setUuidSuccess(false), 3000);
-    } catch (err) {
-      setUuidError(err instanceof Error ? err.message : 'Failed to enroll student');
-    } finally {
-      setUuidLoading(false);
+    } else {
+      setUuidError(result.error);
     }
+    setUuidLoading(false);
   }
 
   const enrolledSet = new Set(enrolledStudentIds);

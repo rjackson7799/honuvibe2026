@@ -109,47 +109,57 @@ export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
     setSaving(true);
     setSaveError('');
 
-    try {
-      let userId: string;
+    let userId: string;
 
-      if (mode === 'create') {
-        const result = await createNewUserAndStudent(
-          email.trim().toLowerCase(),
-          fullName.trim(),
-        );
-        userId = result.userId;
-      } else {
-        if (!foundUser) return;
-        userId = foundUser.id;
+    if (mode === 'create') {
+      const result = await createNewUserAndStudent(
+        email.trim().toLowerCase(),
+        fullName.trim(),
+      );
+      if (!result.success) {
+        setSaveError(result.error);
+        setSaving(false);
+        return;
       }
+      userId = result.userId;
+    } else {
+      if (!foundUser) return;
+      userId = foundUser.id;
+    }
 
-      // Enroll in course if one was selected
-      if (selectedCourseId) {
-        await manualEnroll(userId, selectedCourseId, notes.trim() || undefined, true);
+    // Enroll in course if one was selected
+    if (selectedCourseId) {
+      const result = await manualEnroll(userId, selectedCourseId, notes.trim() || undefined, true);
+      if (!result.success) {
+        setSaveError(result.error);
+        setSaving(false);
+        return;
       }
+    }
 
-      // Assign survey if selected
-      let builtSurveyUrl: string | undefined;
-      if (selectedSurveyId) {
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
-        const { token, slug } = await assignSurvey(userId, selectedSurveyId);
-        builtSurveyUrl = `${siteUrl}/survey/${slug}?token=${token}`;
-        setResolvedSurveyUrl(builtSurveyUrl);
+    // Assign survey if selected
+    let builtSurveyUrl: string | undefined;
+    if (selectedSurveyId) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+      const result = await assignSurvey(userId, selectedSurveyId);
+      if (!result.success) {
+        setSaveError(result.error);
+        setSaving(false);
+        return;
       }
+      builtSurveyUrl = `${siteUrl}/survey/${result.slug}?token=${result.token}`;
+      setResolvedSurveyUrl(builtSurveyUrl);
+    }
 
-      setAddedUserId(userId);
-      setStep('done');
+    setAddedUserId(userId);
+    setStep('done');
+    setSaving(false);
 
-      if (sendWelcome) {
-        setEmailStatus('pending');
-        void handleSendWelcomeEmail(userId, selectedCourseId, builtSurveyUrl);
-      } else {
-        setEmailStatus('skipped');
-      }
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to add student');
-    } finally {
-      setSaving(false);
+    if (sendWelcome) {
+      setEmailStatus('pending');
+      void handleSendWelcomeEmail(userId, selectedCourseId, builtSurveyUrl);
+    } else {
+      setEmailStatus('skipped');
     }
   }
 

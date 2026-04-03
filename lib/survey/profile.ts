@@ -76,10 +76,14 @@ function isClaudeStudentProfile(value: unknown): value is ClaudeStudentProfile {
 // Main export
 // ---------------------------------------------------------------------------
 
-export async function generateAndSendStudentProfile(params: {
-  userId: string;
+type ProfileParams = {
   surveyData: SurveyData;
-}): Promise<void> {
+} & (
+  | { userId: string; email?: never }
+  | { email: string; userId?: never }
+);
+
+export async function generateAndSendStudentProfile(params: ProfileParams): Promise<void> {
   try {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -87,21 +91,33 @@ export async function generateAndSendStudentProfile(params: {
       return;
     }
 
-    const supabase = createAdminClient();
+    let recipientEmail: string;
+    let recipientName: string;
+    let locale: Locale = 'en';
 
-    // 1. Look up user email + locale
-    const { data: userRow, error: userError } = await supabase
-      .from('users')
-      .select('email, full_name, locale_preference')
-      .eq('id', params.userId)
-      .single();
+    if (params.userId !== undefined) {
+      // Assigned student path: look up email + locale from users table
+      const supabase = createAdminClient();
+      const { data: userRow, error: userError } = await supabase
+        .from('users')
+        .select('email, full_name, locale_preference')
+        .eq('id', params.userId)
+        .single();
 
-    if (userError || !userRow?.email) {
-      console.warn('[StudentProfile] No email found for user', params.userId, userError?.message ?? '(null row)');
-      return;
+      if (userError || !userRow?.email) {
+        console.warn('[StudentProfile] No email found for user', params.userId, userError?.message ?? '(null row)');
+        return;
+      }
+
+      recipientEmail = userRow.email as string;
+      recipientName = (userRow.full_name as string | null) ?? params.surveyData.name;
+      locale = (userRow.locale_preference as string) === 'ja' ? 'ja' : 'en';
+    } else {
+      // Anonymous path: email provided directly, no DB lookup needed
+      recipientEmail = params.email;
+      recipientName = params.surveyData.name;
     }
 
-    const locale: Locale = (userRow.locale_preference as string) === 'ja' ? 'ja' : 'en';
     const { surveyData } = params;
 
     // 2. Build Claude prompt
@@ -197,8 +213,8 @@ Important:
     // 5. Send profile email
     await sendStudentProfileEmail({
       locale,
-      fullName: (userRow.full_name as string | null) ?? surveyData.name,
-      email: userRow.email as string,
+      fullName: recipientName,
+      email: recipientEmail,
       levelLabel: parsed.level_label,
       levelDescription: parsed.level_description,
       recommendedTools: parsed.recommended_tools,
@@ -207,7 +223,8 @@ Important:
       learningPath: parsed.learning_path,
     });
 
-    console.log(`[StudentProfile] Profile email sent for user ${params.userId}`);
+    const identifier = params.userId ?? params.email;
+    console.log(`[StudentProfile] Profile email sent for ${identifier}`);
   } catch (err) {
     console.error('[StudentProfile] Unexpected error:', err);
   }

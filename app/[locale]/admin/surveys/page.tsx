@@ -23,7 +23,6 @@ export type SurveyResponse = {
   success_definition: string;
   current_feeling: string;
   specific_interests: string | null;
-  has_laptop: string;
   used_zoom_before: string;
 };
 

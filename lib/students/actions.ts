@@ -29,59 +29,63 @@ async function requireAdmin() {
 export async function createNewUserAndStudent(
   email: string,
   fullName: string,
-): Promise<{ userId: string }> {
-  const supabase = await requireAdmin();
+): Promise<{ success: true; userId: string } | { success: false; error: string }> {
+  try {
+    const supabase = await requireAdmin();
 
-  // Check no existing user with this email
-  const { data: existingUser } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', email)
-    .maybeSingle();
-
-  if (existingUser) {
-    throw new Error('A user with this email already exists. Use the search flow instead.');
-  }
-
-  // Create auth user via admin client (no password — student uses recovery link)
-  const adminClient = createAdminClient();
-  const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
-    email,
-    email_confirm: true,
-    user_metadata: { full_name: fullName },
-  });
-
-  if (authError) {
-    if (authError.message.includes('already been registered')) {
-      throw new Error('This email is already registered in the auth system.');
-    }
-    throw new Error(`Failed to create user account: ${authError.message}`);
-  }
-
-  const newUserId = authData.user.id;
-
-  // Wait for handle_new_user() trigger to create public.users row
-  let publicUser = null;
-  for (let i = 0; i < 3; i++) {
-    const { data } = await supabase
+    // Check no existing user with this email
+    const { data: existingUser } = await supabase
       .from('users')
       .select('id')
-      .eq('id', newUserId)
+      .eq('email', email)
       .maybeSingle();
-    if (data) {
-      publicUser = data;
-      break;
+
+    if (existingUser) {
+      return { success: false, error: 'A user with this email already exists. Use the search flow instead.' };
     }
-    await new Promise((r) => setTimeout(r, 500));
-  }
 
-  if (!publicUser) {
-    await adminClient.auth.admin.deleteUser(newUserId);
-    throw new Error('User profile was not created. Please try again.');
-  }
+    // Create auth user via admin client (no password — student uses recovery link)
+    const adminClient = createAdminClient();
+    const { data: authData, error: authError } = await adminClient.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: { full_name: fullName },
+    });
 
-  revalidatePath('/admin/students');
-  return { userId: newUserId };
+    if (authError) {
+      if (authError.message.includes('already been registered')) {
+        return { success: false, error: 'This email is already registered in the auth system.' };
+      }
+      return { success: false, error: `Failed to create user account: ${authError.message}` };
+    }
+
+    const newUserId = authData.user.id;
+
+    // Wait for handle_new_user() trigger to create public.users row
+    let publicUser = null;
+    for (let i = 0; i < 3; i++) {
+      const { data } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', newUserId)
+        .maybeSingle();
+      if (data) {
+        publicUser = data;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 500));
+    }
+
+    if (!publicUser) {
+      await adminClient.auth.admin.deleteUser(newUserId);
+      return { success: false, error: 'User profile was not created. Please try again.' };
+    }
+
+    revalidatePath('/admin/students');
+    return { success: true, userId: newUserId };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : 'Failed to create student account' };
+  }
 }
 
 export async function sendStudentWelcomeEmailAction(
