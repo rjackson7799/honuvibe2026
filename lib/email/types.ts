@@ -92,3 +92,18 @@ export interface VerticeLeadEmailData {
   whyStudy: string;
   isReturning: boolean;
 }
+
+export interface RecommendedTool {
+  name: string;
+  reason: string;
+}
+
+export interface StudentProfileEmailData {
+  locale: Locale;
+  fullName: string;
+  email: string;
+  levelLabel: string;
+  levelDescription: string;
+  recommendedTools: RecommendedTool[];  // exactly 3
+  learningPath: string;
+}

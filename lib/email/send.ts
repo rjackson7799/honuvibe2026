@@ -19,6 +19,7 @@ import type {
   InstructorWelcomeEmailData,
   StudentWelcomeEmailData,
   VerticeLeadEmailData,
+  StudentProfileEmailData,
 } from './types';
 
 // ─── Internal helper ────────────────────────────────────────
@@ -845,5 +846,49 @@ export async function sendStudentWelcomeAdminNotification(data: {
     to: adminEmail,
     subject: `[Students] ${data.fullName} added manually`,
     html: baseLayout({ locale: 'en', body }),
+  });
+}
+
+// ─── Student AI Study Profile ────────────────────────────────
+
+export async function sendStudentProfileEmail(data: StudentProfileEmailData): Promise<void> {
+  const { locale, fullName, email, levelLabel, levelDescription, recommendedTools, learningPath } = data;
+  const isJP = locale === 'ja';
+
+  const body = [
+    accentBanner(isJP ? 'あなたのAI学習プロフィールができました' : 'Your AI Study Profile Is Ready'),
+    heading(isJP
+      ? `${fullName} さん、アンケートへのご回答ありがとうございます！`
+      : `Thank you for completing the survey, ${fullName}!`),
+    paragraph(isJP
+      ? 'あなたの回答をもとに、パーソナライズされたAI学習プロフィールを作成しました。コースをより有意義なものにするために、ぜひご活用ください。'
+      : "Based on your survey responses, we've created a personalized AI study profile for you. Use it to get the most out of your course."),
+    divider(),
+    heading(isJP ? 'あなたのAIレベル' : 'Your AI Level'),
+    accentBanner(levelLabel),
+    paragraph(levelDescription),
+    divider(),
+    heading(isJP ? 'おすすめのAIツール' : 'Recommended AI Tools'),
+    paragraph(isJP
+      ? 'あなたの目標と経験レベルに合わせた、特におすすめの3つのツールです。'
+      : 'Three tools chosen specifically for your goals and current experience level.'),
+    detailsTable(recommendedTools.map((t) => ({ label: t.name, value: t.reason }))),
+    divider(),
+    heading(isJP ? 'あなたへの学習アドバイス' : 'Your Personalized Learning Path'),
+    paragraph(learningPath),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? 'あなたのAI学習プロフィール — AI Essentials'
+      : 'Your AI Study Profile — AI Essentials',
+    html: baseLayout({
+      locale,
+      preheader: isJP
+        ? 'あなた専用のAI学習プロフィールをご覧ください'
+        : 'Your personalized AI study profile is here',
+      body,
+    }),
   });
 }

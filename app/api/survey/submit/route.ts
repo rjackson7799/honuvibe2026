@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import { regenerateSurveySummary } from '@/lib/survey/summarize';
+import { generateAndSendStudentProfile } from '@/lib/survey/profile';
 import { createClient } from '@supabase/supabase-js';
 import { getResendClient, getFromAddress } from '@/lib/email/client';
 
@@ -102,6 +103,14 @@ export async function POST(request: NextRequest) {
 
       // Fire-and-forget: regenerate cohort AI summary in background
       after(() => regenerateSurveySummary('ai-essentials'));
+
+      // Fire-and-forget: generate + send personalized AI study profile to student
+      if (assignmentId && userId) {
+        after(() => generateAndSendStudentProfile({
+          userId,
+          surveyData: data as Parameters<typeof generateAndSendStudentProfile>[0]['surveyData'],
+        }));
+      }
     }
 
     // Fire-and-forget admin notification email
