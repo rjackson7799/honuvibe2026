@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/server';
-import { sendStudentProfileEmail } from '@/lib/email/send';
+import { sendStudentProfileEmail, sendSurveyAdminNotificationWithProfile } from '@/lib/email/send';
 import type { Locale } from '@/lib/email/types';
 
 // ---------------------------------------------------------------------------
@@ -210,11 +210,44 @@ Important:
       return;
     }
 
-    // 5. Send profile email
+    // 5. Send profile email to student (with survey summary recap)
     await sendStudentProfileEmail({
       locale,
       fullName: recipientName,
       email: recipientEmail,
+      levelLabel: parsed.level_label,
+      levelDescription: parsed.level_description,
+      recommendedTools: parsed.recommended_tools,
+      suggestedProjects: parsed.suggested_projects,
+      aiForYourWork: parsed.ai_for_your_work,
+      learningPath: parsed.learning_path,
+      surveySummary: {
+        professional_background: surveyData.professional_background,
+        role_description: surveyData.role_description,
+        ai_knowledge_level: surveyData.ai_knowledge_level,
+        ai_tools_used: surveyData.ai_tools_used,
+        learning_reasons: surveyData.learning_reasons,
+        ai_help_with: surveyData.ai_help_with,
+        specific_interests: surveyData.specific_interests,
+      },
+    });
+
+    // 6. Notify admins + instructors with survey answers + AI profile combined
+    const adminSupabase = createAdminClient();
+    const { data: instructorRows } = await adminSupabase
+      .from('users')
+      .select('email')
+      .eq('role', 'instructor');
+    const adminRecipients = [...new Set([
+      'sperrygroup@gmail.com',
+      'ryan.jackson.2009@gmail.com',
+      ...(instructorRows ?? []).map((r: { email: string | null }) => r.email).filter((e): e is string => !!e),
+    ])];
+    await sendSurveyAdminNotificationWithProfile({
+      recipients: adminRecipients,
+      studentName: recipientName,
+      studentEmail: recipientEmail,
+      surveyData: surveyData as unknown as Record<string, unknown>,
       levelLabel: parsed.level_label,
       levelDescription: parsed.level_description,
       recommendedTools: parsed.recommended_tools,

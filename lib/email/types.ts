@@ -103,6 +103,16 @@ export interface SuggestedProject {
   description: string;
 }
 
+export interface SurveySummaryData {
+  professional_background: string;
+  role_description: string;
+  ai_knowledge_level: string;
+  ai_tools_used: string[];
+  learning_reasons: string[];
+  ai_help_with: string[];
+  specific_interests?: string | null;
+}
+
 export interface StudentProfileEmailData {
   locale: Locale;
   fullName: string;
@@ -111,6 +121,20 @@ export interface StudentProfileEmailData {
   levelDescription: string;
   recommendedTools: RecommendedTool[];  // exactly 3
   suggestedProjects: SuggestedProject[];  // exactly 3
+  aiForYourWork: string;
+  learningPath: string;
+  surveySummary?: SurveySummaryData;
+}
+
+export interface SurveyAdminWithProfileData {
+  recipients: string[];
+  studentName: string;
+  studentEmail?: string;
+  surveyData: Record<string, unknown>;
+  levelLabel: string;
+  levelDescription: string;
+  recommendedTools: RecommendedTool[];
+  suggestedProjects: SuggestedProject[];
   aiForYourWork: string;
   learningPath: string;
 }

@@ -24,6 +24,7 @@ export function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [confirmationPending, setConfirmationPending] = useState(false);
 
   const supabase = createClient();
 
@@ -33,7 +34,7 @@ export function AuthForm() {
     setError(null);
 
     if (mode === 'sign-up') {
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -48,8 +49,13 @@ export function AuthForm() {
         return;
       }
 
-      // For email confirmation flow, show a message
-      // For now, auto-confirm is likely enabled in dev
+      // If no session, email confirmation is required
+      if (!signUpData.session) {
+        setConfirmationPending(true);
+        setLoading(false);
+        return;
+      }
+
       router.push(redirectTo);
       router.refresh();
     } else {
@@ -135,6 +141,25 @@ export function AuthForm() {
             {t('sign_up')}
           </button>
         </div>
+
+        {/* Email confirmation pending state */}
+        {confirmationPending ? (
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="text-4xl">📧</div>
+            <p className="text-sm font-semibold text-fg-primary">Check your email</p>
+            <p className="text-sm text-fg-secondary">
+              We sent a confirmation link to <span className="text-fg-primary font-medium">{email}</span>. Click it to activate your account, then come back to sign in.
+            </p>
+            <button
+              type="button"
+              onClick={() => { setConfirmationPending(false); setMode('sign-in'); setError(null); }}
+              className="text-sm text-accent-teal hover:underline mt-2"
+            >
+              Back to sign in
+            </button>
+          </div>
+        ) : (
+        <>
 
         {/* Google OAuth */}
         <Button
@@ -291,6 +316,8 @@ export function AuthForm() {
               </button>
             </p>
           </>
+        )}
+        </>
         )}
       </div>
     </div>

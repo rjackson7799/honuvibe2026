@@ -20,6 +20,7 @@ import type {
   StudentWelcomeEmailData,
   VerticeLeadEmailData,
   StudentProfileEmailData,
+  SurveyAdminWithProfileData,
 } from './types';
 
 // ─── Internal helper ────────────────────────────────────────
@@ -852,8 +853,22 @@ export async function sendStudentWelcomeAdminNotification(data: {
 // ─── Student AI Study Profile ────────────────────────────────
 
 export async function sendStudentProfileEmail(data: StudentProfileEmailData): Promise<void> {
-  const { locale, fullName, email, levelLabel, levelDescription, recommendedTools, suggestedProjects, aiForYourWork, learningPath } = data;
+  const { locale, fullName, email, levelLabel, levelDescription, recommendedTools, suggestedProjects, aiForYourWork, learningPath, surveySummary } = data;
   const isJP = locale === 'ja';
+
+  const surveySummarySection = surveySummary ? [
+    divider(),
+    heading(isJP ? 'ご回答の概要' : 'Here\'s What We Heard From You'),
+    detailsTable([
+      { label: isJP ? '職業・バックグラウンド' : 'Background', value: surveySummary.professional_background },
+      { label: isJP ? '日常の役割' : 'Role', value: surveySummary.role_description },
+      { label: isJP ? 'AIの理解度' : 'AI Experience', value: surveySummary.ai_knowledge_level },
+      { label: isJP ? '使用中のAIツール' : 'Tools Used', value: surveySummary.ai_tools_used.join(', ') || '—' },
+      { label: isJP ? 'AIを学ぶ理由' : 'Why Learning AI', value: surveySummary.learning_reasons.join(', ') },
+      { label: isJP ? 'AIに任せたいこと' : 'Wants AI to Help With', value: surveySummary.ai_help_with.join(', ') },
+      ...(surveySummary.specific_interests ? [{ label: isJP ? 'その他のご関心' : 'Additional Thoughts', value: surveySummary.specific_interests }] : []),
+    ]),
+  ].join('') : '';
 
   const body = [
     accentBanner(isJP ? 'あなたのAI学習プロフィールができました' : 'Your AI Study Profile Is Ready'),
@@ -863,6 +878,7 @@ export async function sendStudentProfileEmail(data: StudentProfileEmailData): Pr
     paragraph(isJP
       ? 'あなたの回答をもとに、パーソナライズされたAI学習プロフィールを作成しました。コースをより有意義なものにするために、ぜひご活用ください。'
       : "Based on your survey responses, we've put together a personalized AI study profile just for you."),
+    surveySummarySection,
     divider(),
     heading(isJP ? 'あなたのAIレベル' : 'Your AI Level'),
     accentBanner(levelLabel),
@@ -900,4 +916,65 @@ export async function sendStudentProfileEmail(data: StudentProfileEmailData): Pr
       body,
     }),
   });
+}
+
+// ─── Survey Admin Notification (with AI Profile) ────────────
+
+export async function sendSurveyAdminNotificationWithProfile(data: SurveyAdminWithProfileData): Promise<void> {
+  const resend = getResendClient();
+  if (!resend || data.recipients.length === 0) return;
+
+  const { studentName, studentEmail, surveyData, levelLabel, levelDescription, recommendedTools, suggestedProjects, aiForYourWork, learningPath } = data;
+
+  const tools = Array.isArray(surveyData.ai_tools_used) ? (surveyData.ai_tools_used as string[]).join(', ') : '—';
+  const reasons = Array.isArray(surveyData.learning_reasons) ? (surveyData.learning_reasons as string[]).join(', ') : '—';
+  const helpWith = Array.isArray(surveyData.ai_help_with) ? (surveyData.ai_help_with as string[]).join(', ') : '—';
+
+  const body = [
+    accentBanner('New AI Essentials Survey Response'),
+    heading('Student Survey Answers'),
+    detailsTable([
+      { label: 'Name', value: String(surveyData.name ?? '—') },
+      ...(studentEmail ? [{ label: 'Email', value: studentEmail }] : []),
+      { label: 'Background', value: String(surveyData.professional_background ?? '—') },
+      { label: 'Role', value: String(surveyData.role_description ?? '—') },
+      { label: 'AI Knowledge Level', value: String(surveyData.ai_knowledge_level ?? '—') },
+      { label: 'Tools Used', value: tools },
+      { label: 'Usage Frequency', value: String(surveyData.ai_usage_frequency ?? '—') },
+      { label: 'Why Learning AI', value: reasons },
+      { label: 'Wants AI to Help With', value: helpWith },
+      { label: 'Success Looks Like', value: String(surveyData.success_definition ?? '—') },
+      { label: 'Current Feeling', value: String(surveyData.current_feeling ?? '—') },
+      { label: 'Used Zoom Before', value: String(surveyData.used_zoom_before ?? '—') },
+      ...(surveyData.specific_interests ? [{ label: 'Additional Thoughts', value: String(surveyData.specific_interests) }] : []),
+    ]),
+    divider(),
+    heading('AI-Generated Student Profile'),
+    accentBanner(`${levelLabel}`),
+    paragraph(levelDescription),
+    divider(),
+    heading('Recommended Tools'),
+    detailsTable(recommendedTools.map((t) => ({ label: t.name, value: t.reason }))),
+    divider(),
+    heading('How AI Can Help This Student'),
+    paragraph(aiForYourWork),
+    divider(),
+    heading('Suggested Projects'),
+    detailsTable(suggestedProjects.map((p) => ({ label: p.title, value: p.description }))),
+    divider(),
+    heading('Personalized Learning Path'),
+    paragraph(learningPath),
+  ].join('');
+
+  try {
+    const { error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: data.recipients,
+      subject: `[AI Essentials] New survey + AI profile — ${studentName}`,
+      html: baseLayout({ locale: 'en', body }),
+    });
+    if (error) console.error('[SurveyAdminNotification] Send failed:', error.message);
+  } catch (err) {
+    console.error('[SurveyAdminNotification] Unexpected error:', err);
+  }
 }
