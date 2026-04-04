@@ -21,6 +21,7 @@ import type {
   VerticeLeadEmailData,
   StudentProfileEmailData,
   SurveyAdminWithProfileData,
+  PaymentLinkEmailData,
 } from './types';
 
 // ─── Internal helper ────────────────────────────────────────
@@ -977,4 +978,37 @@ export async function sendSurveyAdminNotificationWithProfile(data: SurveyAdminWi
   } catch (err) {
     console.error('[SurveyAdminNotification] Unexpected error:', err);
   }
+}
+
+// ─── Admin Payment Link ──────────────────────────────────────
+
+export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<void> {
+  const { email, fullName, courseTitle, paymentUrl, priceUsd } = data;
+  const price = `$${(priceUsd / 100).toLocaleString('en-US')}`;
+
+  const body = [
+    accentBanner('Your Enrollment Payment Link'),
+    heading(`Hi ${fullName},`),
+    paragraph(`You've been invited to enroll in <strong>${courseTitle}</strong>. Use the button below to complete your payment and secure your spot.`),
+    ctaButton('Complete Payment →', paymentUrl),
+    detailsTable([
+      { label: 'Course', value: courseTitle },
+      { label: 'Price', value: price },
+      { label: 'Currency', value: 'USD' },
+    ]),
+    divider(),
+    paragraph('This link expires in 7 days. If you have any questions, reply to this email.'),
+  ].join('');
+
+  const resend = getResendClient();
+  if (!resend) return;
+
+  const { error } = await resend.emails.send({
+    from: getFromAddress(),
+    to: email,
+    subject: `Your enrollment link — ${courseTitle}`,
+    html: baseLayout({ locale: 'en', body }),
+  });
+
+  if (error) console.error('[sendPaymentLinkEmail] Failed:', error.message);
 }

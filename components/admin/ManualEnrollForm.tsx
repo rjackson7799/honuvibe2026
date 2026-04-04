@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X, UserPlus } from 'lucide-react';
+import { Search, X, UserPlus, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { manualEnroll, searchUsers } from '@/lib/admin/actions';
@@ -40,6 +40,11 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
   const [uuidLoading, setUuidLoading] = useState(false);
   const [uuidError, setUuidError] = useState('');
   const [uuidSuccess, setUuidSuccess] = useState(false);
+
+  // Payment link state
+  const [linkEmail, setLinkEmail] = useState('');
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkResult, setLinkResult] = useState<{ success?: boolean; error?: string } | null>(null);
 
   // Debounced search
   useEffect(() => {
@@ -129,10 +134,69 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
     setUuidLoading(false);
   }
 
+  async function handleSendPaymentLink(e: React.FormEvent) {
+    e.preventDefault();
+    if (!linkEmail.trim()) return;
+    setLinkLoading(true);
+    setLinkResult(null);
+    try {
+      const res = await fetch('/api/admin/stripe/send-payment-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: linkEmail.trim(), courseId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLinkResult({ error: data.error });
+      } else {
+        setLinkResult({ success: true });
+        setLinkEmail('');
+      }
+    } catch {
+      setLinkResult({ error: 'Network error. Please try again.' });
+    } finally {
+      setLinkLoading(false);
+    }
+  }
+
   const enrolledSet = new Set(enrolledStudentIds);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
+
+      {/* ─── Send Payment Link ─── */}
+      <div className="space-y-3">
+        <div>
+          <h3 className="text-sm font-medium text-fg-primary">Send Payment Link</h3>
+          <p className="text-xs text-fg-tertiary">Email a Stripe checkout link (USD) directly to a registered user.</p>
+        </div>
+        <form onSubmit={handleSendPaymentLink} className="flex gap-2">
+          <Input
+            type="email"
+            value={linkEmail}
+            onChange={(e) => { setLinkEmail(e.target.value); setLinkResult(null); }}
+            placeholder="student@email.com"
+            className="flex-1"
+          />
+          <Button variant="primary" size="sm" disabled={linkLoading || !linkEmail.trim()}>
+            {linkLoading ? 'Sending...' : (
+              <>
+                <Send size={13} className="mr-1" />
+                Send Link
+              </>
+            )}
+          </Button>
+        </form>
+        {linkResult?.success && (
+          <p className="text-xs text-accent-teal">Payment link sent successfully.</p>
+        )}
+        {linkResult?.error && (
+          <p className="text-xs text-red-400">{linkResult.error}</p>
+        )}
+      </div>
+
+      {/* ─── Manual Enrollment (comp/free) ─── */}
+      <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-medium text-fg-primary">Manual Enrollment</h3>
@@ -302,6 +366,7 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

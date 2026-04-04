@@ -126,6 +126,14 @@ export interface StudentProfileEmailData {
   surveySummary?: SurveySummaryData;
 }
 
+export interface PaymentLinkEmailData {
+  email: string;
+  fullName: string;
+  courseTitle: string;
+  paymentUrl: string;
+  priceUsd: number; // cents
+}
+
 export interface SurveyAdminWithProfileData {
   recipients: string[];
   studentName: string;
