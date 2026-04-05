@@ -10,7 +10,14 @@ type AdminCourseListProps = {
   courses: Course[];
 };
 
-const statusFilters = ['all', 'draft', 'published', 'in-progress', 'completed', 'archived'];
+const statusFilters = [
+  { key: 'all', label: 'All' },
+  { key: 'draft', label: 'Draft' },
+  { key: 'published', label: 'Published' },
+  { key: 'in-progress', label: 'In Progress' },
+  { key: 'completed', label: 'Completed' },
+  { key: 'archived', label: 'Archived' },
+] as const;
 
 export function AdminCourseList({ courses }: AdminCourseListProps) {
   const router = useRouter();
@@ -78,16 +85,16 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
       <div className="flex gap-1 overflow-x-auto">
         {statusFilters.map((s) => (
           <button
-            key={s}
+            key={s.key}
             type="button"
-            onClick={() => setFilter(s)}
+            onClick={() => setFilter(s.key)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
-              filter === s
+              filter === s.key
                 ? 'bg-accent-teal/10 text-accent-teal'
                 : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
             }`}
           >
-            {s === 'all' ? `All (${courses.length})` : s.replace('-', ' ')}
+            {s.key === 'all' ? `${s.label} (${courses.length})` : s.label}
           </button>
         ))}
       </div>

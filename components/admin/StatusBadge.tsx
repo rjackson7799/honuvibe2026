@@ -28,18 +28,37 @@ const statusStyles: Record<string, string> = {
   open: 'bg-accent-teal/10 text-accent-teal',
 };
 
+const statusLabels: Record<string, string> = {
+  draft: 'Draft',
+  published: 'Published',
+  'in-progress': 'In Progress',
+  completed: 'Completed',
+  archived: 'Archived',
+  active: 'Active',
+  cancelled: 'Cancelled',
+  refunded: 'Refunded',
+  received: 'Received',
+  reviewing: 'Reviewing',
+  responded: 'Responded',
+  upcoming: 'Upcoming',
+  live: 'Live',
+  featured: 'Featured',
+  open: 'Open',
+};
+
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const style = statusStyles[status] ?? 'bg-bg-tertiary text-fg-tertiary';
+  const label = statusLabels[status] ?? status.replace(/-/g, ' ');
 
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize',
+        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
         style,
         className,
       )}
     >
-      {status.replace(/-/g, ' ')}
+      {label}
     </span>
   );
 }
