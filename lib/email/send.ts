@@ -990,7 +990,10 @@ export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<
     accentBanner('Your Enrollment Payment Link'),
     heading(`Hi ${fullName},`),
     paragraph(`You've been invited to enroll in <strong>${courseTitle}</strong>. Use the button below to complete your payment and secure your spot.`),
-    ctaButton('Complete Payment →', paymentUrl),
+    ctaButton({
+      href: paymentUrl,
+      label: 'Complete Payment →',
+    }),
     detailsTable([
       { label: 'Course', value: courseTitle },
       { label: 'Price', value: price },
