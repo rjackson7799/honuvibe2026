@@ -32,6 +32,15 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
       render: (course: Course) => <StatusBadge status={course.status} />,
     },
     {
+      key: 'visibility',
+      header: 'Visibility',
+      render: (course: Course) => (
+        <span className={course.is_private ? 'text-accent-gold' : 'text-fg-secondary'}>
+          {course.is_private ? 'Private' : 'Public'}
+        </span>
+      ),
+    },
+    {
       key: 'enrollment',
       header: 'Enrollment',
       render: (course: Course) => (

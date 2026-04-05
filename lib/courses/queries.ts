@@ -14,6 +14,7 @@ export async function getPublishedCourses(): Promise<Course[]> {
     .from('courses')
     .select('*')
     .eq('is_published', true)
+    .eq('is_private', false)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -27,6 +28,7 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
     .from('courses')
     .select('*')
     .eq('is_published', true)
+    .eq('is_private', false)
     .eq('is_featured', true)
     .order('created_at', { ascending: false })
     .limit(limit);

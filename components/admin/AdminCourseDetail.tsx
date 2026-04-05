@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Download, Globe, Plus, Trash2 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ArrowLeft, Copy, Download, EyeOff, Globe, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
@@ -29,10 +29,12 @@ type AdminCourseDetailProps = {
 
 export function AdminCourseDetail({ course, instructors = [], enrolledStudents = [] }: AdminCourseDetailProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('overview');
   const [actionLoading, setActionLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [translateResult, setTranslateResult] = useState<{ success?: boolean; error?: string } | null>(null);
+  const [copiedShareUrl, setCopiedShareUrl] = useState(false);
 
   const hasJpTranslations = !!course.title_jp;
 
@@ -80,6 +82,15 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
 
   const bonusCount = course.bonusSessions?.length ?? 0;
   const [addingBonus, setAddingBonus] = useState(false);
+  const localePrefix =
+    pathname && /^\/(en|ja)(\/|$)/.test(pathname)
+      ? `/${pathname.split('/')[1]}`
+      : '';
+  const sharePath = `${localePrefix}/learn/${course.slug}`;
+  const shareUrl =
+    typeof window === 'undefined'
+      ? sharePath
+      : `${window.location.origin}${sharePath}`;
 
   const tabs = [
     { key: 'overview', label: 'Overview' },
@@ -107,6 +118,16 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     setActionLoading(true);
     try {
       await archiveCourse(course.id);
+      router.refresh();
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handlePrivacyToggle() {
+    setActionLoading(true);
+    try {
+      await updateCourse(course.id, { is_private: !course.is_private });
       router.refresh();
     } finally {
       setActionLoading(false);
@@ -314,7 +335,64 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
               }
             />
             <InfoField label="Community" value={course.community_platform ?? '—'} />
+            <InfoField label="Visibility" value={course.is_private ? 'Private' : 'Public'} />
             <InfoField label="Max Enrollment" value={course.max_enrollment?.toString() ?? 'Unlimited'} />
+          </div>
+
+          <div className="border-t border-border-default pt-4">
+            <div className="flex items-start justify-between gap-6">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <EyeOff size={16} className="text-fg-tertiary" />
+                  <h3 className="text-sm font-medium text-fg-primary">Make Private</h3>
+                </div>
+                <p className="max-w-[560px] text-xs text-fg-tertiary">
+                  Private courses stay published and accessible by direct URL, but are hidden from the public Learn catalog and featured course sections.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={actionLoading}
+                onClick={handlePrivacyToggle}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  course.is_private ? 'bg-accent-teal' : 'bg-bg-tertiary'
+                } ${actionLoading ? 'opacity-50' : ''}`}
+                aria-pressed={course.is_private}
+                aria-label="Toggle private course visibility"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    course.is_private ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <label className="block text-xs text-fg-tertiary">Share URL</label>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl}
+                  className="flex-1 rounded-lg border border-border-default bg-bg-secondary px-3 py-2 text-sm text-fg-secondary"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={typeof window === 'undefined'}
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(shareUrl);
+                    setCopiedShareUrl(true);
+                    window.setTimeout(() => setCopiedShareUrl(false), 2000);
+                  }}
+                >
+                  <Copy size={14} className="mr-1" />
+                  {copiedShareUrl ? 'Copied' : 'Copy URL'}
+                </Button>
+              </div>
+            </div>
           </div>
 
           {course.description_en && (

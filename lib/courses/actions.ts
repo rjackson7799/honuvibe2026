@@ -33,6 +33,7 @@ export async function updateCourse(
   // Invalidate cached syllabus PDFs when course content changes
   await invalidateSyllabusCache(courseId);
 
+  revalidatePath('/');
   revalidatePath('/learn');
   revalidatePath('/admin/courses');
 }
@@ -101,6 +102,7 @@ export async function deleteCourse(courseId: string) {
 
   if (error) throw error;
 
+  revalidatePath('/');
   revalidatePath('/learn');
   revalidatePath('/admin/courses');
 }
@@ -149,6 +151,7 @@ export async function updateCourseSession(
     }
   }
 
+  revalidatePath('/');
   revalidatePath('/learn');
   revalidatePath('/admin/courses');
 }

@@ -71,6 +71,7 @@ export interface Course {
   tags: string[] | null;
   is_featured: boolean;
   is_published: boolean;
+  is_private: boolean;
   status: CourseStatus;
 
   // ESL configuration
