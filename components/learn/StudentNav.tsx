@@ -17,7 +17,6 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
-  Route,
   GraduationCap,
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
@@ -39,7 +38,6 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard', labelKey: 'nav_overview', icon: LayoutDashboard, exact: true },
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/dashboard/schedule', labelKey: 'nav_schedule', icon: Calendar, exact: false },
-  { href: '/learn/paths/new', labelKey: 'nav_study_paths', icon: Route, exact: false },
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
   { href: '/learn/dashboard/resources', labelKey: 'nav_resources', icon: Library, exact: false },
   { href: '/learn/dashboard/my-library', labelKey: 'nav_my_library', icon: PlaySquare, exact: false },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { sendPaymentLinkEmail } from '@/lib/email/send';
+import type { Locale } from '@/lib/email/types';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,11 @@ export async function POST(request: NextRequest) {
     const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
     if (profile?.role !== 'admin') return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
 
-    const { email, courseId } = await request.json() as { email: string; courseId: string };
+    const { email, courseId, locale = 'en' } = await request.json() as {
+      email: string;
+      courseId: string;
+      locale?: Locale;
+    };
     if (!email || !courseId) {
       return NextResponse.json({ error: 'email and courseId are required' }, { status: 400 });
     }
@@ -47,7 +52,7 @@ export async function POST(request: NextRequest) {
     // Fetch course
     const { data: course, error: courseError } = await adminSupabase
       .from('courses')
-      .select('id, slug, title_en, price_usd, is_published')
+      .select('id, slug, title_en, title_jp, price_usd, is_published')
       .eq('id', courseId)
       .single();
 
@@ -65,6 +70,9 @@ export async function POST(request: NextRequest) {
     }
 
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.honuvibe.ai';
+    const isJapanese = locale === 'ja';
+    const localePrefix = isJapanese ? '/ja' : '';
+    const courseTitle = isJapanese && course.title_jp ? course.title_jp : course.title_en;
 
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -73,7 +81,7 @@ export async function POST(request: NextRequest) {
       line_items: [{
         price_data: {
           currency: 'usd',
-          product_data: { name: course.title_en },
+          product_data: { name: courseTitle },
           unit_amount: course.price_usd,
         },
         quantity: 1,
@@ -83,11 +91,11 @@ export async function POST(request: NextRequest) {
         course_id: course.id,
         course_slug: course.slug,
         currency: 'usd',
-        locale: 'en',
+        locale,
       },
-      success_url: `${origin}/learn/dashboard/${course.slug}?enrolled=true`,
-      cancel_url: `${origin}/learn/${course.slug}`,
-      locale: 'en',
+      success_url: `${origin}${localePrefix}/learn/dashboard/${course.slug}?enrolled=true`,
+      cancel_url: `${origin}${localePrefix}/learn/${course.slug}`,
+      locale,
       expires_at: Math.floor(Date.now() / 1000) + 23 * 60 * 60, // Stripe limit: less than 24 hours
     });
 
@@ -97,9 +105,10 @@ export async function POST(request: NextRequest) {
 
     // Send email with the payment link
     await sendPaymentLinkEmail({
+      locale,
       email: email.toLowerCase().trim(),
       fullName: targetUser.full_name ?? 'there',
-      courseTitle: course.title_en,
+      courseTitle,
       paymentUrl: session.url,
       priceUsd: course.price_usd,
     });

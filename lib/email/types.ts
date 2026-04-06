@@ -127,6 +127,7 @@ export interface StudentProfileEmailData {
 }
 
 export interface PaymentLinkEmailData {
+  locale: Locale;
   email: string;
   fullName: string;
   courseTitle: string;

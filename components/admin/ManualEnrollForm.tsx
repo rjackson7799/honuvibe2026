@@ -43,6 +43,7 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
 
   // Payment link state
   const [linkEmail, setLinkEmail] = useState('');
+  const [linkLocale, setLinkLocale] = useState<'en' | 'ja'>('en');
   const [linkLoading, setLinkLoading] = useState(false);
   const [linkResult, setLinkResult] = useState<{ success?: boolean; error?: string } | null>(null);
 
@@ -143,7 +144,7 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
       const res = await fetch('/api/admin/stripe/send-payment-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: linkEmail.trim(), courseId }),
+        body: JSON.stringify({ email: linkEmail.trim(), courseId, locale: linkLocale }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -170,6 +171,30 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
           <h3 className="text-sm font-medium text-fg-primary">Send Payment Link</h3>
           <p className="text-xs text-fg-tertiary">Email a Stripe checkout link (USD) directly to a registered user.</p>
         </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setLinkLocale('en')}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              linkLocale === 'en'
+                ? 'bg-accent-teal/10 text-accent-teal'
+                : 'bg-bg-tertiary text-fg-tertiary hover:text-fg-secondary'
+            }`}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            onClick={() => setLinkLocale('ja')}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              linkLocale === 'ja'
+                ? 'bg-accent-teal/10 text-accent-teal'
+                : 'bg-bg-tertiary text-fg-tertiary hover:text-fg-secondary'
+            }`}
+          >
+            日本語
+          </button>
+        </div>
         <form onSubmit={handleSendPaymentLink} className="flex gap-2">
           <Input
             type="email"
@@ -188,7 +213,9 @@ export function ManualEnrollForm({ courseId, enrolledStudentIds = [] }: ManualEn
           </Button>
         </form>
         {linkResult?.success && (
-          <p className="text-xs text-accent-teal">Payment link sent successfully.</p>
+          <p className="text-xs text-accent-teal">
+            Payment link sent successfully {linkLocale === 'ja' ? '(Japanese)' : '(English)'}.
+          </p>
         )}
         {linkResult?.error && (
           <p className="text-xs text-red-400">{linkResult.error}</p>
