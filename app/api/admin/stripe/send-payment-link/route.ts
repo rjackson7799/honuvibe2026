@@ -45,13 +45,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch course
-    const { data: course } = await adminSupabase
+    const { data: course, error: courseError } = await adminSupabase
       .from('courses')
-      .select('id, slug, title_en, price_usd')
+      .select('id, slug, title_en, price_usd, is_published')
       .eq('id', courseId)
       .single();
 
-    if (!course) return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+    if (courseError || !course) {
+      return NextResponse.json({ error: 'Course not found' }, { status: 404 });
+    }
+    if (!course.is_published) {
+      return NextResponse.json(
+        { error: 'Publish the course before sending a payment link.' },
+        { status: 400 },
+      );
+    }
     if (!course.price_usd || course.price_usd <= 0) {
       return NextResponse.json({ error: 'Course has no USD price configured' }, { status: 400 });
     }
@@ -99,6 +107,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[send-payment-link] Error:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
