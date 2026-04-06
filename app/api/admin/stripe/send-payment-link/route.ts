@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { sendPaymentLinkEmail } from '@/lib/email/send';
+import { sendLocalizedPaymentLinkEmail } from '@/lib/email/payment-link';
 import type { Locale } from '@/lib/email/types';
 
 export async function POST(request: NextRequest) {
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Send email with the payment link
-    await sendPaymentLinkEmail({
+    await sendLocalizedPaymentLinkEmail({
       locale,
       email: email.toLowerCase().trim(),
       fullName: targetUser.full_name ?? 'there',
