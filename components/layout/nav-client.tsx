@@ -26,7 +26,7 @@ type NavClientProps = {
 
 export function NavClient({ links, userMenuLabels }: NavClientProps) {
   const pathname = usePathname();
-  const isAuthRoute = /^\/(ja\/)?(learn\/dashboard|admin)(\/|$)/.test(pathname);
+  const isAuthRoute = /^\/(ja\/)?(learn\/(dashboard|vault)|admin)(\/|$)/.test(pathname);
   const isLightZonePage = pathname.startsWith('/partners/');
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

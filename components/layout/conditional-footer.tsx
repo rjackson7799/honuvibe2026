@@ -5,7 +5,7 @@ import { Footer } from './footer';
 
 export function ConditionalFooter() {
   const pathname = usePathname();
-  const isAuthRoute = /^\/(ja\/)?(learn\/dashboard|admin)(\/|$)/.test(pathname);
+  const isAuthRoute = /^\/(ja\/)?(learn\/(dashboard|vault)|admin)(\/|$)/.test(pathname);
 
   if (isAuthRoute) return null;
 
