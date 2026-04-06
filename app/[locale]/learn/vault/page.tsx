@@ -3,7 +3,6 @@ import { createClient } from '@/lib/supabase/server';
 import { getVaultBrowse, getVaultRecentlyViewed } from '@/lib/vault/queries';
 import { checkVaultAccess } from '@/lib/vault/access';
 import { VaultBrowseGrid } from '@/components/vault/VaultBrowseGrid';
-import { VaultPremiumGate } from '@/components/vault/VaultPremiumGate';
 import { VaultSubNav } from '@/components/vault/VaultSubNav';
 import { VaultRecentlyViewed } from '@/components/vault/VaultRecentlyViewed';
 import { VaultContentRequest } from '@/components/vault/VaultContentRequest';
@@ -46,23 +45,21 @@ export default async function VaultBrowsePage({ params }: Props) {
     hasAccess = access.hasAccess;
   }
 
-  // If no access, show only free items + premium gate
+  // If no access, show all items with premium ones locked
   if (!hasAccess) {
-    const freeResult = await getVaultBrowse({ accessTier: 'free', pageSize: 12 });
+    const result = await getVaultBrowse({ pageSize: 20 });
     return (
-      <div className="space-y-8 max-w-[1100px] mx-auto">
+      <div className="space-y-6 max-w-[1100px] mx-auto">
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-2">The Vault</h1>
-          <p className="text-fg-secondary">Free resources to get you started.</p>
+          <p className="text-fg-secondary">Tutorials, guides, templates, and tools — all in one place.</p>
         </div>
         <VaultSubNav isAuthenticated={!!user} />
-        {freeResult.items.length > 0 && (
-          <VaultBrowseGrid
-            initialItems={freeResult.items}
-            initialTotalCount={freeResult.totalCount}
-          />
-        )}
-        <VaultPremiumGate />
+        <VaultBrowseGrid
+          initialItems={result.items}
+          initialTotalCount={result.totalCount}
+          hasAccess={false}
+        />
       </div>
     );
   }
@@ -84,6 +81,7 @@ export default async function VaultBrowsePage({ params }: Props) {
       <VaultBrowseGrid
         initialItems={result.items}
         initialTotalCount={result.totalCount}
+        hasAccess={true}
       />
       {user && <VaultContentRequest />}
     </div>

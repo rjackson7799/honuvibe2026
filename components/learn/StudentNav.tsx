@@ -8,10 +8,7 @@ import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   BookOpen,
-  Calendar,
   Lock,
-  Library,
-  PlaySquare,
   Users,
   CreditCard,
   Settings,
@@ -35,12 +32,9 @@ type NavItem = {
 };
 
 const baseNavItems: NavItem[] = [
-  { href: '/learn/dashboard', labelKey: 'nav_overview', icon: LayoutDashboard, exact: true },
+  { href: '/learn/dashboard', labelKey: 'nav_home', icon: LayoutDashboard, exact: true },
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
-  { href: '/learn/dashboard/schedule', labelKey: 'nav_schedule', icon: Calendar, exact: false },
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
-  { href: '/learn/dashboard/resources', labelKey: 'nav_resources', icon: Library, exact: false },
-  { href: '/learn/dashboard/my-library', labelKey: 'nav_my_library', icon: PlaySquare, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
   { href: '/learn/dashboard/settings', labelKey: 'nav_settings', icon: Settings, exact: false },
@@ -105,12 +99,12 @@ export function StudentNav() {
   // Strip locale prefix for matching
   const logicalPath = pathname.replace(/^\/(en|ja)/, '') || '/';
 
-  // Build nav items — insert instructor item after "My Library" if applicable
+  // Build nav items — insert instructor item after "Community" if applicable
   const navItems: NavItem[] = isInstructor
     ? [
-        ...baseNavItems.slice(0, 7), // up to and including "My Library"
+        ...baseNavItems.slice(0, 4), // Home, My Courses, The Vault, Community
         instructorNavItem,
-        ...baseNavItems.slice(7),     // "Community", "Billing", "Settings"
+        ...baseNavItems.slice(4),    // Billing, Settings
       ]
     : baseNavItems;
 

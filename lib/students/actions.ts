@@ -158,3 +158,14 @@ export async function sendStudentWelcomeEmailAction(
     };
   }
 }
+
+export async function markOnboarded(): Promise<void> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from('users')
+    .update({ onboarded: true })
+    .eq('id', user.id);
+}

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { sendStudentOnboardingEmail } from '@/lib/email/send';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const redirectTo = searchParams.get('redirect') || '/learn/dashboard';
+  let redirectTo = searchParams.get('redirect') || '/learn/dashboard';
 
   if (code) {
     const cookieStore = await cookies();
@@ -39,6 +40,25 @@ export async function GET(request: Request) {
 
       if (isRecovery || redirectTo.includes('/learn/auth/reset')) {
         return NextResponse.redirect(new URL('/learn/auth/reset', origin));
+      }
+
+      // Check if this is a new student (onboarded = false)
+      const { data: profile } = await supabase
+        .from('users')
+        .select('onboarded, full_name, email, locale_preference')
+        .eq('id', data.session.user.id)
+        .single();
+
+      if (profile && !profile.onboarded) {
+        // Fire-and-forget welcome email
+        sendStudentOnboardingEmail({
+          locale: (profile.locale_preference as 'en' | 'ja') ?? 'en',
+          fullName: profile.full_name ?? '',
+          email: profile.email ?? data.session.user.email ?? '',
+          dashboardUrl: `${origin}/learn/dashboard`,
+        });
+        // Add welcome flag so dashboard shows onboarding screen
+        redirectTo = '/learn/dashboard?welcome=true';
       }
 
       return NextResponse.redirect(new URL(redirectTo, origin));

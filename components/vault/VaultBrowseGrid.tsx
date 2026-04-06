@@ -1,23 +1,27 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { VaultContentCard } from './VaultContentCard';
 import { VaultFilters } from './VaultFilters';
 import { VaultKeyboardShortcuts } from './VaultKeyboardShortcuts';
+import { VaultUpsellBanner } from './VaultUpsellBanner';
+import { VaultUnlockModal } from './VaultUnlockModal';
 import { trackEvent } from '@/lib/analytics';
 import type { VaultContentItem, VaultContentType, VaultDifficulty, VaultSortOption } from '@/lib/vault/types';
 
 type VaultBrowseGridProps = {
   initialItems: VaultContentItem[];
   initialTotalCount: number;
+  hasAccess?: boolean;
 };
 
-export function VaultBrowseGrid({ initialItems, initialTotalCount }: VaultBrowseGridProps) {
+export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true }: VaultBrowseGridProps) {
   const [items, setItems] = useState(initialItems);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialItems.length < initialTotalCount);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Filter state
   const [search, setSearch] = useState('');
@@ -115,6 +119,9 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount }: VaultBrowse
   return (
     <div className="space-y-6">
       <VaultKeyboardShortcuts onSearch={focusSearch} />
+
+      {!hasAccess && <VaultUpsellBanner />}
+
       <VaultFilters
         search={search}
         onSearchChange={(v) => handleFilterChange({ search: v })}
@@ -134,9 +141,17 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount }: VaultBrowse
       {/* Grid */}
       {items.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((item) => (
-            <VaultContentCard key={item.id} item={item} />
-          ))}
+          {items.map((item) => {
+            const locked = !hasAccess && item.access_tier === 'premium';
+            return (
+              <VaultContentCard
+                key={item.id}
+                item={item}
+                locked={locked}
+                onLockedClick={locked ? () => setModalOpen(true) : undefined}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-16">
@@ -164,6 +179,8 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount }: VaultBrowse
           <div className="w-6 h-6 border-2 border-accent-teal/30 border-t-accent-teal rounded-full animate-spin" />
         </div>
       )}
+
+      <VaultUnlockModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

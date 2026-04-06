@@ -1196,6 +1196,7 @@
     "empty_state": "該当するツールが見つかりません。他のカテゴリをお試しください。"
   },
   "dashboard": {
+    "nav_home": "ホーム",
     "nav_overview": "概要",
     "nav_courses": "マイコース",
     "nav_schedule": "スケジュール",

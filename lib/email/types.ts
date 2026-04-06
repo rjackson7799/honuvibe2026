@@ -135,6 +135,13 @@ export interface PaymentLinkEmailData {
   priceUsd: number; // cents
 }
 
+export interface StudentOnboardingEmailData {
+  locale: Locale;
+  fullName: string;
+  email: string;
+  dashboardUrl: string;
+}
+
 export interface SurveyAdminWithProfileData {
   recipients: string[];
   studentName: string;

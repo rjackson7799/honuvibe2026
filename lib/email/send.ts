@@ -18,6 +18,7 @@ import type {
   ApplicationStatusEmailData,
   InstructorWelcomeEmailData,
   StudentWelcomeEmailData,
+  StudentOnboardingEmailData,
   VerticeLeadEmailData,
   StudentProfileEmailData,
   SurveyAdminWithProfileData,
@@ -980,27 +981,104 @@ export async function sendSurveyAdminNotificationWithProfile(data: SurveyAdminWi
   }
 }
 
+// ─── Student Onboarding (self-signup confirmation) ───────────
+
+export async function sendStudentOnboardingEmail(data: StudentOnboardingEmailData): Promise<void> {
+  const { locale, fullName, email, dashboardUrl } = data;
+  const isJP = locale === 'ja';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const body = [
+    accentBanner(isJP ? 'HonuVibe.AIへようこそ！' : "Welcome to HonuVibe.AI — you're in!"),
+    heading(isJP ? `${fullName}さん、ようこそ！` : `Welcome, ${fullName}!`),
+    paragraph(
+      isJP
+        ? 'メールの確認が完了しました。HonuVibe.AIへようこそ！あなたの学習プラットフォームの準備ができています。'
+        : "Your email has been confirmed. Your HonuVibe.AI learning platform is ready — here's how to get started.",
+    ),
+    divider(),
+    heading(isJP ? '次のステップ' : 'Get Started'),
+    detailsTable([
+      {
+        label: isJP ? 'コース' : 'Courses',
+        value: isJP
+          ? `<a href="${siteUrl}/learn" style="color:#5eaaa8;text-decoration:none;">ライブコースを見る →</a>`
+          : `<a href="${siteUrl}/learn" style="color:#5eaaa8;text-decoration:none;">Browse live courses →</a>`,
+      },
+      {
+        label: isJP ? 'The Vault' : 'The Vault',
+        value: isJP
+          ? `<a href="${dashboardUrl.replace('/dashboard', '/vault')}" style="color:#5eaaa8;text-decoration:none;">プレミアム動画ライブラリ →</a>`
+          : `<a href="${dashboardUrl.replace('/dashboard', '/vault')}" style="color:#5eaaa8;text-decoration:none;">Premium video library →</a>`,
+      },
+      {
+        label: isJP ? 'ライブラリ' : 'Library',
+        value: isJP
+          ? `<a href="${dashboardUrl.replace('/dashboard', '/library')}" style="color:#5eaaa8;text-decoration:none;">無料動画を見る →</a>`
+          : `<a href="${dashboardUrl.replace('/dashboard', '/library')}" style="color:#5eaaa8;text-decoration:none;">Free learning videos →</a>`,
+      },
+    ]),
+    divider(),
+    ctaButton({
+      href: dashboardUrl,
+      label: isJP ? 'ダッシュボードへ →' : 'Go to Dashboard →',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? `ご質問は <a href="mailto:help@honuvibe.com" style="color:#5eaaa8;text-decoration:none;">help@honuvibe.com</a> までお気軽にどうぞ。`
+        : `Questions? Email us at <a href="mailto:help@honuvibe.com" style="color:#5eaaa8;text-decoration:none;">help@honuvibe.com</a> — we're happy to help.`,
+    ),
+    paragraph(
+      isJP
+        ? 'またクラスでお会いしましょう、<br>HonuVibe.AI チームより'
+        : 'See you in class,<br>The HonuVibe.AI Team',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? `【HonuVibe.AI】ようこそ、${fullName}さん！`
+      : `Welcome to HonuVibe.AI, ${fullName} — you're in!`,
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'HonuVibe.AIへようこそ！' : "You're in — your learning platform is ready.",
+      body,
+    }),
+  });
+}
+
 // ─── Admin Payment Link ──────────────────────────────────────
 
 export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<void> {
-  const { email, fullName, courseTitle, paymentUrl, priceUsd } = data;
+  const { locale, email, fullName, courseTitle, paymentUrl, priceUsd } = data;
+  const isJP = locale === 'ja';
   const price = `$${(priceUsd / 100).toLocaleString('en-US')}`;
 
   const body = [
-    accentBanner('Your Enrollment Payment Link'),
-    heading(`Hi ${fullName},`),
-    paragraph(`You've been invited to enroll in <strong>${courseTitle}</strong>. Use the button below to complete your payment and secure your spot.`),
+    accentBanner(isJP ? '受講用お支払いリンク' : 'Your Enrollment Payment Link'),
+    heading(isJP ? `${fullName}さん、こんにちは` : `Hi ${fullName},`),
+    paragraph(
+      isJP
+        ? `<strong>${courseTitle}</strong> の受講お申し込み用お支払いリンクをお送りします。下のボタンから決済を完了して、お席を確保してください。`
+        : `You've been invited to enroll in <strong>${courseTitle}</strong>. Use the button below to complete your payment and secure your spot.`,
+    ),
     ctaButton({
       href: paymentUrl,
-      label: 'Complete Payment →',
+      label: isJP ? '支払いを完了する →' : 'Complete Payment →',
     }),
     detailsTable([
-      { label: 'Course', value: courseTitle },
-      { label: 'Price', value: price },
-      { label: 'Currency', value: 'USD' },
+      { label: isJP ? 'コース' : 'Course', value: courseTitle },
+      { label: isJP ? '金額' : 'Price', value: price },
+      { label: isJP ? '通貨' : 'Currency', value: 'USD' },
     ]),
     divider(),
-    paragraph('This link expires in 7 days. If you have any questions, reply to this email.'),
+    paragraph(
+      isJP
+        ? 'このリンクの有効期限は23時間です。ご不明な点があれば、このメールに返信してください。'
+        : 'This link expires in 23 hours. If you have any questions, reply to this email.',
+    ),
   ].join('');
 
   const resend = getResendClient();
@@ -1009,8 +1087,10 @@ export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<
   const { error } = await resend.emails.send({
     from: getFromAddress(),
     to: email,
-    subject: `Your enrollment link — ${courseTitle}`,
-    html: baseLayout({ locale: 'en', body }),
+    subject: isJP
+      ? `受講お支払いリンク — ${courseTitle}`
+      : `Your enrollment link — ${courseTitle}`,
+    html: baseLayout({ locale, body }),
   });
 
   if (error) console.error('[sendPaymentLinkEmail] Failed:', error.message);

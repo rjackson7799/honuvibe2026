@@ -1196,6 +1196,7 @@
     "empty_state": "No tools match that filter. Try another category."
   },
   "dashboard": {
+    "nav_home": "Home",
     "nav_overview": "Overview",
     "nav_courses": "My Courses",
     "nav_schedule": "Schedule",

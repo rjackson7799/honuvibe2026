@@ -1,8 +1,10 @@
 export type Theme = 'dark' | 'light';
 
 export function getInitialTheme(): Theme {
-  // Light mode disabled — not yet optimized. Always default to dark.
-  return 'dark';
+  if (typeof window === 'undefined') return 'light';
+  const saved = localStorage.getItem('honuvibe-theme') as Theme | null;
+  if (saved === 'dark' || saved === 'light') return saved;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 export function setTheme(theme: Theme): void {

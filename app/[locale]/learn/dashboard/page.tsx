@@ -14,10 +14,11 @@ import { getVaultCourseRecommendations } from '@/lib/vault/queries';
 import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
 import { getInstructorByUserId } from '@/lib/instructors/queries';
 import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingBanner';
+import { WelcomeScreen } from '@/components/learn/WelcomeScreen';
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ enrolled?: string }>;
+  searchParams: Promise<{ enrolled?: string; welcome?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -45,10 +46,10 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tLearn = await getTranslations({ locale, namespace: 'learn' });
 
-  // Get user profile for display name
+  // Get user profile for display name and onboarding state
   const { data: profile } = await supabase
     .from('users')
-    .select('full_name, subscription_tier')
+    .select('full_name, subscription_tier, onboarded')
     .eq('id', user.id)
     .single();
 
@@ -72,6 +73,11 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const tPaths = await getTranslations({ locale, namespace: 'study_paths' });
 
   const displayName = profile?.full_name ?? user.email?.split('@')[0] ?? '';
+
+  // Show welcome screen for new students
+  if (!profile?.onboarded || sp.welcome === 'true') {
+    return <WelcomeScreen displayName={displayName} locale={locale} />;
+  }
 
   return (
     <div className="space-y-8 max-w-[1100px]">

@@ -44,6 +44,28 @@ export async function deleteStudent(studentId: string) {
     throw new Error('Cannot delete an instructor. Demote to student first.');
   }
 
+  // Fetch enrollments before deleting so we can decrement course counts
+  const { data: enrollments } = await supabase
+    .from('enrollments')
+    .select('course_id')
+    .eq('user_id', studentId);
+
+  if (enrollments && enrollments.length > 0) {
+    for (const { course_id } of enrollments) {
+      const { data: course } = await supabase
+        .from('courses')
+        .select('current_enrollment')
+        .eq('id', course_id)
+        .single();
+      if (course && course.current_enrollment > 0) {
+        await supabase
+          .from('courses')
+          .update({ current_enrollment: course.current_enrollment - 1 })
+          .eq('id', course_id);
+      }
+    }
+  }
+
   // Delete enrollments
   await supabase
     .from('enrollments')

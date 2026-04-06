@@ -12,12 +12,12 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    // Light mode disabled — force dark mode regardless of stored preference
-    setThemeState('dark');
-    document.documentElement.setAttribute('data-theme', 'dark');
+    const initial = getInitialTheme();
+    setThemeState(initial);
+    document.documentElement.setAttribute('data-theme', initial);
   }, []);
 
   const setTheme = useCallback((newTheme: Theme) => {
