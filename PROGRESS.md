@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-02 (Manual student add, AI cohort survey summary, survey assignment)
+**Last updated:** 2026-04-05 (Private course controls, admin payment link fixes, localized payment-link email)
 
 ### Status Legend
 - [ ] Not started
@@ -259,6 +259,7 @@
 ### Stage 10: Admin — Students & Applications
 - [x] `/admin/students` — Student table with search by name/email
 - [x] `/admin/students/[id]` — Student detail (profile, enrollments, manual actions)
+- [x] `deleteStudent()` — fetches enrollments before deletion, decrements `current_enrollment` on each course, then removes enrollment rows (fix: count was not decremented on student delete)
 - [x] `/admin/applications` — Application list with status filter tabs
 - [x] ApplicationCard — Expandable detail with status management + admin notes
 - [x] Status workflow: received → reviewing → responded → archived
@@ -837,6 +838,45 @@ Dark:  Footer
 - [x] Live Stripe webhook endpoint configured at `https://honuvibe.ai/api/stripe/webhook`
 - [x] Live Stripe keys + webhook secret deployed to Vercel environment variables
 
+### Admin Payment Link (2026-04-03 → 2026-04-05)
+- [x] New `/api/admin/stripe/send-payment-link` route — generates a Stripe Checkout Session (USD) for a given email and sends the link via Resend
+- [x] `ManualEnrollForm` component updated — Send Payment Link form added to admin course Students tab; enter any email to trigger checkout link delivery
+- [x] `lib/email/send.ts` / `lib/email/payment-link.ts` — payment-link email sending utilities
+- [x] `lib/email/types.ts` — email type definitions
+- [x] Fixed Vercel build blocker in payment-link email CTA call (`lib/email/send.ts`)
+- [x] Improved API error handling — route now returns actionable admin-facing errors instead of generic `Server error`
+- [x] Added publish guard — payment links can only be sent for published courses
+- [x] Fixed Stripe expiry window — Checkout link now expires in 23 hours (within Stripe’s `< 24h` requirement)
+- [x] Added localized payment-link support — JP option sets Stripe Checkout locale to `ja`, uses JP course title when available, and sends Japanese email copy
+
+### New Student Onboarding Flow (2026-04-05)
+- [x] `supabase/migrations/026_onboarded_flag.sql` — `onboarded boolean NOT NULL DEFAULT false` on `users` table (deployed)
+- [x] `components/learn/WelcomeScreen.tsx` — full-page takeover for first login: bilingual heading, 3 CTA cards (Courses → main site, Vault, Library), skip link; calls `markOnboarded()` on any action
+- [x] `lib/students/actions.ts` — `markOnboarded()` server action sets `onboarded = true` for current user
+- [x] `lib/email/types.ts` — `StudentOnboardingEmailData` type
+- [x] `lib/email/send.ts` — `sendStudentOnboardingEmail()` — bilingual welcome email with 3 CTA links, sent fire-and-forget on first email confirmation
+- [x] `app/api/auth/callback/route.ts` — detects new students (`onboarded = false`), sends welcome email, redirects to `/learn/dashboard?welcome=true`
+- [x] `app/[locale]/learn/dashboard/page.tsx` — renders `WelcomeScreen` when `onboarded = false` or `?welcome=true`; normal dashboard for returning students
+
+### Private Course Controls (2026-04-04)
+- [x] Migration `025_course_privacy.sql` — `courses.is_private boolean NOT NULL DEFAULT false`
+- [x] Public course discovery updated — `getPublishedCourses()` and `getFeaturedCourses()` now exclude private courses from `/learn` and homepage featured-course surfaces
+- [x] Admin course detail updated — Overview now shows `Visibility`, `Make Private` toggle, and direct `Share URL`
+- [x] Admin courses list updated — explicit `Visibility` column added
+- [x] Existing courses remain public by default; private courses stay accessible by direct URL but are hidden from public catalog surfaces
+
+### Admin Course Label Cleanup (2026-04-04)
+- [x] `components/admin/AdminCourseList.tsx` — course filter tabs now use explicit labels (`Published`, `In Progress`, `Completed`, etc.)
+- [x] `components/admin/StatusBadge.tsx` — status badges now use explicit display strings rather than deriving text from status keys
+
+### Vault Upsell — Locked Preview Grid (2026-04-05)
+- [x] `app/[locale]/learn/vault/page.tsx` — free users now see all published vault items (not just free-tier); removed old `VaultPremiumGate` empty-state pattern
+- [x] `components/vault/VaultBrowseGrid.tsx` — added `hasAccess` prop; renders `VaultUpsellBanner` above filters and `VaultUnlockModal` when locked card is clicked
+- [x] `components/vault/VaultContentCard.tsx` — new `locked` prop: blurs thumbnail, overlays centered lock icon, renders `<div onClick>` instead of `<Link>` (no navigation for locked items)
+- [x] `components/vault/VaultUpsellBanner.tsx` *(new)* — compact teal banner with EN/JP headline, bilingual selling point ("the only AI learning platform with full English & Japanese content"), Subscribe CTA, and "Browse courses" secondary link
+- [x] `components/vault/VaultUnlockModal.tsx` *(new)* — modal on locked card click with two unlock paths: Subscribe ($99/month) or enroll in a course (vault included for duration); bilingual, dismisses on Escape/backdrop, tracks analytics
+- [x] `components/learn/StudentNav.tsx` — removed Study Paths nav item (feature not yet built)
+
 ### Certificates
 - [ ] Auto-generated certificate on course completion
 - [ ] Public certificate page with shareable URL
@@ -851,6 +891,16 @@ Dark:  Footer
 
 ## Phase 3 — Growth & Scale (Month 4+)
 
+### learn.honuvibe.com Subdomain (URL-Only) — Planned
+Plan: `docs/plans/learn-subdomain-migration.md`
+- [ ] `middleware.ts` — subdomain detection + path rewriting (`learn.honuvibe.com/dashboard` → serves `/learn/dashboard`)
+- [ ] `middleware.ts` + `lib/supabase/server.ts` — cookie `domain: '.honuvibe.com'` so auth session is shared across subdomains
+- [ ] `next.config.ts` — optional canonical redirects for `/learn/dashboard`, `/learn/auth`, `/admin` → `learn.` subdomain
+- [ ] Vercel: add `learn.honuvibe.com` domain pointing to same deployment
+- [ ] DNS: CNAME `learn` → `cname.vercel-dns.com`
+- [ ] Supabase Auth: add `https://learn.honuvibe.com/**` to allowed redirect URLs
+
+### Other
 - [ ] Exploration Island interactive SVG map (desktop)
 - [ ] HonuHub "Future Locations" inquiry page
 - [ ] JP course subtitles and video translations
