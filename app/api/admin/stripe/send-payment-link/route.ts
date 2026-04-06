@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}/learn/dashboard/${course.slug}?enrolled=true`,
       cancel_url: `${origin}/learn/${course.slug}`,
       locale: 'en',
-      expires_at: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days
+      expires_at: Math.floor(Date.now() / 1000) + 23 * 60 * 60, // Stripe limit: less than 24 hours
     });
 
     if (!session.url) {
