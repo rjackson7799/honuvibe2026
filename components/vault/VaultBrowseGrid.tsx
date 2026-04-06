@@ -139,7 +139,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
       </p>
 
       {/* Grid */}
-      {items.length > 0 ? (
+      {items.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => {
             const locked = !hasAccess && item.access_tier === 'premium';
@@ -153,11 +153,19 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
             );
           })}
         </div>
-      ) : (
+      )}
+
+      {/* Empty state — only shown when not loading */}
+      {items.length === 0 && !loading && (
         <div className="text-center py-16">
-          <p className="text-fg-tertiary text-sm">
-            {loading ? 'Loading...' : 'No content found matching your filters.'}
-          </p>
+          <p className="text-fg-tertiary text-sm">No content found matching your filters.</p>
+        </div>
+      )}
+
+      {/* Loading spinner */}
+      {loading && (
+        <div className="flex justify-center py-10">
+          <div className="w-6 h-6 border-2 border-accent-teal/30 border-t-accent-teal rounded-full animate-spin" />
         </div>
       )}
 
@@ -171,12 +179,6 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
           >
             Load More
           </button>
-        </div>
-      )}
-
-      {loading && items.length > 0 && (
-        <div className="flex justify-center py-4">
-          <div className="w-6 h-6 border-2 border-accent-teal/30 border-t-accent-teal rounded-full animate-spin" />
         </div>
       )}
 

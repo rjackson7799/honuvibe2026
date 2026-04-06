@@ -49,7 +49,7 @@ export default async function VaultBrowsePage({ params }: Props) {
   if (!hasAccess) {
     const result = await getVaultBrowse({ pageSize: 20 });
     return (
-      <div className="space-y-6 max-w-[1100px] mx-auto">
+      <div className="space-y-8 max-w-[1100px] mx-auto">
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-2">The Vault</h1>
           <p className="text-fg-secondary">Tutorials, guides, templates, and tools — all in one place.</p>
