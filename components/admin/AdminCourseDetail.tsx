@@ -84,6 +84,28 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     }
   }, [activeTab, eslEnabled, course.id, eslLessons.length]);
 
+  // Optimistic Vertice membership state keyed by user_id
+  const [verticeMemberMap, setVerticeMemberMap] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(enrolledStudents.map((s) => [s.user_id, s.is_vertice_member])),
+  );
+  const [verticeToggling, setVerticeToggling] = useState<string | null>(null);
+
+  async function handleVerticeToggle(userId: string) {
+    setVerticeToggling(userId);
+    const prev = verticeMemberMap[userId] ?? false;
+    setVerticeMemberMap((m) => ({ ...m, [userId]: !prev })); // optimistic
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/vertice`, { method: 'PATCH' });
+      if (!res.ok) {
+        setVerticeMemberMap((m) => ({ ...m, [userId]: prev })); // revert
+      }
+    } catch {
+      setVerticeMemberMap((m) => ({ ...m, [userId]: prev })); // revert
+    } finally {
+      setVerticeToggling(null);
+    }
+  }
+
   const bonusCount = course.bonusSessions?.length ?? 0;
   const [addingBonus, setAddingBonus] = useState(false);
   const localePrefix =
@@ -670,33 +692,64 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                       <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Email</th>
                       <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Enrolled</th>
                       <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Status</th>
+                      <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Vertice</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {enrolledStudents.map((student) => (
-                      <tr key={student.id} className="border-b border-border-default/50 hover:bg-bg-secondary/50">
-                        <td className="py-2 px-3 text-fg-primary">{student.full_name ?? '—'}</td>
-                        <td className="py-2 px-3 text-fg-secondary">{student.email ?? '—'}</td>
-                        <td className="py-2 px-3 text-fg-tertiary">
-                          {new Date(student.enrolled_at).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                          })}
-                        </td>
-                        <td className="py-2 px-3">
-                          <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
-                            student.status === 'active'
-                              ? 'bg-accent-teal/10 text-accent-teal'
-                              : student.status === 'completed'
-                                ? 'bg-accent-gold/10 text-accent-gold'
-                                : 'bg-fg-muted/10 text-fg-muted'
-                          }`}>
-                            {student.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {enrolledStudents.map((student) => {
+                      const isVertice = verticeMemberMap[student.user_id] ?? false;
+                      return (
+                        <tr key={student.id} className="border-b border-border-default/50 hover:bg-bg-secondary/50">
+                          <td className="py-2 px-3 text-fg-primary">
+                            <span className="flex items-center gap-2">
+                              {student.full_name ?? '—'}
+                              {isVertice && (
+                                <span className="inline-block px-1.5 py-0.5 text-[10px] font-semibold rounded bg-accent-gold/15 text-accent-gold tracking-wide">
+                                  Vertice
+                                </span>
+                              )}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-fg-secondary">{student.email ?? '—'}</td>
+                          <td className="py-2 px-3 text-fg-tertiary">
+                            {new Date(student.enrolled_at).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </td>
+                          <td className="py-2 px-3">
+                            <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${
+                              student.status === 'active'
+                                ? 'bg-accent-teal/10 text-accent-teal'
+                                : student.status === 'completed'
+                                  ? 'bg-accent-gold/10 text-accent-gold'
+                                  : 'bg-fg-muted/10 text-fg-muted'
+                            }`}>
+                              {student.status}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3">
+                            <button
+                              type="button"
+                              onClick={() => handleVerticeToggle(student.user_id)}
+                              disabled={verticeToggling === student.user_id}
+                              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                isVertice ? 'bg-accent-gold' : 'bg-bg-tertiary'
+                              } ${verticeToggling === student.user_id ? 'opacity-50' : ''}`}
+                              aria-pressed={isVertice}
+                              aria-label={`${isVertice ? 'Remove' : 'Grant'} Vertice Society membership`}
+                            >
+                              <span
+                                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                                  isVertice ? 'translate-x-4' : 'translate-x-0'
+                                }`}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
