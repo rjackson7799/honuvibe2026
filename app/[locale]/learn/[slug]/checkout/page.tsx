@@ -3,7 +3,6 @@ import { setRequestLocale } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
 import { checkEnrollment } from '@/lib/enrollments/queries';
-import { Container } from '@/components/layout/container';
 import { CourseCheckoutSummary } from '@/components/learn/CourseCheckoutSummary';
 import { EmbeddedCheckoutForm } from '@/components/learn/EmbeddedCheckoutForm';
 
@@ -126,33 +125,54 @@ export default async function CheckoutPage({ params }: Props) {
       : course.learning_outcomes_en) ?? [];
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <Container size="wide" className="py-12 md:py-16">
-        <div className="flex flex-col md:flex-row gap-10 md:gap-16 items-start">
-          {/* Left: Course summary */}
-          <div className="w-full md:max-w-sm lg:max-w-md shrink-0">
-            <CourseCheckoutSummary
-              title={title}
-              description={description}
-              overlineParts={overlineParts}
-              thumbnailUrl={course.thumbnail_url}
-              priceFormatted={priceFormatted}
-              secondaryPriceFormatted={secondaryPriceFormatted}
-              startDateFormatted={startDateFormatted}
-              spotsRemaining={spotsRemaining}
-              learningOutcomes={outcomes}
-              instructor={course.instructor}
-              locale={locale}
-              courseSlug={slug}
-            />
+    <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start">
+      {/* Left: Course summary */}
+      <div className="w-full md:max-w-sm shrink-0">
+        <CourseCheckoutSummary
+          title={title}
+          description={description}
+          overlineParts={overlineParts}
+          thumbnailUrl={course.thumbnail_url}
+          priceFormatted={priceFormatted}
+          secondaryPriceFormatted={secondaryPriceFormatted}
+          startDateFormatted={startDateFormatted}
+          spotsRemaining={spotsRemaining}
+          learningOutcomes={outcomes}
+          instructor={course.instructor}
+          locale={locale}
+          courseSlug={slug}
+        />
+      </div>
+
+      {/* Right: Stripe Embedded Checkout — framed in a HonuVibe card */}
+      <div className="w-full flex-1 min-w-0">
+        <div className="rounded-xl border border-border-default bg-bg-secondary overflow-hidden">
+          {/* Card header */}
+          <div className="px-5 py-4 border-b border-border-default flex items-center gap-2">
+            <svg
+              className="w-4 h-4 text-accent-teal shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+            <span className="text-sm font-semibold text-fg-primary">Secure Checkout</span>
+            <span className="ml-auto text-xs text-fg-tertiary">Powered by Stripe</span>
           </div>
 
-          {/* Right: Stripe Embedded Checkout */}
-          <div className="w-full flex-1">
+          {/* Stripe iframe */}
+          <div className="p-4 md:p-5">
             <EmbeddedCheckoutForm courseId={course.id} locale={locale} />
           </div>
         </div>
-      </Container>
+      </div>
     </div>
   );
 }
