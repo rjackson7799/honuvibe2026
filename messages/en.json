@@ -1730,6 +1730,11 @@
   "vault": {
     "page_title": "The Vault",
     "page_subtitle": "Tutorials, guides, templates, and tools — all in one place.",
+    "nav_browse": "Browse",
+    "nav_series": "Series",
+    "nav_bookmarks": "Bookmarks",
+    "nav_watch_later": "Watch Later",
+    "nav_notes": "Notes",
     "search_placeholder": "Search the Vault...",
     "filter_type": "All Types",
     "filter_topic": "All Topics",

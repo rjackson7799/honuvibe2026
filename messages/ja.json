@@ -1730,6 +1730,11 @@
   "vault": {
     "page_title": "ザ・ヴォールト",
     "page_subtitle": "チュートリアル・ガイド・テンプレート・ツールが一箇所に。",
+    "nav_browse": "ブラウズ",
+    "nav_series": "シリーズ",
+    "nav_bookmarks": "ブックマーク",
+    "nav_watch_later": "後で見る",
+    "nav_notes": "ノート",
     "search_placeholder": "ヴォールトを検索...",
     "filter_type": "すべてのタイプ",
     "filter_topic": "すべてのトピック",

@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Bookmark, Clock, StickyNote, Library, LayoutGrid } from 'lucide-react';
 
@@ -10,18 +11,19 @@ type VaultSubNavProps = {
 };
 
 const baseLinks = [
-  { href: '/learn/vault', label: 'Browse', icon: LayoutGrid, exact: true },
-  { href: '/learn/vault/series', label: 'Series', icon: Library, exact: false },
-];
+  { href: '/learn/vault', key: 'nav_browse', icon: LayoutGrid, exact: true },
+  { href: '/learn/vault/series', key: 'nav_series', icon: Library, exact: false },
+] as const;
 
 const authLinks = [
-  { href: '/learn/vault/bookmarks', label: 'Bookmarks', icon: Bookmark, exact: false },
-  { href: '/learn/vault/watch-later', label: 'Watch Later', icon: Clock, exact: false },
-  { href: '/learn/vault/notes', label: 'Notes', icon: StickyNote, exact: false },
-];
+  { href: '/learn/vault/bookmarks', key: 'nav_bookmarks', icon: Bookmark, exact: false },
+  { href: '/learn/vault/watch-later', key: 'nav_watch_later', icon: Clock, exact: false },
+  { href: '/learn/vault/notes', key: 'nav_notes', icon: StickyNote, exact: false },
+] as const;
 
 export function VaultSubNav({ isAuthenticated = false }: VaultSubNavProps) {
   const pathname = usePathname();
+  const t = useTranslations('vault');
   const logicalPath = pathname.replace(/^\/(en|ja)/, '') || '/';
 
   const links = isAuthenticated ? [...baseLinks, ...authLinks] : baseLinks;
@@ -46,7 +48,7 @@ export function VaultSubNav({ isAuthenticated = false }: VaultSubNavProps) {
             )}
           >
             <Icon size={14} />
-            {link.label}
+            {t(link.key)}
           </Link>
         );
       })}
