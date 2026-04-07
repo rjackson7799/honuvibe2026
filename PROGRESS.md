@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-06 (Vertice Society discount at Stripe Checkout, Enroll Now button on dashboard explore cards)
+**Last updated:** 2026-04-06 (Course enrollment status badges on CourseCard)
 
 ### Status Legend
 - [ ] Not started
@@ -874,6 +874,11 @@ Dark:  Footer
 - [x] `lib/courses/types.ts` — `is_vertice_member: boolean` added to `EnrolledStudent` interface
 - [x] `lib/courses/queries.ts` — `getEnrolledStudents()` now fetches `is_vertice_member` from users join, returns it on each student record
 - [x] `app/api/stripe/checkout/route.ts` — checks `users.is_vertice_member` before creating session; if true and `STRIPE_VERTICE_COUPON_ID` is set, applies coupon via `discounts` array (mutually exclusive with `allow_promotion_codes`)
+
+### Course Enrollment Status Badges (2026-04-06)
+- [x] `components/learn/AvailabilityBadge.tsx` — refactored to show styled pill badges based on course status: teal "Open for Enrollment" (published + spots available), amber "In Progress" (in-progress), gray "Complete" (completed); full cohort still shows "Cohort Full" gold text; spots count remains as secondary text alongside open badge
+- [x] `messages/en.json` — added `open_for_enrollment` ("Open for Enrollment") and `course_complete` ("Complete") to `learn` namespace
+- [x] `messages/ja.json` — added `open_for_enrollment` ("受講受付中") and `course_complete` ("終了") to `learn` namespace
 
 ### Dashboard Explore Cards — Enroll Now Button (2026-04-06)
 - [x] `components/learn/CourseCard.tsx` — dashboard variant now renders card as `<div>` wrapper (avoids nested `<a>` elements); CTA block replaced with stacked Enroll Now (teal primary) + View Course (ghost) buttons

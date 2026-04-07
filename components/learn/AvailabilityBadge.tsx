@@ -16,11 +16,26 @@ export function AvailabilityBadge({
 }: AvailabilityBadgeProps) {
   const t = useTranslations('learn');
 
+  if (status === 'completed') {
+    return (
+      <span
+        className={cn(
+          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+          'bg-bg-tertiary text-fg-muted border border-border-default',
+          className,
+        )}
+      >
+        {t('course_complete')}
+      </span>
+    );
+  }
+
   if (status === 'in-progress') {
     return (
       <span
         className={cn(
-          'text-sm font-medium text-fg-secondary',
+          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+          'bg-accent-gold/10 text-accent-gold border border-accent-gold/20',
           className,
         )}
       >
@@ -42,13 +57,18 @@ export function AvailabilityBadge({
     );
   }
 
-  const remaining = (maxEnrollment ?? 0) - currentEnrollment;
+  const remaining = maxEnrollment ? maxEnrollment - currentEnrollment : null;
 
   return (
-    <span
-      className={cn('text-sm font-medium text-accent-teal', className)}
-    >
-      {t('spots_left', { count: remaining })}
+    <span className={cn('inline-flex items-center gap-2', className)}>
+      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-accent-teal/10 text-accent-teal border border-accent-teal/20">
+        {t('open_for_enrollment')}
+      </span>
+      {remaining !== null && (
+        <span className="text-sm text-fg-tertiary">
+          {t('spots_left', { count: remaining })}
+        </span>
+      )}
     </span>
   );
 }
