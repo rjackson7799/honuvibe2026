@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       ],
       // Apply Vertice Society discount if applicable.
       // Note: discounts and allow_promotion_codes are mutually exclusive in Stripe.
-      ...(discounts ? { discounts } : { allow_promotion_codes: false }),
+      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       metadata: {
         user_id: user.id,
         course_id: courseId,
