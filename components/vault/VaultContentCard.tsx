@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,16 +36,18 @@ export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: V
   const title = locale === 'ja' && item.title_jp ? item.title_jp : item.title_en;
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
   const Icon = typeIcons[item.content_type] ?? FileText;
+  const [imgError, setImgError] = useState(false);
 
   const thumbnail = (
     <div className="relative aspect-video bg-bg-tertiary">
-      {item.thumbnail_url ? (
+      {item.thumbnail_url && !imgError ? (
         <Image
           src={item.thumbnail_url}
           alt={title}
           fill
           className={cn('object-cover', locked && 'blur-sm')}
           sizes="(max-width: 768px) 100vw, (max-width: 1100px) 50vw, 33vw"
+          onError={() => setImgError(true)}
         />
       ) : (
         <div className={cn('flex items-center justify-center h-full', locked && 'blur-sm')}>
