@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-06 (Course enrollment status badges on CourseCard)
+**Last updated:** 2026-04-06 (Stripe promotion code + Vercel env var sync)
 
 ### Status Legend
 - [ ] Not started
@@ -874,6 +874,13 @@ Dark:  Footer
 - [x] `lib/courses/types.ts` — `is_vertice_member: boolean` added to `EnrolledStudent` interface
 - [x] `lib/courses/queries.ts` — `getEnrolledStudents()` now fetches `is_vertice_member` from users join, returns it on each student record
 - [x] `app/api/stripe/checkout/route.ts` — checks `users.is_vertice_member` before creating session; if true and `STRIPE_VERTICE_COUPON_ID` is set, applies coupon via `discounts` array (mutually exclusive with `allow_promotion_codes`)
+
+### Stripe Promotion Code + Vercel Env Sync (2026-04-06)
+- [x] Created `VERTICE26` promotion code in Stripe dashboard (references VERTICE26 coupon, 40% off, expires Apr 11) — customers can now enter the code at checkout
+- [x] Added `STRIPE_VERTICE_COUPON_ID=ZXj3QMBj` to `.env.local` (was missing from both local and Vercel)
+- [x] Added missing Vercel environment variables: `BEEHIIV_API_KEY`, `BEEHIIV_PUBLICATION_ID`, `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`, `STRIPE_VAULT_PRICE_USD`, `STRIPE_VAULT_PRICE_JPY`, `STRIPE_VERTICE_COUPON_ID`
+- [x] Redeployed to production — all env vars now active on honuvibe.ai
+- [x] Verified: VERTICE26 promo code applies 40% discount ($1,250 → $750) at Stripe checkout
 
 ### Course Enrollment Status Badges (2026-04-06)
 - [x] `components/learn/AvailabilityBadge.tsx` — refactored to show styled pill badges based on course status: teal "Open for Enrollment" (published + spots available), amber "In Progress" (in-progress), gray "Complete" (completed); full cohort still shows "Cohort Full" gold text; spots count remains as secondary text alongside open badge

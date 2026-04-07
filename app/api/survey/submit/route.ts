@@ -154,32 +154,32 @@ function buildSurveyEmailHtml(data: Record<string, unknown>): string {
     ? (data.ai_help_with as string[]).join(', ')
     : '';
   const interests = data.specific_interests
-    ? `<p><strong>Additional thoughts:</strong><br>${data.specific_interests}</p>`
+    ? `<p><strong>Additional thoughts / その他のご関心:</strong><br>${data.specific_interests}</p>`
     : '';
 
   return `
-    <h2>New AI Essentials Pre-Course Survey Response</h2>
+    <h2>New AI Essentials Pre-Course Survey Response / 新しいアンケート回答</h2>
     <hr>
-    <h3>About</h3>
-    <p><strong>Name:</strong> ${data.name}</p>
-    <p><strong>Background:</strong> ${data.professional_background}</p>
-    <p><strong>Role:</strong> ${data.role_description}</p>
+    <h3>About / 受講生について</h3>
+    <p><strong>Name / 氏名:</strong> ${data.name}</p>
+    <p><strong>Background / バックグラウンド:</strong> ${data.professional_background}</p>
+    <p><strong>Role / 役割:</strong> ${data.role_description}</p>
     <hr>
-    <h3>AI Experience</h3>
-    <p><strong>Knowledge Level:</strong> ${data.ai_knowledge_level}</p>
-    <p><strong>Tools Used:</strong> ${tools}</p>
-    <p><strong>Usage Frequency:</strong> ${data.ai_usage_frequency}</p>
+    <h3>AI Experience / AIの経験</h3>
+    <p><strong>Knowledge Level / AIの理解度:</strong> ${data.ai_knowledge_level}</p>
+    <p><strong>Tools Used / 使用ツール:</strong> ${tools}</p>
+    <p><strong>Usage Frequency / 使用頻度:</strong> ${data.ai_usage_frequency}</p>
     <hr>
-    <h3>Goals</h3>
-    <p><strong>Why Learning AI:</strong> ${reasons}</p>
-    <p><strong>Wants AI to Help With:</strong> ${helpWith}</p>
+    <h3>Goals / 目標</h3>
+    <p><strong>Why Learning AI / 学習理由:</strong> ${reasons}</p>
+    <p><strong>Wants AI to Help With / AIに任せたいこと:</strong> ${helpWith}</p>
     <hr>
-    <h3>Expectations</h3>
-    <p><strong>Success Looks Like:</strong> ${data.success_definition}</p>
-    <p><strong>Current Feeling:</strong> ${data.current_feeling}</p>
+    <h3>Expectations / 期待</h3>
+    <p><strong>Success Looks Like / 成功のイメージ:</strong> ${data.success_definition}</p>
+    <p><strong>Current Feeling / 現在の気持ち:</strong> ${data.current_feeling}</p>
     ${interests}
     <hr>
-    <h3>Logistics</h3>
-    <p><strong>Used Zoom Before:</strong> ${data.used_zoom_before}</p>
+    <h3>Logistics / 確認事項</h3>
+    <p><strong>Used Zoom Before / Zoom使用経験:</strong> ${data.used_zoom_before}</p>
   `;
 }

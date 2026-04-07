@@ -19,13 +19,18 @@ export function baseLayout(options: {
   locale: Locale;
   preheader?: string;
   body: string;
+  lightFooter?: boolean;
 }): string {
-  const { locale, preheader, body } = options;
+  const { locale, preheader, body, lightFooter = false } = options;
   const isJP = locale === 'ja';
   const fontFamily = isJP
     ? "'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif"
     : "'DM Sans', Helvetica, Arial, sans-serif";
   const bodyLineHeight = isJP ? '1.75' : '1.6';
+
+  const footerBg = lightFooter ? BRAND.bgGray : BRAND.bgFooter;
+  const footerTextColor = lightFooter ? BRAND.textSecondary : BRAND.textWhite;
+  const footerSubColor = lightFooter ? '#9999aa' : 'rgba(255,255,255,0.45)';
 
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="ltr">
@@ -65,11 +70,11 @@ export function baseLayout(options: {
 
           <!-- Footer -->
           <tr>
-            <td style="background-color:${BRAND.bgFooter};padding:24px 32px;text-align:center;">
-              <p style="margin:0 0 8px;font-size:13px;color:${BRAND.textWhite};opacity:0.7;">
+            <td style="background-color:${footerBg};padding:24px 32px;text-align:center;border-top:1px solid ${BRAND.borderLight};">
+              <p style="margin:0 0 8px;font-size:13px;color:${footerTextColor};opacity:0.7;">
                 ${isJP ? 'ハワイからアロハの心を込めて' : 'Made in Hawaii with Aloha'}
               </p>
-              <p style="margin:0 0 12px;font-size:12px;color:${BRAND.textWhite};opacity:0.45;">
+              <p style="margin:0 0 12px;font-size:12px;color:${footerSubColor};">
                 &copy; ${new Date().getFullYear()} HonuVibe.AI
               </p>
               <p style="margin:0;font-size:12px;">

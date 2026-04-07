@@ -855,67 +855,56 @@ export async function sendStudentWelcomeAdminNotification(data: {
 // ─── Student AI Study Profile ────────────────────────────────
 
 export async function sendStudentProfileEmail(data: StudentProfileEmailData): Promise<void> {
-  const { locale, fullName, email, levelLabel, levelDescription, recommendedTools, suggestedProjects, aiForYourWork, learningPath, surveySummary } = data;
-  const isJP = locale === 'ja';
+  const { fullName, email, levelLabel, levelDescription, recommendedTools, suggestedProjects, aiForYourWork, learningPath, surveySummary } = data;
 
+  // Student email is always Japanese only
   const surveySummarySection = surveySummary ? [
     divider(),
-    heading(isJP ? 'ご回答の概要' : 'Here\'s What We Heard From You'),
+    heading('ご回答の概要'),
     detailsTable([
-      { label: isJP ? '職業・バックグラウンド' : 'Background', value: surveySummary.professional_background },
-      { label: isJP ? '日常の役割' : 'Role', value: surveySummary.role_description },
-      { label: isJP ? 'AIの理解度' : 'AI Experience', value: surveySummary.ai_knowledge_level },
-      { label: isJP ? '使用中のAIツール' : 'Tools Used', value: surveySummary.ai_tools_used.join(', ') || '—' },
-      { label: isJP ? 'AIを学ぶ理由' : 'Why Learning AI', value: surveySummary.learning_reasons.join(', ') },
-      { label: isJP ? 'AIに任せたいこと' : 'Wants AI to Help With', value: surveySummary.ai_help_with.join(', ') },
-      ...(surveySummary.specific_interests ? [{ label: isJP ? 'その他のご関心' : 'Additional Thoughts', value: surveySummary.specific_interests }] : []),
+      { label: '職業・バックグラウンド', value: surveySummary.professional_background },
+      { label: '日常の役割', value: surveySummary.role_description },
+      { label: 'AIの理解度', value: surveySummary.ai_knowledge_level },
+      { label: '使用中のAIツール', value: surveySummary.ai_tools_used.join(', ') || '—' },
+      { label: 'AIを学ぶ理由', value: surveySummary.learning_reasons.join(', ') },
+      { label: 'AIに任せたいこと', value: surveySummary.ai_help_with.join(', ') },
+      ...(surveySummary.specific_interests ? [{ label: 'その他のご関心', value: surveySummary.specific_interests }] : []),
     ]),
   ].join('') : '';
 
   const body = [
-    accentBanner(isJP ? 'あなたのAI学習プロフィールができました' : 'Your AI Study Profile Is Ready'),
-    heading(isJP
-      ? `${fullName} さん、アンケートへのご回答ありがとうございます！`
-      : `Thank you for completing the survey, ${fullName}!`),
-    paragraph(isJP
-      ? 'あなたの回答をもとに、パーソナライズされたAI学習プロフィールを作成しました。コースをより有意義なものにするために、ぜひご活用ください。'
-      : "Based on your survey responses, we've put together a personalized AI study profile just for you."),
+    accentBanner('あなたのAI学習プロフィールができました'),
+    heading(`${fullName} さん、アンケートへのご回答ありがとうございます！`),
+    paragraph('あなたの回答をもとに、パーソナライズされたAI学習プロフィールを作成しました。コースをより有意義なものにするために、ぜひご活用ください。'),
     surveySummarySection,
     divider(),
-    heading(isJP ? 'あなたのAIレベル' : 'Your AI Level'),
+    heading('あなたのAIレベル'),
     accentBanner(levelLabel),
     paragraph(levelDescription),
     divider(),
-    heading(isJP ? 'おすすめのAIツール' : 'Recommended AI Tools'),
-    paragraph(isJP
-      ? 'あなたの目標と経験レベルに合わせた、特におすすめの3つのツールです。'
-      : 'Three tools chosen specifically for your goals and current experience level.'),
+    heading('おすすめのAIツール'),
+    paragraph('あなたの目標と経験レベルに合わせた、特におすすめの3つのツールです。'),
     detailsTable(recommendedTools.map((t) => ({ label: t.name, value: t.reason }))),
     divider(),
-    heading(isJP ? 'AIがあなたの仕事・関心をどう助けるか' : 'How AI Can Help You'),
+    heading('AIがあなたの仕事・関心をどう助けるか'),
     paragraph(aiForYourWork),
     divider(),
-    heading(isJP ? 'スキルアップのためのプロジェクトアイデア' : 'Projects to Build Your Skills'),
-    paragraph(isJP
-      ? 'あなたの背景と目標に合わせた、実践的なプロジェクトアイデアです。'
-      : 'Hands-on projects tailored to your background and goals — great to tackle during or after the course.'),
+    heading('スキルアップのためのプロジェクトアイデア'),
+    paragraph('あなたの背景と目標に合わせた、実践的なプロジェクトアイデアです。'),
     detailsTable(suggestedProjects.map((p) => ({ label: p.title, value: p.description }))),
     divider(),
-    heading(isJP ? 'あなたへの学習アドバイス' : 'Your Personalized Learning Path'),
+    heading('あなたへの学習アドバイス'),
     paragraph(learningPath),
   ].join('');
 
   await sendEmail({
     to: email,
-    subject: isJP
-      ? 'あなたのAI学習プロフィール — AI Essentials'
-      : 'Your AI Study Profile — AI Essentials',
+    subject: 'あなたのAI学習プロフィール — AI Essentials',
     html: baseLayout({
-      locale,
-      preheader: isJP
-        ? 'あなた専用のAI学習プロフィールをご覧ください'
-        : 'Your personalized AI study profile is here',
+      locale: 'ja',
+      preheader: 'あなた専用のAI学習プロフィールをご覧ください',
       body,
+      lightFooter: true,
     }),
   });
 }
@@ -933,38 +922,38 @@ export async function sendSurveyAdminNotificationWithProfile(data: SurveyAdminWi
   const helpWith = Array.isArray(surveyData.ai_help_with) ? (surveyData.ai_help_with as string[]).join(', ') : '—';
 
   const body = [
-    accentBanner('New AI Essentials Survey Response'),
-    heading('Student Survey Answers'),
+    accentBanner('New AI Essentials Survey Response / 新しいアンケート回答'),
+    heading('Student Survey Answers / 受講生アンケート回答'),
     detailsTable([
-      { label: 'Name', value: String(surveyData.name ?? '—') },
-      ...(studentEmail ? [{ label: 'Email', value: studentEmail }] : []),
-      { label: 'Background', value: String(surveyData.professional_background ?? '—') },
-      { label: 'Role', value: String(surveyData.role_description ?? '—') },
-      { label: 'AI Knowledge Level', value: String(surveyData.ai_knowledge_level ?? '—') },
-      { label: 'Tools Used', value: tools },
-      { label: 'Usage Frequency', value: String(surveyData.ai_usage_frequency ?? '—') },
-      { label: 'Why Learning AI', value: reasons },
-      { label: 'Wants AI to Help With', value: helpWith },
-      { label: 'Success Looks Like', value: String(surveyData.success_definition ?? '—') },
-      { label: 'Current Feeling', value: String(surveyData.current_feeling ?? '—') },
-      { label: 'Used Zoom Before', value: String(surveyData.used_zoom_before ?? '—') },
-      ...(surveyData.specific_interests ? [{ label: 'Additional Thoughts', value: String(surveyData.specific_interests) }] : []),
+      { label: 'Name / 氏名', value: String(surveyData.name ?? '—') },
+      ...(studentEmail ? [{ label: 'Email / メール', value: studentEmail }] : []),
+      { label: 'Background / バックグラウンド', value: String(surveyData.professional_background ?? '—') },
+      { label: 'Role / 役割', value: String(surveyData.role_description ?? '—') },
+      { label: 'AI Knowledge Level / AIの理解度', value: String(surveyData.ai_knowledge_level ?? '—') },
+      { label: 'Tools Used / 使用ツール', value: tools },
+      { label: 'Usage Frequency / 使用頻度', value: String(surveyData.ai_usage_frequency ?? '—') },
+      { label: 'Why Learning AI / 学習理由', value: reasons },
+      { label: 'Wants AI to Help With / AIに任せたいこと', value: helpWith },
+      { label: 'Success Looks Like / 成功のイメージ', value: String(surveyData.success_definition ?? '—') },
+      { label: 'Current Feeling / 現在の気持ち', value: String(surveyData.current_feeling ?? '—') },
+      { label: 'Used Zoom Before / Zoom使用経験', value: String(surveyData.used_zoom_before ?? '—') },
+      ...(surveyData.specific_interests ? [{ label: 'Additional Thoughts / その他のご関心', value: String(surveyData.specific_interests) }] : []),
     ]),
     divider(),
-    heading('AI-Generated Student Profile'),
+    heading('AI-Generated Student Profile / AI生成プロフィール'),
     accentBanner(`${levelLabel}`),
     paragraph(levelDescription),
     divider(),
-    heading('Recommended Tools'),
+    heading('Recommended Tools / おすすめのAIツール'),
     detailsTable(recommendedTools.map((t) => ({ label: t.name, value: t.reason }))),
     divider(),
-    heading('How AI Can Help This Student'),
+    heading('How AI Can Help This Student / AIが貢献できること'),
     paragraph(aiForYourWork),
     divider(),
-    heading('Suggested Projects'),
+    heading('Suggested Projects / おすすめプロジェクト'),
     detailsTable(suggestedProjects.map((p) => ({ label: p.title, value: p.description }))),
     divider(),
-    heading('Personalized Learning Path'),
+    heading('Personalized Learning Path / 学習アドバイス'),
     paragraph(learningPath),
   ].join('');
 
