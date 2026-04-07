@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { IconButton } from '@/components/ui/icon-button';
 import { LangToggle } from './lang-toggle';
 import { MobileMenu } from './mobile-menu';
+import { ThemeToggle } from './theme-toggle';
 import { UserMenu } from './user-menu';
 
 type NavLink = { href: string; label: string };
@@ -52,7 +53,6 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
     <>
       <nav
         className={cn(
-          !isAuthRoute && 'dark-zone',
           'fixed top-0 left-0 right-0 z-[200] h-14 md:h-16',
           'flex items-center justify-between px-5 md:px-8',
           'transition-all duration-[400ms]',
@@ -88,6 +88,7 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
             <UserMenu labels={userMenuLabels} compact direction="horizontal" />
           </div>
           <div className={isAuthRoute ? 'md:hidden flex items-center gap-1' : 'flex items-center gap-1'}>
+            {!isAuthRoute && <ThemeToggle />}
             <LangToggle />
           </div>
           {!isAuthRoute && (
