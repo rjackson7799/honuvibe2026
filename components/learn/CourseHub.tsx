@@ -94,12 +94,42 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
           {t('back_to_my_courses')}
         </button>
 
-        {/* Course header */}
-        <div className="space-y-3">
+        {/* Course header + top CTA */}
+        <div className="space-y-5">
+          {/* Meta strip */}
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-widest text-accent-teal">
+            {course.level && <span>{course.level}</span>}
+            {course.total_weeks && <><span className="text-border-primary opacity-40">·</span><span>{t('weeks', { count: course.total_weeks })}</span></>}
+            {course.language && <><span className="text-border-primary opacity-40">·</span><span>{course.language === 'both' ? 'EN/JP' : course.language.toUpperCase()}</span></>}
+          </div>
+
           <h1 className="text-2xl md:text-3xl font-serif text-fg-primary">{title}</h1>
+
           {description && (
             <p className="text-fg-secondary leading-relaxed max-w-2xl">{description}</p>
           )}
+
+          {/* Top CTA strip */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-bg-secondary border border-border-primary rounded-xl">
+            <div className="space-y-1">
+              <PriceDisplay priceUsd={course.price_usd} priceJpy={course.price_jpy} size="lg" />
+              <div className="flex flex-wrap gap-3 text-xs text-fg-tertiary">
+                {course.live_sessions_count != null && <span>{t('live_sessions', { count: course.live_sessions_count })}</span>}
+                {course.recorded_lessons_count != null && <><span>·</span><span>{t('recorded_lessons', { count: course.recorded_lessons_count })}</span></>}
+                {course.max_enrollment != null && <><span>·</span><span>{t('cohort_size')}: {course.max_enrollment}</span></>}
+              </div>
+            </div>
+            <EnrollButton
+              courseId={course.id}
+              courseSlug={course.slug}
+              isLoggedIn={true}
+              isEnrolled={false}
+              isFull={isFull}
+              priceUsd={course.price_usd}
+              priceJpy={course.price_jpy}
+              size="lg"
+            />
+          </div>
         </div>
 
         <LearningOutcomes outcomes={outcomes} />
