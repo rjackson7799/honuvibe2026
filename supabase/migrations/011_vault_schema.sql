@@ -140,7 +140,7 @@ CREATE TABLE vault_views (
 
 -- Dedup index: one view per viewer per content item per day
 CREATE UNIQUE INDEX idx_vault_views_dedup
-  ON vault_views (content_item_id, viewer_hash, (viewed_at::date));
+  ON vault_views (content_item_id, viewer_hash, (timezone('UTC', viewed_at)::date));
 
 -- ============================================================================
 -- 9. CREATE vault_content_requests
