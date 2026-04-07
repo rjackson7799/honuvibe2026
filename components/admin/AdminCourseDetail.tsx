@@ -61,6 +61,10 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     }
   }
 
+  const [toolsCovered, setToolsCovered] = useState<string[]>(course.tools_covered ?? []);
+  const [newTool, setNewTool] = useState('');
+  const [savingTools, setSavingTools] = useState(false);
+
   const [freePreviewCount, setFreePreviewCount] = useState(course.free_preview_count ?? 0);
   const [savingPreview, setSavingPreview] = useState(false);
 
@@ -408,18 +412,62 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
             </div>
           )}
 
-          {course.tools_covered && course.tools_covered.length > 0 && (
-            <div>
-              <h3 className="text-sm font-medium text-fg-primary mb-2">Tools Covered</h3>
-              <div className="flex flex-wrap gap-2">
-                {course.tools_covered.map((tool) => (
-                  <span key={tool} className="text-xs px-2 py-1 bg-bg-tertiary rounded font-mono text-fg-secondary">
-                    {tool}
-                  </span>
-                ))}
-              </div>
+          <div>
+            <h3 className="text-sm font-medium text-fg-primary mb-2">Tools Covered</h3>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {toolsCovered.map((tool) => (
+                <span key={tool} className="flex items-center gap-1 text-xs px-2 py-1 bg-bg-tertiary rounded font-mono text-fg-secondary">
+                  {tool}
+                  <button
+                    type="button"
+                    onClick={() => setToolsCovered((prev) => prev.filter((t) => t !== tool))}
+                    className="ml-1 text-fg-muted hover:text-red-400 transition-colors leading-none"
+                    aria-label={`Remove ${tool}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              {toolsCovered.length === 0 && (
+                <span className="text-xs text-fg-muted">No tools added yet.</span>
+              )}
             </div>
-          )}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newTool}
+                onChange={(e) => setNewTool(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const trimmed = newTool.trim();
+                    if (trimmed && !toolsCovered.includes(trimmed)) {
+                      setToolsCovered((prev) => [...prev, trimmed]);
+                    }
+                    setNewTool('');
+                  }
+                }}
+                placeholder="Add tool (press Enter)"
+                className="flex-1 max-w-[220px] text-sm bg-bg-secondary border border-border-default rounded px-3 py-1.5 text-fg-primary placeholder:text-fg-muted"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={savingTools || toolsCovered === (course.tools_covered ?? [])}
+                onClick={async () => {
+                  setSavingTools(true);
+                  try {
+                    await updateCourse(course.id, { tools_covered: toolsCovered });
+                    router.refresh();
+                  } finally {
+                    setSavingTools(false);
+                  }
+                }}
+              >
+                {savingTools ? 'Saving…' : 'Save'}
+              </Button>
+            </div>
+          </div>
 
           {/* Free Preview Sessions */}
           <div className="border-t border-border-default pt-4">
