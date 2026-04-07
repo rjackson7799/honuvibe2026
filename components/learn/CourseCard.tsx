@@ -16,10 +16,11 @@ import { cn } from '@/lib/utils';
 type CourseCardProps = {
   course: Course;
   variant?: 'catalog' | 'dashboard';
+  viewCourseHref?: string;
   className?: string;
 };
 
-export function CourseCard({ course, variant = 'catalog', className }: CourseCardProps) {
+export function CourseCard({ course, variant = 'catalog', viewCourseHref, className }: CourseCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
   const [enrolling, setEnrolling] = useState(false);
@@ -147,7 +148,7 @@ export function CourseCard({ course, variant = 'catalog', className }: CourseCar
             {enrollError && (
               <p className="text-xs text-red-400">{enrollError}</p>
             )}
-            <Link href={`/learn/${course.slug}`}>
+            <Link href={viewCourseHref ?? `/learn/${course.slug}`}>
               <Button variant="ghost" size="sm" className="w-full">
                 {t('view_course')}
               </Button>

@@ -8,14 +8,23 @@ import { ArrowLeft } from 'lucide-react';
 import { TabNavigation } from './TabNavigation';
 import { WeekCard } from './WeekCard';
 import { VocabularyList } from './VocabularyList';
+import { LearningOutcomes } from './LearningOutcomes';
+import { ToolsBadges } from './ToolsBadges';
+import { HowItWorks } from './HowItWorks';
+import { CurriculumAccordion } from './CurriculumAccordion';
+import { BonusSessionsSection } from './BonusSessionsSection';
+import { EnrollButton } from './EnrollButton';
+import { PriceDisplay } from './PriceDisplay';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { ESLTab } from '@/components/esl/ESLTab';
+import { getFreeSessionIds } from '@/lib/courses/utils';
 import type { CourseWithCurriculum, CourseWeekWithContent } from '@/lib/courses/types';
 
 type CourseHubProps = {
   course: CourseWithCurriculum;
   locale: string;
+  isEnrolled: boolean;
 };
 
 type WeekState = 'current' | 'completed' | 'locked' | 'upcoming';
@@ -49,7 +58,7 @@ function getCurrentWeek(startDate: string | null, totalWeeks: number | null): nu
   return Math.max(1, Math.min(diffWeeks, totalWeeks));
 }
 
-export function CourseHub({ course, locale }: CourseHubProps) {
+export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
   const t = useTranslations('learn');
   const displayLocale = useLocale();
   const router = useRouter();
@@ -63,6 +72,65 @@ export function CourseHub({ course, locale }: CourseHubProps) {
   const progressPercent = Math.round((currentWeek / totalWeeks) * 100);
 
   const prefix = displayLocale === 'ja' ? '/ja' : '';
+
+  // Preview mode for non-enrolled users
+  if (!isEnrolled) {
+    const freeSessionIds = getFreeSessionIds(course.free_preview_count, course.weeks);
+    const outcomes = displayLocale === 'ja' && course.learning_outcomes_jp?.length
+      ? course.learning_outcomes_jp
+      : course.learning_outcomes_en;
+    const isFull = course.max_enrollment !== null && course.current_enrollment >= course.max_enrollment;
+
+    return (
+      <div className="space-y-10">
+        {/* Back button */}
+        <button
+          type="button"
+          onClick={() => router.push(`${prefix}/learn/dashboard/courses`)}
+          className="flex items-center gap-1 text-sm text-fg-tertiary hover:text-fg-primary transition-colors"
+        >
+          <ArrowLeft size={16} />
+          {t('back_to_my_courses')}
+        </button>
+
+        {/* Course header */}
+        <div className="space-y-3">
+          <h1 className="text-2xl md:text-3xl font-serif text-fg-primary">{title}</h1>
+          {description && (
+            <p className="text-fg-secondary leading-relaxed max-w-2xl">{description}</p>
+          )}
+        </div>
+
+        <LearningOutcomes outcomes={outcomes} />
+        <ToolsBadges tools={course.tools_covered} />
+        <HowItWorks communityMonths={course.community_duration_months} />
+        <CurriculumAccordion
+          weeks={course.weeks}
+          isEnrolled={false}
+          isLoggedIn={true}
+          freeSessionIds={Array.from(freeSessionIds)}
+        />
+        {course.bonusSessions.length > 0 && (
+          <BonusSessionsSection sessions={course.bonusSessions} isEnrolled={false} />
+        )}
+
+        {/* Enroll CTA */}
+        <div className="rounded-xl bg-bg-secondary border border-border-primary p-8 text-center space-y-4">
+          <h2 className="font-serif text-xl text-fg-primary">{t('ready_to_enroll')}</h2>
+          <PriceDisplay priceUsd={course.price_usd} priceJpy={course.price_jpy} size="lg" />
+          <EnrollButton
+            courseId={course.id}
+            courseSlug={course.slug}
+            isLoggedIn={true}
+            isEnrolled={false}
+            isFull={isFull}
+            priceUsd={course.price_usd}
+            priceJpy={course.price_jpy}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { key: 'overview', label: t('overview') },

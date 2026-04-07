@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
 import { CourseCard } from '@/components/learn/CourseCard';
 import { SectionHeading } from '@/components/ui/section-heading';
@@ -14,6 +14,8 @@ type FilterTab = 'all' | 'in_progress' | 'completed';
 export default function MyCoursesPage() {
   const t = useTranslations('dashboard');
   const tLearn = useTranslations('learn');
+  const locale = useLocale();
+  const prefix = locale === 'ja' ? '/ja' : '';
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const [enrollments, setEnrollments] = useState<EnrollmentWithCourse[]>([]);
   const [exploreCourses, setExploreCourses] = useState<Course[]>([]);
@@ -110,7 +112,12 @@ export default function MyCoursesPage() {
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
             {exploreCourses.map((course) => (
-              <CourseCard key={course.id} course={course} />
+              <CourseCard
+                key={course.id}
+                course={course}
+                variant="dashboard"
+                viewCourseHref={`${prefix}/learn/dashboard/${course.slug}`}
+              />
             ))}
           </div>
         </div>

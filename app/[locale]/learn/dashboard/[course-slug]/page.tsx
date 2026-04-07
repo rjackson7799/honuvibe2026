@@ -36,16 +36,11 @@ export default async function CourseHubPage({ params }: Props) {
     redirect(`${prefix}/learn/auth`);
   }
 
-  // Check enrollment
-  const enrollmentCheck = await checkEnrollment(user.id, slug);
-  if (!enrollmentCheck.is_enrolled) {
-    const prefix = locale === 'ja' ? '/ja' : '';
-    redirect(`${prefix}/learn/${slug}`);
-  }
-
-  // Fetch course with full curriculum
+  // Fetch course first — 404 before enrollment check
   const course = await getCourseWithCurriculum(slug);
   if (!course) notFound();
 
-  return <CourseHub course={course} locale={locale} />;
+  const enrollmentCheck = await checkEnrollment(user.id, slug);
+
+  return <CourseHub course={course} locale={locale} isEnrolled={enrollmentCheck.is_enrolled} />;
 }
