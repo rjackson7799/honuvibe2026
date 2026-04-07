@@ -15,6 +15,7 @@ import { CurriculumAccordion } from './CurriculumAccordion';
 import { BonusSessionsSection } from './BonusSessionsSection';
 import { EnrollButton } from './EnrollButton';
 import { PriceDisplay } from './PriceDisplay';
+import { InstructorCard } from './InstructorCard';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { ESLTab } from '@/components/esl/ESLTab';
@@ -113,6 +114,11 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
         {course.bonusSessions.length > 0 && (
           <BonusSessionsSection sessions={course.bonusSessions} isEnrolled={false} />
         )}
+        <InstructorCard
+          instructor={course.instructor ?? null}
+          fallbackName={course.instructor_name}
+          locale={displayLocale}
+        />
 
         {/* Enroll CTA */}
         <div className="rounded-xl bg-bg-secondary border border-border-primary p-8 text-center space-y-4">
