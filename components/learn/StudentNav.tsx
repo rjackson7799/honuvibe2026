@@ -127,23 +127,19 @@ export function StudentNav() {
           collapsed ? 'w-16' : 'w-56',
         )}
       >
-        <div className={cn('mb-4 flex items-center', collapsed ? 'flex-col gap-1' : 'justify-between px-3')}>
+        <div className={cn('mb-4 flex items-center', collapsed ? 'justify-center' : 'justify-between px-3')}>
           {!collapsed && (
             <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
               {t('heading_overview')}
             </h2>
           )}
-          <div className={cn('flex items-center gap-0.5', collapsed && 'flex-col')}>
-            <ThemeToggle />
-            <LangToggle compact={collapsed} />
-            <button
-              onClick={toggleCollapse}
-              className="text-fg-tertiary hover:text-fg-primary transition-colors p-1 rounded-md hover:bg-bg-tertiary"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-            </button>
-          </div>
+          <button
+            onClick={toggleCollapse}
+            className="text-fg-tertiary hover:text-fg-primary transition-colors p-1 rounded-md hover:bg-bg-tertiary"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          </button>
         </div>
 
         {navItems.map((item) => {
@@ -172,8 +168,17 @@ export function StudentNav() {
         })}
 
         {/* Bottom controls — pushed down with mt-auto */}
-        <div className="mt-auto pt-4 border-t border-border-default">
+        <div className="mt-auto pt-4 border-t border-border-default flex flex-col gap-1">
           <UserMenu labels={userMenuLabels} compact={collapsed} />
+          <div
+            className={cn(
+              'pt-2 border-t border-border-default',
+              collapsed ? 'flex flex-col items-center gap-1' : 'flex items-center gap-1',
+            )}
+          >
+            <ThemeToggle />
+            <LangToggle compact={collapsed} />
+          </div>
         </div>
       </nav>
 
