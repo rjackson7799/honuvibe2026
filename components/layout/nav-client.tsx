@@ -10,6 +10,7 @@ import { LangToggle } from './lang-toggle';
 import { MobileMenu } from './mobile-menu';
 import { ThemeToggle } from './theme-toggle';
 import { UserMenu } from './user-menu';
+import { useTheme } from '@/components/providers/theme-provider';
 
 type NavLink = { href: string; label: string };
 
@@ -27,6 +28,8 @@ type NavClientProps = {
 
 export function NavClient({ links, userMenuLabels }: NavClientProps) {
   const pathname = usePathname();
+  const { theme } = useTheme();
+  const isLightMode = theme === 'light';
   const isAuthRoute = /^\/(ja\/)?(learn\/(dashboard|vault)|admin)(\/|$)/.test(pathname);
   const isLightZonePage = pathname.startsWith('/partners/');
   const [scrolled, setScrolled] = useState(false);
@@ -57,7 +60,7 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
           'fixed top-0 left-0 right-0 z-[200] h-14 md:h-16',
           'flex items-center justify-between px-5 md:px-8',
           'transition-all duration-[400ms]',
-          scrolled || isLightZonePage || isAuthRoute
+          scrolled || isLightZonePage || isAuthRoute || isLightMode
             ? 'bg-bg-glass backdrop-blur-[24px] backdrop-saturate-[180%] border-b border-border-secondary'
             : 'bg-transparent',
         )}
