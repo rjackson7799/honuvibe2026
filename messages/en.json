@@ -1016,6 +1016,7 @@
     "confirm_password": "Confirm Password",
     "passwords_no_match": "Passwords do not match.",
     "password_updated": "Password updated successfully.",
+    "reset_link_expired": "This password link has expired or is invalid. Please request a new one from the login page.",
     "no_account": "Don't have an account?",
     "has_account": "Already have an account?",
     "welcome_message": "Sign in to access your courses",

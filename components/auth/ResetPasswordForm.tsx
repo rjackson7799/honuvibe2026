@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -16,8 +16,47 @@ export function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [waitingForSession, setWaitingForSession] = useState(true);
 
   const supabase = createClient();
+  const hasHandledRecovery = useRef(false);
+
+  // Listen for PASSWORD_RECOVERY event from hash fragment tokens
+  useEffect(() => {
+    // Check if there's already an active session (e.g., arrived via server callback)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionReady(true);
+        setWaitingForSession(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'PASSWORD_RECOVERY' && !hasHandledRecovery.current) {
+          hasHandledRecovery.current = true;
+          setSessionReady(true);
+          setWaitingForSession(false);
+        }
+      },
+    );
+
+    // Timeout: if no session after 5s, show error
+    const timeout = setTimeout(() => {
+      setWaitingForSession((current) => {
+        if (current) {
+          setError(t('reset_link_expired'));
+        }
+        return false;
+      });
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleReset(e: React.FormEvent) {
     e.preventDefault();
@@ -40,9 +79,43 @@ export function ResetPasswordForm() {
       return;
     }
 
-    const prefix = locale === 'ja' ? '/ja' : '';
     router.push(`${prefix}/learn/dashboard`);
     router.refresh();
+  }
+
+  const prefix = locale === 'ja' ? '/ja' : '';
+
+  // Still waiting for session to establish from hash tokens
+  if (waitingForSession && !sessionReady) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-bg-secondary border border-border-default rounded-lg p-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-6 h-6 border-2 border-accent-teal border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm text-fg-secondary">{t('loading')}...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Session failed to establish — link expired or invalid
+  if (!sessionReady && error) {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-bg-secondary border border-border-default rounded-lg p-8">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <p className="text-sm text-red-500">{error}</p>
+            <a
+              href={`${prefix}/learn/auth`}
+              className="text-sm text-accent-teal hover:underline"
+            >
+              {t('back_to_sign_in')}
+            </a>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

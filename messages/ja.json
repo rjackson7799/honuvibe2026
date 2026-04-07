@@ -1016,6 +1016,7 @@
     "confirm_password": "パスワードを確認",
     "passwords_no_match": "パスワードが一致しません。",
     "password_updated": "パスワードが更新されました。",
+    "reset_link_expired": "このパスワードリンクは期限切れまたは無効です。ログインページから新しいリンクをリクエストしてください。",
     "no_account": "アカウントをお持ちでないですか？",
     "has_account": "すでにアカウントをお持ちですか？",
     "welcome_message": "コースにアクセスするにはログインしてください",

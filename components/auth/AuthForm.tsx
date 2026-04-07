@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,22 @@ export function AuthForm() {
   const [confirmationPending, setConfirmationPending] = useState(false);
 
   const supabase = createClient();
+
+  // Fallback: if recovery tokens land on the login page, redirect to reset page
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          const prefix = locale === 'ja' ? '/ja' : '';
+          router.push(`${prefix}/learn/auth/reset`);
+        }
+      },
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleEmailAuth(e: React.FormEvent) {
     e.preventDefault();

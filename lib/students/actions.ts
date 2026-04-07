@@ -107,7 +107,7 @@ export async function sendStudentWelcomeEmailAction(
     const linkType = type === 'new' ? 'recovery' : 'magiclink';
     const redirectTo =
       type === 'new'
-        ? `${siteUrl}/api/auth/callback?redirect=/learn/auth/reset`
+        ? `${siteUrl}/learn/auth/reset`
         : `${siteUrl}/api/auth/callback?redirect=/learn/dashboard`;
 
     const { data: linkData, error: linkError } =
