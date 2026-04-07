@@ -50,17 +50,19 @@ export default async function VaultBrowsePage({ params }: Props) {
   if (!hasAccess) {
     const result = await getVaultBrowse({ pageSize: 20 });
     return (
-      <div className="space-y-10 max-w-[1100px] mx-auto">
+      <div className="space-y-8 max-w-[1100px] mx-auto">
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-2">{t('page_title')}</h1>
           <p className="text-fg-secondary">{t('page_subtitle')}</p>
         </div>
-        <VaultSubNav isAuthenticated={!!user} />
-        <VaultBrowseGrid
-          initialItems={result.items}
-          initialTotalCount={result.totalCount}
-          hasAccess={false}
-        />
+        <div className="space-y-6">
+          <VaultSubNav isAuthenticated={!!user} />
+          <VaultBrowseGrid
+            initialItems={result.items}
+            initialTotalCount={result.totalCount}
+            hasAccess={false}
+          />
+        </div>
       </div>
     );
   }
@@ -77,13 +79,15 @@ export default async function VaultBrowsePage({ params }: Props) {
         <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-2">The Vault</h1>
         <p className="text-fg-secondary">Tutorials, guides, templates, and tools — all in one place.</p>
       </div>
-      <VaultSubNav isAuthenticated={!!user} />
-      <VaultRecentlyViewed items={recentItems} />
-      <VaultBrowseGrid
-        initialItems={result.items}
-        initialTotalCount={result.totalCount}
-        hasAccess={true}
-      />
+      <div className="space-y-6">
+        <VaultSubNav isAuthenticated={!!user} />
+        <VaultRecentlyViewed items={recentItems} />
+        <VaultBrowseGrid
+          initialItems={result.items}
+          initialTotalCount={result.totalCount}
+          hasAccess={true}
+        />
+      </div>
       {user && <VaultContentRequest />}
     </div>
   );

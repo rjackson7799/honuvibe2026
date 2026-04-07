@@ -119,7 +119,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-4">
       <VaultKeyboardShortcuts onSearch={focusSearch} />
 
       {!hasAccess && <VaultUpsellBanner />}
