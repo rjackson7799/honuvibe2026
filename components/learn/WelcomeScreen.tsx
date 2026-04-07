@@ -41,7 +41,7 @@ export function WelcomeScreen({ displayName, locale }: Props) {
         ? 'Ryanが制作したプレミアム動画ライブラリ。月額サブスクリプションで深く学べます。'
         : "Ryan's premium 10-minute deep-dive videos. On your schedule, at your pace.",
       cta: isJP ? 'Vaultを見る' : 'Explore The Vault',
-      href: `${prefix}/learn/dashboard/my-library`,
+      href: `${prefix}/learn/vault`,
       accent: 'var(--accent-gold)',
     },
     {
