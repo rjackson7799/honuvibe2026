@@ -72,6 +72,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check Vertice Society membership for automatic discount
+    const { data: userProfile } = await supabase
+      .from('users')
+      .select('is_vertice_member')
+      .eq('id', user.id)
+      .single();
+
+    const verticeCouponId = process.env.STRIPE_VERTICE_COUPON_ID;
+    const isVerticeMember = userProfile?.is_vertice_member === true;
+    const discounts =
+      isVerticeMember && verticeCouponId
+        ? [{ coupon: verticeCouponId }]
+        : undefined;
+
     // Determine currency and price based on locale
     const isJapanese = locale === 'ja';
     const currency = isJapanese ? 'jpy' : 'usd';
@@ -121,6 +135,9 @@ export async function POST(request: NextRequest) {
         currency,
         locale,
       },
+      // Apply Vertice Society discount if applicable.
+      // Note: discounts and allow_promotion_codes are mutually exclusive in Stripe.
+      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       return_url: `${origin}${localePrefix}/learn/${course.slug}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       locale: isJapanese ? 'ja' : 'en',
     });

@@ -30,7 +30,7 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const isLightMode = theme === 'light';
-  const isAuthRoute = /^\/(ja\/)?(learn\/(dashboard|vault)|admin)(\/|$)/.test(pathname);
+  const isAuthRoute = /^\/(ja\/)?(learn\/(dashboard|vault|[^/]+\/checkout)|admin)(\/|$)/.test(pathname);
   const isLightZonePage = pathname.startsWith('/partners/');
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
