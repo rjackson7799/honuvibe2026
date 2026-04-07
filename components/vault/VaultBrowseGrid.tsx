@@ -7,6 +7,7 @@ import { VaultKeyboardShortcuts } from './VaultKeyboardShortcuts';
 import { VaultUpsellBanner } from './VaultUpsellBanner';
 import { VaultUnlockModal } from './VaultUnlockModal';
 import { trackEvent } from '@/lib/analytics';
+import { useTranslations } from 'next-intl';
 import type { VaultContentItem, VaultContentType, VaultDifficulty, VaultSortOption } from '@/lib/vault/types';
 
 type VaultBrowseGridProps = {
@@ -16,6 +17,7 @@ type VaultBrowseGridProps = {
 };
 
 export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true }: VaultBrowseGridProps) {
+  const t = useTranslations('vault');
   const [items, setItems] = useState(initialItems);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [loading, setLoading] = useState(false);
@@ -135,7 +137,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
 
       {/* Results count */}
       <p className="text-xs text-fg-tertiary">
-        {totalCount} {totalCount === 1 ? 'item' : 'items'} found
+        {t('items_found', { count: totalCount })}
       </p>
 
       {/* Grid */}
@@ -158,7 +160,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
       {/* Empty state — only shown when not loading */}
       {items.length === 0 && !loading && (
         <div className="text-center py-16">
-          <p className="text-fg-tertiary text-sm">No content found matching your filters.</p>
+          <p className="text-fg-tertiary text-sm">{t('no_results')}</p>
         </div>
       )}
 
@@ -177,7 +179,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
             onClick={handleLoadMore}
             className="px-6 py-2.5 rounded-lg text-sm font-medium bg-bg-tertiary text-fg-secondary hover:text-fg-primary hover:bg-bg-secondary border border-border-default transition-colors"
           >
-            Load More
+            {t('load_more')}
           </button>
         </div>
       )}

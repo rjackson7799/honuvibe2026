@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { getVaultBrowse, getVaultRecentlyViewed } from '@/lib/vault/queries';
 import { checkVaultAccess } from '@/lib/vault/access';
@@ -33,6 +33,7 @@ export default async function VaultBrowsePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const t = await getTranslations('vault');
   const supabase = await createClient();
   const {
     data: { user },
@@ -51,8 +52,8 @@ export default async function VaultBrowsePage({ params }: Props) {
     return (
       <div className="space-y-8 max-w-[1100px] mx-auto">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-2">The Vault</h1>
-          <p className="text-fg-secondary">Tutorials, guides, templates, and tools — all in one place.</p>
+          <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-2">{t('page_title')}</h1>
+          <p className="text-fg-secondary">{t('page_subtitle')}</p>
         </div>
         <VaultSubNav isAuthenticated={!!user} />
         <VaultBrowseGrid

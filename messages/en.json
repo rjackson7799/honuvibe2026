@@ -1729,7 +1729,7 @@
   },
   "vault": {
     "page_title": "The Vault",
-    "page_subtitle": "Your self-study library for AI mastery",
+    "page_subtitle": "Tutorials, guides, templates, and tools — all in one place.",
     "search_placeholder": "Search the Vault...",
     "filter_type": "All Types",
     "filter_topic": "All Topics",
@@ -1817,7 +1817,15 @@
     "keyboard_search": "Focus search",
     "keyboard_bookmark": "Toggle bookmark",
     "keyboard_next": "Next in series",
-    "keyboard_prev": "Previous in series"
+    "keyboard_prev": "Previous in series",
+    "type_video": "Video",
+    "type_article": "Article",
+    "type_guide": "Guide",
+    "type_template": "Template",
+    "type_tool": "Tool",
+    "type_recording": "Recording",
+    "items_found": "{count} items found",
+    "no_results": "No content found matching your filters."
   },
   "study_paths": {
     "create_title": "Let's build your learning path.",

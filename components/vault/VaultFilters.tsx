@@ -3,6 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import type { VaultContentType, VaultDifficulty, VaultSortOption } from '@/lib/vault/types';
 
 type VaultFiltersProps = {
@@ -16,28 +17,6 @@ type VaultFiltersProps = {
   onSortChange: (value: VaultSortOption) => void;
 };
 
-const contentTypes: { key: VaultContentType; label: string }[] = [
-  { key: 'video_youtube', label: 'Video' },
-  { key: 'article', label: 'Article' },
-  { key: 'guide', label: 'Guide' },
-  { key: 'template', label: 'Template' },
-  { key: 'tool', label: 'Tool' },
-  { key: 'course_recording', label: 'Recording' },
-];
-
-const difficulties: { key: VaultDifficulty; label: string }[] = [
-  { key: 'beginner', label: 'Beginner' },
-  { key: 'intermediate', label: 'Intermediate' },
-  { key: 'advanced', label: 'Advanced' },
-];
-
-const sortOptions: { key: VaultSortOption; label: string }[] = [
-  { key: 'newest', label: 'Newest' },
-  { key: 'oldest', label: 'Oldest' },
-  { key: 'popular', label: 'Most Viewed' },
-  { key: 'helpful', label: 'Most Helpful' },
-];
-
 export function VaultFilters({
   search,
   onSearchChange,
@@ -48,7 +27,30 @@ export function VaultFilters({
   sort,
   onSortChange,
 }: VaultFiltersProps) {
+  const t = useTranslations('vault');
   const [localSearch, setLocalSearch] = useState(search);
+
+  const contentTypes: { key: VaultContentType; label: string }[] = [
+    { key: 'video_youtube', label: t('type_video') },
+    { key: 'article', label: t('type_article') },
+    { key: 'guide', label: t('type_guide') },
+    { key: 'template', label: t('type_template') },
+    { key: 'tool', label: t('type_tool') },
+    { key: 'course_recording', label: t('type_recording') },
+  ];
+
+  const difficulties: { key: VaultDifficulty; label: string }[] = [
+    { key: 'beginner', label: t('level_beginner') },
+    { key: 'intermediate', label: t('level_intermediate') },
+    { key: 'advanced', label: t('level_advanced') },
+  ];
+
+  const sortOptions: { key: VaultSortOption; label: string }[] = [
+    { key: 'newest', label: t('sort_newest') },
+    { key: 'oldest', label: t('sort_oldest') },
+    { key: 'popular', label: t('sort_popular') },
+    { key: 'helpful', label: t('sort_helpful') },
+  ];
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ export function VaultFilters({
           type="text"
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
-          placeholder="Search content..."
+          placeholder={t('search_placeholder')}
           className="vault-search-input w-full pl-9 pr-4 py-2.5 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
         />
       </div>
@@ -84,7 +86,7 @@ export function VaultFilters({
               : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary',
           )}
         >
-          All Types
+          {t('filter_type')}
         </button>
         {contentTypes.map((ct) => (
           <button
@@ -116,7 +118,7 @@ export function VaultFilters({
                 : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary',
             )}
           >
-            All Levels
+            {t('filter_level')}
           </button>
           {difficulties.map((d) => (
             <button

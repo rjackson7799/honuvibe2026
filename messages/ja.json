@@ -1729,7 +1729,7 @@
   },
   "vault": {
     "page_title": "ザ・ヴォールト",
-    "page_subtitle": "AIマスターのための自習ライブラリ",
+    "page_subtitle": "チュートリアル・ガイド・テンプレート・ツールが一箇所に。",
     "search_placeholder": "ヴォールトを検索...",
     "filter_type": "すべてのタイプ",
     "filter_topic": "すべてのトピック",
@@ -1817,7 +1817,15 @@
     "keyboard_search": "検索にフォーカス",
     "keyboard_bookmark": "ブックマーク切替",
     "keyboard_next": "シリーズの次へ",
-    "keyboard_prev": "シリーズの前へ"
+    "keyboard_prev": "シリーズの前へ",
+    "type_video": "動画",
+    "type_article": "記事",
+    "type_guide": "ガイド",
+    "type_template": "テンプレート",
+    "type_tool": "ツール",
+    "type_recording": "録画",
+    "items_found": "{count}件見つかりました",
+    "no_results": "条件に合うコンテンツが見つかりませんでした。"
   },
   "study_paths": {
     "create_title": "あなたの学習パスを作りましょう。",
