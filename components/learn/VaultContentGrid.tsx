@@ -21,6 +21,7 @@ const typeIcons: Record<string, typeof Video> = {
 
 function VaultCard({ item, locale }: { item: ContentItemForStudent; locale: string }) {
   const t = useTranslations('dashboard');
+  const [imgError, setImgError] = useState(false);
   const title = locale === 'ja' && item.title_jp ? item.title_jp : item.title_en;
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
   const Icon = typeIcons[item.content_type] ?? FileText;
@@ -46,11 +47,18 @@ function VaultCard({ item, locale }: { item: ContentItemForStudent; locale: stri
       rel="noopener noreferrer"
       className="block bg-bg-secondary border border-border-default rounded-lg p-4 hover:border-border-hover transition-colors group"
     >
-      {item.thumbnail_url && (
-        <div className="aspect-video rounded-md overflow-hidden mb-3 bg-bg-tertiary">
-          <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
-        </div>
-      )}
+      <div className="aspect-video rounded-md overflow-hidden mb-3 bg-bg-tertiary flex items-center justify-center">
+        {item.thumbnail_url && !imgError ? (
+          <img
+            src={item.thumbnail_url}
+            alt=""
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <Icon size={32} className="text-fg-muted opacity-40" />
+        )}
+      </div>
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-bg-tertiary text-fg-tertiary">
           <Icon size={12} />
