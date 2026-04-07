@@ -31,7 +31,7 @@ export function WelcomeScreen({ displayName, locale }: Props) {
         ? 'ライブZoomセッション付きの担任制コホートコース。プロジェクトを通じて実践的に学びましょう。'
         : 'Teacher-led cohort classes with live Zoom sessions and hands-on projects.',
       cta: isJP ? 'コースを見る' : 'Browse Courses',
-      href: '/learn',
+      href: `${prefix}/learn/dashboard/courses`,
       accent: 'var(--accent-teal)',
     },
     {
@@ -41,7 +41,7 @@ export function WelcomeScreen({ displayName, locale }: Props) {
         ? 'Ryanが制作したプレミアム動画ライブラリ。月額サブスクリプションで深く学べます。'
         : "Ryan's premium 10-minute deep-dive videos. On your schedule, at your pace.",
       cta: isJP ? 'Vaultを見る' : 'Explore The Vault',
-      href: `${prefix}/learn/vault`,
+      href: `${prefix}/learn/dashboard/my-library`,
       accent: 'var(--accent-gold)',
     },
     {
