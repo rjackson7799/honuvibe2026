@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getStudentDetail } from '@/lib/admin/queries';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { DeleteStudentButton } from '@/components/admin/DeleteStudentButton';
+import { ResendConfirmationButton } from '@/components/admin/ResendConfirmationButton';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
@@ -63,7 +64,22 @@ export default async function AdminStudentDetailPage({ params }: Props) {
           })}
         />
         <InfoField label="Subscription" value={student.subscription_tier} />
+        <div className="bg-bg-secondary border border-border-default rounded-lg p-3">
+          <span className="text-xs text-fg-tertiary block mb-0.5">Email Status</span>
+          <span className={`text-sm ${student.email_confirmed_at ? 'text-accent-teal' : 'text-accent-gold'}`}>
+            {student.email_confirmed_at ? 'Confirmed' : 'Pending Confirmation'}
+          </span>
+        </div>
       </div>
+
+      {/* Resend confirmation (only for unconfirmed users) */}
+      {!student.email_confirmed_at && student.email && (
+        <ResendConfirmationButton
+          studentId={student.id}
+          email={student.email}
+          fullName={student.full_name}
+        />
+      )}
 
       {/* Enrollments */}
       <div>

@@ -1084,3 +1084,47 @@ export async function sendPaymentLinkEmail(data: PaymentLinkEmailData): Promise<
 
   if (error) console.error('[sendPaymentLinkEmail] Failed:', error.message);
 }
+
+// ─── Email Confirmation (admin-triggered resend) ───────────
+
+export async function sendConfirmationEmail(data: {
+  email: string;
+  fullName: string | null;
+  confirmLink: string;
+  locale?: 'en' | 'ja';
+}): Promise<void> {
+  const { email, fullName, confirmLink, locale = 'en' } = data;
+  const isJP = locale === 'ja';
+  const name = fullName ?? (isJP ? 'お客様' : 'there');
+
+  const body = [
+    heading(isJP ? `${name}さん、こんにちは` : `Hi ${name},`),
+    paragraph(
+      isJP
+        ? 'HonuVibe.AIのアカウントを有効にするには、以下のボタンをクリックしてメールアドレスを確認してください。'
+        : 'Please confirm your email address to activate your HonuVibe.AI account.',
+    ),
+    ctaButton({
+      href: confirmLink,
+      label: isJP ? 'メールアドレスを確認 →' : 'Confirm Email Address →',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'このメールに心当たりがない場合は、無視していただいて結構です。'
+        : 'If you did not create an account, you can safely ignore this email.',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? '【HonuVibe.AI】メールアドレスの確認'
+      : 'Confirm your email — HonuVibe.AI',
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'メールアドレスの確認' : 'Confirm your email to get started',
+      body,
+    }),
+  });
+}

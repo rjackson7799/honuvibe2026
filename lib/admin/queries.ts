@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import type {
   DashboardStats,
   StudentListItem,
@@ -162,6 +162,11 @@ export async function getStudentDetail(
 
   if (!student) return null;
 
+  // Fetch email confirmation status from auth.users (not available in public.users)
+  const adminClient = createAdminClient();
+  const { data: authUser } = await adminClient.auth.admin.getUserById(studentId);
+  const emailConfirmedAt = authUser?.user?.email_confirmed_at ?? null;
+
   const { data: enrollments } = await supabase
     .from('enrollments')
     .select('id, course_id, status, amount_paid, currency, enrolled_at, course:courses(title_en)')
@@ -170,6 +175,7 @@ export async function getStudentDetail(
 
   return {
     ...student,
+    email_confirmed_at: emailConfirmedAt,
     enrollments: (enrollments ?? []).map((e) => {
       const course = e.course as unknown as { title_en: string } | null;
       return {

@@ -305,3 +305,56 @@ export async function updateSessionContent(
   revalidatePath('/learn');
   revalidatePath('/admin/courses');
 }
+
+export async function resendConfirmationEmail(
+  studentId: string,
+  email: string,
+  fullName: string | null,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAdmin();
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+    const adminClient = createAdminClient();
+
+    // Generate a magic link that will confirm the email and log the user in
+    const { data: linkData, error: linkError } =
+      await adminClient.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: { redirectTo: `${siteUrl}/api/auth/callback` },
+      });
+
+    if (linkError || !linkData?.properties?.action_link) {
+      console.error('[ResendConfirmation] Failed to generate link:', linkError?.message);
+      return { success: false, error: linkError?.message ?? 'Failed to generate confirmation link' };
+    }
+
+    // Look up student locale preference
+    const supabase = await createClient();
+    const { data: student } = await supabase
+      .from('users')
+      .select('locale_preference')
+      .eq('id', studentId)
+      .single();
+
+    const locale = (student?.locale_preference === 'ja' ? 'ja' : 'en') as 'en' | 'ja';
+
+    // Send via Resend for reliable delivery
+    const { sendConfirmationEmail: sendEmail } = await import('@/lib/email/send');
+    await sendEmail({
+      email,
+      fullName,
+      confirmLink: linkData.properties.action_link,
+      locale,
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error('[ResendConfirmation] Unexpected error:', err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Failed to resend confirmation email',
+    };
+  }
+}

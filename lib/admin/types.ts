@@ -92,6 +92,7 @@ export interface TransactionRecord {
 }
 
 export interface StudentDetail extends UserProfile {
+  email_confirmed_at: string | null;
   enrollments: {
     id: string;
     course_id: string;
