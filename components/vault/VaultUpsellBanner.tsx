@@ -24,6 +24,9 @@ export function VaultUpsellBanner() {
               ? '英語・日本語の両方でAIを学べる唯一のプラットフォーム。200以上のチュートリアル・ガイド・テンプレート。'
               : 'The only AI learning platform with full English & Japanese content — 200+ tutorials, guides, and templates.'}
           </p>
+          <p className="text-xs font-medium text-accent-teal mt-1">
+            {isJP ? 'ãƒ´ã‚©ãƒ¼ãƒ«ãƒˆã¯4æœˆ15æ—¥ã«ã‚ªãƒ¼ãƒ—ãƒ³ã—ã¾ã™ã€‚' : 'The Vault opens on April 15.'}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-3 shrink-0">
