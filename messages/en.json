@@ -1029,6 +1029,7 @@
     "spots_left": "{count} spots left",
     "cohort_full": "Cohort Full — Join Waitlist",
     "starts": "Starts {date}",
+    "started": "Started {date}",
     "weeks": "{count} weeks",
     "live_sessions": "{count} live sessions",
     "recorded_lessons": "{count} recorded lessons",

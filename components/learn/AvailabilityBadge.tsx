@@ -5,6 +5,7 @@ type AvailabilityBadgeProps = {
   currentEnrollment: number;
   maxEnrollment: number | null;
   status: string;
+  startDate?: string | null;
   className?: string;
 };
 
@@ -12,11 +13,15 @@ export function AvailabilityBadge({
   currentEnrollment,
   maxEnrollment,
   status,
+  startDate,
   className,
 }: AvailabilityBadgeProps) {
   const t = useTranslations('learn');
 
-  if (status === 'completed') {
+  const isStarted = startDate ? new Date(startDate) <= new Date() : false;
+  const effectiveStatus = isStarted && status === 'published' ? 'in-progress' : status;
+
+  if (effectiveStatus === 'completed') {
     return (
       <span
         className={cn(
@@ -30,7 +35,7 @@ export function AvailabilityBadge({
     );
   }
 
-  if (status === 'in-progress') {
+  if (effectiveStatus === 'in-progress') {
     return (
       <span
         className={cn(

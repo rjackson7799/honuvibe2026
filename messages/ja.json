@@ -1029,6 +1029,7 @@
     "spots_left": "残り{count}席",
     "cohort_full": "満員 — ウェイトリストに参加",
     "starts": "{date}開始",
+    "started": "{date}開始済",
     "weeks": "{count}週間",
     "live_sessions": "ライブセッション{count}回",
     "recorded_lessons": "録画レッスン{count}回",

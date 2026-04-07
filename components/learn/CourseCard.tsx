@@ -54,6 +54,8 @@ export function CourseCard({ course, variant = 'catalog', viewCourseHref, classN
     course.language === 'both' ? 'EN/JP' : course.language?.toUpperCase(),
   ].filter(Boolean);
 
+  const isStarted = course.start_date ? new Date(course.start_date) <= new Date() : false;
+
   const startDateFormatted = course.start_date
     ? new Date(course.start_date).toLocaleDateString(
         locale === 'ja' ? 'ja-JP' : 'en-US',
@@ -107,19 +109,17 @@ export function CourseCard({ course, variant = 'catalog', viewCourseHref, classN
           </p>
         )}
 
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex flex-col gap-1">
           {startDateFormatted && (
-            <span className="text-fg-tertiary">
-              {t('starts', { date: startDateFormatted })}
+            <span className="text-sm text-fg-tertiary">
+              {isStarted ? t('started', { date: startDateFormatted }) : t('starts', { date: startDateFormatted })}
             </span>
-          )}
-          {startDateFormatted && course.max_enrollment && (
-            <span className="text-fg-tertiary">·</span>
           )}
           <AvailabilityBadge
             currentEnrollment={course.current_enrollment}
             maxEnrollment={course.max_enrollment}
             status={course.status}
+            startDate={course.start_date}
           />
         </div>
 
