@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-05 (Private course controls, admin payment link fixes, localized payment-link email)
+**Last updated:** 2026-04-06 (Vertice Society discount at Stripe Checkout, Enroll Now button on dashboard explore cards)
 
 ### Status Legend
 - [ ] Not started
@@ -868,6 +868,18 @@ Dark:  Footer
 ### Admin Course Label Cleanup (2026-04-04)
 - [x] `components/admin/AdminCourseList.tsx` — course filter tabs now use explicit labels (`Published`, `In Progress`, `Completed`, etc.)
 - [x] `components/admin/StatusBadge.tsx` — status badges now use explicit display strings rather than deriving text from status keys
+
+### Vertice Society — Membership Flag & Stripe Discount (2026-04-06)
+- [x] Migration `028_vertice_member.sql` — `users.is_vertice_member boolean NOT NULL DEFAULT false` with descriptive column comment (deployed)
+- [x] `lib/courses/types.ts` — `is_vertice_member: boolean` added to `EnrolledStudent` interface
+- [x] `lib/courses/queries.ts` — `getEnrolledStudents()` now fetches `is_vertice_member` from users join, returns it on each student record
+- [x] `app/api/stripe/checkout/route.ts` — checks `users.is_vertice_member` before creating session; if true and `STRIPE_VERTICE_COUPON_ID` is set, applies coupon via `discounts` array (mutually exclusive with `allow_promotion_codes`)
+
+### Dashboard Explore Cards — Enroll Now Button (2026-04-06)
+- [x] `components/learn/CourseCard.tsx` — dashboard variant now renders card as `<div>` wrapper (avoids nested `<a>` elements); CTA block replaced with stacked Enroll Now (teal primary) + View Course (ghost) buttons
+- [x] Enroll Now handler — POSTs `{ courseId, locale }` to `/api/stripe/checkout`, redirects to Stripe on success; shows inline error on failure with `…` loading state; `disabled` during inflight request
+- [x] Catalog variant unchanged — full card remains a `<Link>` with single View Course button
+- [x] i18n: `enroll_now` key added to `learn` namespace in `messages/en.json` ("Enroll Now") and `messages/ja.json` ("今すぐ登録")
 
 ### Vault Upsell — Locked Preview Grid (2026-04-05)
 - [x] `app/[locale]/learn/vault/page.tsx` — free users now see all published vault items (not just free-tier); removed old `VaultPremiumGate` empty-state pattern
