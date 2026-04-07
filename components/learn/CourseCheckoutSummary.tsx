@@ -45,7 +45,7 @@ export function CourseCheckoutSummary({
     <div className="space-y-6">
       {/* Back link */}
       <a
-        href={`${prefix}/learn/${courseSlug}`}
+        href={`${prefix}/learn/dashboard/courses`}
         className="inline-flex items-center gap-1.5 text-sm text-fg-tertiary hover:text-accent-teal transition-colors"
       >
         <span>←</span>
