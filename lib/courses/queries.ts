@@ -295,7 +295,8 @@ export async function getEnrolledStudents(courseId: string): Promise<EnrolledStu
       status,
       users!inner (
         full_name,
-        email
+        email,
+        is_vertice_member
       )
     `)
     .eq('course_id', courseId)
@@ -315,6 +316,7 @@ export async function getEnrolledStudents(courseId: string): Promise<EnrolledStu
       email: (user?.email as string) ?? null,
       enrolled_at: row.enrolled_at as string,
       status: row.status as string,
+      is_vertice_member: (user?.is_vertice_member as boolean) ?? false,
     };
   });
 }

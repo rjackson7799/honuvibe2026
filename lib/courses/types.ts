@@ -198,6 +198,7 @@ export interface EnrolledStudent {
   email: string | null;
   enrolled_at: string;
   status: string;
+  is_vertice_member: boolean;
 }
 
 // Wizard types

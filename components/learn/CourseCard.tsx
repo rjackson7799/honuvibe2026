@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { Overline } from '@/components/ui/overline';
@@ -21,6 +22,27 @@ type CourseCardProps = {
 export function CourseCard({ course, variant = 'catalog', className }: CourseCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollError, setEnrollError] = useState<string | null>(null);
+
+  async function handleEnroll(e: React.MouseEvent) {
+    e.preventDefault();
+    setEnrolling(true);
+    setEnrollError(null);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ courseId: course.id, locale }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Checkout failed');
+      window.location.href = data.url;
+    } catch (err) {
+      setEnrollError(err instanceof Error ? err.message : 'Something went wrong');
+      setEnrolling(false);
+    }
+  }
 
   const title = locale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
   const description = locale === 'ja' && course.description_jp ? course.description_jp : course.description_en;
@@ -38,16 +60,15 @@ export function CourseCard({ course, variant = 'catalog', className }: CourseCar
       )
     : null;
 
-  return (
-    <Link
-      href={`/learn/${course.slug}`}
-      className={cn(
-        'group flex flex-col h-full rounded-lg bg-bg-secondary border border-border-default overflow-hidden',
-        'transition-all duration-[var(--duration-normal)]',
-        'hover:shadow-md hover:-translate-y-0.5 hover:border-border-hover',
-        className,
-      )}
-    >
+  const cardClasses = cn(
+    'group flex flex-col h-full rounded-lg bg-bg-secondary border border-border-default overflow-hidden',
+    'transition-all duration-[var(--duration-normal)]',
+    'hover:shadow-md hover:-translate-y-0.5 hover:border-border-hover',
+    className,
+  );
+
+  const cardInner = (
+    <>
       {/* Thumbnail */}
       <div className="aspect-[16/9] bg-bg-tertiary overflow-hidden relative">
         {course.thumbnail_url ? (
@@ -67,29 +88,24 @@ export function CourseCard({ course, variant = 'catalog', className }: CourseCar
             </svg>
           </div>
         )}
-        {/* Bottom gradient fade */}
         {course.thumbnail_url && (
           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-bg-secondary to-transparent" />
         )}
       </div>
 
       <div className="p-5 flex flex-col flex-1 gap-3">
-        {/* Overline */}
         <Overline>{overlineParts.join(' · ')}</Overline>
 
-        {/* Title */}
         <h3 className="text-lg font-serif text-fg-primary leading-snug group-hover:text-accent-teal transition-colors duration-[var(--duration-fast)]">
           {title}
         </h3>
 
-        {/* Description */}
         {description && (
           <p className="text-sm text-fg-secondary line-clamp-2 flex-1">
             {description}
           </p>
         )}
 
-        {/* Date + Availability */}
         <div className="flex items-center gap-2 text-sm">
           {startDateFormatted && (
             <span className="text-fg-tertiary">
@@ -106,29 +122,59 @@ export function CourseCard({ course, variant = 'catalog', className }: CourseCar
           />
         </div>
 
-        {/* Price */}
         <PriceDisplay
           priceUsd={course.price_usd}
           priceJpy={course.price_jpy}
           size="md"
         />
 
-        {/* Syllabus Download */}
         {course.is_published && (
           <SyllabusDownloadLink courseId={course.id} variant="card" />
         )}
 
-        {/* CTA */}
-        <Button
-          variant="primary"
-          size="sm"
-          icon={ArrowRight}
-          iconPosition="right"
-          className="mt-auto"
-        >
-          {t('view_course')}
-        </Button>
+        {variant === 'dashboard' ? (
+          <div className="mt-auto flex flex-col gap-2">
+            <Button
+              variant="primary"
+              size="sm"
+              icon={ArrowRight}
+              iconPosition="right"
+              onClick={handleEnroll}
+              disabled={enrolling}
+            >
+              {enrolling ? '…' : t('enroll_now')}
+            </Button>
+            {enrollError && (
+              <p className="text-xs text-red-400">{enrollError}</p>
+            )}
+            <Link href={`/learn/${course.slug}`}>
+              <Button variant="ghost" size="sm" className="w-full">
+                {t('view_course')}
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <Button
+            variant="primary"
+            size="sm"
+            icon={ArrowRight}
+            iconPosition="right"
+            className="mt-auto"
+          >
+            {t('view_course')}
+          </Button>
+        )}
       </div>
+    </>
+  );
+
+  if (variant === 'dashboard') {
+    return <div className={cardClasses}>{cardInner}</div>;
+  }
+
+  return (
+    <Link href={`/learn/${course.slug}`} className={cardClasses}>
+      {cardInner}
     </Link>
   );
 }
