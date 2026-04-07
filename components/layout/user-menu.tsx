@@ -19,9 +19,16 @@ type UserMenuProps = {
   compact?: boolean;
   direction?: 'vertical' | 'horizontal';
   onNavigate?: () => void;
+  showDashboardLink?: boolean;
 };
 
-export function UserMenu({ labels, compact = false, direction = 'vertical', onNavigate }: UserMenuProps) {
+export function UserMenu({
+  labels,
+  compact = false,
+  direction = 'vertical',
+  onNavigate,
+  showDashboardLink = true,
+}: UserMenuProps) {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -108,10 +115,12 @@ export function UserMenu({ labels, compact = false, direction = 'vertical', onNa
 
   return (
     <div className={cn('flex gap-0.5', direction === 'horizontal' ? 'flex-row items-center' : 'flex-col')}>
-      <Link href="/learn/dashboard" onClick={onNavigate} className={linkClass} title={compact ? labels.dashboard : undefined}>
-        <LayoutDashboard size={18} />
-        {!compact && labels.dashboard}
-      </Link>
+      {showDashboardLink && (
+        <Link href="/learn/dashboard" onClick={onNavigate} className={linkClass} title={compact ? labels.dashboard : undefined}>
+          <LayoutDashboard size={18} />
+          {!compact && labels.dashboard}
+        </Link>
+      )}
 
       {isAdmin && (
         <Link href="/admin" onClick={onNavigate} className={linkClass} title={compact ? labels.admin : undefined}>
