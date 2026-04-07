@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+
 import { Link } from '@/i18n/navigation';
+import { useRouter } from 'next/navigation';
 import { Overline } from '@/components/ui/overline';
 import { Button } from '@/components/ui/button';
 import { PriceDisplay } from './PriceDisplay';
@@ -23,26 +24,12 @@ type CourseCardProps = {
 export function CourseCard({ course, variant = 'catalog', viewCourseHref, className }: CourseCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
-  const [enrolling, setEnrolling] = useState(false);
-  const [enrollError, setEnrollError] = useState<string | null>(null);
+  const router = useRouter();
 
-  async function handleEnroll(e: React.MouseEvent) {
+  function handleEnroll(e: React.MouseEvent) {
     e.preventDefault();
-    setEnrolling(true);
-    setEnrollError(null);
-    try {
-      const res = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ courseId: course.id, locale }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Checkout failed');
-      window.location.href = data.url;
-    } catch (err) {
-      setEnrollError(err instanceof Error ? err.message : 'Something went wrong');
-      setEnrolling(false);
-    }
+    const prefix = locale === 'ja' ? '/ja' : '';
+    router.push(`${prefix}/learn/${course.slug}/checkout`);
   }
 
   const title = locale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
@@ -141,13 +128,9 @@ export function CourseCard({ course, variant = 'catalog', viewCourseHref, classN
               icon={ArrowRight}
               iconPosition="right"
               onClick={handleEnroll}
-              disabled={enrolling}
             >
-              {enrolling ? '…' : t('enroll_now')}
+              {t('enroll_now')}
             </Button>
-            {enrollError && (
-              <p className="text-xs text-red-400">{enrollError}</p>
-            )}
             <Link href={viewCourseHref ?? `/learn/${course.slug}`}>
               <Button variant="ghost" size="sm" className="w-full">
                 {t('view_course')}
