@@ -22,27 +22,54 @@ export function ResetPasswordForm() {
   const supabase = createClient();
   const hasHandledRecovery = useRef(false);
 
-  // Listen for PASSWORD_RECOVERY event from hash fragment tokens
+  // Listen for PASSWORD_RECOVERY or INITIAL_SESSION events from hash fragment tokens
   useEffect(() => {
-    // Check if there's already an active session (e.g., arrived via server callback)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setSessionReady(true);
-        setWaitingForSession(false);
-      }
-    });
+    const hasHashTokens = window.location.hash.includes('access_token');
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === 'PASSWORD_RECOVERY' && !hasHandledRecovery.current) {
+      (event, session) => {
+        if (hasHandledRecovery.current) return;
+
+        // PASSWORD_RECOVERY fires if listener is set up before hash processing
+        if (event === 'PASSWORD_RECOVERY' && session) {
           hasHandledRecovery.current = true;
           setSessionReady(true);
           setWaitingForSession(false);
+          return;
+        }
+
+        // INITIAL_SESSION fires when subscribing — catches case where hash was
+        // already processed before this listener was registered (race condition)
+        if (event === 'INITIAL_SESSION' && session) {
+          hasHandledRecovery.current = true;
+          setSessionReady(true);
+          setWaitingForSession(false);
+          return;
+        }
+
+        // SIGNED_IN can also fire after hash token processing
+        if (event === 'SIGNED_IN' && session && hasHashTokens) {
+          hasHandledRecovery.current = true;
+          setSessionReady(true);
+          setWaitingForSession(false);
+          return;
         }
       },
     );
 
-    // Timeout: if no session after 5s, show error
+    // If no hash tokens in URL and no session, skip the wait (direct navigation)
+    if (!hasHashTokens) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          setSessionReady(true);
+        } else {
+          setError(t('reset_link_expired'));
+        }
+        setWaitingForSession(false);
+      });
+    }
+
+    // Timeout: if no session after 8s, show error
     const timeout = setTimeout(() => {
       setWaitingForSession((current) => {
         if (current) {
@@ -50,7 +77,7 @@ export function ResetPasswordForm() {
         }
         return false;
       });
-    }, 5000);
+    }, 8000);
 
     return () => {
       subscription.unsubscribe();
