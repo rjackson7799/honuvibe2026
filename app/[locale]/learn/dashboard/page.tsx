@@ -3,12 +3,9 @@ import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStudentDashboardData } from '@/lib/dashboard/queries';
-import { getUserPaths } from '@/lib/paths/queries';
 import { StatCard } from '@/components/admin/StatCard';
 import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
-import { PathCard } from '@/components/learn/PathCard';
-import { PremiumUpgradeCard } from '@/components/learn/PremiumUpgradeCard';
-import { BookOpen, CheckCircle, Calendar, Clock, Plus } from 'lucide-react';
+import { BookOpen, CheckCircle, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { getVaultCourseRecommendations } from '@/lib/vault/queries';
 import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
@@ -49,14 +46,13 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   // Get user profile for display name and onboarding state
   const { data: profile } = await supabase
     .from('users')
-    .select('full_name, subscription_tier, onboarded')
+    .select('full_name, onboarded')
     .eq('id', user.id)
     .single();
 
-  const [dashboardData, vaultRecommendations, studyPaths, instructorProfile] = await Promise.all([
+  const [dashboardData, vaultRecommendations, instructorProfile] = await Promise.all([
     getStudentDashboardData(user.id),
     getVaultCourseRecommendations(user.id, 6),
-    getUserPaths(user.id),
     getInstructorByUserId(user.id),
   ]);
 
@@ -70,7 +66,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     instructorClassCount = count ?? 0;
   }
   const { enrollments, upcomingSessions, pendingAssignments, stats } = dashboardData;
-  const tPaths = await getTranslations({ locale, namespace: 'study_paths' });
 
   const displayName = profile?.full_name ?? user.email?.split('@')[0] ?? '';
 
@@ -124,48 +119,10 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         />
       </div>
 
-      {/* Premium upgrade banner for free users */}
-      {profile?.subscription_tier !== 'premium' && (
-        <PremiumUpgradeCard variant="banner" />
-      )}
-
       {/* Vault Recommendations */}
       {vaultRecommendations.length > 0 && (
         <VaultCourseRecommendations items={vaultRecommendations} />
       )}
-
-      {/* Study Paths section */}
-      <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
-            {t('section_study_paths')}
-          </h2>
-          <Link
-            href={`${locale === 'ja' ? '/ja' : ''}/learn/paths/new`}
-            className="inline-flex items-center gap-1 text-xs text-accent-teal hover:underline"
-          >
-            <Plus size={14} />
-            {t('create_study_path')}
-          </Link>
-        </div>
-        {studyPaths.length === 0 ? (
-          <div className="text-center py-6">
-            <p className="text-sm text-fg-tertiary mb-3">{t('no_study_paths')}</p>
-            <Link
-              href={`${locale === 'ja' ? '/ja' : ''}/learn/paths/new`}
-              className="inline-flex items-center gap-2 text-sm text-accent-teal hover:underline"
-            >
-              {t('create_study_path')} →
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {studyPaths.slice(0, 4).map((path) => (
-              <PathCard key={path.id} path={path} />
-            ))}
-          </div>
-        )}
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* My Courses widget */}
@@ -292,7 +249,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         </div>
 
         {/* Action Items widget */}
-        <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
+        <div className="lg:col-span-2 bg-bg-secondary border border-border-default rounded-lg p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
               {t('section_action_items')}
@@ -343,35 +300,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           )}
         </div>
 
-        {/* Quick Links widget */}
-        <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
-          <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider mb-4">
-            {t('section_quick_links')}
-          </h2>
-          <div className="space-y-2">
-            <Link
-              href="/learn"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
-            >
-              <BookOpen size={16} />
-              {t('explore_courses')}
-            </Link>
-            <Link
-              href="/learn/dashboard/resources"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
-            >
-              <Clock size={16} />
-              {t('nav_resources')}
-            </Link>
-            <Link
-              href="/learn/dashboard/community"
-              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
-            >
-              <Calendar size={16} />
-              {t('nav_community')}
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );
