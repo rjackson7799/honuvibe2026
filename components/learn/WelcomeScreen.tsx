@@ -4,13 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GraduationCap, Lock, Users, ArrowRight } from 'lucide-react';
 import { markOnboarded } from '@/lib/students/actions';
+import { CourseCard } from '@/components/learn/CourseCard';
+import type { Course } from '@/lib/courses/types';
 
 type Props = {
   displayName: string;
   locale: string;
+  featuredCourse?: Course | null;
 };
 
-export function WelcomeScreen({ displayName, locale }: Props) {
+export function WelcomeScreen({ displayName, locale, featuredCourse }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const isJP = locale === 'ja';
@@ -103,14 +106,15 @@ export function WelcomeScreen({ displayName, locale }: Props) {
         })}
       </div>
 
-      {/* Skip link */}
-      <button
-        onClick={() => handleNavigate(`${prefix}/learn/dashboard`)}
-        disabled={loading}
-        className="text-sm text-fg-tertiary hover:text-fg-secondary transition-colors disabled:opacity-50"
-      >
-        {isJP ? 'ダッシュボードへスキップ →' : 'Skip to dashboard →'}
-      </button>
+      {/* Featured Course */}
+      {featuredCourse && (
+        <div className="w-full max-w-sm">
+          <h2 className="text-sm font-semibold text-fg-secondary uppercase tracking-wider mb-4 text-center">
+            {isJP ? 'おすすめコース' : 'Featured Course'}
+          </h2>
+          <CourseCard course={featuredCourse} variant="dashboard" />
+        </div>
+      )}
     </div>
   );
 }

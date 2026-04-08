@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getStudentDashboardData } from '@/lib/dashboard/queries';
+import { getCourseBySlug } from '@/lib/courses/queries';
 import { StatCard } from '@/components/admin/StatCard';
 import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
 import { BookOpen, CheckCircle, Calendar, Clock } from 'lucide-react';
@@ -50,10 +51,11 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     .eq('id', user.id)
     .single();
 
-  const [dashboardData, vaultRecommendations, instructorProfile] = await Promise.all([
+  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse] = await Promise.all([
     getStudentDashboardData(user.id),
     getVaultCourseRecommendations(user.id, 6),
     getInstructorByUserId(user.id),
+    getCourseBySlug('ai-essentials'),
   ]);
 
   // Count instructor's assigned classes (lightweight — just count rows)
@@ -71,7 +73,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
   // Show welcome screen for new students
   if (!profile?.onboarded || sp.welcome === 'true') {
-    return <WelcomeScreen displayName={displayName} locale={locale} />;
+    return <WelcomeScreen displayName={displayName} locale={locale} featuredCourse={featuredCourse} />;
   }
 
   return (
