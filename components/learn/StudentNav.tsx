@@ -123,7 +123,7 @@ export function StudentNav() {
       {/* Desktop sidebar */}
       <nav
         className={cn(
-          'hidden md:flex flex-col shrink-0 border-r border-border-default bg-bg-secondary sticky top-0 h-screen p-4 gap-4 transition-all duration-[var(--duration-normal)]',
+          'hidden md:flex flex-col shrink-0 border-r border-border-default bg-bg-secondary sticky top-0 h-screen p-3 gap-2 transition-all duration-[var(--duration-normal)]',
           collapsed ? 'w-16' : 'w-56',
         )}
       >
