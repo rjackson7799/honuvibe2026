@@ -52,7 +52,7 @@ export default function MyCoursesPage() {
 
   if (loading) {
     return (
-      <div className="space-y-8 max-w-[1100px]">
+      <div className="space-y-6 max-w-[1100px]">
         <h1 className="text-2xl font-serif text-fg-primary">{t('heading_courses')}</h1>
         <div className="animate-pulse space-y-4">
           <div className="h-10 bg-bg-tertiary rounded-lg w-64" />
@@ -66,7 +66,7 @@ export default function MyCoursesPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-[1100px]">
+    <div className="space-y-6 max-w-[1100px]">
       <h1 className="text-2xl font-serif text-fg-primary">{t('heading_courses')}</h1>
 
       {/* Filter tabs */}
@@ -98,19 +98,41 @@ export default function MyCoursesPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-          <p className="text-fg-tertiary mb-4">{t('no_courses')}</p>
+        <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-secondary px-4 py-3">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="shrink-0 text-accent-teal"
+          >
+            <path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+          </svg>
+          <p className="text-sm text-fg-secondary">
+            {t('no_courses')}
+          </p>
         </div>
       )}
 
       {/* Explore More */}
       {exploreCourses.length > 0 && (
-        <div className="mt-8">
-          <SectionHeading
-            heading={t('explore_more')}
-            centered
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        <div>
+          {enrollments.length > 0 ? (
+            <SectionHeading
+              heading={t('explore_more')}
+              centered
+            />
+          ) : (
+            <h2 className="text-lg font-serif text-fg-primary">
+              {t('explore_more')}
+            </h2>
+          )}
+          <div className={cn(
+            'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
+            enrollments.length > 0 ? 'mt-6' : 'mt-4',
+          )}>
             {exploreCourses.map((course) => (
               <CourseCard
                 key={course.id}
