@@ -127,7 +127,11 @@ export function StudentNav() {
           collapsed ? 'w-16' : 'w-56',
         )}
       >
-        <div className={cn('flex items-center', collapsed ? 'justify-center' : 'justify-end px-3')}>
+        <div className={cn('flex items-center', collapsed ? 'flex-col gap-1' : 'justify-between px-1')}>
+          <div className={cn('flex items-center', collapsed ? 'flex-col gap-1' : 'gap-1')}>
+            <ThemeToggle />
+            <LangToggle compact={collapsed} />
+          </div>
           <button
             onClick={toggleCollapse}
             className="text-fg-tertiary hover:text-fg-primary transition-colors p-1 rounded-md hover:bg-bg-tertiary"
@@ -167,16 +171,7 @@ export function StudentNav() {
         </div>
 
         {/* Bottom controls — pushed down with mt-auto */}
-        <div className="mt-auto pt-4 border-t border-border-default flex flex-col gap-1">
-          <div
-            className={cn(
-              'pb-2 border-b border-border-default',
-              collapsed ? 'flex flex-col items-center gap-1' : 'flex items-center gap-1',
-            )}
-          >
-            <ThemeToggle />
-            <LangToggle compact={collapsed} />
-          </div>
+        <div className="mt-auto pt-4 border-t border-border-default">
           <UserMenu labels={userMenuLabels} compact={collapsed} showDashboardLink={false} />
         </div>
       </nav>
