@@ -28,20 +28,18 @@ export function AuthForm() {
 
   const supabase = createClient();
 
-  // Fallback: if recovery tokens land on the login page, redirect to reset page
+  // Fallback: if recovery hash tokens land on the login page, redirect to reset page
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event) => {
-        if (event === 'PASSWORD_RECOVERY') {
-          const prefix = locale === 'ja' ? '/ja' : '';
-          router.push(`${prefix}/learn/auth/reset`);
-        }
-      },
-    );
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+    const type = params.get('type');
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    if (accessToken && type === 'recovery') {
+      const prefix = locale === 'ja' ? '/ja' : '';
+      // Preserve the hash so the reset page can process the tokens
+      router.push(`${prefix}/learn/auth/reset${window.location.hash}`);
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleEmailAuth(e: React.FormEvent) {

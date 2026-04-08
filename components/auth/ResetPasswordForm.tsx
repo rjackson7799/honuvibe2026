@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -20,69 +20,56 @@ export function ResetPasswordForm() {
   const [waitingForSession, setWaitingForSession] = useState(true);
 
   const supabase = createClient();
-  const hasHandledRecovery = useRef(false);
 
-  // Listen for PASSWORD_RECOVERY or INITIAL_SESSION events from hash fragment tokens
+  // Parse hash fragment and establish session manually
+  // (@supabase/ssr's createBrowserClient does NOT auto-detect hash tokens)
   useEffect(() => {
-    const hasHashTokens = window.location.hash.includes('access_token');
+    async function handleHashTokens() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (hasHandledRecovery.current) return;
-
-        // PASSWORD_RECOVERY fires if listener is set up before hash processing
-        if (event === 'PASSWORD_RECOVERY' && session) {
-          hasHandledRecovery.current = true;
-          setSessionReady(true);
-          setWaitingForSession(false);
-          return;
-        }
-
-        // INITIAL_SESSION fires when subscribing — catches case where hash was
-        // already processed before this listener was registered (race condition)
-        if (event === 'INITIAL_SESSION' && session) {
-          hasHandledRecovery.current = true;
-          setSessionReady(true);
-          setWaitingForSession(false);
-          return;
-        }
-
-        // SIGNED_IN can also fire after hash token processing
-        if (event === 'SIGNED_IN' && session && hasHashTokens) {
-          hasHandledRecovery.current = true;
-          setSessionReady(true);
-          setWaitingForSession(false);
-          return;
-        }
-      },
-    );
-
-    // If no hash tokens in URL and no session, skip the wait (direct navigation)
-    if (!hasHashTokens) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          setSessionReady(true);
-        } else {
-          setError(t('reset_link_expired'));
-        }
+      // Check for error in hash (e.g., otp_expired)
+      const hashError = params.get('error_description');
+      if (hashError) {
+        setError(t('reset_link_expired'));
         setWaitingForSession(false);
-      });
+        return;
+      }
+
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+
+      if (accessToken && refreshToken) {
+        // Manually set the session from hash tokens
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (sessionError) {
+          setError(t('reset_link_expired'));
+          setWaitingForSession(false);
+          return;
+        }
+
+        // Clear hash from URL to avoid re-processing on refresh
+        window.history.replaceState(null, '', window.location.pathname);
+        setSessionReady(true);
+        setWaitingForSession(false);
+        return;
+      }
+
+      // No hash tokens — check for existing session (arrived via server callback)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setSessionReady(true);
+      } else {
+        setError(t('reset_link_expired'));
+      }
+      setWaitingForSession(false);
     }
 
-    // Timeout: if no session after 8s, show error
-    const timeout = setTimeout(() => {
-      setWaitingForSession((current) => {
-        if (current) {
-          setError(t('reset_link_expired'));
-        }
-        return false;
-      });
-    }, 8000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
-    };
+    handleHashTokens();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleReset(e: React.FormEvent) {
