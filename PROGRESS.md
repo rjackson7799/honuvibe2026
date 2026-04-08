@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-06 (Stripe promotion code + Vercel env var sync)
+**Last updated:** 2026-04-07 (Fix student password setup flow)
 
 ### Status Legend
 - [ ] Not started
@@ -1540,6 +1540,39 @@ Auto-generated AI panel at the top of `/admin/surveys` showing cohort-level insi
 | ANTHROPIC_API_KEY | Needed for AI course upload pipeline | High | Phase 2A |
 | Domain and hosting confirmed? | honuvibe.ai registered? Vercel org set up? | Blocking | Phase 1 |
 | APPI legal review | Japan-qualified attorney for privacy policy | Medium | Phase 1.5 |
+
+---
+
+## Fix: Student Password Setup Flow (2026-04-07)
+
+Fixed critical bug where new students clicking "Set Your Password" in the welcome email were landing on the login page instead of the password reset page. Root cause: Supabase delivers recovery tokens via the implicit flow (URL hash fragments `#access_token=...`), but `@supabase/ssr`'s `createBrowserClient` does not auto-detect hash tokens like the vanilla Supabase JS client.
+
+### Root Cause
+- `generateLink({ type: 'recovery' })` was setting `redirectTo` to `/api/auth/callback?redirect=/learn/auth/reset`
+- Supabase redirects with hash fragment tokens, which are invisible to the server
+- The middleware and callback route were never reached, leaving students on the login page with no session
+
+### Changes
+- [x] `lib/students/actions.ts` — changed `redirectTo` for new students from `/api/auth/callback?redirect=/learn/auth/reset` to `/learn/auth/reset` (direct client-side landing)
+- [x] `components/auth/ResetPasswordForm.tsx` — manually parses `access_token` and `refresh_token` from URL hash, calls `supabase.auth.setSession()` explicitly, handles `otp_expired` error hashes, cleans URL after processing, shows loading spinner during session establishment
+- [x] `components/auth/AuthForm.tsx` — fallback: detects recovery hash tokens on the login page and redirects to `/learn/auth/reset` with hash preserved
+- [x] `messages/en.json` / `messages/ja.json` — added `reset_link_expired` translation for expired/invalid link error state
+
+### Flow After Fix
+1. Admin creates student → welcome email sent with recovery link
+2. Student clicks "Set Your Password" → Supabase redirects to `/learn/auth/reset#access_token=...`
+3. `ResetPasswordForm` parses hash tokens → calls `setSession()` → session established
+4. Student sets password → redirected to `/learn/dashboard`
+
+### Verification
+- [x] TypeScript: zero type errors
+- [x] Production build: compiled successfully
+- [x] Live test: new student created, email received, password set, dashboard accessed
+
+### Commits
+- `e730d0f` — initial fix: redirect URL + auth event listeners
+- `0aa8f0a` — handle race condition in session detection
+- `dec2162` — manually parse hash tokens (final working fix)
 
 ---
 
