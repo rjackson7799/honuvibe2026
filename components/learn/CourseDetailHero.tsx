@@ -30,7 +30,7 @@ export function CourseDetailHero({
   const learnHref = locale === 'ja' ? '/ja/learn' : '/learn';
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden dark-zone">
       {/* Background image layer */}
       {imageUrl ? (
         <>
