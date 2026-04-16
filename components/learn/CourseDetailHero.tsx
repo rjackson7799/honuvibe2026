@@ -45,7 +45,7 @@ export function CourseDetailHero({
             />
           </div>
           {/* Gradient overlays for text readability */}
-          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-[var(--bg-primary)]/95 via-[var(--bg-primary)]/80 to-[var(--bg-primary)]/60" />
+          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-[var(--bg-primary)] via-[var(--bg-primary)]/85 to-[var(--bg-primary)]/40" />
           <div className="absolute inset-0 z-[1] bg-gradient-to-t from-[var(--bg-primary)] via-transparent to-[var(--bg-primary)]/40" />
         </>
       ) : (
