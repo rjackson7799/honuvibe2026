@@ -76,6 +76,8 @@ export default async function CourseDetailPage({ params }: Props) {
     !!course.max_enrollment &&
     course.current_enrollment >= course.max_enrollment;
 
+  const isRecordedOnly = !course.live_sessions_count;
+
   const languageLabel =
     course.language === 'both'
       ? t('lang_both')
@@ -157,6 +159,7 @@ export default async function CourseDetailPage({ params }: Props) {
               {/* How It Works */}
               <HowItWorks
                 communityMonths={course.community_duration_months}
+                isRecordedOnly={isRecordedOnly}
               />
 
               <Divider className="my-8" />
@@ -367,6 +370,7 @@ export default async function CourseDetailPage({ params }: Props) {
               isEnrolled={isEnrolled}
               thumbnailUrl={course.thumbnail_url}
               freePreviewCount={course.free_preview_count}
+              isRecordedOnly={isRecordedOnly}
             />
           </div>
         </Container>
