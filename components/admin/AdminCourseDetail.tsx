@@ -65,6 +65,14 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
   const [newTool, setNewTool] = useState('');
   const [savingTools, setSavingTools] = useState(false);
 
+  const [descEn, setDescEn] = useState(course.description_en ?? '');
+  const [editingDescEn, setEditingDescEn] = useState(false);
+  const [savingDescEn, setSavingDescEn] = useState(false);
+
+  const [descJp, setDescJp] = useState(course.description_jp ?? '');
+  const [editingDescJp, setEditingDescJp] = useState(false);
+  const [savingDescJp, setSavingDescJp] = useState(false);
+
   const [freePreviewCount, setFreePreviewCount] = useState(course.free_preview_count ?? 0);
   const [savingPreview, setSavingPreview] = useState(false);
 
@@ -421,18 +429,134 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
             </div>
           </div>
 
-          {course.description_en && (
-            <div>
-              <h3 className="text-sm font-medium text-fg-primary mb-2">Description (EN)</h3>
-              <p className="text-sm text-fg-secondary">{course.description_en}</p>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-fg-primary">Description (EN)</h3>
+              {!editingDescEn && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDescEn(course.description_en ?? '');
+                    setEditingDescEn(true);
+                  }}
+                >
+                  Edit
+                </Button>
+              )}
             </div>
-          )}
-          {course.description_jp && (
-            <div>
-              <h3 className="text-sm font-medium text-fg-primary mb-2">Description (JP)</h3>
-              <p className="text-sm text-fg-secondary">{course.description_jp}</p>
+            {!editingDescEn ? (
+              course.description_en ? (
+                <p className="text-sm text-fg-secondary whitespace-pre-wrap">{course.description_en}</p>
+              ) : (
+                <p className="text-sm text-fg-muted italic">No description yet.</p>
+              )
+            ) : (
+              <div className="flex flex-col gap-2">
+                <textarea
+                  value={descEn}
+                  onChange={(e) => setDescEn(e.target.value)}
+                  rows={5}
+                  className="w-full text-sm bg-bg-secondary border border-border-default rounded px-3 py-1.5 text-fg-primary placeholder:text-fg-muted"
+                  placeholder="Course description (English)"
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={savingDescEn}
+                    onClick={() => {
+                      setDescEn(course.description_en ?? '');
+                      setEditingDescEn(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={savingDescEn || descEn === (course.description_en ?? '')}
+                    onClick={async () => {
+                      setSavingDescEn(true);
+                      try {
+                        await updateCourse(course.id, { description_en: descEn });
+                        router.refresh();
+                        setEditingDescEn(false);
+                      } finally {
+                        setSavingDescEn(false);
+                      }
+                    }}
+                  >
+                    {savingDescEn ? 'Saving…' : 'Save'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-fg-primary">Description (JP)</h3>
+              {!editingDescJp && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDescJp(course.description_jp ?? '');
+                    setEditingDescJp(true);
+                  }}
+                >
+                  Edit
+                </Button>
+              )}
             </div>
-          )}
+            {!editingDescJp ? (
+              course.description_jp ? (
+                <p className="text-sm text-fg-secondary whitespace-pre-wrap">{course.description_jp}</p>
+              ) : (
+                <p className="text-sm text-fg-muted italic">No description yet.</p>
+              )
+            ) : (
+              <div className="flex flex-col gap-2">
+                <textarea
+                  value={descJp}
+                  onChange={(e) => setDescJp(e.target.value)}
+                  rows={5}
+                  className="w-full text-sm bg-bg-secondary border border-border-default rounded px-3 py-1.5 text-fg-primary placeholder:text-fg-muted"
+                  placeholder="Course description (Japanese)"
+                />
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={savingDescJp}
+                    onClick={() => {
+                      setDescJp(course.description_jp ?? '');
+                      setEditingDescJp(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={savingDescJp || descJp === (course.description_jp ?? '')}
+                    onClick={async () => {
+                      setSavingDescJp(true);
+                      try {
+                        await updateCourse(course.id, { description_jp: descJp });
+                        router.refresh();
+                        setEditingDescJp(false);
+                      } finally {
+                        setSavingDescJp(false);
+                      }
+                    }}
+                  >
+                    {savingDescJp ? 'Saving…' : 'Save'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div>
             <h3 className="text-sm font-medium text-fg-primary mb-2">Tools Covered</h3>
