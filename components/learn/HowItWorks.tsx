@@ -1,16 +1,28 @@
 import { useTranslations } from 'next-intl';
-import { Video, Play, Pencil, Users } from 'lucide-react';
+import { Video, Play, Pencil, Users, FileText } from 'lucide-react';
 
 type HowItWorksProps = {
   communityMonths?: number | null;
+  isRecordedOnly?: boolean;
 };
 
-export function HowItWorks({ communityMonths }: HowItWorksProps) {
+export function HowItWorks({
+  communityMonths,
+  isRecordedOnly = false,
+}: HowItWorksProps) {
   const t = useTranslations('learn');
 
+  const step1 = isRecordedOnly
+    ? { icon: Play, label: t('how_step_1_recorded') }
+    : { icon: Video, label: t('how_step_1') };
+
+  const step2 = isRecordedOnly
+    ? { icon: FileText, label: t('how_step_2_recorded') }
+    : { icon: Play, label: t('how_step_2') };
+
   const steps = [
-    { icon: Video, label: t('how_step_1') },
-    { icon: Play, label: t('how_step_2') },
+    step1,
+    step2,
     { icon: Pencil, label: t('how_step_3') },
     {
       icon: Users,
