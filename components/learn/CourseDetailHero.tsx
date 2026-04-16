@@ -95,7 +95,10 @@ export function CourseDetailHero({
           <Overline>{overlineParts.join(' · ')}</Overline>
 
           {/* Title */}
-          <h1 className="mt-3 text-3xl md:text-4xl lg:text-[var(--text-h1)] font-serif text-white leading-tight">
+          <h1
+            className="mt-3 text-3xl md:text-4xl lg:text-[var(--text-h1)] font-serif leading-tight"
+            style={{ color: '#fff' }}
+          >
             {title}
           </h1>
 
