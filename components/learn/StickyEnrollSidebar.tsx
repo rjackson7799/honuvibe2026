@@ -5,7 +5,6 @@ import { useTranslations, useLocale } from 'next-intl';
 import { PriceDisplay } from './PriceDisplay';
 import { EnrollButton } from './EnrollButton';
 import { AvailabilityBadge } from './AvailabilityBadge';
-import { SyllabusDownloadLink } from './SyllabusDownloadLink';
 
 type StickyEnrollSidebarProps = {
   title: string;
@@ -21,6 +20,7 @@ type StickyEnrollSidebarProps = {
   isEnrolled: boolean;
   thumbnailUrl?: string | null;
   freePreviewCount?: number;
+  isRecordedOnly?: boolean;
 };
 
 export function StickyEnrollSidebar({
@@ -37,6 +37,7 @@ export function StickyEnrollSidebar({
   isEnrolled,
   thumbnailUrl,
   freePreviewCount = 0,
+  isRecordedOnly = false,
 }: StickyEnrollSidebarProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
@@ -82,7 +83,7 @@ export function StickyEnrollSidebar({
           </p>
         )}
 
-        {startDateFormatted && (
+        {startDateFormatted && !isRecordedOnly && (
           <p className="text-sm text-fg-secondary">
             {t('starts', { date: startDateFormatted })}
           </p>
@@ -105,7 +106,8 @@ export function StickyEnrollSidebar({
           fullWidth
         />
 
-        <SyllabusDownloadLink courseId={courseId} variant="sidebar" />
+        {/* Temporarily hidden — formatting needs work. Restore once design is revisited. */}
+        {/* <SyllabusDownloadLink courseId={courseId} variant="sidebar" /> */}
 
         <a
           href="/contact"
