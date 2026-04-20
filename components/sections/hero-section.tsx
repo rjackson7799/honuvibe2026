@@ -139,15 +139,6 @@ export async function HeroSection() {
                   {t('cta_primary')}
                 </Button>
               </Link>
-              <Button
-                variant="ghost"
-                size="lg"
-                href="https://www.skool.com/honuvibe"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('cta_secondary')}
-              </Button>
             </div>
           </div>
 
