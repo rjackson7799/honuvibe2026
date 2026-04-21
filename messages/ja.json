@@ -1905,5 +1905,12 @@
       "vercel": "Vercel",
       "stripe": "Stripe"
     }
+  },
+  "partners": {
+    "featured_courses_heading": "注目のコース",
+    "cta_browse_courses": "コースを見る",
+    "cta_view_course": "詳細を見る",
+    "powered_by": "HonuVibe.AI 提供",
+    "no_courses_yet": "コースは近日公開予定です。"
   }
 }

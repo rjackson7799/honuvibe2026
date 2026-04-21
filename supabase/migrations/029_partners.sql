@@ -81,9 +81,12 @@ RETURNS boolean AS $$
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- 7. RLS policies
+-- Note: is_public controls SEO indexability (meta robots), NOT read access.
+-- Partners with is_public = false (e.g. invite-only programs) are still
+-- viewable at their URL — they just aren't indexed by search engines.
 ALTER TABLE partners ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "partners_public_read" ON partners
-  FOR SELECT USING (is_active = true AND is_public = true);
+  FOR SELECT USING (is_active = true);
 CREATE POLICY "partners_admin_all" ON partners
   FOR ALL USING (public.is_admin());
 CREATE POLICY "partners_self_read" ON partners
@@ -96,7 +99,6 @@ CREATE POLICY "partner_courses_public_read" ON partner_courses
       SELECT 1 FROM partners
       WHERE id = partner_courses.partner_id
         AND is_active = true
-        AND is_public = true
     )
   );
 CREATE POLICY "partner_courses_admin_all" ON partner_courses

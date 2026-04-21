@@ -1905,5 +1905,12 @@
       "vercel": "Vercel",
       "stripe": "Stripe"
     }
+  },
+  "partners": {
+    "featured_courses_heading": "Featured courses",
+    "cta_browse_courses": "Browse courses",
+    "cta_view_course": "View course",
+    "powered_by": "Powered by HonuVibe.AI",
+    "no_courses_yet": "Courses coming soon."
   }
 }
