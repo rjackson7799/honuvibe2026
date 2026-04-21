@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
+import { getAttributedPartnerSlug } from '@/lib/partner-attribution';
 
 export async function POST(request: NextRequest) {
   try {
@@ -110,6 +111,9 @@ export async function POST(request: NextRequest) {
 
     const localePrefix = isJapanese ? '/ja' : '';
 
+    // Partner attribution — read hv_partner cookie set by /partners/[slug]
+    const partnerSlug = await getAttributedPartnerSlug();
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -136,6 +140,7 @@ export async function POST(request: NextRequest) {
         course_slug: course.slug,
         currency,
         locale,
+        ...(partnerSlug ? { partner_slug: partnerSlug } : {}),
       },
       success_url: `${origin}${localePrefix}/learn/dashboard/${course.slug}?enrolled=true`,
       cancel_url: `${origin}${localePrefix}/learn/${course.slug}`,

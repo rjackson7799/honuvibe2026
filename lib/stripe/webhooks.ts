@@ -1,5 +1,6 @@
 import type Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { resolvePartnerIdBySlug } from '@/lib/partner-attribution';
 
 /** Service role client for webhook handlers — bypasses RLS, no user session */
 function getServiceClient() {
@@ -48,6 +49,14 @@ export async function handleCheckoutCompleted(
     return;
   }
 
+  // Partner attribution — resolve slug from checkout metadata to partner_id.
+  // Attribution is non-critical: a resolve failure logs and continues with
+  // partner_id = null so enrollment itself never fails because of it.
+  const partnerId = await resolvePartnerIdBySlug(
+    supabase,
+    session.metadata?.partner_slug,
+  );
+
   // Create enrollment record
   const { error: enrollError } = await supabase.from('enrollments').insert({
     user_id: userId,
@@ -60,6 +69,7 @@ export async function handleCheckoutCompleted(
     amount_paid: session.amount_total,
     currency,
     status: 'active',
+    partner_id: partnerId,
   });
 
   if (enrollError) {
@@ -68,6 +78,22 @@ export async function handleCheckoutCompleted(
       enrollError,
     );
     throw enrollError; // Return 500 so Stripe retries
+  }
+
+  // First-touch sticky attribution on the user — only set if not already set
+  if (partnerId) {
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('referred_by_partner_id')
+      .eq('id', userId)
+      .single();
+
+    if (existingUser && !existingUser.referred_by_partner_id) {
+      await supabase
+        .from('users')
+        .update({ referred_by_partner_id: partnerId })
+        .eq('id', userId);
+    }
   }
 
   // Increment enrollment count
