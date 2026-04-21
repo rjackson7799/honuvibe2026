@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-07 (Fix student password setup flow)
+**Last updated:** 2026-04-20 (Partner Platform — phases 0, 1, B, C, D complete)
 
 ### Status Legend
 - [ ] Not started
@@ -1573,6 +1573,100 @@ Fixed critical bug where new students clicking "Set Your Password" in the welcom
 - `e730d0f` — initial fix: redirect URL + auth event listeners
 - `0aa8f0a` — handle race condition in session detection
 - `dec2162` — manually parse hash tokens (final working fix)
+
+---
+
+## Fix: Course Detail Hero Contrast in Light Mode (2026-04-15)
+
+Course detail hero (`/learn/[slug]`) was nearly unreadable in light theme: overlay washed out the background image and, post-hydration, the title text flipped from white to dark navy.
+
+### Root Cause
+- Gradient overlays used `var(--bg-primary)` which becomes near-white (`#faf9f7`) in light mode, fogging the hero image
+- `text-fg-primary` on the `<h1>` resolved to the light-mode dark navy (`#1a1a2e`) after hydration, making the title dark-on-dark
+- Class-based color overrides weren't reliably pinning white through theme transitions
+
+### Changes
+- [x] `components/learn/CourseDetailHero.tsx` — added `.dark-zone` to the hero wrapper so overlay/text variables always use dark-mode values (matches intent documented in `globals.css:166-171`)
+- [x] `components/learn/CourseDetailHero.tsx` — strengthened horizontal gradient from `/95 /80 /60` → `from-[var(--bg-primary)] /85 /40` so the title region stays fully opaque over busy hero artwork
+- [x] `components/learn/CourseDetailHero.tsx` — pinned title color with inline `style={{ color: '#fff' }}` for highest specificity, preventing post-hydration flicker
+
+### Verification
+- [x] Light mode: background image sits behind a solid dark overlay on the content side; title renders solid white
+- [x] Dark mode: unchanged visual appearance
+- [x] No flash of dark title on load
+
+### Commits
+- `a84cbb4` — add `dark-zone` to hero wrapper
+- `6cefbf5` — strengthen gradient opacity for busy background images
+- `8b1141f` — swap `text-fg-primary` → `text-white` on title
+- `563877b` — pin title color via inline style (final fix)
+
+---
+
+## Partner Platform — Slices A–D (2026-04-20)
+
+Co-branded partner landing pages + attribution tracking + self-serve admin management. Built in four slices sequenced demo-first so SmashHaus had a shareable URL within the first commit; attribution wiring and admin CRUD followed after. Spec: [docs/plans/2026-04-16-partner-whitelabel.md](docs/plans/2026-04-16-partner-whitelabel.md) (parent, phases 0–4) and [docs/plans/2026-04-20-partner-smashhaus-demo.md](docs/plans/2026-04-20-partner-smashhaus-demo.md) (execution slicing).
+
+### Slice A — SmashHaus demo landing page
+- [x] `lib/subdomain-config.ts` — tenant-aware host resolution (no-op in phase 0, pre-wired for phase 4 white-label)
+- [x] `lib/tenant.ts` — `getTenant()` helper reading `host` header
+- [x] `supabase/migrations/029_partners.sql` — `partners`, `partner_courses`, `partner_admins` tables + `is_partner_for()` RLS helper + attribution columns `enrollments.partner_id` and `users.referred_by_partner_id`. RLS allows anon read for all `is_active = true` partners; `is_public` controls SEO indexability only, not read access
+- [x] `app/[locale]/partners/[slug]/page.tsx` — data-driven server page; fetches partner + featured courses, sets `robots: noindex` when `is_public = false`
+- [x] `components/partners/PartnerLanding.tsx` — client shell: branded hero with inline `--accent-teal`/`--accent-gold` override, course grid, `hv_partner` cookie capture (30-day), `partner_landing_view` Plausible event
+- [x] `supabase/seed_smashhaus_demo.sql` — idempotent upsert of SmashHaus row + top 3 published courses
+- [x] `messages/{en,ja}.json` — `partners.*` namespace for generic copy (partner-specific name/tagline/description lives in the DB)
+
+### Slice B — Stripe attribution wiring
+- [x] `lib/partner-attribution.ts` — `getAttributedPartnerSlug()` reads `hv_partner` cookie; `resolvePartnerIdBySlug()` looks up active partner. Failures log and return `null` so attribution never blocks checkout
+- [x] `app/api/stripe/checkout/route.ts` — forward `partner_slug` in Stripe session metadata alongside `user_id`/`course_id`
+- [x] `lib/stripe/webhooks.ts` — `handleCheckoutCompleted` resolves `metadata.partner_slug` → `partner_id`, stamps `enrollments.partner_id` on every attributed sale, sets `users.referred_by_partner_id` on first touch (sticky)
+
+### Slice C — Admin CRUD for partners
+- [x] `app/api/admin/partners/route.ts` — GET list (with enrollment counts), POST create (slug + name_en; rest edited after)
+- [x] `app/api/admin/partners/[id]/route.ts` — GET detail + featured_course_ids, PATCH any editable field + replace featured-course selection, DELETE (soft: `is_active = false` preserves historical attribution)
+- [x] `app/api/admin/partners/[id]/enrollments/csv/route.ts` — downloadable attribution report
+- [x] `app/[locale]/admin/partners/page.tsx` — list with logo, slug, rev-share, enrollment count, status pills, inline create form
+- [x] `app/[locale]/admin/partners/[id]/page.tsx` — edit form with all fields + featured-courses picker with ↑/↓ reorder
+- [x] `app/[locale]/admin/partners/[id]/enrollments/page.tsx` — attributed enrollments table, per-currency revenue stats, rev-share estimate, CSV download link
+- [x] `components/admin/AdminPartnerList.tsx`, `components/admin/AdminPartnerForm.tsx` — client UIs
+- [x] `components/admin/AdminNav.tsx` — "Partners" link added (Handshake icon) between Students and Applications
+
+### Slice D — Vertice attribution + manual-enroll partner picker
+Off-platform partner enrollments (Vertice invite-code flow, comp/scholarships) now show up in partner reports alongside Stripe-driven ones.
+
+- [x] `lib/admin/actions.ts` — `manualEnroll()` accepts optional `partnerId`, stamps `enrollments.partner_id` and first-touch `users.referred_by_partner_id`
+- [x] `lib/admin/queries.ts` — `getActivePartners()` helper + `ActivePartner` type
+- [x] `app/[locale]/admin/students/new/page.tsx` — fetches active partners
+- [x] `components/admin/AddStudentFlow.tsx` — Partner attribution dropdown under the course picker (disabled until a course is selected)
+- [x] `components/partners/vertice-page-content.tsx` — drops `hv_partner=vertice-society` cookie on mount so Vertice members going through Stripe for any course get attributed
+- [x] `supabase/seed_vertice_partner.sql` — upsert Vertice Society partner row (`is_public=false`, `rev_share=0` — payments off-platform)
+
+The bespoke `/partners/vertice-society` page stays as-is — it has custom invite-code enrollment logic that doesn't fit the generic `/partners/[slug]` template. This slice adds reporting parity without touching that flow.
+
+### Architectural decisions locked in
+- `is_public` controls SEO indexability via `<meta robots>`, NOT DB read access (anyone with the URL can view invite-only partner pages; they just aren't indexed)
+- Attribution is non-blocking — resolve failures log and continue with `partner_id = null` rather than failing checkout
+- Snapshot at purchase time — `enrollments.partner_id` is set once when the enrollment is created; subsequent partner record changes (rev-share %, name) don't rewrite history
+- First-touch sticky on user — `users.referred_by_partner_id` is only set if currently null. Subsequent enrollments from a different partner get stamped to the enrollment row but don't overwrite the user's original source
+- Soft delete partners — `is_active = false` 404s the landing page and blocks new attribution but preserves historical `partner_id` references for auditability
+
+### Verified end-to-end on production
+- [x] `/partners/smashhaus` + `/ja/partners/smashhaus` render with branded colors, featured courses, `hv_partner` cookie, noindex meta
+- [x] Admin list + edit + enrollments report working for SmashHaus and Vertice rows
+- [x] Partner picker appears in `/admin/students/new` once a course is selected
+- [x] Vertice seed row verified in production Supabase
+
+### Deferred (flagged for next session)
+- **Phase 2 — partner portal** (`/partner/*` aggregate dashboard for partner contacts). Queued but skipped until a partner asks for metrics access. Handoff prompt: [docs/handoffs/2026-04-20-partner-portal-phase-2.md](docs/handoffs/2026-04-20-partner-portal-phase-2.md)
+- **Phase 3 — `learn.honuvibe.com` subdomain** (platform-level, orthogonal)
+- **Phase 4 — full white-label** (isolated users/Stripe per partner; only if a partner contractually requires it)
+
+### Commits
+- `3ef7bf7` — feat(partners): phase 0 scaffolding + 029 migration
+- `91bef30` — feat(partners): data-driven /partners/[slug] landing + smashhaus seed
+- `7d1d96c` — feat(partners): slice B — stripe attribution wiring
+- `eecc5ce` — feat(partners): slice C — admin CRUD for partners
+- `adb9c33` — feat(partners): slice D — vertice attribution + manual-enroll partner picker
 
 ---
 
