@@ -139,6 +139,7 @@ export async function manualEnroll(
   courseId: string,
   notes?: string,
   skipEnrollmentEmail?: boolean,
+  partnerId?: string | null,
 ): Promise<{ success: true } | { success: false; error: string }> {
   try {
     const { supabase } = await requireAdmin();
@@ -153,7 +154,7 @@ export async function manualEnroll(
 
     if (existing) return { success: false, error: 'Student is already enrolled in this course.' };
 
-    // Create enrollment (comp/scholarship — no payment)
+    // Create enrollment (comp/scholarship/off-platform — no payment on this Stripe account)
     const { error: enrollError } = await supabase.from('enrollments').insert({
       user_id: userId,
       course_id: courseId,
@@ -161,9 +162,25 @@ export async function manualEnroll(
       currency: 'usd',
       status: 'active',
       notes: notes ?? null,
+      partner_id: partnerId ?? null,
     });
 
     if (enrollError) return { success: false, error: enrollError.message };
+
+    // First-touch sticky attribution — only set if not already set
+    if (partnerId) {
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('referred_by_partner_id')
+        .eq('id', userId)
+        .single();
+      if (existingUser && !existingUser.referred_by_partner_id) {
+        await supabase
+          .from('users')
+          .update({ referred_by_partner_id: partnerId })
+          .eq('id', userId);
+      }
+    }
 
     // Increment enrollment count
     const { data: course } = await supabase

@@ -68,6 +68,11 @@ export function VerticePageContent() {
 
   useEffect(() => {
     trackEvent('vertice_page_view', { locale });
+    // Drop hv_partner cookie so any downstream Stripe enrollment
+    // (e.g. a Vertice member purchasing a different non-Vertice course)
+    // gets attributed to Vertice Society for reporting.
+    const thirtyDays = 60 * 60 * 24 * 30;
+    document.cookie = `hv_partner=vertice-society; Max-Age=${thirtyDays}; Path=/; SameSite=Lax`;
   }, [locale]);
 
   return (

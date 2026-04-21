@@ -1,5 +1,5 @@
 import { setRequestLocale } from 'next-intl/server';
-import { getActiveCourses, getActiveSurveys } from '@/lib/admin/queries';
+import { getActiveCourses, getActiveSurveys, getActivePartners } from '@/lib/admin/queries';
 import { AddStudentFlow } from '@/components/admin/AddStudentFlow';
 
 type Props = {
@@ -14,14 +14,19 @@ export default async function AddStudentPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [activeCourses, activeSurveys] = await Promise.all([
+  const [activeCourses, activeSurveys, activePartners] = await Promise.all([
     getActiveCourses(),
     getActiveSurveys(),
+    getActivePartners(),
   ]);
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      <AddStudentFlow activeCourses={activeCourses} activeSurveys={activeSurveys} />
+      <AddStudentFlow
+        activeCourses={activeCourses}
+        activeSurveys={activeSurveys}
+        activePartners={activePartners}
+      />
     </div>
   );
 }

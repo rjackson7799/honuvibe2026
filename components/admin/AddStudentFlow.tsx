@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { searchUserByEmail } from '@/lib/instructors/actions';
 import { createNewUserAndStudent, sendStudentWelcomeEmailAction } from '@/lib/students/actions';
 import { manualEnroll, assignSurvey } from '@/lib/admin/actions';
-import type { ActiveCourse, ActiveSurvey } from '@/lib/admin/queries';
+import type { ActiveCourse, ActiveSurvey, ActivePartner } from '@/lib/admin/queries';
 
 type FoundUser = {
   id: string;
@@ -19,9 +19,10 @@ type FoundUser = {
 type Props = {
   activeCourses: ActiveCourse[];
   activeSurveys: ActiveSurvey[];
+  activePartners?: ActivePartner[];
 };
 
-export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
+export function AddStudentFlow({ activeCourses, activeSurveys, activePartners = [] }: Props) {
   const router = useRouter();
   const [step, setStep] = useState<'search' | 'enroll' | 'done'>('search');
 
@@ -35,6 +36,7 @@ export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
 
   // Step 2: Enroll
   const [selectedCourseId, setSelectedCourseId] = useState('');
+  const [selectedPartnerId, setSelectedPartnerId] = useState('');
   const [notes, setNotes] = useState('');
   const [sendWelcome, setSendWelcome] = useState(true);
   const [emailLocale, setEmailLocale] = useState<'en' | 'ja'>('en');
@@ -129,7 +131,13 @@ export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
 
     // Enroll in course if one was selected
     if (selectedCourseId) {
-      const result = await manualEnroll(userId, selectedCourseId, notes.trim() || undefined, true);
+      const result = await manualEnroll(
+        userId,
+        selectedCourseId,
+        notes.trim() || undefined,
+        true,
+        selectedPartnerId || null,
+      );
       if (!result.success) {
         setSaveError(result.error);
         setSaving(false);
@@ -311,6 +319,30 @@ export function AddStudentFlow({ activeCourses, activeSurveys }: Props) {
                 ))}
               </select>
             </div>
+
+            {activePartners.length > 0 && (
+              <div>
+                <label className="block text-xs text-fg-tertiary mb-1">
+                  Partner attribution <span className="text-fg-tertiary">(optional)</span>
+                </label>
+                <select
+                  value={selectedPartnerId}
+                  onChange={(e) => setSelectedPartnerId(e.target.value)}
+                  disabled={!selectedCourseId}
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal disabled:opacity-50"
+                >
+                  <option value="">— No attribution —</option>
+                  {activePartners.map((partner) => (
+                    <option key={partner.id} value={partner.id}>
+                      {partner.name_en}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[11px] text-fg-tertiary">
+                  Credits the enrollment to a partner for reporting. Use for off-platform Vertice payments, SmashHaus-driven sign-ups, etc.
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs text-fg-tertiary mb-1">

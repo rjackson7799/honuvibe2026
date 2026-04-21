@@ -332,3 +332,25 @@ export async function getActiveSurveys(): Promise<ActiveSurvey[]> {
   if (error) throw error;
   return data ?? [];
 }
+
+export interface ActivePartner {
+  id: string;
+  slug: string;
+  name_en: string;
+}
+
+export async function getActivePartners(): Promise<ActivePartner[]> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('partners')
+    .select('id, slug, name_en')
+    .eq('is_active', true)
+    .order('name_en', { ascending: true });
+
+  if (error) {
+    console.error('[getActivePartners] failed:', error);
+    return [];
+  }
+  return data ?? [];
+}
