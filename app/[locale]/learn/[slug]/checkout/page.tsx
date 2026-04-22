@@ -170,6 +170,11 @@ export default async function CheckoutPage({ params }: Props) {
           {/* Stripe iframe */}
           <div className="p-4 md:p-5">
             <EmbeddedCheckoutForm courseId={course.id} locale={locale} />
+            <p className="mt-3 text-center text-xs text-fg-muted">
+              {isJapanese
+                ? '「808eventures」としてカード明細に表示されます。'
+                : 'This charge will appear as “808eventures” on your card statement.'}
+            </p>
           </div>
         </div>
       </div>
