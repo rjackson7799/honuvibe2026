@@ -78,19 +78,7 @@ export function AuthForm() {
         return;
       }
 
-      // If no session, email confirmation is required — send branded email via Resend
       if (!signUpData.session) {
-        try {
-          const res = await fetch('/api/auth/send-confirmation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, fullName, locale }),
-          });
-          const result = await res.json();
-          if (!result.success) setConfirmationFailed(true);
-        } catch {
-          setConfirmationFailed(true);
-        }
         setConfirmationPending(true);
         setLoading(false);
         return;
@@ -211,17 +199,14 @@ export function AuthForm() {
               onClick={async () => {
                 setResending(true);
                 setConfirmationFailed(false);
-                try {
-                  const res = await fetch('/api/auth/send-confirmation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, fullName, locale }),
-                  });
-                  const result = await res.json();
-                  if (!result.success) setConfirmationFailed(true);
-                } catch {
-                  setConfirmationFailed(true);
-                }
+                const { error: resendError } = await supabase.auth.resend({
+                  type: 'signup',
+                  email,
+                  options: {
+                    emailRedirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
+                  },
+                });
+                if (resendError) setConfirmationFailed(true);
                 setResending(false);
               }}
               className="text-sm text-accent-teal hover:underline"
