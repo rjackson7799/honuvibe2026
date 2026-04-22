@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-20 (Partner Platform — phases 0, 1, B, C, D complete)
+**Last updated:** 2026-04-21 (Profile rename + avatar upload)
 
 ### Status Legend
 - [ ] Not started
@@ -1707,6 +1707,35 @@ Self-serve aggregate dashboard for partner contacts at `/partner/*`. Unblocks th
 
 ### Known issue (pre-existing, not introduced by this phase)
 - `app/api/auth/send-confirmation/route.ts` (untracked WIP) has a TypeScript error on `supabase.auth.admin.generateLink` — newer Supabase SDK requires `password` for `type: 'signup'`. Not blocking portal functionality; should be resolved before next build.
+
+---
+
+## Profile Rename + Avatar Upload (2026-04-21)
+
+Renamed the student dashboard's "Settings" to "Profile" and added avatar upload. Identity-centric framing was needed now that community features are being built — the page will host the user's face that appears next to comments and in member lists. Plan: [docs/plans/2026-04-21-profile-rename-and-avatar.md](docs/plans/2026-04-21-profile-rename-and-avatar.md).
+
+### What landed
+- [x] `supabase/migrations/030_avatars_storage.sql` — public `avatars` bucket with user-owned RLS (`auth.uid()::text = (storage.foldername(name))[1]`), 2 MB size limit, `image/jpeg|png|webp` only. Path convention `avatars/{userId}/avatar.{ext}`
+- [x] `app/api/profile/avatar/route.ts` — POST handler: auth check, MIME + size validation (returns `code: 'wrong_type' | 'too_large'` for i18n-friendly client errors), uploads with `upsert: true`, updates `users.avatar_url` with cache-busting `?v={timestamp}` suffix
+- [x] `components/learn/StudentNav.tsx` — nav item label key `nav_settings` → `nav_profile`, icon swapped `Settings` → `UserCircle`. Route path unchanged (`/learn/dashboard/settings`) to avoid breaking bookmarks
+- [x] `app/[locale]/learn/dashboard/settings/page.tsx` — heading → "Profile" / "プロフィール". New avatar block: 96px circular preview, initials fallback derived from name/email, optimistic `URL.createObjectURL` preview during upload, spinner overlay, inline error messages
+- [x] `messages/en.json` + `messages/ja.json` — added `nav_profile`, `profile_heading`, and 6 avatar-related strings. Old `nav_settings` / `settings_heading` keys kept in place as a safety net (follow-up: remove once confirmed unused)
+
+### Architectural decisions
+- **Server-side upload route, not direct browser-to-Storage** — keeps validation (size, MIME, future dimension checks) server-side and lets us atomically update `users.avatar_url` in one round trip
+- **Route path `/settings` preserved** — URL rename to `/profile` is low-value and breaks existing bookmarks. Nav label + heading reframe the page without a move
+- **Theme + language toggles stay in the sidebar** — they're quick-access utilities, not identity settings. Burying them behind the Profile page adds friction for a trivial action. The existing Language Preference dropdown in the Profile page is the *persistent* preference; the sidebar toggle switches the *current session*
+- **Avatar column already existed** — `users.avatar_url` was added in `001_phase2_schema.sql` and auto-populated from OAuth metadata on signup via `handle_new_user()`. This slice only added the bucket + upload UI
+- **Smashhaus locale visibility deferred** — partner is English-only, but `partners` / `courses` have no market/locale field. Proper fix (likely `partners.available_locales text[]`) is a separate slice
+
+### Verification (deployment steps)
+- [ ] Apply migration `030_avatars_storage.sql` to Supabase (dashboard SQL editor or `supabase db push`)
+- [ ] Sign in as a test user, visit `/learn/dashboard/settings` → heading reads "Profile", sidebar label reads "Profile"
+- [ ] Upload a valid JPEG/PNG/WebP < 2 MB → preview updates, persists across refresh
+- [ ] Upload a `.gif` → inline "Unsupported format" error, no write
+- [ ] Upload a >2 MB image → inline "Image is too large" error, no write
+- [ ] Attempt to POST to `avatars/{otherUserId}/avatar.png` with User A's session → 403 from RLS
+- [ ] JP locale (`/ja/learn/dashboard/settings`) → all new strings translated correctly
 
 ---
 
