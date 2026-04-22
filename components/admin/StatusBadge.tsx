@@ -8,10 +8,12 @@ type StatusBadgeProps = {
 const statusStyles: Record<string, string> = {
   // Course statuses
   draft: 'bg-bg-tertiary text-fg-tertiary',
+  proposal: 'bg-accent-gold/10 text-accent-gold',
   published: 'bg-accent-teal/10 text-accent-teal',
   'in-progress': 'bg-accent-gold/10 text-accent-gold',
   completed: 'bg-bg-tertiary text-fg-secondary',
   archived: 'bg-bg-tertiary text-fg-tertiary',
+  rejected: 'bg-red-500/10 text-red-400',
   // Enrollment statuses
   active: 'bg-accent-teal/10 text-accent-teal',
   cancelled: 'bg-red-500/10 text-red-400',
@@ -30,10 +32,12 @@ const statusStyles: Record<string, string> = {
 
 const statusLabels: Record<string, string> = {
   draft: 'Draft',
+  proposal: 'Proposal',
   published: 'Published',
   'in-progress': 'In Progress',
   completed: 'Completed',
   archived: 'Archived',
+  rejected: 'Rejected',
   active: 'Active',
   cancelled: 'Cancelled',
   refunded: 'Refunded',

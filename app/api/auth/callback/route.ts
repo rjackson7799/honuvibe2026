@@ -64,6 +64,7 @@ export async function GET(request: Request) {
         // Role-based default redirect — respect explicit ?redirect overrides
         if (profile.role === 'admin') redirectTo = '/admin';
         else if (profile.role === 'partner') redirectTo = '/partner';
+        else if (profile.role === 'instructor') redirectTo = '/instructor/courses';
       }
 
       return NextResponse.redirect(new URL(redirectTo, origin));

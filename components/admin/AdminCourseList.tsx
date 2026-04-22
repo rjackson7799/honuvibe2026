@@ -12,10 +12,12 @@ type AdminCourseListProps = {
 
 const statusFilters = [
   { key: 'all', label: 'All' },
+  { key: 'proposal', label: 'Proposal' },
   { key: 'draft', label: 'Draft' },
   { key: 'published', label: 'Published' },
   { key: 'in-progress', label: 'In Progress' },
   { key: 'completed', label: 'Completed' },
+  { key: 'rejected', label: 'Rejected' },
   { key: 'archived', label: 'Archived' },
 ] as const;
 

@@ -6,13 +6,22 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createIntlMiddleware(routing);
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ['/learn/dashboard', '/learn/account', '/admin', '/partner'];
+const PROTECTED_PREFIXES = [
+  '/learn/dashboard',
+  '/learn/account',
+  '/admin',
+  '/partner',
+  '/instructor',
+];
 
 // Routes that require admin role
 const ADMIN_PREFIXES = ['/admin'];
 
 // Routes that require partner (or admin, for preview) role
 const PARTNER_PREFIXES = ['/partner'];
+
+// Routes that require instructor (or admin) role
+const INSTRUCTOR_PREFIXES = ['/instructor'];
 
 function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
@@ -28,6 +37,12 @@ function isAdminRoute(pathname: string): boolean {
 
 function isPartnerRoute(pathname: string): boolean {
   return PARTNER_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
+  );
+}
+
+function isInstructorRoute(pathname: string): boolean {
+  return INSTRUCTOR_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
   );
 }
@@ -129,7 +144,11 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Role-gated routes — single profile lookup shared across gates
-  if (isAdminRoute(logicalPath) || isPartnerRoute(logicalPath)) {
+  if (
+    isAdminRoute(logicalPath) ||
+    isPartnerRoute(logicalPath) ||
+    isInstructorRoute(logicalPath)
+  ) {
     const { data: profile } = await supabase
       .from('users')
       .select('role')
@@ -148,6 +167,16 @@ export default async function middleware(request: NextRequest) {
     if (
       isPartnerRoute(logicalPath) &&
       profile?.role !== 'partner' &&
+      profile?.role !== 'admin'
+    ) {
+      return NextResponse.redirect(
+        new URL(`${prefix}/learn/dashboard`, request.url),
+      );
+    }
+
+    if (
+      isInstructorRoute(logicalPath) &&
+      profile?.role !== 'instructor' &&
       profile?.role !== 'admin'
     ) {
       return NextResponse.redirect(

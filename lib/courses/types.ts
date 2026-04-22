@@ -3,7 +3,14 @@
 import type { InstructorCardData, CourseInstructorWithProfile } from '@/lib/instructors/types';
 
 export type CourseType = 'cohort' | 'self-study';
-export type CourseStatus = 'draft' | 'published' | 'in-progress' | 'completed' | 'archived';
+export type CourseStatus =
+  | 'draft'
+  | 'proposal'
+  | 'published'
+  | 'in-progress'
+  | 'completed'
+  | 'archived'
+  | 'rejected';
 export type CourseLevel = 'beginner' | 'intermediate' | 'advanced';
 export type CourseLanguage = 'en' | 'ja' | 'both';
 export type SessionFormat = 'live' | 'recorded' | 'hybrid';
@@ -87,6 +94,11 @@ export interface Course {
   // Cached syllabus PDF URLs (null = needs generation)
   syllabus_url_en: string | null;
   syllabus_url_jp: string | null;
+
+  // Proposal fields (migration 032) — populated when instructor drafts a course
+  proposed_by_instructor_id: string | null;
+  proposal_submitted_at: string | null;
+  proposal_review_notes: string | null;
 
   created_at: string;
   updated_at: string;

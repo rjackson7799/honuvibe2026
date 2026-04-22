@@ -4,31 +4,22 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, BookOpen, GraduationCap, Library, Lock, Route, Users, FileText, DollarSign, ClipboardList, Handshake, UserPlus, FileEdit } from 'lucide-react';
+import { BookOpen, GraduationCap } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
 
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/courses', label: 'Courses', icon: BookOpen },
-  { href: '/admin/courses/proposals', label: 'Proposals', icon: FileEdit },
-  { href: '/admin/instructors', label: 'Instructors', icon: GraduationCap },
-  { href: '/admin/instructor-applications', label: 'Instructor Apps', icon: UserPlus },
-  { href: '/admin/library', label: 'Library', icon: Library },
-  { href: '/admin/vault', label: 'Vault', icon: Lock },
-  { href: '/admin/paths', label: 'Study Paths', icon: Route },
-  { href: '/admin/students', label: 'Students', icon: Users },
-  { href: '/admin/partners', label: 'Partners', icon: Handshake },
-  { href: '/admin/applications', label: 'Applications', icon: FileText },
-  { href: '/admin/surveys', label: 'Surveys', icon: ClipboardList },
-  { href: '/admin/revenue', label: 'Revenue', icon: DollarSign },
+  { href: '/instructor/courses', label: 'Courses', icon: BookOpen },
 ];
 
-export function AdminNav() {
+type Props = {
+  displayName: string;
+};
+
+export function InstructorNav({ displayName }: Props) {
   const pathname = usePathname();
   const t = useTranslations('nav');
-  // Strip locale prefix for matching
   const logicalPath = pathname.replace(/^\/(en|ja)/, '') || '/';
 
   const userMenuLabels = {
@@ -42,16 +33,20 @@ export function AdminNav() {
     <>
       {/* Desktop sidebar */}
       <nav className="hidden md:flex flex-col w-56 shrink-0 border-r border-border-default bg-bg-secondary sticky top-14 md:top-16 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] overflow-y-auto p-4 gap-1">
-        <div className="mb-6 px-3">
-          <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">Admin</h2>
+        <div className="mb-6 px-1">
+          <div className="flex items-center gap-2">
+            <GraduationCap size={22} className="text-accent-teal shrink-0" />
+            <div className="min-w-0 flex-1">
+              <h2 className="truncate text-sm font-semibold text-fg-primary">{displayName}</h2>
+              <p className="text-[11px] uppercase tracking-wider text-fg-tertiary">
+                Instructor portal
+              </p>
+            </div>
+          </div>
         </div>
+
         {navItems.map((item) => {
-          const isActive = item.exact
-            ? logicalPath === item.href
-            : item.href === '/admin/courses'
-              ? logicalPath.startsWith('/admin/courses') &&
-                !logicalPath.startsWith('/admin/courses/proposals')
-              : logicalPath.startsWith(item.href);
+          const isActive = logicalPath.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link
@@ -70,7 +65,6 @@ export function AdminNav() {
           );
         })}
 
-        {/* Bottom controls — pushed down with mt-auto */}
         <div className="mt-auto pt-4 border-t border-border-default flex flex-col gap-1">
           <UserMenu labels={userMenuLabels} />
           <div className="pt-2 border-t border-border-default flex items-center gap-1">
@@ -83,12 +77,7 @@ export function AdminNav() {
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border-default bg-bg-secondary flex">
         {navItems.map((item) => {
-          const isActive = item.exact
-            ? logicalPath === item.href
-            : item.href === '/admin/courses'
-              ? logicalPath.startsWith('/admin/courses') &&
-                !logicalPath.startsWith('/admin/courses/proposals')
-              : logicalPath.startsWith(item.href);
+          const isActive = logicalPath.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link

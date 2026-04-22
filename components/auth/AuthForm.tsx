@@ -27,6 +27,7 @@ export function AuthForm() {
       .single();
     if (profile?.role === 'admin') return '/admin';
     if (profile?.role === 'partner') return '/partner';
+    if (profile?.role === 'instructor') return '/instructor/courses';
     return '/learn/dashboard';
   }
 
