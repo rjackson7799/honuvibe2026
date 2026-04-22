@@ -11,7 +11,7 @@ import {
   Lock,
   Users,
   CreditCard,
-  Settings,
+  UserCircle,
   PanelLeftClose,
   PanelLeftOpen,
   GraduationCap,
@@ -37,7 +37,7 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
-  { href: '/learn/dashboard/settings', labelKey: 'nav_settings', icon: Settings, exact: false },
+  { href: '/learn/dashboard/settings', labelKey: 'nav_profile', icon: UserCircle, exact: false },
 ];
 
 const instructorNavItem: NavItem = {
