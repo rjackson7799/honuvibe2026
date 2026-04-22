@@ -21,16 +21,17 @@ export default async function CheckoutReturnPage({
     redirect(`${prefix}/learn/${slug}`);
   }
 
+  let destination: string;
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
-
     if (session.payment_status === 'paid') {
-      redirect(`${prefix}/learn/dashboard/${slug}?enrolled=true`);
+      destination = `${prefix}/learn/dashboard/${slug}?enrolled=true`;
     } else {
-      // Payment incomplete or failed — send back to checkout
-      redirect(`${prefix}/learn/${slug}/checkout?error=payment_failed`);
+      destination = `${prefix}/learn/${slug}/checkout?error=payment_failed`;
     }
   } catch {
-    redirect(`${prefix}/learn/${slug}`);
+    destination = `${prefix}/learn/${slug}`;
   }
+
+  redirect(destination);
 }
