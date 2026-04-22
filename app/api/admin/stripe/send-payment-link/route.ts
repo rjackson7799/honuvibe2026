@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe/client';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { sendLocalizedPaymentLinkEmail } from '@/lib/email/payment-link';
 import type { Locale } from '@/lib/email/types';
@@ -73,43 +72,14 @@ export async function POST(request: NextRequest) {
     const isJapanese = locale === 'ja';
     const localePrefix = isJapanese ? '/ja' : '';
     const courseTitle = isJapanese && course.title_jp ? course.title_jp : course.title_en;
+    const checkoutUrl = `${origin}${localePrefix}/learn/${course.slug}/checkout`;
 
-    // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer_email: email.toLowerCase().trim(),
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: { name: courseTitle },
-          unit_amount: course.price_usd,
-        },
-        quantity: 1,
-      }],
-      metadata: {
-        user_id: targetUser.id,
-        course_id: course.id,
-        course_slug: course.slug,
-        currency: 'usd',
-        locale,
-      },
-      success_url: `${origin}${localePrefix}/learn/dashboard/${course.slug}?enrolled=true`,
-      cancel_url: `${origin}${localePrefix}/learn/${course.slug}`,
-      locale,
-      expires_at: Math.floor(Date.now() / 1000) + 23 * 60 * 60, // Stripe limit: less than 24 hours
-    });
-
-    if (!session.url) {
-      return NextResponse.json({ error: 'Failed to create payment link' }, { status: 500 });
-    }
-
-    // Send email with the payment link
     await sendLocalizedPaymentLinkEmail({
       locale,
       email: email.toLowerCase().trim(),
       fullName: targetUser.full_name ?? 'there',
       courseTitle,
-      paymentUrl: session.url,
+      paymentUrl: checkoutUrl,
       priceUsd: course.price_usd,
     });
 

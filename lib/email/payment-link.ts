@@ -27,7 +27,7 @@ export async function sendLocalizedPaymentLinkEmail(
   const price = `$${(priceUsd / 100).toLocaleString('en-US')}`;
 
   const body = [
-    accentBanner(isJP ? '受講用お支払いリンク' : 'Your Enrollment Payment Link'),
+    accentBanner(isJP ? 'お支払いリンク' : 'Your Payment Link'),
     heading(isJP ? `${fullName}さん、こんにちは` : `Hi ${fullName},`),
     paragraph(
       isJP
@@ -59,7 +59,7 @@ export async function sendLocalizedPaymentLinkEmail(
     to: email,
     subject: isJP
       ? `受講お支払いリンク — ${courseTitle}`
-      : `Your enrollment link — ${courseTitle}`,
+      : `Complete your payment — ${courseTitle}`,
     html: baseLayout({ locale, body }),
   });
 
