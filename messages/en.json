@@ -1350,6 +1350,79 @@
     "banner_title": "You have {count, plural, one {# assigned class} other {# assigned classes}}",
     "banner_subtitle": "View your teaching assignments"
   },
+  "instructor_apply": {
+    "meta_title": "Become a HonuVibe Instructor",
+    "meta_description": "Share what you know. Earn on every enrollment. Join a curated roster of builders teaching AI on HonuVibe.",
+    "hero_overline": "Teach on HonuVibe",
+    "hero_headline": "Share what you know. Earn on what you ship.",
+    "hero_sub": "HonuVibe instructors are a small, curated roster of builders teaching real-world AI skills. Apply to propose a course — if it's a fit, we'll partner with you to bring it to students.",
+    "why_overline": "Why teach with us",
+    "why_heading": "Built for instructors who actually build",
+    "why_items": {
+      "revenue": {
+        "title": "Real revenue share",
+        "description": "You earn on every enrollment in your course. Bilingual reach, transparent splits, monthly payouts."
+      },
+      "quality": {
+        "title": "Curated, not crowded",
+        "description": "We invite a small roster of credible builders. You won't be buried under 10,000 low-quality courses."
+      },
+      "support": {
+        "title": "We handle the platform",
+        "description": "Hosting, payments, email, cohort ops, student support — all on us. You focus on the material."
+      },
+      "community": {
+        "title": "Plug into communities",
+        "description": "HonuVibe, Vertice Society, SmashHaus and more. Your course can reach audiences already organized around a vertical."
+      }
+    },
+    "form_overline": "Apply",
+    "form_heading": "Tell us who you are",
+    "form_sub": "A few minutes now saves a back-and-forth later. Everything is confidential.",
+    "form": {
+      "full_name": "Full name",
+      "email": "Email",
+      "bio_short": "Short bio (2–3 sentences)",
+      "bio_short_placeholder": "What you do, what you've built, why you're credible in your field.",
+      "expertise_areas": "Areas of expertise",
+      "expertise_placeholder": "e.g. Prompt engineering, LangChain, DAWs, Ableton, Python automation",
+      "expertise_hint": "Comma-separated. Up to 10 tags.",
+      "proposed_topic": "What do you want to teach?",
+      "proposed_topic_placeholder": "One-line pitch for the course you'd build. We'll dig into the outline later.",
+      "sample_material_url": "Sample material (optional)",
+      "sample_material_placeholder": "Link to a portfolio, a video, a project, or your best social post.",
+      "linkedin_url": "LinkedIn (optional)",
+      "website_url": "Website (optional)",
+      "why_honuvibe": "Why HonuVibe? (optional)",
+      "why_honuvibe_placeholder": "If you've been following HonuVibe or were referred by a partner (Vertice, SmashHaus, etc.), tell us.",
+      "submit": "Submit application",
+      "submitting": "Submitting…",
+      "success_heading": "Application received — thank you.",
+      "success_body": "We read every application ourselves. Expect to hear back within 5–7 business days. In the meantime, feel free to browse our current courses.",
+      "success_cta": "Browse Courses",
+      "error": "Something went wrong. Please try again, or email ryan@honuvibe.ai."
+    },
+    "process_overline": "What happens next",
+    "process_heading": "Our review process",
+    "process_steps": {
+      "step1": {
+        "title": "1. You apply",
+        "description": "This form. Takes about 5 minutes."
+      },
+      "step2": {
+        "title": "2. We review",
+        "description": "Ryan reviews every application personally. 5–7 business days."
+      },
+      "step3": {
+        "title": "3. We scope your course together",
+        "description": "If approved, we work with you on outline, pricing, and launch plan."
+      },
+      "step4": {
+        "title": "4. You teach, we pay",
+        "description": "You run the course. We handle payments, students, and support. You earn on every enrollment."
+      }
+    }
+  },
   "glossary": {
     "title": "AI Glossary",
     "subtitle": "Plain-language definitions for the AI era. Every term explained for real people, not researchers.",

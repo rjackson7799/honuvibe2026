@@ -17,6 +17,9 @@ import type {
   ExplorationInquiryEmailData,
   ApplicationStatusEmailData,
   InstructorWelcomeEmailData,
+  InstructorApplicationReceivedEmailData,
+  InstructorApplicationRejectedEmailData,
+  InstructorApplicationAdminNotifyData,
   StudentWelcomeEmailData,
   StudentOnboardingEmailData,
   VerticeLeadEmailData,
@@ -1124,6 +1127,184 @@ export async function sendConfirmationEmail(data: {
     html: baseLayout({
       locale,
       preheader: isJP ? 'メールアドレスの確認' : 'Confirm your email to get started',
+      body,
+    }),
+  });
+}
+
+// ─── Instructor Applications ────────────────────────────────
+
+export async function sendInstructorApplicationReceived(
+  data: InstructorApplicationReceivedEmailData,
+): Promise<void> {
+  const { locale, applicantName, applicantEmail } = data;
+  const isJP = locale === 'ja';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const body = [
+    heading(
+      isJP
+        ? `${applicantName} さん、お申し込みありがとうございます`
+        : `Thanks for applying, ${applicantName}!`,
+    ),
+    paragraph(
+      isJP
+        ? 'HonuVibe.AI講師プログラムへのお申し込みを受け付けました。ご応募内容を確認の上、通常5〜7営業日以内にご連絡いたします。'
+        : "We've received your application to join the HonuVibe.AI instructor program. We'll review it carefully and get back to you within 5–7 business days.",
+    ),
+    divider(),
+    paragraph(
+      isJP
+        ? 'その間、現在のコースをご覧になって、HonuVibeのティーチングスタイルと学習コミュニティについて知っていただければ幸いです。'
+        : "In the meantime, feel free to browse our current courses to get a feel for the HonuVibe teaching style and learning community.",
+    ),
+    ctaButton({
+      href: `${siteUrl}/${isJP ? 'ja/' : ''}learn`,
+      label: isJP ? 'コースを見る' : 'Browse Courses',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: applicantEmail,
+    subject: isJP
+      ? '【HonuVibe.AI】講師応募を受け付けました'
+      : 'Instructor application received — HonuVibe.AI',
+    html: baseLayout({
+      locale,
+      preheader: isJP
+        ? '講師応募を受け付けました'
+        : "We received your instructor application",
+      body,
+    }),
+  });
+}
+
+export async function sendInstructorApplicationRejected(
+  data: InstructorApplicationRejectedEmailData,
+): Promise<void> {
+  const { locale, applicantName, applicantEmail, rejectionReason } = data;
+  const isJP = locale === 'ja';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const body = [
+    heading(isJP ? `${applicantName} さんへ` : `Hi ${applicantName},`),
+    paragraph(
+      isJP
+        ? '講師プログラムへのご応募をいただき、誠にありがとうございました。慎重に検討させていただいた結果、現時点ではご一緒できる機会がないという結論に至りました。'
+        : "Thank you for your interest in becoming a HonuVibe instructor. After careful consideration, we've decided not to move forward at this time.",
+    ),
+    ...(rejectionReason
+      ? [
+          divider(),
+          heading(isJP ? 'コメント' : 'A note from our team'),
+          paragraph(rejectionReason),
+        ]
+      : []),
+    divider(),
+    paragraph(
+      isJP
+        ? 'これは最終決定ではありません。状況やご経験が変わった場合は、将来再度ご応募いただけます。引き続きコミュニティをご活用ください。'
+        : "This isn't a final no — if your experience or focus shifts in the future, you're welcome to apply again. We'd also love to keep you connected through our community.",
+    ),
+    ctaButton({
+      href: `${siteUrl}/${isJP ? 'ja/' : ''}learn`,
+      label: isJP ? 'コースを見る' : 'Browse Courses',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: applicantEmail,
+    subject: isJP
+      ? '【HonuVibe.AI】講師応募につきまして'
+      : 'Update on your HonuVibe.AI instructor application',
+    html: baseLayout({ locale, body }),
+  });
+}
+
+export async function sendInstructorApplicationAdminNotification(
+  data: InstructorApplicationAdminNotifyData,
+): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const rows: { label: string; value: string }[] = [
+    { label: 'Name', value: data.applicantName },
+    { label: 'Email', value: data.applicantEmail },
+    { label: 'Proposed Topic', value: data.proposedTopic ?? '—' },
+    {
+      label: 'Expertise',
+      value: data.expertiseAreas.length > 0 ? data.expertiseAreas.join(', ') : '—',
+    },
+    { label: 'Sample Material', value: data.sampleMaterialUrl ?? '—' },
+    { label: 'LinkedIn', value: data.linkedinUrl ?? '—' },
+    { label: 'Website', value: data.websiteUrl ?? '—' },
+    { label: 'Recruited By', value: data.referredByPartnerName ?? 'Direct (no partner)' },
+  ];
+
+  const body = [
+    accentBanner('New Instructor Application'),
+    detailsTable(rows),
+    divider(),
+    heading('Bio'),
+    paragraph(data.bioShort),
+    ...(data.whyHonuvibe
+      ? [divider(), heading('Why HonuVibe'), paragraph(data.whyHonuvibe)]
+      : []),
+    ctaButton({
+      href: `${siteUrl}/admin/instructor-applications/${data.applicationId}`,
+      label: 'Review Application',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Instructor Apply] ${data.applicantName}${data.proposedTopic ? ` — ${data.proposedTopic}` : ''}`,
+    html: baseLayout({ locale: 'en', body }),
+    replyTo: data.applicantEmail,
+  });
+}
+
+// ─── Password Reset (branded, light theme) ──────────────────
+
+export async function sendPasswordResetEmail(data: {
+  email: string;
+  fullName: string | null;
+  resetLink: string;
+  locale?: 'en' | 'ja';
+}): Promise<void> {
+  const { email, fullName, resetLink, locale = 'en' } = data;
+  const isJP = locale === 'ja';
+  const name = fullName ?? (isJP ? 'お客様' : 'there');
+
+  const body = [
+    heading(isJP ? `${name}さん、こんにちは` : `Hi ${name},`),
+    paragraph(
+      isJP
+        ? 'HonuVibe.AIアカウントのパスワードリセットのリクエストを受け付けました。以下のボタンをクリックして新しいパスワードを設定してください。'
+        : 'We received a request to reset the password for your HonuVibe.AI account. Click the button below to choose a new password.',
+    ),
+    ctaButton({
+      href: resetLink,
+      label: isJP ? 'パスワードをリセット →' : 'Reset Password →',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'このリクエストに心当たりがない場合は、このメールを無視していただいて結構です。リンクは24時間で期限切れになります。'
+        : 'If you didn\'t request this, you can safely ignore this email. This link expires in 24 hours.',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? '【HonuVibe.AI】パスワードのリセット'
+      : 'Reset your password — HonuVibe.AI',
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'パスワードのリセット' : 'Reset your password',
       body,
     }),
   });

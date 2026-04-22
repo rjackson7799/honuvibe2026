@@ -1350,6 +1350,79 @@
     "banner_title": "担当クラスが{count}件あります",
     "banner_subtitle": "担当クラスを確認する"
   },
+  "instructor_apply": {
+    "meta_title": "HonuVibe講師になる",
+    "meta_description": "あなたの知識を共有して、受講ごとに収益を得ましょう。HonuVibeでAIを教える厳選された講師チームに参加しませんか。",
+    "hero_overline": "HonuVibeで教える",
+    "hero_headline": "知識を共有し、成果で収益を。",
+    "hero_sub": "HonuVibe講師は、実践的なAIスキルを教える、少数精鋭のビルダーチームです。コースを提案する応募をお送りください。ご縁があれば、一緒に学習者へ届けましょう。",
+    "why_overline": "HonuVibeで教える理由",
+    "why_heading": "ビルダーのための講師プラットフォーム",
+    "why_items": {
+      "revenue": {
+        "title": "確かなレベニューシェア",
+        "description": "あなたのコースの受講1件ごとに収益が発生します。バイリンガル配信、透明性のある分配、毎月のお支払い。"
+      },
+      "quality": {
+        "title": "厳選された少数精鋭",
+        "description": "信頼できるビルダーのみを招待しています。何万ものコースに埋もれることはありません。"
+      },
+      "support": {
+        "title": "プラットフォームは私たちが運営",
+        "description": "ホスティング、決済、メール、コホート運営、サポート全般を私たちが担当。あなたは教材に集中できます。"
+      },
+      "community": {
+        "title": "コミュニティと連携",
+        "description": "HonuVibe、Vertice Society、SmashHausなど。業種別に組織化された既存コミュニティにリーチできます。"
+      }
+    },
+    "form_overline": "応募フォーム",
+    "form_heading": "あなたについて教えてください",
+    "form_sub": "数分のご入力で、後のやり取りがスムーズになります。内容はすべて厳守いたします。",
+    "form": {
+      "full_name": "氏名",
+      "email": "メールアドレス",
+      "bio_short": "自己紹介（2〜3文）",
+      "bio_short_placeholder": "ご職業・実績・専門分野での信頼の根拠など。",
+      "expertise_areas": "得意分野",
+      "expertise_placeholder": "例：プロンプトエンジニアリング、LangChain、DAW、Ableton、Python自動化",
+      "expertise_hint": "カンマ区切り。最大10個のタグ。",
+      "proposed_topic": "どんなコースを教えたいですか？",
+      "proposed_topic_placeholder": "提案するコースの1行コンセプト。詳細アウトラインは後ほど一緒に詰めます。",
+      "sample_material_url": "サンプル教材（任意）",
+      "sample_material_placeholder": "ポートフォリオ・動画・プロジェクト・SNSの代表的な投稿などのリンク。",
+      "linkedin_url": "LinkedIn（任意）",
+      "website_url": "ウェブサイト（任意）",
+      "why_honuvibe": "なぜHonuVibeなのか？（任意）",
+      "why_honuvibe_placeholder": "HonuVibeをご存じの経緯や、パートナー（Vertice、SmashHausなど）からの紹介があればお聞かせください。",
+      "submit": "応募する",
+      "submitting": "送信中…",
+      "success_heading": "応募を受け付けました。ありがとうございます。",
+      "success_body": "すべての応募を私たち自身が拝見しています。5〜7営業日以内にご連絡いたします。その間、ぜひ現在のコースをご覧ください。",
+      "success_cta": "コースを見る",
+      "error": "エラーが発生しました。再度お試しいただくか、ryan@honuvibe.ai までご連絡ください。"
+    },
+    "process_overline": "次のステップ",
+    "process_heading": "審査プロセス",
+    "process_steps": {
+      "step1": {
+        "title": "1. ご応募",
+        "description": "このフォームをご記入ください。所要時間は約5分です。"
+      },
+      "step2": {
+        "title": "2. 審査",
+        "description": "Ryanが一件ずつ拝見します。5〜7営業日。"
+      },
+      "step3": {
+        "title": "3. コース設計",
+        "description": "通過された方には、アウトライン・料金・ローンチ計画を一緒に策定します。"
+      },
+      "step4": {
+        "title": "4. 教えて、収益を",
+        "description": "コース運営に集中してください。決済・学生・サポートは私たちが担当。受講1件ごとにお支払いします。"
+      }
+    }
+  },
   "glossary": {
     "title": "AI用語辞典",
     "subtitle": "AIの時代に必要な用語を、わかりやすい言葉で解説します。",

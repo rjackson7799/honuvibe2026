@@ -73,6 +73,33 @@ export interface InstructorWelcomeEmailData {
   type: 'new' | 'promoted';
 }
 
+export interface InstructorApplicationReceivedEmailData {
+  locale: Locale;
+  applicantName: string;
+  applicantEmail: string;
+}
+
+export interface InstructorApplicationRejectedEmailData {
+  locale: Locale;
+  applicantName: string;
+  applicantEmail: string;
+  rejectionReason: string | null;
+}
+
+export interface InstructorApplicationAdminNotifyData {
+  applicantName: string;
+  applicantEmail: string;
+  bioShort: string;
+  proposedTopic: string | null;
+  expertiseAreas: string[];
+  sampleMaterialUrl: string | null;
+  linkedinUrl: string | null;
+  websiteUrl: string | null;
+  whyHonuvibe: string | null;
+  referredByPartnerName: string | null;
+  applicationId: string;
+}
+
 export interface StudentWelcomeEmailData {
   locale: Locale;
   fullName: string;
