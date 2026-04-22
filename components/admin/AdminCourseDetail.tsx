@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { ArrowLeft, Copy, Download, EyeOff, Globe, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Download, EyeOff, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
@@ -13,6 +13,7 @@ import { publishCourse, unpublishCourse, archiveCourse, deleteCourse, updateCour
 import { CourseImageUploader } from './course-image-uploader';
 import { InstructorAssignControl } from './InstructorAssignControl';
 import { ESLAdminDashboard } from './ESLAdminDashboard';
+import { CourseRevenueSplitEditor } from './CourseRevenueSplitEditor';
 import type { CourseWithCurriculum, EnrolledStudent } from '@/lib/courses/types';
 
 type InstructorOption = {
@@ -97,6 +98,27 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     () => Object.fromEntries(enrolledStudents.map((s) => [s.user_id, s.is_vertice_member])),
   );
   const [verticeToggling, setVerticeToggling] = useState<string | null>(null);
+
+  // Unenroll state: tracks enrollment IDs being removed and locally removed IDs
+  const [unenrolling, setUnenrolling] = useState<string | null>(null);
+  const [removedEnrollmentIds, setRemovedEnrollmentIds] = useState<Set<string>>(new Set());
+
+  async function handleUnenroll(enrollmentId: string, studentName: string | null) {
+    if (!confirm(`Remove ${studentName ?? 'this student'} from the course?`)) return;
+    setUnenrolling(enrollmentId);
+    try {
+      const res = await fetch(`/api/admin/enrollments/${enrollmentId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setRemovedEnrollmentIds((prev) => new Set([...prev, enrollmentId]));
+      } else {
+        alert('Failed to remove enrollment. Please try again.');
+      }
+    } catch {
+      alert('Network error. Please try again.');
+    } finally {
+      setUnenrolling(null);
+    }
+  }
 
   async function handleVerticeToggle(userId: string) {
     setVerticeToggling(userId);
@@ -341,24 +363,103 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
             legacyInstructorName={course.instructor_name}
           />
 
+          <CourseRevenueSplitEditor
+            courseId={course.id}
+            instructorSharePct={Number(course.instructor_revenue_share_pct ?? 0)}
+            instructors={(course.instructors ?? []).map((ci) => ({
+              id: ci.id,
+              instructor_id: ci.instructor_id,
+              revenue_share_pct: Number(ci.revenue_share_pct ?? 0),
+              instructor: {
+                display_name: ci.instructor.display_name,
+              },
+            }))}
+            priceUsd={course.price_usd}
+            priceJpy={course.price_jpy}
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <InfoField label="Level" value={course.level ?? '—'} />
-            <InfoField label="Language" value={course.language} />
-            <InfoField label="Format" value={course.format ?? '—'} />
-            <InfoField label="Total Weeks" value={course.total_weeks?.toString() ?? '—'} />
-            <InfoField label="Live Sessions" value={course.live_sessions_count?.toString() ?? '—'} />
-            <InfoField label="Recorded Lessons" value={course.recorded_lessons_count?.toString() ?? '—'} />
-            <InfoField label="Price (USD)" value={course.price_usd ? `$${(course.price_usd / 100).toFixed(2)}` : '—'} />
-            <InfoField label="Price (JPY)" value={course.price_jpy ? `¥${course.price_jpy.toLocaleString()}` : '—'} />
-            <InfoField
+            <EditableInfoField
+              label="Level"
+              displayValue={course.level ?? '—'}
+              inputType="select"
+              options={[
+                { label: '—', value: '' },
+                { label: 'Beginner', value: 'beginner' },
+                { label: 'Intermediate', value: 'intermediate' },
+                { label: 'Advanced', value: 'advanced' },
+              ]}
+              defaultEditValue={course.level ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { level: val || null }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Language"
+              displayValue={course.language}
+              inputType="select"
+              options={[
+                { label: 'English', value: 'en' },
+                { label: 'Japanese', value: 'ja' },
+                { label: 'Both', value: 'both' },
+              ]}
+              defaultEditValue={course.language}
+              onSave={async (val) => { await updateCourse(course.id, { language: val }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Format"
+              displayValue={course.format ?? '—'}
+              inputType="select"
+              options={[
+                { label: '—', value: '' },
+                { label: 'Self-Paced Recorded Lessons With Downloadable Guides', value: 'Self-Paced Recorded Lessons With Downloadable Guides' },
+                { label: 'Live Cohort', value: 'Live Cohort' },
+                { label: 'Hybrid', value: 'Hybrid' },
+              ]}
+              defaultEditValue={course.format ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { format: val || null }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Total Weeks"
+              displayValue={course.total_weeks?.toString() ?? '—'}
+              inputType="number"
+              defaultEditValue={course.total_weeks?.toString() ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { total_weeks: val ? parseInt(val) : null }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Live Sessions"
+              displayValue={course.live_sessions_count?.toString() ?? '—'}
+              inputType="number"
+              defaultEditValue={course.live_sessions_count?.toString() ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { live_sessions_count: val ? parseInt(val) : null }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Recorded Lessons"
+              displayValue={course.recorded_lessons_count?.toString() ?? '—'}
+              inputType="number"
+              defaultEditValue={course.recorded_lessons_count?.toString() ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { recorded_lessons_count: val ? parseInt(val) : null }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Price (USD)"
+              displayValue={course.price_usd ? `$${(course.price_usd / 100).toFixed(2)}` : '—'}
+              inputType="number"
+              defaultEditValue={course.price_usd ? (course.price_usd / 100).toString() : ''}
+              onSave={async (val) => { await updateCourse(course.id, { price_usd: val ? Math.round(parseFloat(val) * 100) : null }); router.refresh(); }}
+            />
+            <EditableInfoField
+              label="Price (JPY)"
+              displayValue={course.price_jpy ? `¥${course.price_jpy.toLocaleString()}` : '—'}
+              inputType="number"
+              defaultEditValue={course.price_jpy?.toString() ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { price_jpy: val ? parseInt(val) : null }); router.refresh(); }}
+            />
+            <EditableInfoField
               label="Start Date"
-              value={course.start_date
-                ? new Date(course.start_date).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })
+              displayValue={course.start_date
+                ? new Date(course.start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
                 : '—'}
+              inputType="date"
+              defaultEditValue={course.start_date ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { start_date: val || null }); router.refresh(); }}
             />
             <InfoField
               label="Instructor(s)"
@@ -368,9 +469,28 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                   : course.instructor_name ?? '—'
               }
             />
-            <InfoField label="Community" value={course.community_platform ?? '—'} />
+            <EditableInfoField
+              label="Community"
+              displayValue={course.community_platform ?? '—'}
+              inputType="select"
+              options={[
+                { label: '—', value: '' },
+                { label: 'Discord', value: 'Discord' },
+                { label: 'Skool', value: 'Skool' },
+                { label: 'LINE', value: 'LINE' },
+                { label: 'Circle', value: 'Circle' },
+              ]}
+              defaultEditValue={course.community_platform ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { community_platform: val || null }); router.refresh(); }}
+            />
             <InfoField label="Visibility" value={course.is_private ? 'Private' : 'Public'} />
-            <InfoField label="Max Enrollment" value={course.max_enrollment?.toString() ?? 'Unlimited'} />
+            <EditableInfoField
+              label="Max Enrollment"
+              displayValue={course.max_enrollment?.toString() ?? 'Unlimited'}
+              inputType="number"
+              defaultEditValue={course.max_enrollment?.toString() ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { max_enrollment: val ? parseInt(val) : null }); router.refresh(); }}
+            />
           </div>
 
           <div className="border-t border-border-default pt-4">
@@ -817,10 +937,11 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                       <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Enrolled</th>
                       <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Status</th>
                       <th className="text-left py-2 px-3 text-xs font-semibold text-fg-tertiary uppercase tracking-wider">Vertice</th>
+                      <th className="py-2 px-3" />
                     </tr>
                   </thead>
                   <tbody>
-                    {enrolledStudents.map((student) => {
+                    {enrolledStudents.filter((s) => !removedEnrollmentIds.has(s.id)).map((student) => {
                       const isVertice = verticeMemberMap[student.user_id] ?? false;
                       return (
                         <tr key={student.id} className="border-b border-border-default/50 hover:bg-bg-secondary/50">
@@ -871,6 +992,18 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                               />
                             </button>
                           </td>
+                          <td className="py-2 px-3">
+                            <button
+                              type="button"
+                              onClick={() => handleUnenroll(student.id, student.full_name)}
+                              disabled={unenrolling === student.id}
+                              className="text-fg-muted hover:text-red-400 transition-colors disabled:opacity-40"
+                              aria-label={`Unenroll ${student.full_name ?? 'student'}`}
+                              title="Unenroll"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -912,6 +1045,100 @@ function InfoField({ label, value }: { label: string; value: string }) {
     <div className="bg-bg-secondary border border-border-default rounded-lg p-3">
       <span className="text-xs text-fg-tertiary block mb-0.5">{label}</span>
       <span className="text-sm text-fg-primary capitalize">{value}</span>
+    </div>
+  );
+}
+
+type EditableFieldType = 'number' | 'select' | 'date' | 'text';
+
+function EditableInfoField({
+  label,
+  displayValue,
+  inputType,
+  options,
+  defaultEditValue,
+  onSave,
+}: {
+  label: string;
+  displayValue: string;
+  inputType: EditableFieldType;
+  options?: { label: string; value: string }[];
+  defaultEditValue: string;
+  onSave: (value: string) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(defaultEditValue);
+  const [saving, setSaving] = useState(false);
+
+  function handleEdit() {
+    setDraft(defaultEditValue);
+    setEditing(true);
+  }
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      await onSave(draft);
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
+  }
+
+  return (
+    <div className="bg-bg-secondary border border-border-default rounded-lg p-3 group">
+      <span className="text-xs text-fg-tertiary block mb-0.5">{label}</span>
+      {editing ? (
+        <div className="flex items-center gap-2 mt-1">
+          {inputType === 'select' ? (
+            <select
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              autoFocus
+              className="flex-1 min-w-0 text-sm bg-bg-tertiary border border-border-default rounded px-2 py-0.5 text-fg-primary"
+            >
+              {options?.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={inputType}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              autoFocus
+              className="flex-1 min-w-0 text-sm bg-bg-tertiary border border-border-default rounded px-2 py-0.5 text-fg-primary"
+            />
+          )}
+          <button
+            type="button"
+            disabled={saving}
+            onClick={handleSave}
+            className="shrink-0 text-xs text-accent-teal hover:underline disabled:opacity-50"
+          >
+            {saving ? '…' : 'Save'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditing(false)}
+            className="shrink-0 text-xs text-fg-muted hover:text-fg-primary hover:underline"
+          >
+            Cancel
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm text-fg-primary capitalize truncate">{displayValue}</span>
+          <button
+            type="button"
+            onClick={handleEdit}
+            className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-fg-muted hover:text-fg-primary"
+            aria-label={`Edit ${label}`}
+          >
+            <Pencil size={12} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
