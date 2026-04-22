@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, BookOpen, GraduationCap, Library, Lock, Route, Users, FileText, DollarSign, ClipboardList, Handshake, UserPlus, FileEdit } from 'lucide-react';
+import { LayoutDashboard, BookOpen, GraduationCap, Lock, Users, FileText, DollarSign, ClipboardList, Handshake, UserPlus, FileEdit } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
@@ -15,9 +15,7 @@ const navItems = [
   { href: '/admin/courses/proposals', label: 'Proposals', icon: FileEdit },
   { href: '/admin/instructors', label: 'Instructors', icon: GraduationCap },
   { href: '/admin/instructor-applications', label: 'Instructor Apps', icon: UserPlus },
-  { href: '/admin/library', label: 'Library', icon: Library },
   { href: '/admin/vault', label: 'Vault', icon: Lock },
-  { href: '/admin/paths', label: 'Study Paths', icon: Route },
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/partners', label: 'Partners', icon: Handshake },
   { href: '/admin/applications', label: 'Applications', icon: FileText },
