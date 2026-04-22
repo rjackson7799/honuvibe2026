@@ -294,7 +294,7 @@ export async function getInstructorsForCourse(
 
   const { data: links, error } = await supabase
     .from('course_instructors')
-    .select('id, course_id, instructor_id, role, sort_order, created_at')
+    .select('id, course_id, instructor_id, role, sort_order, revenue_share_pct, created_at')
     .eq('course_id', courseId)
     .order('sort_order', { ascending: true });
 
@@ -316,6 +316,7 @@ export async function getInstructorsForCourse(
     .filter((l) => profileMap.has(l.instructor_id))
     .map((l) => ({
       ...l,
+      revenue_share_pct: Number(l.revenue_share_pct ?? 0),
       instructor: profileMap.get(l.instructor_id)!,
     }));
 }

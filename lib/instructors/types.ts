@@ -80,6 +80,7 @@ export interface CourseInstructor {
   instructor_id: string;
   role: CourseInstructorRole;
   sort_order: number;
+  revenue_share_pct: number;
   created_at: string;
 }
 

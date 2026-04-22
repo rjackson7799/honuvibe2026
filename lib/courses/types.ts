@@ -43,6 +43,7 @@ export interface Course {
   instructor_id: string | null;
   price_usd: number | null;
   price_jpy: number | null;
+  instructor_revenue_share_pct: number | null;
   language: CourseLanguage;
   subtitle_language: string | null;
   level: CourseLevel | null;
