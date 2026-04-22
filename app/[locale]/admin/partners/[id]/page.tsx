@@ -2,6 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { AdminPartnerForm, type PartnerFormData, type CourseOption } from '@/components/admin/AdminPartnerForm';
+import { PartnerAdminManager, type PartnerAdminRow } from '@/components/admin/PartnerAdminManager';
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -25,7 +26,12 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
 
   if (!partner) notFound();
 
-  const [{ data: courseLinks }, { data: allCourses }, { data: enrollmentRows }] = await Promise.all([
+  const [
+    { data: courseLinks },
+    { data: allCourses },
+    { data: enrollmentRows },
+    { data: adminRows },
+  ] = await Promise.all([
     supabase
       .from('partner_courses')
       .select('course_id, display_order')
@@ -39,7 +45,24 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       .from('enrollments')
       .select('id')
       .eq('partner_id', id),
+    supabase
+      .from('partner_admins')
+      .select('user_id, created_at, users:user_id ( email, full_name )')
+      .eq('partner_id', id)
+      .order('created_at', { ascending: true }),
   ]);
+
+  type AdminRow = {
+    user_id: string;
+    created_at: string;
+    users: { email: string | null; full_name: string | null } | null;
+  };
+  const initialAdmins: PartnerAdminRow[] = ((adminRows ?? []) as unknown as AdminRow[]).map((r) => ({
+    user_id: r.user_id,
+    email: r.users?.email ?? null,
+    full_name: r.users?.full_name ?? null,
+    created_at: r.created_at,
+  }));
 
   const featuredCourseIds = (courseLinks ?? []).map((r) => r.course_id);
   const courseOptions: CourseOption[] = (allCourses ?? []).map((c) => ({
@@ -76,6 +99,7 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
         courseOptions={courseOptions}
         enrollmentCount={enrollmentRows?.length ?? 0}
       />
+      <PartnerAdminManager partnerId={partner.id} initialAdmins={initialAdmins} />
     </div>
   );
 }

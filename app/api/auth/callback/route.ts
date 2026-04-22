@@ -6,7 +6,8 @@ import { sendStudentOnboardingEmail } from '@/lib/email/send';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  let redirectTo = searchParams.get('redirect') || '/learn/dashboard';
+  const explicitRedirect = searchParams.get('redirect');
+  let redirectTo = explicitRedirect || '/learn/dashboard';
 
   if (code) {
     const cookieStore = await cookies();
@@ -42,10 +43,10 @@ export async function GET(request: Request) {
         return NextResponse.redirect(new URL('/learn/auth/reset', origin));
       }
 
-      // Check if this is a new student (onboarded = false)
+      // Check if this is a new student (onboarded = false) + pick up role for default redirect
       const { data: profile } = await supabase
         .from('users')
-        .select('onboarded, full_name, email, locale_preference')
+        .select('onboarded, full_name, email, locale_preference, role')
         .eq('id', data.session.user.id)
         .single();
 
@@ -59,6 +60,10 @@ export async function GET(request: Request) {
         });
         // Add welcome flag so dashboard shows onboarding screen
         redirectTo = '/learn/dashboard?welcome=true';
+      } else if (!explicitRedirect && profile?.role) {
+        // Role-based default redirect — respect explicit ?redirect overrides
+        if (profile.role === 'admin') redirectTo = '/admin';
+        else if (profile.role === 'partner') redirectTo = '/partner';
       }
 
       return NextResponse.redirect(new URL(redirectTo, origin));

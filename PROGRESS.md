@@ -1657,7 +1657,6 @@ The bespoke `/partners/vertice-society` page stays as-is — it has custom invit
 - [x] Vertice seed row verified in production Supabase
 
 ### Deferred (flagged for next session)
-- **Phase 2 — partner portal** (`/partner/*` aggregate dashboard for partner contacts). Queued but skipped until a partner asks for metrics access. Handoff prompt: [docs/handoffs/2026-04-20-partner-portal-phase-2.md](docs/handoffs/2026-04-20-partner-portal-phase-2.md)
 - **Phase 3 — `learn.honuvibe.com` subdomain** (platform-level, orthogonal)
 - **Phase 4 — full white-label** (isolated users/Stripe per partner; only if a partner contractually requires it)
 
@@ -1667,6 +1666,47 @@ The bespoke `/partners/vertice-society` page stays as-is — it has custom invit
 - `7d1d96c` — feat(partners): slice B — stripe attribution wiring
 - `eecc5ce` — feat(partners): slice C — admin CRUD for partners
 - `adb9c33` — feat(partners): slice D — vertice attribution + manual-enroll partner picker
+
+---
+
+## Partner Platform — Phase 2 Portal (2026-04-21)
+
+Self-serve aggregate dashboard for partner contacts at `/partner/*`. Unblocks the "send Ryan an email, wait for screenshot" loop when a partner (e.g. Dylan at SmashHaus) wants to see their own metrics. Spec: [docs/plans/2026-04-16-partner-whitelabel.md](docs/plans/2026-04-16-partner-whitelabel.md) § Phase 2. Execution plan: [docs/plans/2026-04-20-partner-portal.md](docs/plans/2026-04-20-partner-portal.md).
+
+### What landed
+- [x] `app/api/admin/partners/[id]/admins/route.ts` — GET list partner admins for a partner, POST grant by email (promotes user role to `partner` if not admin, inserts `partner_admins` row; 404 if no such user, 409 if already an admin)
+- [x] `app/api/admin/partners/[id]/admins/[userId]/route.ts` — DELETE to revoke portal access. Intentionally does NOT revert user role (user may be admin for multiple partners; role flip is error-prone)
+- [x] `components/admin/PartnerAdminManager.tsx` — admin UI: list of current portal admins + "Grant access" email form + per-row Revoke button. Slotted into `app/[locale]/admin/partners/[id]/page.tsx` under the existing edit form
+- [x] `middleware.ts` — added `/partner` to `PROTECTED_PREFIXES`; new `PARTNER_PREFIXES` + gate. Partner role OR admin role may access (admins get preview access). Both gates share a single `users.role` lookup
+- [x] `app/api/auth/callback/route.ts` + `components/auth/AuthForm.tsx` — post-login role-based default redirect: `admin` → `/admin`, `partner` → `/partner`, else `/learn/dashboard`. Explicit `?redirect=` params always win
+- [x] `app/[locale]/partner/layout.tsx` + `components/auth/PartnerGuard.tsx` — server-side auth gate mirroring `AdminGuard`
+- [x] `components/partner-portal/PartnerNav.tsx` + `PartnerPortalLayout.tsx` — shell with branded sidebar (partner logo + name), Dashboard/Courses/Settings nav items, shared `UserMenu`/`ThemeToggle`/`LangToggle`. Includes an "Admin preview" pill when an admin is viewing via `?as=<partner_id>`
+- [x] `lib/partner-portal/queries.ts` — `resolvePartnerScope()` (handles both partner-role user lookup via `partner_admins` AND admin preview via `?as=<id>`), `getPartnerStats()`, `getPartnerCourses()`, `getPartnerDailyEnrollments()`. All enrollment queries exclude `status = 'refunded'`. USD and JPY tracked separately — no currency conversion ever
+- [x] `app/[locale]/partner/page.tsx` — dashboard with 4 stat cards (Students, USD, JPY, Courses) + MoM deltas, 30-day enrollment SVG chart, featured-courses table. Empty-state CTA shows the share URL
+- [x] `app/[locale]/partner/courses/page.tsx` — per-course aggregate table with published/unpublished indicator
+- [x] `app/[locale]/partner/settings/page.tsx` — read-only profile (logo, name, colors, rev-share %, attribution URL). Explicit "email hi@honuvibe.com to change" copy — no forms on this page per Phase 2 scope guardrail
+- [x] `components/partner-portal/EnrollmentTrendChart.tsx` — inline SVG bar chart, no new dependency. Accessible fallback via `<ul class="sr-only">`
+
+### Architectural decisions
+- **Admin preview via `?as=<partner_id>`** — admins can preview any partner's view. Without the query param, admin on `/partner/*` is redirected to `/admin/partners`. Partners never see `?as` behavior — their scope is fixed to their `partner_admins` row
+- **Service-role client for aggregates** — `resolvePartnerScope()` validates caller access (via RLS-protected `partner_admins` for partner role, via role check for admin role) and returns a verified `partner_id`. Subsequent aggregate queries use the service-role client scoped by that id. Avoids needing a new `enrollments` RLS policy for the partner role
+- **No role demotion on revoke** — revoking partner_admins access does NOT flip their `role` back to student. Users may be admins for multiple partners; flipping role on the last revoke is error-prone. Access is gated by the join table
+- **No chart dependency** — inline SVG. Adding recharts/chart.js for a 30-bar chart was not worth the bundle weight
+- **Aggregate only, no PII** — partners see counts, revenue, courses — never student names/emails/enrollment rows. CSV export stays admin-only at `/admin/partners/[id]/enrollments/csv`
+- **EN-only UI for v1** — JP deferred until a Japan-based partner signs
+
+### Verification
+- [ ] Promote test user to `role = 'partner'`, link to SmashHaus via new admin UI
+- [ ] Log in → redirect to `/partner/` (verify both password + OAuth paths)
+- [ ] Dashboard aggregates match `SELECT count(DISTINCT user_id) FROM enrollments WHERE partner_id = <smashhaus-id> AND status != 'refunded'`
+- [ ] Partner user attempting `/admin/*` → redirected
+- [ ] RLS isolation: partner's session token can't query another partner's `partner_admins` rows
+- [ ] Empty-state partner shows the share-your-page CTA
+- [ ] Refunded enrollments excluded from dashboard revenue/counts
+- [ ] Admin preview: `/partner/?as=<id>` renders scoped dashboard; without `?as` redirects to `/admin/partners`
+
+### Known issue (pre-existing, not introduced by this phase)
+- `app/api/auth/send-confirmation/route.ts` (untracked WIP) has a TypeScript error on `supabase.auth.admin.generateLink` — newer Supabase SDK requires `password` for `type: 'signup'`. Not blocking portal functionality; should be resolved before next build.
 
 ---
 

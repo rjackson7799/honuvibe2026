@@ -15,7 +15,20 @@ export function AuthForm() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirect') || '/learn/dashboard';
+  const explicitRedirect = searchParams.get('redirect');
+  const redirectTo = explicitRedirect || '/learn/dashboard';
+
+  async function resolvePostLoginRedirect(userId: string): Promise<string> {
+    if (explicitRedirect) return explicitRedirect;
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', userId)
+      .single();
+    if (profile?.role === 'admin') return '/admin';
+    if (profile?.role === 'partner') return '/partner';
+    return '/learn/dashboard';
+  }
 
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const [email, setEmail] = useState('');
@@ -25,6 +38,8 @@ export function AuthForm() {
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
   const [confirmationPending, setConfirmationPending] = useState(false);
+  const [confirmationFailed, setConfirmationFailed] = useState(false);
+  const [resending, setResending] = useState(false);
 
   const supabase = createClient();
 
@@ -63,8 +78,19 @@ export function AuthForm() {
         return;
       }
 
-      // If no session, email confirmation is required
+      // If no session, email confirmation is required — send branded email via Resend
       if (!signUpData.session) {
+        try {
+          const res = await fetch('/api/auth/send-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, fullName, locale }),
+          });
+          const result = await res.json();
+          if (!result.success) setConfirmationFailed(true);
+        } catch {
+          setConfirmationFailed(true);
+        }
         setConfirmationPending(true);
         setLoading(false);
         return;
@@ -73,18 +99,27 @@ export function AuthForm() {
       router.push(redirectTo);
       router.refresh();
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) {
+        if (signInError.message.toLowerCase().includes('email not confirmed')) {
+          setConfirmationPending(true);
+          setConfirmationFailed(false);
+          setLoading(false);
+          return;
+        }
         setError(signInError.message);
         setLoading(false);
         return;
       }
 
-      router.push(redirectTo);
+      const dest = signInData.user
+        ? await resolvePostLoginRedirect(signInData.user.id)
+        : redirectTo;
+      router.push(dest);
       router.refresh();
     }
   }
@@ -111,15 +146,16 @@ export function AuthForm() {
     setLoading(true);
     setError(null);
 
-    const resetPath = locale === 'ja' ? '/ja/learn/auth/reset' : '/learn/auth/reset';
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}${resetPath}`,
-    });
-
-    if (resetError) {
-      setError(resetError.message);
-    } else {
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, locale }),
+      });
+      await res.json();
       setResetSent(true);
+    } catch {
+      setError('Something went wrong. Please try again.');
     }
     setLoading(false);
   }
@@ -164,10 +200,38 @@ export function AuthForm() {
             <p className="text-sm text-fg-secondary">
               We sent a confirmation link to <span className="text-fg-primary font-medium">{email}</span>. Click it to activate your account, then come back to sign in.
             </p>
+            {confirmationFailed && (
+              <p className="text-sm text-red-500">
+                We had trouble sending the email. Please try resending below.
+              </p>
+            )}
             <button
               type="button"
-              onClick={() => { setConfirmationPending(false); setMode('sign-in'); setError(null); }}
-              className="text-sm text-accent-teal hover:underline mt-2"
+              disabled={resending}
+              onClick={async () => {
+                setResending(true);
+                setConfirmationFailed(false);
+                try {
+                  const res = await fetch('/api/auth/send-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, fullName, locale }),
+                  });
+                  const result = await res.json();
+                  if (!result.success) setConfirmationFailed(true);
+                } catch {
+                  setConfirmationFailed(true);
+                }
+                setResending(false);
+              }}
+              className="text-sm text-accent-teal hover:underline"
+            >
+              {resending ? 'Sending...' : 'Resend confirmation email'}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setConfirmationPending(false); setConfirmationFailed(false); setMode('sign-in'); setError(null); }}
+              className="text-sm text-fg-tertiary hover:text-fg-secondary"
             >
               Back to sign in
             </button>

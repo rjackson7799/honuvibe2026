@@ -6,10 +6,13 @@ import { routing } from './i18n/routing';
 const intlMiddleware = createIntlMiddleware(routing);
 
 // Routes that require authentication
-const PROTECTED_PREFIXES = ['/learn/dashboard', '/learn/account', '/admin'];
+const PROTECTED_PREFIXES = ['/learn/dashboard', '/learn/account', '/admin', '/partner'];
 
 // Routes that require admin role
 const ADMIN_PREFIXES = ['/admin'];
+
+// Routes that require partner (or admin, for preview) role
+const PARTNER_PREFIXES = ['/partner'];
 
 function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_PREFIXES.some(
@@ -19,6 +22,12 @@ function isProtectedRoute(pathname: string): boolean {
 
 function isAdminRoute(pathname: string): boolean {
   return ADMIN_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
+  );
+}
+
+function isPartnerRoute(pathname: string): boolean {
+  return PARTNER_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(prefix + '/'),
   );
 }
@@ -119,17 +128,28 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Admin route — check role
-  if (isAdminRoute(logicalPath)) {
+  // Role-gated routes — single profile lookup shared across gates
+  if (isAdminRoute(logicalPath) || isPartnerRoute(logicalPath)) {
     const { data: profile } = await supabase
       .from('users')
       .select('role')
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
-      const locale = pathname.startsWith('/ja') ? 'ja' : 'en';
-      const prefix = locale === 'ja' ? '/ja' : '';
+    const locale = pathname.startsWith('/ja') ? 'ja' : 'en';
+    const prefix = locale === 'ja' ? '/ja' : '';
+
+    if (isAdminRoute(logicalPath) && profile?.role !== 'admin') {
+      return NextResponse.redirect(
+        new URL(`${prefix}/learn/dashboard`, request.url),
+      );
+    }
+
+    if (
+      isPartnerRoute(logicalPath) &&
+      profile?.role !== 'partner' &&
+      profile?.role !== 'admin'
+    ) {
       return NextResponse.redirect(
         new URL(`${prefix}/learn/dashboard`, request.url),
       );
