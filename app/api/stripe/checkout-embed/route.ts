@@ -86,10 +86,11 @@ export async function POST(request: NextRequest) {
         ? [{ coupon: verticeCouponId }]
         : undefined;
 
-    // Determine currency and price based on locale
+    // Determine currency and price based on locale, falling back to USD if no JPY price set
     const isJapanese = locale === 'ja';
-    const currency = isJapanese ? 'jpy' : 'usd';
-    const unitAmount = isJapanese ? course.price_jpy : course.price_usd;
+    const useJpy = isJapanese && !!course.price_jpy;
+    const currency = useJpy ? 'jpy' : 'usd';
+    const unitAmount = useJpy ? course.price_jpy : course.price_usd;
 
     if (!unitAmount || unitAmount <= 0) {
       return NextResponse.json(
