@@ -34,7 +34,7 @@ export default async function AuthPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'auth' });
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-5 py-16">
+    <div data-theme="light" className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-5 py-16 bg-[var(--bg-primary)]">
       <div className="w-full max-w-md">
         {/* Branding */}
         <div className="flex flex-col items-center mb-8">
