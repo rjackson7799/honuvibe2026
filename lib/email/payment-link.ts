@@ -1,6 +1,5 @@
 import { getFromAddress, getResendClient } from './client';
 import {
-  accentBanner,
   baseLayout,
   ctaButton,
   detailsTable,
@@ -27,7 +26,6 @@ export async function sendLocalizedPaymentLinkEmail(
   const price = `$${(priceUsd / 100).toLocaleString('en-US')}`;
 
   const body = [
-    accentBanner(isJP ? 'お支払いリンク' : 'Your Payment Link'),
     heading(isJP ? `${fullName}さん、こんにちは` : `Hi ${fullName},`),
     paragraph(
       isJP
