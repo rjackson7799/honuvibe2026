@@ -2442,5 +2442,56 @@
       "primary_cta": "Explore Courses",
       "secondary_cta": "Partner With Us"
     }
+  },
+  "contact": {
+    "meta": {
+      "title": "Contact — We'd love to hear from you | HonuVibe",
+      "description": "Whether it's a question, an idea, or a partnership conversation — reach out anytime. We respond within 2 business days."
+    },
+    "hero": {
+      "overline": "Get in Touch",
+      "headline_line_1": "We'd love to",
+      "headline_line_2": "hear from you.",
+      "subhead": "Whether it's a question, an idea, or a partnership conversation — reach out anytime."
+    },
+    "contact_form": {
+      "name_label": "Name",
+      "name_placeholder": "Your name",
+      "email_label": "Email",
+      "email_placeholder": "your@email.com",
+      "subject_label": "Subject",
+      "subject_options": {
+        "general": "General Inquiry",
+        "course": "Course Question",
+        "partnership": "Partnership Inquiry",
+        "media": "Media & Press",
+        "other": "Other"
+      },
+      "message_label": "Message",
+      "message_placeholder": "How can we help?",
+      "submit": "Send Message",
+      "submitting": "Sending…",
+      "helper_pre": "We respond within 2 business days. For partnership inquiries, you can also",
+      "helper_link": "apply directly on our partnerships page →",
+      "error": "Something went wrong sending your message. Please try again.",
+      "success_heading": "Message sent.",
+      "success_body": "Thanks for reaching out — we'll get back to you within 2 business days."
+    },
+    "info_strip": {
+      "email_label": "Email",
+      "email_detail": "hello@honuvibe.ai",
+      "location_label": "Location",
+      "location_detail": "Honolulu, Hawaii (Global)",
+      "response_time_label": "Response time",
+      "response_time_detail": "Within 2 business days"
+    },
+    "social_section": {
+      "overline": "Connect With Us",
+      "headline": "Follow along.",
+      "tiktok_label": "TikTok",
+      "instagram_label": "Instagram",
+      "youtube_label": "YouTube",
+      "linkedin_label": "LinkedIn"
+    }
   }
 }
