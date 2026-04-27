@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
-import { HonuIcon } from '@/components/marketing/icons/honu';
 import { MarketingLangToggle } from './marketing-lang-toggle';
 import { MarketingUserMenu, type MarketingUserMenuLabels } from './marketing-user-menu';
 import { MarketingMobileMenu, type MobileNavLink } from './marketing-mobile-menu';
@@ -67,11 +66,7 @@ export function MarketingNavClient({
       >
         <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 md:px-8">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 text-[var(--m-accent-teal)]"
-          >
-            <HonuIcon size={30} />
+          <Link href="/" className="flex items-center">
             <span className="text-[18px] font-bold tracking-[-0.01em] text-[var(--m-ink-primary)]">
               HonuVibe<span className="text-[var(--m-accent-teal)]">.AI</span>
             </span>

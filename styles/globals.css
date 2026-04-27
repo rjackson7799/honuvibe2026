@@ -28,6 +28,14 @@
   --accent-gold-hover: #a47d38;
   --accent-gold-subtle: rgba(182, 141, 64, 0.12);
 
+  /* Coral + purple (active inside .learn-zone; defined globally so
+     Tailwind utilities resolve outside the zone too) */
+  --accent-coral: #e8765a;
+  --accent-coral-hover: #cc5a3e;
+  --accent-coral-subtle: rgba(232, 118, 90, 0.12);
+  --accent-purple: #8b6fcc;
+  --accent-purple-subtle: rgba(139, 111, 204, 0.12);
+
   /* Borders */
   --border-primary: rgba(255, 255, 255, 0.08);
   --border-secondary: rgba(255, 255, 255, 0.04);
@@ -298,6 +306,85 @@
 }
 
 /* ============================================
+   LEARN ZONE — Light-only design system for /learn routes
+   Mirrors the marketing palette but re-aliases the standard --bg-*,
+   --fg-*, and --accent-* tokens so existing components (which already use
+   bg-bg-secondary, text-fg-primary, etc.) automatically render in the
+   new light palette inside the zone. Coral is the secondary accent.
+   See docs/designs/learn/ HTML files for the source mocks.
+   ============================================ */
+
+.learn-zone {
+  /* Surfaces */
+  --bg-primary: #f0ebe3;       /* sand — page background */
+  --bg-secondary: #ffffff;     /* card surface */
+  --bg-tertiary: #fdfbf7;      /* canvas — sidebar / subtle panels */
+  --bg-glass: rgba(253, 251, 247, 0.95);
+
+  /* Ink */
+  --fg-primary: #1a2b33;       /* navy */
+  --fg-secondary: #5a6b73;     /* slate */
+  --fg-tertiary: #8b9499;      /* caption */
+  --fg-muted: #c5ccd0;
+
+  /* Brand — match mock exactly */
+  --accent-teal: #0fa9a0;
+  --accent-teal-hover: #0b7f78;
+  --accent-teal-subtle: rgba(15, 169, 160, 0.10);
+  --accent-coral: #e8765a;
+  --accent-coral-hover: #cc5a3e;
+  --accent-coral-subtle: #fcede6;
+  --accent-purple: #8b6fcc;
+  --accent-purple-subtle: rgba(139, 111, 204, 0.12);
+  /* Gold falls back to coral so legacy gold utilities don't appear
+     amber-on-white; intentional design call for the learn zone. */
+  --accent-gold: #e8765a;
+  --accent-gold-hover: #cc5a3e;
+  --accent-gold-subtle: #fcede6;
+
+  /* Borders */
+  --border-primary: rgba(26, 43, 51, 0.07);
+  --border-secondary: rgba(26, 43, 51, 0.04);
+  --border-hover: rgba(26, 43, 51, 0.12);
+  --border-accent: rgba(15, 169, 160, 0.30);
+
+  /* Shadows — soft, scaled for white cards on sand */
+  --shadow-sm: 0 1px 3px rgba(26, 43, 51, 0.04);
+  --shadow-md: 0 2px 8px rgba(26, 43, 51, 0.05);
+  --shadow-lg: 0 8px 28px rgba(26, 43, 51, 0.09);
+  --shadow-accent: 0 4px 16px rgba(15, 169, 160, 0.20);
+
+  /* Glow orbs — much subtler in light mode */
+  --glow-teal: rgba(15, 169, 160, 0.08);
+  --glow-teal-strong: rgba(15, 169, 160, 0.14);
+  --glow-gold: rgba(232, 118, 90, 0.10);
+  --glow-purple: rgba(139, 111, 204, 0.08);
+
+  /* Glass — for sticky enroll bar */
+  --glass-bg: rgba(253, 251, 247, 0.95);
+  --glass-border: rgba(26, 43, 51, 0.08);
+  --glass-border-hover: rgba(15, 169, 160, 0.30);
+  --glass-shadow: 0 -2px 16px rgba(26, 43, 51, 0.06);
+  --glass-shadow-hover: 0 -4px 20px rgba(26, 43, 51, 0.10);
+
+  /* Gradient button — coral, since the mock's primary CTA is coral */
+  --btn-gradient-from: #f08a72;
+  --btn-gradient-to: #cc5a3e;
+  --btn-glow: 0 4px 16px rgba(232, 118, 90, 0.30);
+  --btn-glow-hover: 0 6px 20px rgba(232, 118, 90, 0.40);
+
+  --glow-line: linear-gradient(90deg, transparent, rgba(15, 169, 160, 0.2), transparent);
+
+  /* Force light surface + ink, even though :root carries dark defaults */
+  background-color: var(--bg-primary);
+  color: var(--fg-primary);
+}
+
+.learn-zone ::selection {
+  background: rgba(15, 169, 160, 0.18);
+}
+
+/* ============================================
    MARKETING SHELL — Light-only design system
    See docs/DESIGN.md (canonical) and docs/designs/*.html (prototypes)
    Tokens prefixed --m-* to avoid collision with the dark-themed app tokens.
@@ -396,6 +483,11 @@
   --color-accent-gold: var(--accent-gold);
   --color-accent-gold-hover: var(--accent-gold-hover);
   --color-accent-gold-subtle: var(--accent-gold-subtle);
+  --color-accent-coral: var(--accent-coral);
+  --color-accent-coral-hover: var(--accent-coral-hover);
+  --color-accent-coral-subtle: var(--accent-coral-subtle);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-purple-subtle: var(--accent-purple-subtle);
 
   --color-border-default: var(--border-primary);
   --color-border-secondary: var(--border-secondary);

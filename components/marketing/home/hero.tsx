@@ -4,7 +4,6 @@ import {
   BrowserFrame,
   Button,
   Container,
-  DisplayHeading,
   Section,
 } from '@/components/marketing/primitives';
 import { cn } from '@/lib/utils';
@@ -27,7 +26,10 @@ export function HomeHero() {
               </span>
             </div>
 
-            <DisplayHeading className="mb-6">
+            <h1
+              className="mb-6 font-bold leading-[1.08] tracking-[-0.025em] text-[var(--m-ink-primary)]"
+              style={{ fontSize: 'clamp(42px, 5.5vw, 66px)' }}
+            >
               {t('headline_line_1')}
               <br />
               {t('headline_line_2')}
@@ -35,7 +37,7 @@ export function HomeHero() {
               <span className="text-[var(--m-accent-teal)]">
                 {t('headline_line_3')}
               </span>
-            </DisplayHeading>
+            </h1>
 
             <p className="mb-10 max-w-[480px] text-[18px] leading-[1.65] text-[var(--m-ink-secondary)]">
               {t('subhead')}

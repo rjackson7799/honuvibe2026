@@ -1,6 +1,5 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { HonuIcon } from '@/components/marketing/icons/honu';
 
 /**
  * Marketing footer — applies the new design treatment (navy dark band,
@@ -30,10 +29,7 @@ export function MarketingFooter() {
         <div className="grid gap-12 md:grid-cols-2 md:gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-12 mb-14">
           {/* Brand */}
           <div>
-            <div className="mb-4 flex items-center gap-2.5">
-              <span className="text-[var(--m-accent-teal)]">
-                <HonuIcon size={28} />
-              </span>
+            <div className="mb-4 flex items-center">
               <span className="text-[18px] font-bold">
                 HonuVibe<span className="text-[var(--m-accent-teal)]">.AI</span>
               </span>
