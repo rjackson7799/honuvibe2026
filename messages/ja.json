@@ -2493,5 +2493,190 @@
       "youtube_label": "YouTube",
       "linkedin_label": "LinkedIn"
     }
+  },
+  "partnerships": {
+    "meta": {
+      "title": "Partnerships — HonuVibe.AI",
+      "description": "Bring AI training to your community. Custom, bilingual programs for professional networks, creative communities, nonprofits, and companies."
+    },
+    "hero": {
+      "overline": "For Organizations",
+      "headline_line_1": "Bring AI training",
+      "headline_line_2": "to your community.",
+      "subhead": "We build private, bilingual AI training programs for professional networks, creative communities, nonprofits, and organizations — fully tailored to your audience, co-delivered with your brand.",
+      "cta": "Apply for Partnership"
+    },
+    "what_you_get": {
+      "overline": "What You Get",
+      "headline_line_1": "A complete AI training program.",
+      "headline_line_2": "Built for your people.",
+      "cards": {
+        "curriculum_title": "Custom Curriculum",
+        "curriculum_body": "Every program starts with your audience. We design curriculum around their skill level, industry, and goals — not a generic syllabus.",
+        "bilingual_title": "Bilingual Delivery",
+        "bilingual_body": "Programs delivered in English, Japanese, or both simultaneously. Native-speaking instructors, not translators reading scripts.",
+        "cobranded_title": "Co-Branded Experience",
+        "cobranded_body": "Your community, your brand, your platform. We deliver under a co-branded experience that strengthens your relationship with your members.",
+        "live_title": "Live + On-Demand",
+        "live_body": "Live cohort sessions on Zoom plus recorded replays and access to The Vault self-study library. Flexible for global time zones."
+      }
+    },
+    "how_it_works": {
+      "overline": "The Process",
+      "headline_line_1": "From conversation",
+      "headline_line_2": "to launch in 4 weeks.",
+      "steps": {
+        "discovery_title": "Discovery Call",
+        "discovery_body": "We learn about your community, your goals, and what success looks like. 30 minutes. No commitment.",
+        "proposal_title": "Custom Proposal",
+        "proposal_body": "Within one week, you receive a tailored program proposal — curriculum outline, schedule, pricing, and delivery plan.",
+        "build_title": "Build & Prepare",
+        "build_body": "We build your custom materials, configure student accounts, and prepare bilingual content. You review and approve.",
+        "launch_title": "Launch",
+        "launch_body": "Your program goes live. Live sessions, real-time support, and post-program reporting on engagement and outcomes."
+      }
+    },
+    "current_partners": {
+      "overline": "Our Partners",
+      "headline": "Programs in motion.",
+      "subhead": "We partner with organizations that take their communities seriously. Here's who we're working with.",
+      "vertice_name": "Vertice Society × HonuVibe",
+      "vertice_status": "In Session",
+      "vertice_program": "AI Essentials & AI Mastery — Bilingual Cohort",
+      "vertice_audience": "Tokyo-based business professionals and entrepreneurs",
+      "vertice_detail_duration": "5-week cohort program",
+      "vertice_detail_language": "Bilingual EN / 日本語 delivery",
+      "vertice_detail_format": "Live Zoom sessions + recorded replays",
+      "vertice_detail_size": "10 students per cohort",
+      "vertice_quote": "Placeholder testimonial from Vertice Society leadership about the quality of the program and partnership experience.",
+      "vertice_attribution": "— Name, Title, Vertice Society",
+      "more_overline": "We're Building",
+      "more_headline": "More partnerships launching soon.",
+      "more_body": "We're actively talking with networks, communities, and companies that want to bring AI training to their people. Want to be next?",
+      "more_cta": "Apply for Partnership",
+      "footnote": "More partnerships launching soon. Want to be next?"
+    },
+    "who_is_it_for": {
+      "overline": "Is This Right for You?",
+      "headline": "We partner with organizations that are serious about AI education.",
+      "fits_title": "Great fit",
+      "fits": [
+        "Professional networks and associations",
+        "Creative communities and collectives",
+        "Nonprofits and community organizations",
+        "Companies investing in team development",
+        "Accelerators and incubators"
+      ],
+      "not_fits_title": "Not the right fit",
+      "not_fit_individual": "Individual learners",
+      "not_fit_individual_link": "check out our public courses",
+      "not_fit_workshop": "One-time workshop requests",
+      "not_fit_workshop_note": "(we build programs, not events)",
+      "not_fit_cheapest": "Organizations looking for the cheapest option",
+      "unsure_title": "Not sure?",
+      "unsure_body": "That's okay. Book a free 30-minute discovery call and we'll figure it out together.",
+      "unsure_cta": "Book a Discovery Call"
+    },
+    "pricing": {
+      "overline": "Investment",
+      "headline": "Transparent pricing.",
+      "starter_name": "Starter Program",
+      "starter_desc": "A focused 4-week cohort for up to 15 participants.",
+      "starter_price": "$5,000",
+      "starter_price_note": "starting at",
+      "starter_includes_1": "Custom curriculum",
+      "starter_includes_2": "Live sessions",
+      "starter_includes_3": "Recorded replays",
+      "starter_includes_4": "Post-program report",
+      "full_name": "Full Program",
+      "full_desc": "A comprehensive 8-week program with Vault access and ongoing support.",
+      "full_price": "$12,000",
+      "full_price_note": "starting at",
+      "full_includes_1": "Everything in Starter",
+      "full_includes_2": "Vault membership for all participants",
+      "full_includes_3": "Mid-program check-in",
+      "full_includes_4": "Extended support",
+      "enterprise_name": "Enterprise / Custom",
+      "enterprise_desc": "Multi-cohort programs, org-wide rollouts, or custom configurations.",
+      "enterprise_price": "Custom",
+      "enterprise_price_note": "pricing",
+      "enterprise_includes_1": "Fully custom scope",
+      "enterprise_includes_2": "Multi-cohort delivery",
+      "enterprise_includes_3": "Org-wide configurations",
+      "enterprise_includes_4": "Dedicated support",
+      "cta_apply": "Apply for Partnership",
+      "cta_enterprise": "Let's talk",
+      "footnote": "All programs include bilingual delivery at no additional cost. Nonprofit and community organization pricing available — ask us."
+    },
+    "application_form": {
+      "overline": "Get Started",
+      "headline": "Tell us about your community.",
+      "subhead": "We review every inquiry personally. Expect a response within 5 business days.",
+      "name_label": "Your Name",
+      "name_placeholder": "Full name",
+      "email_label": "Email",
+      "email_placeholder": "you@organization.com",
+      "organization_label": "Organization Name",
+      "organization_placeholder": "Your organization",
+      "website_label": "Website",
+      "website_optional": "(optional)",
+      "website_placeholder": "https://",
+      "org_type_label": "What type of organization are you?",
+      "org_type_placeholder": "Select one…",
+      "org_type_options": {
+        "professional_network": "Professional Network",
+        "creative_community": "Creative Community",
+        "nonprofit": "Nonprofit",
+        "company": "Company",
+        "accelerator": "Accelerator",
+        "other": "Other"
+      },
+      "community_label": "Tell us about your community",
+      "community_placeholder": "Who are your members? What do they do? What would AI training help them accomplish?",
+      "program_label": "What kind of program are you imagining?",
+      "program_placeholder": "Length, format, topics, number of participants — whatever you have in mind, even if it's rough.",
+      "audience_size_label": "Estimated number of participants",
+      "audience_size_placeholder": "Select…",
+      "audience_size_options": {
+        "under_10": "Under 10",
+        "10_25": "10–25",
+        "25_50": "25–50",
+        "50_100": "50–100",
+        "100_plus": "100+"
+      },
+      "language_label": "Preferred language",
+      "language_placeholder": "Select…",
+      "language_options": {
+        "en": "English",
+        "ja": "Japanese",
+        "bilingual": "Bilingual EN+JP"
+      },
+      "timeline_label": "Timeline",
+      "timeline_placeholder": "Select…",
+      "timeline_options": {
+        "ready_now": "Ready now",
+        "1_3_months": "1–3 months",
+        "3_6_months": "3–6 months",
+        "exploring": "Just exploring"
+      },
+      "referral_label": "How did you hear about HonuVibe?",
+      "referral_placeholder": "Select…",
+      "referral_options": {
+        "web_search": "Web search",
+        "social_media": "Social media",
+        "referral": "Referral",
+        "vertice": "Vertice Society",
+        "smashhaus": "SmashHaus",
+        "conference": "Conference",
+        "other": "Other"
+      },
+      "submit": "Submit Partnership Inquiry",
+      "submitting": "Submitting…",
+      "helper_pre": "We respond to every inquiry within 5 business days. For individual learning,",
+      "helper_link": "visit our courses page →",
+      "error": "Something went wrong. Please try again.",
+      "success_heading": "Inquiry received.",
+      "success_body": "Thank you for reaching out. We'll review your inquiry and be in touch within 5 business days."
+    }
   }
 }
