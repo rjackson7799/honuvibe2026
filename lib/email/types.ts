@@ -4,7 +4,7 @@ export interface ContactEmailData {
   locale: Locale;
   name: string;
   email: string;
-  subject: 'general' | 'consulting' | 'partnership' | 'feedback' | 'other';
+  subject: 'general' | 'course' | 'partnership' | 'media' | 'other';
   message: string;
 }
 

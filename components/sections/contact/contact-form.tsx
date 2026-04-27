@@ -127,9 +127,9 @@ export function ContactForm() {
                 className={selectClasses}
               >
                 <option value="general">{t('subject_options.general')}</option>
-                <option value="consulting">{t('subject_options.consulting')}</option>
+                <option value="course">{t('subject_options.course')}</option>
                 <option value="partnership">{t('subject_options.partnership')}</option>
-                <option value="feedback">{t('subject_options.feedback')}</option>
+                <option value="media">{t('subject_options.media')}</option>
                 <option value="other">{t('subject_options.other')}</option>
               </select>
               <ChevronDown

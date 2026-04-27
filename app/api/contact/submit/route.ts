@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
 
-    const validSubjects = ['general', 'consulting', 'partnership', 'feedback', 'other'];
+    const validSubjects = ['general', 'course', 'partnership', 'media', 'other'];
     const subject = validSubjects.includes(data.subject) ? data.subject : 'general';
 
     const referer = request.headers.get('referer') ?? '';

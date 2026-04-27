@@ -808,12 +808,9 @@
       "subject_label": "Subject",
       "subject_options": {
         "general": "General Inquiry",
-        "consulting": "Consulting",
-        "advisory": "Advisory",
-        "training": "Training",
-        "speaking": "Speaking Engagement",
-        "partnership": "Partnership",
-        "feedback": "Feedback",
+        "course": "Course Question",
+        "partnership": "Partnership Inquiry",
+        "media": "Media & Press",
         "other": "Other"
       },
       "message_label": "Message",

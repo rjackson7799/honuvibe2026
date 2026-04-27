@@ -808,12 +808,9 @@
       "subject_label": "件名",
       "subject_options": {
         "general": "一般的なお問い合わせ",
-        "consulting": "コンサルティング",
-        "advisory": "アドバイザリー",
-        "training": "トレーニング",
-        "speaking": "講演依頼",
+        "course": "コースに関する質問",
         "partnership": "パートナーシップ",
-        "feedback": "フィードバック",
+        "media": "メディア・取材",
         "other": "その他"
       },
       "message_label": "メッセージ",
