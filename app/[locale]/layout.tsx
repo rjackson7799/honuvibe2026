@@ -7,6 +7,7 @@ import { routing } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { dmSans, dmSerif, inter, jetbrainsMono, notoSansJP } from '@/app/fonts';
 import { Nav } from '@/components/layout/nav';
+import { ConditionalNav, ConditionalMain } from '@/components/layout/conditional-nav';
 import { ConditionalFooter } from '@/components/layout/conditional-footer';
 import { HonuCompanion } from '@/components/ocean/honu-companion';
 
@@ -83,11 +84,11 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className="antialiased">
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <Nav />
+            <ConditionalNav>
+              <Nav />
+            </ConditionalNav>
             <HonuCompanion />
-            <main className="min-h-screen pt-14 md:pt-16">
-              {children}
-            </main>
+            <ConditionalMain>{children}</ConditionalMain>
             <ConditionalFooter />
           </NextIntlClientProvider>
         </ThemeProvider>
