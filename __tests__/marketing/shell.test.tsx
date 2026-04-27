@@ -23,19 +23,16 @@ describe('MarketingShell', () => {
     expect(getByText('marketing-content')).toBeInTheDocument();
   });
 
-  it('compensates for the locale layout <main> padding via negative top margin', () => {
-    // When this hack is removed (Phase 5 cleanup target), update this test
-    // to assert the new structural choice.
+  it('does not apply the legacy negative top margin (Phase 6 removed the compensation hack)', () => {
+    // ConditionalMain now skips its dark-Nav pt-14 md:pt-16 on marketing
+    // routes, so MarketingShell no longer needs to negate it.
     const { container } = render(
       <MarketingShell>
         <p>x</p>
       </MarketingShell>,
     );
     const root = container.firstElementChild as HTMLElement;
-    // -mt-14 md:-mt-16 — checking the static class string is enough; we don't
-    // test computed style because jsdom doesn't apply Tailwind utilities.
-    expect(root.className).toContain('-mt-14');
-    expect(root.className).toContain('md:-mt-16');
+    expect(root.className).not.toContain('-mt-');
   });
 
   it('allows callers to extend className', () => {

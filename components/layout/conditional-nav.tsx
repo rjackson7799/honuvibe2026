@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 
 // Routes that have their own dedicated chrome (e.g. StudentDashboardLayout's
 // sidebar) and should NOT render the marketing top nav.
@@ -20,7 +21,12 @@ export function ConditionalNav({ children }: { children: React.ReactNode }) {
 
 export function ConditionalMain({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const noNavPadding = isAuthShellRoute(pathname);
+  // Auth shell routes have their own chrome → no global padding.
+  // Marketing routes mount <MarketingNav> inside <MarketingShell> and each
+  // first section self-pads to clear it → no global padding.
+  // Everything else (legacy public routes still on the dark Nav) keeps
+  // pt-14 md:pt-16 to clear the fixed dark Nav.
+  const noNavPadding = isAuthShellRoute(pathname) || isMarketingPathWithLocale(pathname);
   return (
     <main className={noNavPadding ? 'min-h-screen' : 'min-h-screen pt-14 md:pt-16'}>
       {children}
