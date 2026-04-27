@@ -3,22 +3,45 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@react-pdf/renderer'],
+  devIndicators: {
+    position: 'bottom-right',
+  },
   async redirects() {
     return [
-      { source: '/tools', destination: '/resources', permanent: true },
-      { source: '/toolkit', destination: '/resources', permanent: true },
-      { source: '/stack', destination: '/resources', permanent: true },
-      { source: '/ja/tools', destination: '/ja/resources', permanent: true },
-      { source: '/ja/toolkit', destination: '/ja/resources', permanent: true },
-      { source: '/ja/stack', destination: '/ja/resources', permanent: true },
+      // Phase 6 marketing-rebuild retirements: /build, /community, /resources,
+      // /newsletter, /become-an-instructor are deleted; redirect to their new
+      // homes. next-intl middleware passes the full path through, so register
+      // both /path and /ja/path explicitly.
+      { source: '/build', destination: '/explore', permanent: true },
+      { source: '/ja/build', destination: '/ja/explore', permanent: true },
+      { source: '/community', destination: '/about#aloha', permanent: true },
+      { source: '/ja/community', destination: '/ja/about#aloha', permanent: true },
+      { source: '/resources', destination: '/learn', permanent: true },
+      { source: '/ja/resources', destination: '/ja/learn', permanent: true },
+      { source: '/newsletter', destination: '/#newsletter', permanent: true },
+      { source: '/ja/newsletter', destination: '/ja/#newsletter', permanent: true },
+      // Catch-all for old issue archive permalinks.
+      { source: '/newsletter/:slug*', destination: '/#newsletter', permanent: true },
+      { source: '/ja/newsletter/:slug*', destination: '/ja/#newsletter', permanent: true },
+      { source: '/become-an-instructor', destination: '/partnerships', permanent: true },
+      { source: '/ja/become-an-instructor', destination: '/ja/partnerships', permanent: true },
+
+      // Resources alias chain → terminate directly at /learn (was /resources, now deleted).
+      { source: '/tools', destination: '/learn', permanent: true },
+      { source: '/toolkit', destination: '/learn', permanent: true },
+      { source: '/stack', destination: '/learn', permanent: true },
+      { source: '/ja/tools', destination: '/ja/learn', permanent: true },
+      { source: '/ja/toolkit', destination: '/ja/learn', permanent: true },
+      { source: '/ja/stack', destination: '/ja/learn', permanent: true },
       { source: '/dictionary', destination: '/glossary', permanent: true },
       { source: '/ja/dictionary', destination: '/ja/glossary', permanent: true },
       { source: '/ai-glossary', destination: '/glossary', permanent: true },
       { source: '/ja/ai-glossary', destination: '/ja/glossary', permanent: true },
-      { source: '/emails', destination: '/newsletter', permanent: true },
-      { source: '/ja/emails', destination: '/ja/newsletter', permanent: true },
-      { source: '/archive', destination: '/newsletter', permanent: true },
-      { source: '/ja/archive', destination: '/ja/newsletter', permanent: true },
+      // Newsletter alias chain → terminate directly at /#newsletter anchor.
+      { source: '/emails', destination: '/#newsletter', permanent: true },
+      { source: '/ja/emails', destination: '/ja/#newsletter', permanent: true },
+      { source: '/archive', destination: '/#newsletter', permanent: true },
+      { source: '/ja/archive', destination: '/ja/#newsletter', permanent: true },
       { source: '/tutorials', destination: '/learn/library', permanent: true },
       { source: '/ja/tutorials', destination: '/ja/learn/library', permanent: true },
       { source: '/library', destination: '/learn/library', permanent: true },
