@@ -2279,5 +2279,83 @@
       "quote_3_name": "Sarah L.",
       "quote_3_role": "Freelance Designer · San Francisco"
     }
+  },
+  "explore": {
+    "meta": {
+      "title": "Explore — Real projects, real outcomes | HonuVibe",
+      "description": "See what happens when AI education meets real-world application. Featured client work, community builds, and our pro-bono partnerships."
+    },
+    "hero": {
+      "overline": "Our Work",
+      "headline_line_1": "Real projects.",
+      "headline_line_2": "Real outcomes.",
+      "subhead": "See what happens when AI education meets real-world application. These are projects built by HonuVibe and the HonuVibe community."
+    },
+    "stats_strip": {
+      "stat_1_label": "Projects Shipped",
+      "stat_2_label": "Countries Served",
+      "stat_3_label": "Avg. Workflow Time Saved",
+      "stat_4_label": "Languages Supported"
+    },
+    "featured_projects": {
+      "overline": "Featured Projects",
+      "challenge_label": "The Challenge",
+      "outcome_label": "The Outcome",
+      "kwame_eyebrow": "Featured Project",
+      "kwame_status": "IN DEVELOPMENT",
+      "kwame_name": "KwameBrathwaite.com",
+      "kwame_desc": "A photography archive gets a modern makeover.",
+      "kwame_challenge": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
+      "kwame_outcome": "Rebuilding from the ground up with Claude, Cursor, and a modern AI-powered workflow. The new site preserves the archive's cultural significance while driving real business outcomes.",
+      "kwame_highlight": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
+      "kwame_stat_1_value": "3×",
+      "kwame_stat_1_label": "Faster Load Time",
+      "kwame_stat_2_value": "Mobile-First",
+      "kwame_stat_2_label": "Responsive Design",
+      "kwame_stat_3_value": "AI-Powered",
+      "kwame_stat_3_label": "Modern Workflow",
+      "hci_eyebrow": "Featured Project",
+      "hci_status": "LIVE",
+      "hci_name": "HCI Medical Group",
+      "hci_desc": "A healthcare website and internal project management tool.",
+      "hci_challenge": "HCI Medical Group needed a modern, professional web presence and an internal project management tool to streamline operations across their medical practice.",
+      "hci_outcome": "A complete front-end redesign that elevated the brand's digital presence, plus a custom-built project management module for internal team coordination and workflow tracking.",
+      "hci_highlight": "A polished, conversion-ready healthcare website paired with powerful internal tools that streamline daily operations.",
+      "hci_stat_1_value": "Live",
+      "hci_stat_1_label": "In Production",
+      "hci_stat_2_value": "Custom",
+      "hci_stat_2_label": "PM Backend Module",
+      "hci_stat_3_value": "Full-Stack",
+      "hci_stat_3_label": "End-to-End",
+      "placeholder_overline": "Community Project",
+      "placeholder_title": "Your Project Could Be Here",
+      "placeholder_body": "We partner with nonprofits, community organizations, and passionate builders to bring AI-powered projects to life. Some of our best work starts with a conversation.",
+      "placeholder_cta": "Tell us about your project"
+    },
+    "how_we_build": {
+      "overline": "Our Process",
+      "headline": "How we build.",
+      "subhead": "Every project follows the same disciplined process — whether it's a client engagement, a community build, or a pro-bono partnership.",
+      "discovery_title": "Discovery",
+      "discovery_body": "We start by understanding your goals, your audience, and what success looks like. No assumptions.",
+      "design_build_title": "Design & Build",
+      "design_build_body": "AI-native development using Claude, Cursor, and modern tools. Fast iteration, transparent progress, real results.",
+      "launch_support_title": "Launch & Support",
+      "launch_support_body": "We ship, we measure, we refine. Every project includes post-launch support and documentation."
+    },
+    "aloha_standard": {
+      "overline": "Giving Back",
+      "headline": "Built with Aloha.",
+      "body": "Giving back is core to how HonuVibe operates. We dedicate capacity to nonprofit and community projects — delivering the same quality and care as any commercial engagement.",
+      "caption_title": "Pro-bono & nonprofit capacity",
+      "caption_body": "Part of every quarter, by design",
+      "cta": "Interested in a community or nonprofit collaboration? Get in touch"
+    },
+    "two_path_cta": {
+      "headline": "Inspired by what you see?",
+      "subhead": "Whether you want to learn AI yourself or bring AI training to your organization — there's a path for you.",
+      "primary_cta": "Start Learning",
+      "secondary_cta": "Explore Partnerships"
+    }
   }
 }
