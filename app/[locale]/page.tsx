@@ -1,14 +1,18 @@
 import { setRequestLocale } from 'next-intl/server';
+import { MarketingShell } from '@/components/marketing/shell';
+import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
+import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
+import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
-  HeroSection,
-  MissionStrip,
-  HonuHubFeature,
-  FeaturedCourses,
-  ExplorationPreview,
-  NewsletterSignup,
-  SocialProof,
-  PartnerStrip,
-} from '@/components/sections';
+  HomeHero,
+  HomeHowItWorks,
+  HomeValueProps,
+  HomeVaultSection,
+  HomeFeaturedCourses,
+  HomeOrgSection,
+  HomeExploration,
+  HomeTestimonials,
+} from '@/components/marketing/home';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,27 +23,20 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <>
-      <HeroSection />
-      {/* Fade bridge: smooth dark→light transition in light mode */}
-      <div className="light-zone-fade">
-        <MissionStrip />
-      </div>
-      <div className="dark-zone">
-        <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
-      </div>
-      <HonuHubFeature />
-      <FeaturedCourses />
-      <div className="dark-zone">
-        <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
-      </div>
-      <ExplorationPreview />
-      <div className="dark-zone">
-        <hr className="glow-divider max-w-[1100px] mx-auto" aria-hidden="true" />
-      </div>
-      <NewsletterSignup />
-      <SocialProof />
-      <PartnerStrip />
-    </>
+    <MarketingShell>
+      <MarketingNav showGetStarted />
+      <main>
+        <HomeHero />
+        <HomeHowItWorks />
+        <HomeValueProps />
+        <HomeVaultSection />
+        <HomeFeaturedCourses />
+        <HomeOrgSection />
+        <HomeExploration />
+        <HomeTestimonials />
+      </main>
+      <MarketingNewsletter />
+      <MarketingFooter />
+    </MarketingShell>
   );
 }

@@ -7,7 +7,7 @@
 | Phase | Scope | Status | Last verified |
 |---|---|---|---|
 | 0 | Foundation: tokens, font, shell, primitives, marketing nav/footer/newsletter, route detection, `DESIGN.md` | ✅ done | 2026-04-26 — typecheck ✓, build ✓, vitest ✓ |
-| 1 | Home page | ⏳ pending | — |
+| 1 | Home page | ✅ done | 2026-04-26 — typecheck ✓, 276 vitest tests ✓, build ✓ |
 | 2 | Learn page | ⏳ pending | — |
 | 3 | Explore + About + Contact | ⏳ pending | — |
 | 4 | Partnerships (new route + Supabase + email + admin list) | ⏳ pending | — |
@@ -40,6 +40,7 @@ What each step catches:
 | Date | Phase | Result | Commit | Notes |
 |---|---|---|---|---|
 | 2026-04-26 | 0 | `pnpm verify` ✅ — typecheck ✓ · 267 vitest tests ✓ (26 files, 21s) · next build ✓ (102s, 383 static pages) | (pending) | Foundation landed. New tests under `__tests__/marketing/` (99 tests across primitives, shell, `isMarketingPath*`). Pre-existing build warnings unchanged. Vitest pinned to ^3.2.4 to dodge a vitest 4 + pnpm picomatch resolution bug; vitest config now excludes `.worktrees/**` (a stale survey-module worktree was pulling its own node_modules into discovery). |
+| 2026-04-26 | 1 | `pnpm verify` ✅ — typecheck ✓ · 276 vitest tests ✓ (27 files) · next build ✓ (94s, 383 static pages) | d7e9030 (components) + page-swap commit | Phase 1 home swap. Eight section components under `components/marketing/home/` mounted via `<MarketingShell>` + `<MarketingNav showGetStarted />`. New `home` namespace in `messages/{en,ja}.json`; JP stubbed with EN per risk #1 — Phase 1.5 owns the translation pass. Get Started + Featured Courses CTAs route to `/learn`; Org section to `/partnerships`; Exploration "see all" to `/explore`. `<HonuCompanion>` still visible — Phase 6 hides on marketing routes. Two-commit split landed: components in `d7e9030` (Phase 0 foundation + Phase 1 home + i18n + smoke tests), page swap in the follow-up commit. |
 
 (append a row after every phase or significant change)
 
