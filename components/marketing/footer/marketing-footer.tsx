@@ -58,8 +58,6 @@ export function MarketingFooter() {
               <Link href="/learn" className={linkClass}>{nav('learn')}</Link>
               <Link href="/explore" className={linkClass}>{nav('exploration')}</Link>
               <Link href="/partnerships" className={linkClass}>{nav('partnerships')}</Link>
-              <Link href="/honuhub" className={linkClass}>{nav('honuhub')}</Link>
-              <Link href="/community" className={linkClass}>{nav('community')}</Link>
               <Link href="/about" className={linkClass}>{nav('about')}</Link>
               <Link href="/contact" className={linkClass}>{nav('contact')}</Link>
             </div>
@@ -71,7 +69,7 @@ export function MarketingFooter() {
             <div className="flex flex-col gap-2.5">
               <Link href="/learn/library" className={linkClass}>{nav('library')}</Link>
               <Link href="/glossary" className={linkClass}>{t('glossary_link')}</Link>
-              <Link href="/newsletter" className={linkClass}>{t('newsletter_link')}</Link>
+              <Link href="/#newsletter" className={linkClass}>{t('newsletter_link')}</Link>
               <Link href="/blog" className={linkClass}>{nav('blog')}</Link>
             </div>
           </div>
