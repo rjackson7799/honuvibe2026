@@ -2357,5 +2357,93 @@
       "primary_cta": "Start Learning",
       "secondary_cta": "Explore Partnerships"
     }
+  },
+  "about": {
+    "meta": {
+      "title": "About — People first. Always. | HonuVibe",
+      "description": "HonuVibe.AI is an AI training and consulting company built on a simple belief: everyone deserves access to practical AI education — delivered with genuine care, in the language they think in."
+    },
+    "hero": {
+      "overline": "About Us",
+      "headline_line_1": "People",
+      "headline_line_2": "first.",
+      "headline_line_3": "Always.",
+      "subhead": "HonuVibe.AI is an AI training and consulting company built on a simple belief: everyone deserves access to practical AI education — delivered with genuine care, in the language they think in.",
+      "fact_founded_value": "Honolulu",
+      "fact_founded_label": "Founded",
+      "fact_languages_value": "EN · JP",
+      "fact_languages_label": "Languages",
+      "fact_year_value": "2024",
+      "fact_year_label": "Year"
+    },
+    "origin_story": {
+      "overline": "The Story",
+      "headline_line_1": "Born in Hawaii.",
+      "headline_line_2": "Built for the world.",
+      "p1": "HonuVibe started with a question: what would happen if AI education felt less like a tech bootcamp and more like learning from someone who actually cares whether you succeed?",
+      "p2": "Ryan Jackson — Northwestern grad, USC Marshall MBA, and lifelong builder — had spent years at the intersection of business strategy, international markets, and hands-on AI work. He saw the same pattern everywhere: people were curious about AI but overwhelmed by the noise. The courses were too technical, too theoretical, or too impersonal.",
+      "p3": "So he built HonuVibe from Waikiki — a training company grounded in the Hawaiian concept of aloha: show up fully, give generously, treat every person's goals as worthy of real attention. Today, HonuVibe serves learners and organizations globally, in English and Japanese, with a growing team of practitioners who teach what they actually do.",
+      "photo_alt": "Ryan Jackson, founder of HonuVibe.AI",
+      "badge_name": "Ryan Jackson",
+      "badge_credential_1": "Northwestern BS",
+      "badge_credential_2": "USC Marshall MBA",
+      "location_marker": "Based in Waikiki, Honolulu, Hawaii"
+    },
+    "team": {
+      "overline": "The Team",
+      "headline_line_1": "The people behind",
+      "headline_line_2": "the learning.",
+      "subhead": "Every HonuVibe instructor is a working practitioner — not an academic, not a script reader.",
+      "members_ryan_name": "Ryan Jackson",
+      "members_ryan_title": "Founder & Director of AI Education",
+      "members_ryan_location": "Honolulu, Hawaii",
+      "members_ryan_bio": "Ryan brings a unique combination of business strategy, international market experience, and hands-on AI expertise. His teaching style is hands-on and jargon-free — every session is built around doing, not just watching.",
+      "members_ryan_photo_alt": "Ryan Jackson, founder",
+      "members_mizuho_name": "Mizuho H.",
+      "members_mizuho_title": "Lead AI Trainer",
+      "members_mizuho_location": "Tokyo, Japan",
+      "members_mizuho_bio": "Mizuho brings a corporate business background and native Japanese fluency to HonuVibe's bilingual programs. She bridges the gap between American AI innovation and the practical needs of Japanese professionals.",
+      "members_mizuho_photo_alt": "Mizuho H., lead AI trainer",
+      "members_chimi_name": "Chiemi M.",
+      "members_chimi_title": "AI Consultant & Trainer",
+      "members_chimi_location": "Japan",
+      "members_chimi_bio": "Chiemi is a Certified Occupational Therapist with deep business operations experience. She brings a unique perspective on how AI can improve workflows in healthcare, professional services, and community organizations.",
+      "members_chimi_photo_alt": "Chiemi M., AI consultant and trainer"
+    },
+    "aloha_standard": {
+      "overline": "How We Show Up",
+      "headline_line_1": "The Aloha",
+      "headline_line_2": "Standard.",
+      "lede": "Aloha is not a marketing tagline. It is the actual operating standard for how HonuVibe shows up — in every course, every partnership, and every interaction.",
+      "generously_title": "We give generously.",
+      "generously_body": "Free content, free community access, transparent information. We trust that generosity compounds.",
+      "no_hard_sell_title": "We never hard sell.",
+      "no_hard_sell_body": "We invite. We demonstrate. We let the quality of the work speak. People who are right for HonuVibe will feel it.",
+      "pro_bono_title": "Pro-bono work is real work.",
+      "pro_bono_body": "When a nonprofit or community organization comes to us, they receive the same quality and attention as any paying client. Their mission matters.",
+      "celebrate_title": "We celebrate our community.",
+      "celebrate_body": "When a HonuVibe member ships a project, grows their business, or wins a grant — that is a HonuVibe moment. We make space for those stories."
+    },
+    "mission_vision": {
+      "mission_label": "Our Mission",
+      "mission_body": "To make cutting-edge AI education approachable, actionable, and community-driven — for ambitious entrepreneurs, professionals, and organizations across the US, Japan, and beyond.",
+      "vision_label": "Our Vision",
+      "vision_body": "A world where every entrepreneur, regardless of technical background or geography, has the tools and community they need to build with AI. From Waikiki to Tokyo, creating a new standard for practitioner-focused education."
+    },
+    "social_section": {
+      "overline": "Connect",
+      "headline": "Follow the journey.",
+      "tiktok_label": "TikTok",
+      "instagram_label": "Instagram",
+      "youtube_label": "YouTube",
+      "line_label": "LINE",
+      "newsletter_link": "Or subscribe to the newsletter for weekly insights →"
+    },
+    "soft_cta": {
+      "headline": "Ready to start?",
+      "subhead": "Whether you're here to learn AI yourself or bring training to your organization — there's a path for you.",
+      "primary_cta": "Explore Courses",
+      "secondary_cta": "Partner With Us"
+    }
   }
 }
