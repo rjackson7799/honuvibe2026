@@ -12,6 +12,7 @@ import type {
   ContactEmailData,
   NewsletterAdminNotifyData,
   ApplicationEmailData,
+  PartnershipInquiryEmailData,
   EnrollmentEmailData,
   HonuHubContactEmailData,
   ExplorationInquiryEmailData,
@@ -221,6 +222,94 @@ export async function sendApplicationAdminNotification(
   await sendEmail({
     to: adminEmail,
     subject: `[Application] ${data.name} — ${data.engagement ?? 'Consulting'}`,
+    html: baseLayout({ locale: 'en', body }),
+    replyTo: data.email,
+  });
+}
+
+// ─── 3b. Partnership Inquiry ────────────────────────────────
+
+export async function sendPartnershipInquiryConfirmation(
+  data: PartnershipInquiryEmailData,
+): Promise<void> {
+  const { locale, fullName } = data;
+  const isJP = locale === 'ja';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const body = [
+    heading(
+      isJP
+        ? `${fullName} さん、お問い合わせありがとうございます`
+        : `Thank you, ${fullName}`,
+    ),
+    paragraph(
+      isJP
+        ? 'パートナーシップに関するお問い合わせを受け付けました。内容を確認の上、5営業日以内にご返信いたします。'
+        : "We've received your partnership inquiry. We review every submission personally and will respond within 5 business days.",
+    ),
+    divider(),
+    paragraph(
+      isJP
+        ? 'その間、コミュニティ向けのコースもご覧ください。'
+        : 'In the meantime, feel free to browse our public courses.',
+    ),
+    ctaButton({
+      href: `${siteUrl}/${isJP ? 'ja/' : ''}learn`,
+      label: isJP ? 'コースを見る' : 'Browse Courses',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: data.email,
+    subject: isJP
+      ? '【HonuVibe.AI】パートナーシップのお問い合わせを受け付けました'
+      : 'Partnership inquiry received — HonuVibe.AI',
+    html: baseLayout({
+      locale,
+      preheader: isJP
+        ? 'お問い合わせありがとうございます'
+        : 'We received your partnership inquiry',
+      body,
+    }),
+  });
+}
+
+export async function sendPartnershipInquiryAdminNotification(
+  data: PartnershipInquiryEmailData,
+): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
+
+  const body = [
+    accentBanner('New Partnership Inquiry'),
+    detailsTable([
+      { label: 'Name', value: data.fullName },
+      { label: 'Email', value: data.email },
+      { label: 'Organization', value: data.organization },
+      { label: 'Website', value: data.website ?? '' },
+      { label: 'Org Type', value: data.orgTypeLabel },
+      { label: 'Audience Size', value: data.audienceSizeLabel ?? '' },
+      { label: 'Language', value: data.languageLabel ?? '' },
+      { label: 'Timeline', value: data.timelineLabel ?? '' },
+      { label: 'Referral', value: data.referralSourceLabel ?? '' },
+      { label: 'Locale', value: data.locale },
+    ]),
+    divider(),
+    heading('Community'),
+    paragraph(data.communityDescription),
+    heading('Program'),
+    paragraph(data.programDescription),
+    ctaButton({
+      href: `${siteUrl}/admin/partnership-inquiries`,
+      label: 'View in Admin Panel',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Partnership] ${data.organization} — ${data.fullName}`,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
   });

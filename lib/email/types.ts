@@ -26,6 +26,21 @@ export interface ApplicationEmailData {
   referralSource: string | null;
 }
 
+export interface PartnershipInquiryEmailData {
+  locale: Locale;
+  fullName: string;
+  email: string;
+  organization: string;
+  website: string | null;
+  orgTypeLabel: string;
+  communityDescription: string;
+  programDescription: string;
+  audienceSizeLabel: string | null;
+  languageLabel: string | null;
+  timelineLabel: string | null;
+  referralSourceLabel: string | null;
+}
+
 export interface EnrollmentEmailData {
   locale: Locale;
   studentName: string;

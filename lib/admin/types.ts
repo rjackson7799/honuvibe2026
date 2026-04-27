@@ -4,6 +4,7 @@ export type UserRole = 'student' | 'admin' | 'instructor';
 export type SubscriptionTier = 'free' | 'premium';
 export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'cancelled' | 'trialing';
 export type ApplicationStatus = 'received' | 'reviewing' | 'responded' | 'archived';
+export type PartnershipInquiryStatus = ApplicationStatus;
 
 export interface UserProfile {
   id: string;
@@ -37,6 +38,27 @@ export interface Application {
   status: ApplicationStatus;
   notes: string | null;
   submitted_at: string;
+}
+
+export interface PartnershipInquiry {
+  id: string;
+  created_at: string;
+  full_name: string;
+  email: string;
+  organization: string;
+  website: string | null;
+  org_type: string;
+  community_description: string;
+  program_description: string;
+  audience_size: string | null;
+  language: string | null;
+  timeline: string | null;
+  referral_source: string | null;
+  source_locale: 'en' | 'ja';
+  status: PartnershipInquiryStatus;
+  notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
 }
 
 export interface DashboardStats {

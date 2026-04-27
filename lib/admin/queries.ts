@@ -4,6 +4,7 @@ import type {
   StudentListItem,
   StudentDetail,
   Application,
+  PartnershipInquiry,
   RevenueStats,
   TransactionRecord,
 } from './types';
@@ -200,6 +201,25 @@ export async function getApplications(
     .from('applications')
     .select('*')
     .order('submitted_at', { ascending: false });
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getPartnershipInquiries(
+  status?: string,
+): Promise<PartnershipInquiry[]> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from('partnership_inquiries')
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (status) {
     query = query.eq('status', status);
