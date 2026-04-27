@@ -1,4 +1,11 @@
-import { DM_Sans, DM_Serif_Display, JetBrains_Mono, Noto_Sans_JP } from 'next/font/google';
+import { DM_Sans, DM_Serif_Display, Inter, JetBrains_Mono, Noto_Sans_JP } from 'next/font/google';
+
+export const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const dmSans = DM_Sans({
   subsets: ['latin', 'latin-ext'],

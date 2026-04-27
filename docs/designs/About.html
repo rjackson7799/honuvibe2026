@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — HonuVibe.AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FDFBF7;
+    color: #1A2B33;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: rgba(15,169,160,0.12); }
+</style>
+</head>
+<body>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const T = {
+  teal: '#0FA9A0', tealDark: '#0B7F78',
+  coral: '#E8765A', coralDark: '#CC5A3E', coralSoft: '#FCEDE6',
+  navy: '#1A2B33', slate: '#5A6B73', caption: '#8B9499',
+  canvas: '#FDFBF7', sand: '#F5F0E8', white: '#FFFFFF',
+};
+
+// ─── ICONS ───────────────────────────────────────────────────────────────────
+const IconHonu = () => (
+  <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+    <ellipse cx="16" cy="17" rx="10" ry="8" fill="currentColor" opacity="0.15"/>
+    <ellipse cx="16" cy="16" rx="8" ry="6.5" fill="currentColor"/>
+    <ellipse cx="16" cy="15" rx="5" ry="4" fill="currentColor" opacity="0.25"/>
+    <ellipse cx="9" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(-20 9 20)"/>
+    <ellipse cx="23" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(20 23 20)"/>
+    <ellipse cx="8" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(-30 8 14)"/>
+    <ellipse cx="24" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(30 24 14)"/>
+    <ellipse cx="16" cy="10" rx="3" ry="2.5" fill="currentColor"/>
+    <path d="M16 23.5 Q15.5 26 16 27 Q16.5 26 16 23.5" fill="currentColor"/>
+    <circle cx="14.5" cy="10" r="0.8" fill="#FDFBF7"/>
+    <circle cx="17.5" cy="10" r="0.8" fill="#FDFBF7"/>
+  </svg>
+);
+const IconArrow = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 8h10M9 4l4 4-4 4"/>
+  </svg>
+);
+const IconPin = () => (
+  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6.5 12S2 7.5 2 4.5a4.5 4.5 0 019 0C11 7.5 6.5 12 6.5 12z"/>
+    <circle cx="6.5" cy="4.5" r="1.5"/>
+  </svg>
+);
+
+// ─── PHOTO PLACEHOLDER ────────────────────────────────────────────────────────
+function PhotoPlaceholder({ width, height, label, round, bg, textColor }) {
+  return (
+    <div style={{
+      width, height,
+      borderRadius: round ? '50%' : 16,
+      background: bg || 'linear-gradient(145deg, #e8ddd0 0%, #d4c8b8 100%)',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 8,
+      border: '1px solid rgba(26,43,51,0.07)',
+    }}>
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="10" r="5" fill="rgba(26,43,51,0.18)"/>
+        <path d="M4 24c0-5.5 4.5-9 10-9s10 3.5 10 9" fill="rgba(26,43,51,0.12)"/>
+      </svg>
+      <span style={{ fontSize: 11, fontWeight: 600, color: textColor || 'rgba(26,43,51,0.35)', letterSpacing: '0.04em', fontFamily: 'monospace', textAlign: 'center', padding: '0 12px' }}>{label}</span>
+    </div>
+  );
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [langJP, setLangJP] = useState(false);
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+  const links = [
+    { label: 'Learn', href: 'Learn.html' },
+    { label: 'Explore', href: 'Explore.html' },
+    { label: 'Partnerships', href: 'Partnerships.html' },
+    { label: 'About', active: true },
+    { label: 'Contact' },
+  ];
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      background: T.canvas,
+      borderBottom: scrolled ? '1px solid rgba(26,43,51,0.1)' : '1px solid transparent',
+      boxShadow: scrolled ? '0 2px 20px rgba(26,43,51,0.06)' : 'none',
+      transition: 'border-color 0.3s, box-shadow 0.3s',
+    }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto', padding: '0 32px',
+        height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <a href="Homepage.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: T.teal }}>
+          <IconHonu />
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: T.navy }}>
+            HonuVibe<span style={{ color: T.teal }}>.AI</span>
+          </span>
+        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          {links.map(link => (
+            <a key={link.label} href={link.href || '#'} style={{
+              color: link.active ? T.teal : T.slate,
+              fontSize: 14.5, fontWeight: link.active ? 600 : 500,
+              textDecoration: 'none',
+              borderBottom: link.active ? `2px solid ${T.teal}` : '2px solid transparent',
+              paddingBottom: 2, transition: 'color 0.2s',
+            }}>{link.label}</a>
+          ))}
+        </div>
+        <button onClick={() => setLangJP(!langJP)} style={{
+          background: 'none', border: '1px solid rgba(26,43,51,0.15)',
+          borderRadius: 6, padding: '5px 12px', fontSize: 12.5, fontWeight: 600,
+          cursor: 'pointer', color: T.slate, letterSpacing: '0.04em',
+        }}>{langJP ? 'EN' : '日本語'}</button>
+      </div>
+    </nav>
+  );
+}
+
+// ─── SECTION 1: HERO — editorial split layout ─────────────────────────────────
+function Hero() {
+  return (
+    <section style={{ background: T.canvas, paddingTop: 68 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          minHeight: 420, borderBottom: '1px solid rgba(26,43,51,0.08)',
+        }}>
+          {/* Left — big label */}
+          <div style={{
+            borderRight: '1px solid rgba(26,43,51,0.08)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+            padding: '72px 56px 56px 0',
+          }}>
+            <p style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: '0.12em',
+              textTransform: 'uppercase', color: T.caption, marginBottom: 20,
+            }}>About Us</p>
+            <h1 style={{
+              fontSize: 'clamp(52px, 6vw, 80px)', fontWeight: 700,
+              letterSpacing: '-0.035em', color: T.navy, lineHeight: 1.0,
+            }}>People<br />first.<br /><span style={{ color: T.teal }}>Always.</span></h1>
+          </div>
+          {/* Right — sub copy + small decorative element */}
+          <div style={{
+            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+            padding: '72px 0 56px 56px',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            {/* Background decoration */}
+            <div style={{
+              position: 'absolute', top: 40, right: -40, width: 280, height: 280,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(15,169,160,0.07) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}></div>
+            <div style={{
+              position: 'absolute', top: 60, right: 20,
+              width: 180, height: 180, borderRadius: '50%',
+              border: '1px solid rgba(15,169,160,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <div style={{
+                width: 120, height: 120, borderRadius: '50%',
+                border: '1px solid rgba(232,118,90,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <div style={{ color: T.teal, opacity: 0.4 }}><IconHonu /></div>
+              </div>
+            </div>
+            <p style={{
+              fontSize: 19, lineHeight: 1.72, color: T.slate,
+              maxWidth: 460, position: 'relative', zIndex: 1,
+            }}>
+              HonuVibe.AI is an AI training and consulting company built on a simple belief: everyone deserves access to practical AI education — delivered with genuine care, in the language they think in.
+            </p>
+            {/* Three quick facts */}
+            <div style={{ display: 'flex', gap: 32, marginTop: 44, position: 'relative', zIndex: 1 }}>
+              {[
+                { val: 'Honolulu', label: 'Founded' },
+                { val: 'EN · JP', label: 'Languages' },
+                { val: '2024', label: 'Year' },
+              ].map((f, i) => (
+                <div key={i}>
+                  <p style={{ fontSize: 17, fontWeight: 700, color: T.navy, marginBottom: 3, letterSpacing: '-0.01em' }}>{f.val}</p>
+                  <p style={{ fontSize: 12, color: T.caption, fontWeight: 500 }}>{f.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── SECTION 2: ORIGIN STORY — full-bleed offset layout ───────────────────────
+function OriginStory() {
+  return (
+    <section style={{ background: T.canvas, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '5fr 7fr', gap: 80, alignItems: 'start' }}>
+          {/* Photo column */}
+          <div style={{ position: 'relative' }}>
+            <PhotoPlaceholder
+              width="100%"
+              height={480}
+              label="ryan jackson — founder photo"
+              round={false}
+              bg="linear-gradient(155deg, #d4c4a0 0%, #c0a87a 40%, #a89060 100%)"
+            />
+            {/* Floating credential badge */}
+            <div style={{
+              position: 'absolute', bottom: -24, right: -24,
+              background: T.white, borderRadius: 14,
+              padding: '18px 22px',
+              boxShadow: '0 12px 40px rgba(26,43,51,0.12)',
+              border: '1px solid rgba(26,43,51,0.07)',
+              maxWidth: 200,
+            }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: T.teal, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Ryan Jackson</p>
+              <p style={{ fontSize: 12, color: T.slate, lineHeight: 1.5 }}>Northwestern BS<br />USC Marshall MBA</p>
+            </div>
+          </div>
+          {/* Text column */}
+          <div style={{ paddingTop: 8 }}>
+            <p style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              textTransform: 'uppercase', color: T.teal, marginBottom: 18,
+            }}>The Story</p>
+            <h2 style={{
+              fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 700,
+              letterSpacing: '-0.025em', color: T.navy, lineHeight: 1.12,
+              marginBottom: 36,
+            }}>Born in Hawaii.<br />Built for the world.</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+              {[
+                "HonuVibe started with a question: what would happen if AI education felt less like a tech bootcamp and more like learning from someone who actually cares whether you succeed?",
+                "Ryan Jackson — Northwestern grad, USC Marshall MBA, and lifelong builder — had spent years at the intersection of business strategy, international markets, and hands-on AI work. He saw the same pattern everywhere: people were curious about AI but overwhelmed by the noise. The courses were too technical, too theoretical, or too impersonal.",
+                "So he built HonuVibe from Waikiki — a training company grounded in the Hawaiian concept of aloha: show up fully, give generously, treat every person's goals as worthy of real attention. Today, HonuVibe serves learners and organizations globally, in English and Japanese, with a growing team of practitioners who teach what they actually do.",
+              ].map((p, i) => (
+                <p key={i} style={{ fontSize: 16, lineHeight: 1.78, color: T.slate }}>{p}</p>
+              ))}
+            </div>
+            {/* Hawaii origin marker */}
+            <div style={{
+              marginTop: 40, display: 'flex', alignItems: 'center', gap: 12,
+              padding: '16px 20px',
+              background: 'rgba(15,169,160,0.05)',
+              border: '1px solid rgba(15,169,160,0.12)',
+              borderRadius: 10, width: 'fit-content',
+            }}>
+              <span style={{ fontSize: 18 }}>🌺</span>
+              <span style={{ fontSize: 13.5, color: T.slate, fontWeight: 500 }}>Based in Waikiki, Honolulu, Hawaii</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── SECTION 3: TEAM — staggered cards, not a boring grid ────────────────────
+function Team() {
+  const members = [
+    {
+      name: 'Ryan Jackson',
+      title: 'Founder & Director of AI Education',
+      location: 'Honolulu, Hawaii',
+      bio: 'Ryan brings a unique combination of business strategy, international market experience, and hands-on AI expertise. His teaching style is hands-on and jargon-free — every session is built around doing, not just watching.',
+      langs: ['EN'],
+      bg: 'linear-gradient(145deg, #d4c4a0 0%, #b8a47e 100%)',
+      offset: 0,
+    },
+    {
+      name: 'Mizuho H.',
+      title: 'Lead AI Trainer',
+      location: 'Tokyo, Japan',
+      bio: 'Mizuho brings a corporate business background and native Japanese fluency to HonuVibe\'s bilingual programs. She bridges the gap between American AI innovation and the practical needs of Japanese professionals.',
+      langs: ['EN', '日本語'],
+      bg: 'linear-gradient(145deg, #c4d4c0 0%, #a0b89a 100%)',
+      offset: 32,
+    },
+    {
+      name: 'Chiemi M.',
+      title: 'AI Consultant & Trainer',
+      location: 'Japan',
+      bio: 'Chiemi is a Certified Occupational Therapist with deep business operations experience. She brings a unique perspective on how AI can improve workflows in healthcare, professional services, and community organizations.',
+      langs: ['EN', '日本語'],
+      bg: 'linear-gradient(145deg, #c4c8d4 0%, #9aa0b8 100%)',
+      offset: 16,
+    },
+  ];
+  return (
+    <section style={{ background: T.sand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 64 }}>
+          <div>
+            <p style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              textTransform: 'uppercase', color: T.teal, marginBottom: 14,
+            }}>The Team</p>
+            <h2 style={{
+              fontSize: 'clamp(28px, 3.5vw, 44px)', fontWeight: 700,
+              letterSpacing: '-0.022em', color: T.navy, lineHeight: 1.12,
+            }}>The people behind<br />the learning.</h2>
+          </div>
+          <p style={{ fontSize: 15.5, lineHeight: 1.65, color: T.slate, maxWidth: 340, textAlign: 'right', paddingBottom: 4 }}>
+            Every HonuVibe instructor is a working practitioner — not an academic, not a script reader.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'start' }}>
+          {members.map((m, i) => (
+            <TeamCard key={i} member={m} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TeamCard({ member }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: T.white, borderRadius: 20,
+        boxShadow: hover ? '0 16px 48px rgba(26,43,51,0.1)' : '0 4px 20px rgba(26,43,51,0.06)',
+        overflow: 'hidden', transition: 'all 0.3s',
+        transform: hover ? 'translateY(-4px)' : 'none',
+      }}
+    >
+      {/* Photo area */}
+      <div style={{
+        height: 220, background: member.bg,
+        display: 'flex', alignItems: 'flex-end',
+        padding: '0 24px 20px', position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Abstract figure */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -60%)',
+        }}>
+          <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+            <circle cx="40" cy="28" r="20" fill="rgba(255,255,255,0.25)"/>
+            <path d="M10 90 Q10 60 40 60 Q70 60 70 90" fill="rgba(255,255,255,0.2)"/>
+          </svg>
+        </div>
+        <span style={{ fontSize: 10.5, fontFamily: 'monospace', color: 'rgba(255,255,255,0.6)', letterSpacing: '0.04em', position: 'relative', zIndex: 1 }}>photo placeholder</span>
+      </div>
+      {/* Card body */}
+      <div style={{ padding: '28px 28px 32px' }}>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: T.navy, marginBottom: 4, letterSpacing: '-0.01em' }}>
+          {member.name}
+        </h3>
+        <p style={{ fontSize: 13.5, fontWeight: 600, color: T.teal, marginBottom: 10 }}>{member.title}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: T.caption, marginBottom: 18 }}>
+          <IconPin />
+          <span style={{ fontSize: 12.5 }}>{member.location}</span>
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.72, color: T.slate, marginBottom: 22 }}>{member.bio}</p>
+        {/* Language badges */}
+        <div style={{ display: 'flex', gap: 7 }}>
+          {member.langs.map((lang, i) => (
+            <span key={i} style={{
+              background: i === 0 ? 'rgba(15,169,160,0.1)' : T.coralSoft,
+              color: i === 0 ? T.teal : T.coral,
+              borderRadius: 20, padding: '4px 12px',
+              fontSize: 12, fontWeight: 700,
+            }}>{lang}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SECTION 4: ALOHA STANDARD — editorial, not poster ───────────────────────
+function AlohaStandard() {
+  const values = [
+    {
+      title: 'We give generously.',
+      body: 'Free content, free community access, transparent information. We trust that generosity compounds.',
+    },
+    {
+      title: 'We never hard sell.',
+      body: 'We invite. We demonstrate. We let the quality of the work speak. People who are right for HonuVibe will feel it.',
+    },
+    {
+      title: 'Pro-bono work is real work.',
+      body: 'When a nonprofit or community organization comes to us, they receive the same quality and attention as any paying client. Their mission matters.',
+    },
+    {
+      title: 'We celebrate our community.',
+      body: 'When a HonuVibe member ships a project, grows their business, or wins a grant — that is a HonuVibe moment. We make space for those stories.',
+    },
+  ];
+  return (
+    <section style={{ background: T.canvas, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        {/* Header — large and editorial */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          gap: 80, alignItems: 'end',
+          marginBottom: 72,
+          paddingBottom: 64,
+          borderBottom: '1px solid rgba(26,43,51,0.08)',
+        }}>
+          <div>
+            <p style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              textTransform: 'uppercase', color: T.coral, marginBottom: 18,
+            }}>How We Show Up</p>
+            <h2 style={{
+              fontSize: 'clamp(40px, 5vw, 66px)', fontWeight: 700,
+              letterSpacing: '-0.03em', color: T.navy, lineHeight: 1.0,
+            }}>The Aloha<br />Standard.</h2>
+          </div>
+          <div style={{ paddingBottom: 4 }}>
+            <p style={{
+              fontSize: 18, lineHeight: 1.72, color: T.slate,
+              borderLeft: `3px solid ${T.coral}`, paddingLeft: 24,
+            }}>
+              Aloha is not a marketing tagline. It is the actual operating standard for how HonuVibe shows up — in every course, every partnership, and every interaction.
+            </p>
+          </div>
+        </div>
+        {/* Values — large numbered list, not cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          {values.map((v, i) => (
+            <ValueRow key={i} value={v} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ValueRow({ value, index }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'grid', gridTemplateColumns: '64px 1fr 2fr',
+        gap: 48, alignItems: 'center',
+        padding: '36px 0',
+        borderBottom: '1px solid rgba(26,43,51,0.07)',
+        transition: 'all 0.2s',
+        background: hover ? 'rgba(15,169,160,0.025)' : 'transparent',
+        borderRadius: hover ? 12 : 0,
+        marginLeft: hover ? -16 : 0,
+        paddingLeft: hover ? 16 : 0,
+        paddingRight: hover ? 16 : 0,
+      }}
+    >
+      <span style={{
+        fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 700,
+        color: hover ? T.teal : 'rgba(26,43,51,0.12)',
+        letterSpacing: '-0.02em', transition: 'color 0.2s',
+        fontVariantNumeric: 'tabular-nums',
+      }}>0{index + 1}</span>
+      <h3 style={{
+        fontSize: 'clamp(15px, 1.5vw, 18px)', fontWeight: 700,
+        color: T.navy, letterSpacing: '-0.01em', lineHeight: 1.3,
+      }}>{value.title}</h3>
+      <p style={{ fontSize: 15, lineHeight: 1.72, color: T.slate }}>{value.body}</p>
+    </div>
+  );
+}
+
+// ─── SECTION 5: MISSION & VISION — clean, quiet ───────────────────────────────
+function MissionVision() {
+  return (
+    <section style={{ background: T.sand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          {[
+            {
+              label: 'Our Mission',
+              body: 'To make cutting-edge AI education approachable, actionable, and community-driven — for ambitious entrepreneurs, professionals, and organizations across the US, Japan, and beyond.',
+            },
+            {
+              label: 'Our Vision',
+              body: 'A world where every entrepreneur, regardless of technical background or geography, has the tools and community they need to build with AI. From Waikiki to Tokyo, creating a new standard for practitioner-focused education.',
+            },
+          ].map((item, i) => (
+            <div key={i} style={{
+              padding: '56px 52px',
+              background: i === 0 ? T.white : 'transparent',
+              borderRadius: i === 0 ? '16px 0 0 16px' : '0 16px 16px 0',
+              border: i === 0 ? '1px solid rgba(26,43,51,0.07)' : '1px solid rgba(26,43,51,0.07)',
+              borderLeft: i === 1 ? 'none' : undefined,
+            }}>
+              <p style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+                textTransform: 'uppercase', color: T.teal, marginBottom: 22,
+              }}>{item.label}</p>
+              <p style={{ fontSize: 16.5, lineHeight: 1.78, color: T.slate }}>{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── SECTION 6: FOLLOW THE JOURNEY ───────────────────────────────────────────
+function SocialSection() {
+  const socials = [
+    { name: 'TikTok', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M20 6.5c-1.5-.5-2.8-1.8-3.2-3.5h-3.3v13.5c0 1.5-1.2 2.7-2.8 2.7s-2.7-1.2-2.7-2.7c0-1.5 1.2-2.7 2.7-2.7.3 0 .6.05.8.1V11c-.3-.04-.6-.06-.8-.06-3.2 0-5.7 2.5-5.7 5.7S8 22.3 11.2 22.3s5.8-2.5 5.8-5.7V11.4c1.3.9 2.8 1.4 4.5 1.4V9.6c-.9 0-1.7-.4-2.3-1.1" fill={T.teal}/>
+      </svg>
+    )},
+    { name: 'Instagram', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke={T.teal} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="4" width="20" height="20" rx="6"/>
+        <circle cx="14" cy="14" r="5"/>
+        <circle cx="20" cy="8" r="1" fill={T.teal} stroke="none"/>
+      </svg>
+    )},
+    { name: 'YouTube', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="6" width="24" height="16" rx="5" fill={T.teal} opacity="0.15"/>
+        <rect x="2" y="6" width="24" height="16" rx="5" stroke={T.teal} strokeWidth="1.6"/>
+        <polygon points="11,10 11,18 19,14" fill={T.teal}/>
+      </svg>
+    )},
+    { name: 'LINE', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="4" width="24" height="20" rx="6" fill={T.teal} opacity="0.12" stroke={T.teal} strokeWidth="1.6"/>
+        <path d="M14 8C9.5 8 6 11 6 14.5c0 3 2.5 5.5 6 6.5l2 1.5-1-2c3.5-.5 7-3 7-6C20 11 17.5 8 14 8z" fill={T.teal} opacity="0.7"/>
+      </svg>
+    )},
+  ];
+  return (
+    <section style={{ background: T.canvas, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 52 }}>
+          <p style={{
+            fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+            textTransform: 'uppercase', color: T.teal, marginBottom: 14,
+          }}>Connect</p>
+          <h2 style={{
+            fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
+            letterSpacing: '-0.022em', color: T.navy,
+          }}>Follow the journey.</h2>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 40 }}>
+          {socials.map((s, i) => (
+            <SocialCard key={i} social={s} />
+          ))}
+        </div>
+        <p style={{ textAlign: 'center' }}>
+          <a href="#newsletter" style={{
+            fontSize: 14.5, color: T.teal, fontWeight: 600,
+            textDecoration: 'none', borderBottom: `1px solid rgba(15,169,160,0.3)`,
+            paddingBottom: 2,
+          }}>Or subscribe to the newsletter for weekly insights →</a>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function SocialCard({ social }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <a
+      href="#"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: 14, padding: '36px 48px',
+        background: hover ? 'rgba(15,169,160,0.06)' : T.white,
+        border: `1px solid ${hover ? 'rgba(15,169,160,0.22)' : 'rgba(26,43,51,0.08)'}`,
+        borderRadius: 16, textDecoration: 'none',
+        boxShadow: hover ? '0 8px 28px rgba(15,169,160,0.1)' : '0 2px 8px rgba(26,43,51,0.04)',
+        transition: 'all 0.22s',
+        transform: hover ? 'translateY(-3px)' : 'none',
+        minWidth: 130,
+      }}
+    >
+      {social.icon}
+      <span style={{ fontSize: 14, fontWeight: 600, color: T.navy }}>{social.name}</span>
+    </a>
+  );
+}
+
+// ─── SECTION 7: SOFT CTA ─────────────────────────────────────────────────────
+function SoftCTA() {
+  const [hA, setHA] = useState(false);
+  const [hB, setHB] = useState(false);
+  return (
+    <section style={{ background: T.sand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 700,
+          letterSpacing: '-0.025em', color: T.navy, marginBottom: 14,
+        }}>Ready to start?</h2>
+        <p style={{ fontSize: 17, lineHeight: 1.65, color: T.slate, marginBottom: 44 }}>
+          Whether you're here to learn AI yourself or bring training to your organization — there's a path for you.
+        </p>
+        <div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>
+          <a
+            href="Learn.html"
+            onMouseEnter={() => setHA(true)}
+            onMouseLeave={() => setHA(false)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: hA ? T.tealDark : T.teal,
+              color: '#fff', textDecoration: 'none',
+              padding: '14px 28px', borderRadius: 10,
+              fontSize: 15.5, fontWeight: 700,
+              boxShadow: hA ? '0 8px 24px rgba(15,169,160,0.35)' : '0 4px 16px rgba(15,169,160,0.2)',
+              transform: hA ? 'translateY(-1px)' : 'none',
+              transition: 'all 0.2s',
+            }}
+          >Explore Courses <IconArrow /></a>
+          <a
+            href="Partnerships.html"
+            onMouseEnter={() => setHB(true)}
+            onMouseLeave={() => setHB(false)}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: hB ? T.coralSoft : 'transparent',
+              color: T.coral,
+              border: `1.5px solid ${T.coral}`,
+              textDecoration: 'none',
+              padding: '14px 28px', borderRadius: 10,
+              fontSize: 15.5, fontWeight: 700,
+              transition: 'all 0.2s',
+            }}
+          >Partner With Us <IconArrow /></a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── NEWSLETTER ───────────────────────────────────────────────────────────────
+function Newsletter() {
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
+  return (
+    <section id="newsletter" style={{
+      background: `linear-gradient(135deg, rgba(15,169,160,0.06) 0%, ${T.sand} 50%, rgba(232,118,90,0.06) 100%)`,
+      padding: '96px 32px',
+      borderTop: '1px solid rgba(15,169,160,0.12)',
+    }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
+          letterSpacing: '-0.02em', color: T.navy, marginBottom: 12,
+        }}>Join the wave.</h2>
+        <p style={{ fontSize: 17, lineHeight: 1.65, color: T.slate, marginBottom: 36 }}>
+          Get weekly insights, tutorials, and community highlights from the HonuVibe community.
+        </p>
+        {!done ? (
+          <>
+            <form onSubmit={e => { e.preventDefault(); if (email) setDone(true); }}
+              style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="Your email address"
+                style={{
+                  flex: 1, padding: '14px 18px', borderRadius: 10,
+                  border: '1.5px solid rgba(26,43,51,0.15)',
+                  fontSize: 15, outline: 'none', background: T.white,
+                  color: T.navy, fontFamily: 'inherit',
+                }}
+              />
+              <button type="submit" style={{
+                background: T.teal, color: '#fff', border: 'none',
+                padding: '14px 24px', borderRadius: 10, fontSize: 15,
+                fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>Subscribe</button>
+            </form>
+            <a href="#" style={{ fontSize: 14, color: T.slate, textDecoration: 'none', borderBottom: '1px solid rgba(90,107,115,0.3)' }}>
+              Or join the free Skool community →
+            </a>
+          </>
+        ) : (
+          <div style={{
+            background: 'rgba(15,169,160,0.08)', borderRadius: 14,
+            padding: '24px', border: `1.5px solid ${T.teal}`,
+          }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: T.teal, marginBottom: 6 }}>🐢 You're in!</p>
+            <p style={{ fontSize: 15, color: T.slate }}>Welcome to the HonuVibe community. Check your inbox.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+function Footer() {
+  const cols = [
+    { title: 'Navigate', links: ['Learn', 'Explore', 'Partnerships', 'About', 'Contact'] },
+    { title: 'Resources', links: ['The Vault', 'Blog', 'Tutorials', 'AI Glossary', 'FAQ'] },
+    { title: 'Partners', links: ['Org Programs', 'Apply to Partner', 'Case Studies', 'Become a Mentor'] },
+    { title: 'Legal', links: ['Privacy Policy', 'Terms of Use', 'Cookie Policy', 'Accessibility'] },
+  ];
+  return (
+    <footer style={{ background: T.navy, color: '#fff', padding: '72px 32px 40px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 48, marginBottom: 56 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ color: T.teal }}><IconHonu /></div>
+              <span style={{ fontWeight: 700, fontSize: 18 }}>HonuVibe<span style={{ color: T.teal }}>.AI</span></span>
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', marginBottom: 24, maxWidth: 220 }}>
+              A new vibe for AI learning. Practical. Bilingual. Built for real people.
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              {['TikTok', 'IG', 'YT', 'LINE'].map((s, i) => (
+                <a key={i} href="#" style={{
+                  width: 36, height: 36, borderRadius: 8,
+                  background: 'rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
+                  textDecoration: 'none',
+                }}>{s}</a>
+              ))}
+            </div>
+          </div>
+          {cols.map((col, i) => (
+            <div key={i}>
+              <p style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 16,
+              }}>{col.title}</p>
+              {col.links.map((link, j) => (
+                <a key={j} href="#" style={{
+                  display: 'block', fontSize: 14, color: 'rgba(255,255,255,0.65)',
+                  textDecoration: 'none', marginBottom: 10,
+                }}>{link}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 28,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>© 2026 HonuVibe.AI · All rights reserved</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Made in Hawaii with Aloha 🐢</p>
+          <button style={{
+            background: 'rgba(255,255,255,0.08)', border: 'none',
+            color: 'rgba(255,255,255,0.6)', borderRadius: 6,
+            padding: '6px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+          }}>EN | 日本語</button>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+      <Nav />
+      <Hero />
+      <OriginStory />
+      <Team />
+      <AlohaStandard />
+      <MissionVision />
+      <SocialSection />
+      <SoftCTA />
+      <Newsletter />
+      <Footer />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<div id="root"></div>
+</body>
+</html>

@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HonuVibe.AI — Learn AI. Apply It. Move Forward.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FDFBF7;
+    color: #1A2B33;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: #0FA9A020; }
+
+  /* Photo placeholders */
+  .photo-placeholder {
+    background: linear-gradient(135deg, #d4ede9 0%, #b8dfd9 40%, #c8e8d0 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(255,200,150,0.18) 0%, rgba(15,169,160,0.08) 100%);
+  }
+  .photo-placeholder-warm {
+    background: linear-gradient(135deg, #f0e0c8 0%, #e8c9a8 40%, #d4b896 100%);
+  }
+  .photo-placeholder-vault {
+    background: linear-gradient(135deg, #eaf5f4 0%, #d0eeec 60%, #e8f4f2 100%);
+  }
+</style>
+</head>
+<body>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentTeal": "#0FA9A0",
+  "accentCoral": "#E8765A",
+  "bgPrimary": "#FDFBF7",
+  "bgSand": "#F5F0E8",
+  "textNavy": "#1A2B33",
+  "heroLayout": "split",
+  "showJP": false,
+  "cardRadius": 12
+}/*EDITMODE-END*/;
+
+// ─── SVG Icons ───────────────────────────────────────────────────────────────
+const IconBrain = () => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 6C10 4.34 11.34 3 13 3C14.66 3 16 4.34 16 6"/>
+    <path d="M6 14C4.34 14 3 12.66 3 11C3 9.34 4.34 8 6 8"/>
+    <path d="M22 14C23.66 14 25 12.66 25 11C25 9.34 23.66 8 22 8"/>
+    <path d="M6 14C6 18.42 9.58 22 14 22C18.42 22 22 18.42 22 14"/>
+    <path d="M6 8C6 6.34 7.34 5 9 5C9.5 5 10 5.12 10.42 5.36"/>
+    <path d="M22 8C22 6.34 20.66 5 19 5C18.5 5 18 5.12 17.58 5.36"/>
+    <circle cx="14" cy="14" r="3"/>
+  </svg>
+);
+const IconGlobe = () => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="14" cy="14" r="11"/>
+    <path d="M3 14h22M14 3C14 3 10 8 10 14s4 11 4 11M14 3C14 3 18 8 18 14s-4 11-4 11"/>
+  </svg>
+);
+const IconVault = () => (
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="4" y="6" width="20" height="16" rx="2"/>
+    <circle cx="14" cy="14" r="4"/>
+    <circle cx="14" cy="14" r="1.5"/>
+    <path d="M14 10V8M14 20v-2M10 14H8M20 14h-2"/>
+  </svg>
+);
+const IconArrow = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 8h10M9 4l4 4-4 4"/>
+  </svg>
+);
+const IconHonu = () => (
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+    <ellipse cx="16" cy="17" rx="10" ry="8" fill="currentColor" opacity="0.15"/>
+    <ellipse cx="16" cy="16" rx="8" ry="6.5" fill="currentColor"/>
+    <ellipse cx="16" cy="15" rx="5" ry="4" fill="currentColor" opacity="0.25"/>
+    <ellipse cx="9" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(-20 9 20)"/>
+    <ellipse cx="23" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(20 23 20)"/>
+    <ellipse cx="8" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(-30 8 14)"/>
+    <ellipse cx="24" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(30 24 14)"/>
+    <ellipse cx="16" cy="10" rx="3" ry="2.5" fill="currentColor"/>
+    <path d="M16 23.5 Q15.5 26 16 27 Q16.5 26 16 23.5" fill="currentColor"/>
+    <circle cx="14.5" cy="10" r="0.8" fill="#FDFBF7"/>
+    <circle cx="17.5" cy="10" r="0.8" fill="#FDFBF7"/>
+  </svg>
+);
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function Nav({ tweaks }) {
+  const [scrolled, setScrolled] = useState(false);
+  const [langJP, setLangJP] = useState(tweaks.showJP);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handler);
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  const links = ['Learn', 'Explore', 'Partnerships', 'About', 'Contact'];
+
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      background: tweaks.bgPrimary,
+      borderBottom: scrolled ? '1px solid rgba(26,43,51,0.1)' : '1px solid transparent',
+      boxShadow: scrolled ? '0 2px 20px rgba(26,43,51,0.06)' : 'none',
+      transition: 'border-color 0.3s, box-shadow 0.3s',
+    }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto', padding: '0 32px',
+        height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+          <div style={{ color: tweaks.accentTeal }}>
+            <IconHonu />
+          </div>
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: tweaks.textNavy }}>
+            HonuVibe<span style={{ color: tweaks.accentTeal }}>.AI</span>
+          </span>
+        </div>
+
+        {/* Desktop Nav */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          {links.map(link => (
+            <a key={link} href="#" style={{
+              color: '#5A6B73', fontSize: 14.5, fontWeight: 500, textDecoration: 'none',
+              transition: 'color 0.2s',
+            }}
+            onMouseEnter={e => e.target.style.color = tweaks.textNavy}
+            onMouseLeave={e => e.target.style.color = '#5A6B73'}
+            >{link}</a>
+          ))}
+        </div>
+
+        {/* Right controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button onClick={() => setLangJP(!langJP)} style={{
+            background: 'none', border: '1px solid rgba(26,43,51,0.15)',
+            borderRadius: 6, padding: '5px 12px', fontSize: 12.5, fontWeight: 600,
+            cursor: 'pointer', color: '#5A6B73', letterSpacing: '0.04em',
+            transition: 'all 0.2s',
+          }}>
+            {langJP ? 'EN' : '日本語'}
+          </button>
+          <a href="#" style={{
+            background: tweaks.accentTeal, color: '#fff',
+            padding: '8px 20px', borderRadius: 8, fontSize: 14, fontWeight: 600,
+            textDecoration: 'none', transition: 'background 0.2s',
+          }}
+          onMouseEnter={e => e.target.style.background = '#0B7F78'}
+          onMouseLeave={e => e.target.style.background = tweaks.accentTeal}
+          >Get Started</a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ─── HERO ─────────────────────────────────────────────────────────────────────
+function Hero({ tweaks }) {
+  const [hoverPrimary, setHoverPrimary] = useState(false);
+  const [hoverSecondary, setHoverSecondary] = useState(false);
+
+  return (
+    <section style={{
+      background: tweaks.bgPrimary,
+      paddingTop: 68,
+      minHeight: '92vh',
+      display: 'flex',
+      alignItems: 'center',
+    }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto', padding: '80px 32px 80px',
+        display: 'grid',
+        gridTemplateColumns: tweaks.heroLayout === 'split' ? '1fr 1fr' : '1fr',
+        gap: 64, alignItems: 'center',
+      }}>
+        {/* Text */}
+        <div>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            marginBottom: 24,
+          }}>
+            <span style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              color: '#5A6B73', textTransform: 'uppercase',
+            }}>Practical AI Training</span>
+            <span style={{
+              width: 4, height: 4, borderRadius: '50%',
+              background: tweaks.accentCoral, display: 'inline-block',
+            }}/>
+            <span style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              color: tweaks.accentCoral,
+            }}>EN / 日本語</span>
+          </div>
+
+          <h1 style={{
+            fontSize: 'clamp(42px, 5.5vw, 66px)',
+            fontWeight: 700, lineHeight: 1.1,
+            letterSpacing: '-0.025em',
+            color: tweaks.textNavy,
+            marginBottom: 24,
+          }}>
+            Learn AI.<br />Apply It.<br />
+            <span style={{ color: tweaks.accentTeal }}>Move Forward.</span>
+          </h1>
+
+          <p style={{
+            fontSize: 18, lineHeight: 1.65,
+            color: '#5A6B73', marginBottom: 40,
+            maxWidth: 480,
+          }}>
+            Practical AI training and community for the people doing the actual work — professionals, solopreneurs, small businesses, creators, and the organizations that support them.
+          </p>
+
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+            <button
+              onMouseEnter={() => setHoverPrimary(true)}
+              onMouseLeave={() => setHoverPrimary(false)}
+              style={{
+                background: hoverPrimary ? '#0B7F78' : tweaks.accentTeal,
+                color: '#fff', border: 'none',
+                padding: '14px 28px', borderRadius: 10,
+                fontSize: 15.5, fontWeight: 600, cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex', alignItems: 'center', gap: 8,
+                transform: hoverPrimary ? 'translateY(-1px)' : 'none',
+                boxShadow: hoverPrimary ? '0 8px 24px rgba(15,169,160,0.3)' : '0 2px 8px rgba(15,169,160,0.2)',
+              }}
+            >
+              Explore Courses <IconArrow />
+            </button>
+            <button
+              onMouseEnter={() => setHoverSecondary(true)}
+              onMouseLeave={() => setHoverSecondary(false)}
+              style={{
+                background: hoverSecondary ? 'rgba(15,169,160,0.06)' : 'transparent',
+                color: tweaks.accentTeal,
+                border: `1.5px solid ${tweaks.accentTeal}`,
+                padding: '14px 28px', borderRadius: 10,
+                fontSize: 15.5, fontWeight: 600, cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              Partner With Us
+            </button>
+          </div>
+
+          {/* Social proof micro */}
+          <div style={{ marginTop: 40, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ display: 'flex' }}>
+              {['#a8d8d4','#8eccc7','#74bfba','#5ab3ad'].map((c, i) => (
+                <div key={i} style={{
+                  width: 32, height: 32, borderRadius: '50%',
+                  background: c, border: '2px solid #FDFBF7',
+                  marginLeft: i > 0 ? -10 : 0,
+                }}/>
+              ))}
+            </div>
+            <span style={{ fontSize: 13.5, color: '#8B9499' }}>
+              Joined by <strong style={{ color: tweaks.textNavy }}>500+</strong> learners across EN &amp; JP
+            </span>
+          </div>
+        </div>
+
+        {/* Vault Product Mockup */}
+        {tweaks.heroLayout === 'split' && (
+          <div style={{ position: 'relative' }}>
+            {/* Browser frame */}
+            <div style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              boxShadow: '0 24px 64px rgba(26,43,51,0.14), 0 4px 16px rgba(26,43,51,0.08)',
+              border: '1px solid rgba(26,43,51,0.08)',
+              background: '#fff',
+            }}>
+              {/* Browser chrome */}
+              <div style={{
+                background: '#F2EDE4',
+                padding: '10px 16px',
+                borderBottom: '1px solid rgba(26,43,51,0.08)',
+                display: 'flex', alignItems: 'center', gap: 10,
+              }}>
+                <div style={{ display: 'flex', gap: 5 }}>
+                  {['#FF6058','#FFBD2E','#28CA42'].map((c,i) => (
+                    <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c }}/>
+                  ))}
+                </div>
+                <div style={{
+                  flex: 1, background: 'rgba(26,43,51,0.07)', borderRadius: 5,
+                  height: 22, display: 'flex', alignItems: 'center',
+                  paddingLeft: 10, fontSize: 11, color: '#8B9499',
+                  letterSpacing: '0.01em',
+                }}>
+                  🔒 vault.honovibe.ai
+                </div>
+              </div>
+
+              {/* App body */}
+              <div style={{ display: 'flex', height: 430, background: '#FDFBF7' }}>
+
+                {/* Sidebar */}
+                <div style={{
+                  width: 176, background: '#fff',
+                  borderRight: '1px solid rgba(26,43,51,0.07)',
+                  padding: '20px 12px',
+                  flexShrink: 0,
+                }}>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 7, marginBottom: 20,
+                    padding: '0 4px',
+                  }}>
+                    <div style={{ color: tweaks.accentTeal, opacity: 0.9 }}>
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="2" y="4" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.4"/><circle cx="9" cy="9" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.3"/></svg>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: tweaks.textNavy, letterSpacing: '-0.01em' }}>The Vault</span>
+                  </div>
+                  <p style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#8B9499', marginBottom: 8, paddingLeft: 4 }}>Library</p>
+                  {[
+                    { label: 'AI Fundamentals', active: false, done: true },
+                    { label: 'Prompt Engineering', active: false, done: true },
+                    { label: 'Claude & LLMs', active: true, done: false },
+                    { label: 'Workflow Automation', active: false, done: false },
+                    { label: 'Real-World Projects', active: false, done: false },
+                    { label: 'Business Applications', active: false, done: false },
+                  ].map((item, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: 7,
+                      padding: '7px 8px', borderRadius: 7, marginBottom: 2,
+                      background: item.active ? 'rgba(15,169,160,0.1)' : 'transparent',
+                      cursor: 'pointer',
+                    }}>
+                      <div style={{
+                        width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+                        background: item.done ? tweaks.accentTeal : item.active ? tweaks.accentTeal : 'rgba(26,43,51,0.15)',
+                        opacity: item.active ? 1 : item.done ? 0.7 : 1,
+                      }}/>
+                      <span style={{
+                        fontSize: 12, lineHeight: 1.35,
+                        color: item.active ? tweaks.accentTeal : '#5A6B73',
+                        fontWeight: item.active ? 600 : 400,
+                      }}>{item.label}</span>
+                    </div>
+                  ))}
+                  {/* Progress */}
+                  <div style={{ marginTop: 20, padding: '12px 8px 0', borderTop: '1px solid rgba(26,43,51,0.07)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, color: '#8B9499', fontWeight: 500 }}>Progress</span>
+                      <span style={{ fontSize: 10, color: tweaks.accentTeal, fontWeight: 700 }}>33%</span>
+                    </div>
+                    <div style={{ height: 4, background: 'rgba(26,43,51,0.08)', borderRadius: 2 }}>
+                      <div style={{ width: '33%', height: '100%', background: tweaks.accentTeal, borderRadius: 2 }}/>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main content */}
+                <div style={{ flex: 1, padding: '20px 20px', overflowY: 'hidden' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                    <div>
+                      <h3 style={{ fontSize: 15, fontWeight: 700, color: tweaks.textNavy, marginBottom: 2 }}>Claude &amp; LLMs</h3>
+                      <p style={{ fontSize: 11, color: '#8B9499' }}>12 lessons · ~3 hours</p>
+                    </div>
+                    <span style={{
+                      background: 'rgba(15,169,160,0.1)', color: tweaks.accentTeal,
+                      borderRadius: 20, padding: '3px 10px', fontSize: 11, fontWeight: 600,
+                    }}>In progress</span>
+                  </div>
+
+                  {/* Lesson cards */}
+                  {[
+                    { title: 'How Claude Works', desc: 'Architecture, training, and what sets Claude apart from other LLMs.', state: 'done', time: '9 min' },
+                    { title: 'Writing System Prompts', desc: 'Structure, tone, and patterns for effective system-level instructions.', state: 'done', time: '11 min' },
+                    { title: 'Context & Memory', desc: 'How Claude manages conversation context and what that means for your prompts.', state: 'active', time: '8 min' },
+                    { title: 'Multi-turn Conversations', desc: 'Designing dialogue flows that stay coherent across multiple exchanges.', state: 'locked', time: '10 min' },
+                  ].map((lesson, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 12,
+                      padding: '12px 14px', borderRadius: 10, marginBottom: 8,
+                      background: lesson.state === 'active' ? '#fff' : lesson.state === 'done' ? 'rgba(15,169,160,0.04)' : 'transparent',
+                      border: lesson.state === 'active' ? `1.5px solid ${tweaks.accentTeal}` : '1.5px solid rgba(26,43,51,0.06)',
+                      boxShadow: lesson.state === 'active' ? '0 4px 12px rgba(15,169,160,0.1)' : 'none',
+                    }}>
+                      {/* State icon */}
+                      <div style={{
+                        width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                        marginTop: 1,
+                        background: lesson.state === 'done' ? tweaks.accentTeal : lesson.state === 'active' ? 'rgba(15,169,160,0.15)' : 'rgba(26,43,51,0.07)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {lesson.state === 'done' && (
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        )}
+                        {lesson.state === 'active' && (
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: tweaks.accentTeal }}/>
+                        )}
+                        {lesson.state === 'locked' && (
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="2" y="4.5" width="6" height="4.5" rx="1" fill="rgba(26,43,51,0.3)"/><path d="M3.5 4.5V3.5a1.5 1.5 0 013 0v1" stroke="rgba(26,43,51,0.3)" strokeWidth="1.2"/></svg>
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 3 }}>
+                          <p style={{
+                            fontSize: 12.5, fontWeight: 600,
+                            color: lesson.state === 'locked' ? '#8B9499' : tweaks.textNavy,
+                          }}>{lesson.title}</p>
+                          <span style={{ fontSize: 10.5, color: '#8B9499', marginLeft: 8, flexShrink: 0 }}>{lesson.time}</span>
+                        </div>
+                        <p style={{ fontSize: 11, lineHeight: 1.5, color: lesson.state === 'locked' ? '#8B9499' : '#5A6B73' }}>{lesson.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── HOW IT WORKS ─────────────────────────────────────────────────────────────
+
+const IconLearn = ({ teal, coral }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    {/* Abstract path / journey — nodes connected by a route */}
+    <circle cx="8" cy="28" r="4" fill={coral} opacity="0.25"/>
+    <circle cx="8" cy="28" r="4" stroke={teal} strokeWidth="1.5"/>
+    <circle cx="32" cy="12" r="4" fill={coral} opacity="0.25"/>
+    <circle cx="32" cy="12" r="4" stroke={teal} strokeWidth="1.5"/>
+    <circle cx="20" cy="20" r="3" fill={teal} opacity="0.15"/>
+    <circle cx="20" cy="20" r="3" stroke={teal} strokeWidth="1.5"/>
+    <path d="M11.5 25.5 Q16 14 17.5 20" stroke={teal} strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+    <path d="M22.5 20 Q26 20 28.5 14.5" stroke={teal} strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+    <circle cx="20" cy="20" r="1.5" fill={teal}/>
+  </svg>
+);
+
+const IconApply = ({ teal, coral }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    {/* Abstract tool — overlapping geometric shapes suggesting construction */}
+    <rect x="7" y="18" width="18" height="10" rx="2" fill={coral} opacity="0.18"/>
+    <rect x="7" y="18" width="18" height="10" rx="2" stroke={teal} strokeWidth="1.5"/>
+    <path d="M25 23h6M28 20v6" stroke={teal} strokeWidth="1.5" strokeLinecap="round"/>
+    <rect x="11" y="12" width="10" height="8" rx="1.5" fill={teal} opacity="0.12"/>
+    <rect x="11" y="12" width="10" height="8" rx="1.5" stroke={teal} strokeWidth="1.5"/>
+    <path d="M14 16h4M16 14v4" stroke={coral} strokeWidth="1.2" strokeLinecap="round" opacity="0.7"/>
+  </svg>
+);
+
+const IconMoveForward = ({ teal, coral }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+    {/* Directional arrow within a circle */}
+    <circle cx="20" cy="20" r="13" fill={coral} opacity="0.1"/>
+    <circle cx="20" cy="20" r="13" stroke={teal} strokeWidth="1.5"/>
+    <path d="M14 20h12" stroke={teal} strokeWidth="1.8" strokeLinecap="round"/>
+    <path d="M21 15l5 5-5 5" stroke={teal} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    {/* Small accent dot behind arrow */}
+    <circle cx="14" cy="20" r="2" fill={coral} opacity="0.45"/>
+  </svg>
+);
+
+function HowItWorks({ tweaks }) {
+  const cards = [
+    {
+      icon: <IconLearn teal={tweaks.accentTeal} coral={tweaks.accentCoral} />,
+      title: 'Learn',
+      body: 'Live cohorts and self-paced courses, in English and Japanese, taught by working practitioners.',
+    },
+    {
+      icon: <IconApply teal={tweaks.accentTeal} coral={tweaks.accentCoral} />,
+      title: 'Apply',
+      body: 'Real projects, real workflows, real outcomes. The Vault keeps everything you\'ve learned in reach.',
+    },
+    {
+      icon: <IconMoveForward teal={tweaks.accentTeal} coral={tweaks.accentCoral} />,
+      title: 'Move Forward',
+      body: 'A bilingual community, expert mentors, and an Aloha-grounded standard for showing up.',
+    },
+  ];
+
+  return (
+    <section style={{ background: tweaks.bgSand, padding: '88px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <p style={{
+          textAlign: 'center', fontSize: 11.5, fontWeight: 700,
+          letterSpacing: '0.09em', textTransform: 'uppercase',
+          color: '#8B9499', marginBottom: 52,
+        }}>
+          How HonuVibe Works
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28 }}>
+          {cards.map((card, i) => (
+            <HowItWorksCard key={i} card={card} tweaks={tweaks} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorksCard({ card, tweaks }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: '#fff',
+        borderRadius: tweaks.cardRadius + 4,
+        padding: '40px 36px',
+        border: hover ? `1px solid rgba(15,169,160,0.3)` : '1px solid rgba(26,43,51,0.07)',
+        boxShadow: hover ? '0 12px 36px rgba(26,43,51,0.09)' : '0 2px 8px rgba(26,43,51,0.04)',
+        transition: 'all 0.3s',
+        transform: hover ? 'translateY(-3px)' : 'none',
+      }}
+    >
+      <div style={{ marginBottom: 24 }}>{card.icon}</div>
+      <h3 style={{
+        fontSize: 21, fontWeight: 700, color: tweaks.textNavy,
+        marginBottom: 12, letterSpacing: '-0.015em',
+      }}>{card.title}</h3>
+      <p style={{
+        fontSize: 15.5, lineHeight: 1.7, color: '#5A6B73',
+      }}>{card.body}</p>
+    </div>
+  );
+}
+
+// ─── VALUE PROPS ──────────────────────────────────────────────────────────────
+function ValueProps({ tweaks }) {
+  const props = [
+    {
+      icon: <IconBrain />,
+      headline: 'Practical, not theoretical',
+      body: 'Learn from working examples and real projects, not lecture-hall theory. Every lesson ties back to something you can apply on Monday morning.',
+    },
+    {
+      icon: <IconGlobe />,
+      headline: 'Bilingual by design',
+      body: 'Built for English and Japanese learners simultaneously — not as an afterthought. Full curriculum in both languages, always.',
+      jp: '日本語対応',
+    },
+    {
+      icon: <IconVault />,
+      headline: 'The Vault',
+      body: 'A growing self-study library of AI lessons, frameworks, and tools you can revisit anytime — not a static course you finish and forget.',
+      tag: 'Members only',
+    },
+  ];
+
+  return (
+    <section style={{ background: tweaks.bgPrimary, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 48 }}>
+          {props.map((p, i) => (
+            <div key={i}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 14,
+                background: 'rgba(15,169,160,0.08)',
+                color: tweaks.accentTeal,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: 20,
+              }}>
+                {p.icon}
+              </div>
+              <h3 style={{
+                fontSize: 20, fontWeight: 700, color: tweaks.textNavy,
+                marginBottom: 10, letterSpacing: '-0.01em',
+              }}>
+                {p.headline}
+                {p.jp && (
+                  <span style={{
+                    display: 'inline-block', marginLeft: 8,
+                    fontSize: 12, fontWeight: 700, color: tweaks.accentTeal,
+                    fontFamily: "'Noto Sans JP', sans-serif",
+                    background: 'rgba(15,169,160,0.1)',
+                    borderRadius: 4, padding: '2px 6px',
+                  }}>{p.jp}</span>
+                )}
+              </h3>
+              <p style={{ fontSize: 15.5, lineHeight: 1.65, color: '#5A6B73' }}>{p.body}</p>
+              {p.tag && (
+                <span style={{
+                  display: 'inline-block', marginTop: 14,
+                  background: '#FCEDE6', color: tweaks.accentCoral,
+                  borderRadius: 20, padding: '4px 12px',
+                  fontSize: 12, fontWeight: 600,
+                }}>{p.tag}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── VAULT SECTION ────────────────────────────────────────────────────────────
+function VaultSection({ tweaks }) {
+  return (
+    <section style={{ background: tweaks.bgSand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ maxWidth: 560, marginBottom: 56 }}>
+          <p style={{
+            fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+            textTransform: 'uppercase', color: tweaks.accentCoral,
+            marginBottom: 14,
+          }}>Why We Built This</p>
+          <h2 style={{
+            fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 700,
+            letterSpacing: '-0.02em', color: tweaks.textNavy,
+            lineHeight: 1.15, marginBottom: 20,
+          }}>
+            A learning library that grows with you.
+          </h2>
+          <p style={{ fontSize: 16.5, lineHeight: 1.7, color: '#5A6B73' }}>
+            Most AI courses leave you with a certificate and nothing else. The Vault is different — it's an always-on library of lessons, frameworks, prompt libraries, and real-world workflows that evolves alongside AI itself. Access it on your timeline, revisit it whenever you need a refresh.
+          </p>
+        </div>
+
+        {/* Vault Product Screenshot */}
+        <div style={{
+          borderRadius: 20,
+          overflow: 'hidden',
+          boxShadow: '0 20px 60px rgba(26,43,51,0.12)',
+          border: '1px solid rgba(26,43,51,0.06)',
+          background: '#fff',
+        }}>
+          {/* Browser chrome bar */}
+          <div style={{
+            padding: '12px 20px',
+            background: '#F5F0E8',
+            borderBottom: '1px solid rgba(26,43,51,0.07)',
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['#ff6058','#ffbd2e','#28ca42'].map((c, i) => (
+                <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: c }}/>
+              ))}
+            </div>
+            <div style={{
+              flex: 1, background: 'rgba(26,43,51,0.07)',
+              borderRadius: 6, height: 26,
+              display: 'flex', alignItems: 'center', paddingLeft: 12,
+              fontSize: 12, color: '#8B9499', marginLeft: 12,
+            }}>
+              vault.honovibe.ai
+            </div>
+          </div>
+          {/* Vault UI mockup */}
+          <div style={{ padding: 32, background: '#fff', minHeight: 400 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 28 }}>
+              {/* Sidebar */}
+              <div>
+                <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#8B9499', marginBottom: 12 }}>Library</p>
+                {['AI Fundamentals', 'Prompt Engineering', 'Claude & LLMs', 'Workflow Automation', 'Real-World Projects', 'Business Applications'].map((item, i) => (
+                  <div key={i} style={{
+                    padding: '9px 12px', borderRadius: 8, marginBottom: 4,
+                    background: i === 2 ? 'rgba(15,169,160,0.1)' : 'transparent',
+                    color: i === 2 ? tweaks.accentTeal : '#5A6B73',
+                    fontSize: 13.5, fontWeight: i === 2 ? 600 : 400,
+                    cursor: 'pointer',
+                  }}>{item}</div>
+                ))}
+              </div>
+              {/* Content area */}
+              <div>
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  marginBottom: 24,
+                }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: tweaks.textNavy }}>Claude &amp; LLMs</h3>
+                  <span style={{
+                    background: 'rgba(15,169,160,0.1)', color: tweaks.accentTeal,
+                    borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 600,
+                  }}>12 lessons</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+                  {['How Claude Works', 'Writing System Prompts', 'Context & Memory', 'Multi-turn Conversations', 'Tool Use Basics', 'API Integration'].map((lesson, i) => (
+                    <div key={i} style={{
+                      background: tweaks.bgSand, borderRadius: 10,
+                      padding: '16px', cursor: 'pointer',
+                      border: '1px solid rgba(26,43,51,0.06)',
+                    }}>
+                      <div style={{
+                        width: 28, height: 28, borderRadius: 6,
+                        background: i < 3 ? tweaks.accentTeal : 'rgba(26,43,51,0.1)',
+                        marginBottom: 10,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#fff' }}/>
+                      </div>
+                      <p style={{ fontSize: 12.5, fontWeight: 600, color: tweaks.textNavy }}>{lesson}</p>
+                      <p style={{ fontSize: 11, color: '#8B9499', marginTop: 4 }}>{i < 3 ? 'Completed' : '8–12 min'}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: '#8B9499' }}>
+          The Vault — AI learning library for HonuVibe members
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─── COURSES ──────────────────────────────────────────────────────────────────
+function Courses({ tweaks }) {
+  const courses = [
+    {
+      level: 'Beginner', duration: '5 weeks', lang: 'EN / JP',
+      title: 'AI Essentials',
+      desc: 'Foundational AI literacy for professionals. Understand how AI works, where it applies to your work, and how to start using it today.',
+      cta: 'Enroll Now',
+    },
+    {
+      level: 'Intermediate', duration: '5 weeks', lang: 'EN / JP',
+      title: 'AI Mastery',
+      desc: 'Hands-on application and custom AI workflows. Build real systems, automate real tasks, and integrate AI into your actual day-to-day work.',
+      cta: 'Enroll Now',
+    },
+    {
+      level: 'Advanced', duration: 'Multiple courses', lang: 'EN',
+      title: 'Builder Track',
+      desc: 'For learners who want to go deeper. Claude Code, Micro-SaaS development, Workflow Automation, and shipping real AI products.',
+      cta: 'Explore Track',
+      track: true,
+    },
+  ];
+
+  return (
+    <section style={{ background: tweaks.bgPrimary, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+          marginBottom: 48,
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700,
+            letterSpacing: '-0.02em', color: tweaks.textNavy,
+          }}>Featured Courses</h2>
+          <a href="#" style={{
+            fontSize: 14.5, fontWeight: 600, color: tweaks.accentTeal,
+            textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6,
+          }}>See all courses <IconArrow /></a>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          {courses.map((course, i) => (
+            <CourseCard key={i} course={course} tweaks={tweaks} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CourseCard({ course, tweaks }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: '#fff',
+        borderRadius: tweaks.cardRadius + 4,
+        padding: 28,
+        border: hover ? `1.5px solid ${tweaks.accentTeal}` : '1.5px solid rgba(26,43,51,0.07)',
+        boxShadow: hover ? '0 12px 40px rgba(15,169,160,0.12)' : '0 4px 12px rgba(26,43,51,0.06)',
+        transition: 'all 0.25s',
+        transform: hover ? 'translateY(-4px)' : 'none',
+        display: 'flex', flexDirection: 'column',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {course.track && (
+        <div style={{
+          position: 'absolute', top: 0, right: 0,
+          background: tweaks.accentCoral,
+          color: '#fff', fontSize: 10.5, fontWeight: 700,
+          padding: '5px 14px', borderBottomLeftRadius: 10,
+          letterSpacing: '0.05em',
+        }}>TRACK</div>
+      )}
+      {/* Badges */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+        {[course.level, course.duration, course.lang].map((badge, i) => (
+          <span key={i} style={{
+            background: '#FCEDE6', color: tweaks.accentCoral,
+            borderRadius: 20, padding: '4px 11px',
+            fontSize: 11.5, fontWeight: 600,
+          }}>{badge}</span>
+        ))}
+      </div>
+      <h3 style={{
+        fontSize: 22, fontWeight: 700, color: tweaks.textNavy,
+        marginBottom: 12, letterSpacing: '-0.01em',
+      }}>{course.title}</h3>
+      <p style={{
+        fontSize: 14.5, lineHeight: 1.65, color: '#5A6B73',
+        flex: 1, marginBottom: 28,
+      }}>{course.desc}</p>
+      <button style={{
+        background: 'transparent', color: tweaks.accentTeal,
+        border: 'none', padding: 0,
+        fontSize: 14.5, fontWeight: 700, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: 6,
+        transition: 'gap 0.2s',
+      }}>
+        {course.cta} <IconArrow />
+      </button>
+    </div>
+  );
+}
+
+// ─── ORG PARTNERSHIPS ─────────────────────────────────────────────────────────
+function OrgSection({ tweaks }) {
+  return (
+    <section style={{ background: tweaks.bgSand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+          <div>
+            <p style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              textTransform: 'uppercase', color: tweaks.accentCoral, marginBottom: 14,
+            }}>For Organizations</p>
+            <h2 style={{
+              fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700,
+              letterSpacing: '-0.02em', color: tweaks.textNavy,
+              lineHeight: 1.2, marginBottom: 20,
+            }}>
+              Bring AI training to your team or community.
+            </h2>
+            <p style={{ fontSize: 16, lineHeight: 1.7, color: '#5A6B73', marginBottom: 32 }}>
+              We partner with leading organizations to deliver bilingual AI training programs to their members, employees, and communities — fully tailored to your audience.
+            </p>
+            <a href="#" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              color: tweaks.accentTeal, fontSize: 15.5, fontWeight: 700,
+              textDecoration: 'none',
+            }}>
+              Explore Partnerships <IconArrow />
+            </a>
+          </div>
+          <div className="photo-placeholder-warm" style={{
+            borderRadius: 20, height: 380, position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(135deg, #f2d9bc 0%, #e8c9a0 50%, #d9b888 100%)',
+              display: 'flex', alignItems: 'flex-end', padding: 24,
+            }}>
+              <div style={{
+                background: 'rgba(255,255,255,0.88)', borderRadius: 10,
+                padding: '12px 18px',
+              }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: tweaks.textNavy }}>
+                  Group cohort session · Waikiki
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── EXPLORATION ISLAND ───────────────────────────────────────────────────────
+function ExplorationSection({ tweaks }) {
+  const projects = [
+    {
+      title: 'KwameBrathwaite.com',
+      desc: 'A photography archive gets a modern overhaul.',
+      tags: ['Next.js', 'Tailwind', 'Claude AI'],
+      color: '#c8d8e4',
+    },
+    {
+      title: 'MamaTree Market',
+      desc: 'Local farmers market e-commerce with AI product descriptions.',
+      tags: ['Shopify', 'Claude API', 'Automation'],
+      color: '#d8e4c8',
+    },
+    {
+      title: 'HonuHub Scheduler',
+      desc: 'Internal scheduling tool built during the Builder Track cohort.',
+      tags: ['React', 'Supabase', 'AI Workflows'],
+      color: '#e4d8c8',
+    },
+  ];
+  return (
+    <section style={{ background: tweaks.bgPrimary, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ marginBottom: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div>
+            <h2 style={{
+              fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700,
+              letterSpacing: '-0.02em', color: tweaks.textNavy, marginBottom: 8,
+            }}>Explore Our Work</h2>
+            <p style={{ fontSize: 16, color: '#5A6B73' }}>Real projects. Real outcomes. Built by the HonuVibe community.</p>
+          </div>
+          <a href="#" style={{
+            fontSize: 14.5, fontWeight: 600, color: tweaks.accentTeal,
+            textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6,
+          }}>Explore our work <IconArrow /></a>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          {projects.map((proj, i) => (
+            <ProjectCard key={i} proj={proj} tweaks={tweaks} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProjectCard({ proj, tweaks }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: '#fff',
+        borderRadius: tweaks.cardRadius + 4,
+        overflow: 'hidden',
+        border: '1.5px solid rgba(26,43,51,0.07)',
+        boxShadow: hover ? '0 12px 32px rgba(26,43,51,0.1)' : '0 2px 8px rgba(26,43,51,0.05)',
+        transition: 'all 0.25s',
+        transform: hover ? 'translateY(-3px)' : 'none',
+        cursor: 'pointer',
+      }}
+    >
+      <div style={{
+        height: 160, background: proj.color,
+        position: 'relative',
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.4,
+          background: 'linear-gradient(160deg, transparent 60%, rgba(26,43,51,0.15))',
+        }}/>
+      </div>
+      <div style={{ padding: 22 }}>
+        <h4 style={{ fontSize: 16, fontWeight: 700, color: tweaks.textNavy, marginBottom: 6 }}>{proj.title}</h4>
+        <p style={{ fontSize: 13.5, color: '#5A6B73', marginBottom: 14, lineHeight: 1.5 }}>{proj.desc}</p>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {proj.tags.map((tag, i) => (
+            <span key={i} style={{
+              background: tweaks.bgSand, color: '#5A6B73',
+              borderRadius: 20, padding: '3px 10px',
+              fontSize: 11.5, fontWeight: 500,
+            }}>{tag}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
+function Testimonials({ tweaks }) {
+  const quotes = [
+    {
+      text: "I've taken a lot of online courses. HonuVibe is the first one where I actually changed how I work within the first week.",
+      name: 'Keiko T.',
+      role: 'Marketing Manager · Tokyo',
+    },
+    {
+      text: "The bilingual format made all the difference for our team. Half speaks English, half Japanese — and everyone got the same depth.",
+      name: 'Marcus A.',
+      role: 'Operations Lead · Honolulu',
+    },
+    {
+      text: "The Vault alone is worth it. I went back to the prompt engineering module three times as my projects evolved.",
+      name: 'Sarah L.',
+      role: 'Freelance Designer · San Francisco',
+    },
+  ];
+  return (
+    <section style={{ background: tweaks.bgSand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700,
+          letterSpacing: '-0.02em', color: tweaks.textNavy,
+          marginBottom: 48, textAlign: 'center',
+        }}>What People Are Saying</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          {quotes.map((q, i) => (
+            <TestimonialCard key={i} q={q} tweaks={tweaks} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TestimonialCard({ q, tweaks }) {
+  return (
+    <div style={{
+      background: '#fff',
+      borderRadius: tweaks.cardRadius + 4,
+      padding: '32px 28px',
+      boxShadow: '0 4px 16px rgba(26,43,51,0.07)',
+      border: '1px solid rgba(26,43,51,0.05)',
+      position: 'relative',
+    }}>
+      <div style={{
+        fontSize: 48, lineHeight: 1, color: tweaks.accentCoral,
+        position: 'absolute', top: 20, right: 24,
+        fontFamily: 'Georgia, serif', opacity: 0.35,
+      }}>"</div>
+      <p style={{
+        fontSize: 15.5, lineHeight: 1.7, color: tweaks.textNavy,
+        marginBottom: 24, fontStyle: 'italic',
+      }}>"{q.text}"</p>
+      <div>
+        <p style={{ fontWeight: 700, fontSize: 14, color: tweaks.textNavy }}>{q.name}</p>
+        <p style={{ fontSize: 12.5, color: '#8B9499', marginTop: 2 }}>{q.role}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── NEWSLETTER ───────────────────────────────────────────────────────────────
+function Newsletter({ tweaks }) {
+  const [email, setEmail] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  return (
+    <section style={{
+      background: `linear-gradient(135deg, rgba(15,169,160,0.06) 0%, ${tweaks.bgSand} 50%, rgba(232,118,90,0.06) 100%)`,
+      padding: '96px 32px',
+      borderTop: `1px solid rgba(15,169,160,0.12)`,
+    }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
+          letterSpacing: '-0.02em', color: tweaks.textNavy,
+          marginBottom: 12,
+        }}>Join the wave.</h2>
+        <p style={{ fontSize: 17, lineHeight: 1.65, color: '#5A6B73', marginBottom: 36 }}>
+          Get weekly insights, tutorials, and community highlights from the HonuVibe community.
+        </p>
+        {!submitted ? (
+          <>
+            <form
+              onSubmit={e => { e.preventDefault(); if (email) setSubmitted(true); }}
+              style={{ display: 'flex', gap: 10, marginBottom: 20 }}
+            >
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Your email address"
+                style={{
+                  flex: 1, padding: '14px 18px', borderRadius: 10,
+                  border: '1.5px solid rgba(26,43,51,0.15)',
+                  fontSize: 15, outline: 'none', background: '#fff',
+                  color: tweaks.textNavy, fontFamily: 'inherit',
+                }}
+              />
+              <button type="submit" style={{
+                background: tweaks.accentTeal, color: '#fff', border: 'none',
+                padding: '14px 24px', borderRadius: 10, fontSize: 15, fontWeight: 700,
+                cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>Subscribe</button>
+            </form>
+            <a href="#" style={{
+              fontSize: 14, color: '#5A6B73', textDecoration: 'none',
+              borderBottom: '1px solid rgba(90,107,115,0.3)',
+            }}>Or join the free Skool community →</a>
+          </>
+        ) : (
+          <div style={{
+            background: 'rgba(15,169,160,0.08)', borderRadius: 14,
+            padding: '24px', border: `1.5px solid ${tweaks.accentTeal}`,
+          }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: tweaks.accentTeal, marginBottom: 6 }}>
+              🐢 You're in!
+            </p>
+            <p style={{ fontSize: 15, color: '#5A6B73' }}>
+              Welcome to the HonuVibe community. Check your inbox.
+            </p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+function Footer({ tweaks }) {
+  const cols = [
+    { title: 'Navigate', links: ['Learn', 'Explore', 'Partnerships', 'About', 'Contact'] },
+    { title: 'Resources', links: ['The Vault', 'Blog', 'Tutorials', 'AI Glossary', 'FAQ'] },
+    { title: 'Partners', links: ['Org Programs', 'Apply to Partner', 'Case Studies', 'Become a Mentor'] },
+    { title: 'Legal', links: ['Privacy Policy', 'Terms of Use', 'Cookie Policy', 'Accessibility'] },
+  ];
+  return (
+    <footer style={{ background: tweaks.textNavy, color: '#fff', padding: '72px 32px 40px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 48, marginBottom: 56 }}>
+          {/* Brand */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ color: tweaks.accentTeal }}><IconHonu /></div>
+              <span style={{ fontWeight: 700, fontSize: 18 }}>
+                HonuVibe<span style={{ color: tweaks.accentTeal }}>.AI</span>
+              </span>
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', marginBottom: 24, maxWidth: 220 }}>
+              A new vibe for AI learning. Practical. Bilingual. Built for real people.
+            </p>
+            {/* Social */}
+            <div style={{ display: 'flex', gap: 12 }}>
+              {['TikTok', 'IG', 'YT', 'LINE'].map((s, i) => (
+                <a key={i} href="#" style={{
+                  width: 36, height: 36, borderRadius: 8,
+                  background: 'rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
+                  textDecoration: 'none', transition: 'background 0.2s',
+                }}>{s}</a>
+              ))}
+            </div>
+          </div>
+          {/* Nav cols */}
+          {cols.map((col, i) => (
+            <div key={i}>
+              <p style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)',
+                marginBottom: 16,
+              }}>{col.title}</p>
+              {col.links.map((link, j) => (
+                <a key={j} href="#" style={{
+                  display: 'block', fontSize: 14, color: 'rgba(255,255,255,0.65)',
+                  textDecoration: 'none', marginBottom: 10, transition: 'color 0.2s',
+                }}
+                onMouseEnter={e => e.target.style.color = '#fff'}
+                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.65)'}
+                >{link}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+        {/* Bottom bar */}
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          paddingTop: 28,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            © 2026 HonuVibe.AI · All rights reserved
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+            Made in Hawaii with Aloha 🐢
+          </p>
+          <button style={{
+            background: 'rgba(255,255,255,0.08)', border: 'none',
+            color: 'rgba(255,255,255,0.6)', borderRadius: 6,
+            padding: '6px 14px', fontSize: 12.5, fontWeight: 600,
+            cursor: 'pointer',
+          }}>EN | 日本語</button>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── TWEAKS PANEL ─────────────────────────────────────────────────────────────
+function AppTweaks({ tweaks, setTweak }) {
+  return (
+    <TweaksPanel>
+      <TweakSection title="Colors">
+        <TweakColor label="Teal Accent" tweakKey="accentTeal" value={tweaks.accentTeal} onChange={v => setTweak('accentTeal', v)} />
+        <TweakColor label="Coral Accent" tweakKey="accentCoral" value={tweaks.accentCoral} onChange={v => setTweak('accentCoral', v)} />
+        <TweakColor label="Canvas BG" tweakKey="bgPrimary" value={tweaks.bgPrimary} onChange={v => setTweak('bgPrimary', v)} />
+        <TweakColor label="Sand BG" tweakKey="bgSand" value={tweaks.bgSand} onChange={v => setTweak('bgSand', v)} />
+      </TweakSection>
+      <TweakSection title="Layout">
+        <TweakRadio
+          label="Hero Layout"
+          tweakKey="heroLayout"
+          value={tweaks.heroLayout}
+          options={[{ value: 'split', label: 'Split' }, { value: 'centered', label: 'Centered' }]}
+          onChange={v => setTweak('heroLayout', v)}
+        />
+        <TweakSlider label="Card Radius" tweakKey="cardRadius" value={tweaks.cardRadius} min={4} max={24} step={2} onChange={v => setTweak('cardRadius', v)} />
+      </TweakSection>
+      <TweakSection title="Content">
+        <TweakToggle label="Show JP default" tweakKey="showJP" value={tweaks.showJP} onChange={v => setTweak('showJP', v)} />
+      </TweakSection>
+    </TweaksPanel>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  return (
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+      <Nav tweaks={tweaks} />
+      <Hero tweaks={tweaks} />
+      <HowItWorks tweaks={tweaks} />
+      <ValueProps tweaks={tweaks} />
+      <VaultSection tweaks={tweaks} />
+      <Courses tweaks={tweaks} />
+      <OrgSection tweaks={tweaks} />
+      <ExplorationSection tweaks={tweaks} />
+      <Testimonials tweaks={tweaks} />
+      <Newsletter tweaks={tweaks} />
+      <Footer tweaks={tweaks} />
+      <AppTweaks tweaks={tweaks} setTweak={setTweak} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<div id="root"></div>
+</body>
+</html>

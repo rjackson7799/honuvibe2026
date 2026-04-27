@@ -298,6 +298,84 @@
 }
 
 /* ============================================
+   MARKETING SHELL — Light-only design system
+   See docs/DESIGN.md (canonical) and docs/designs/*.html (prototypes)
+   Tokens prefixed --m-* to avoid collision with the dark-themed app tokens.
+   Scoped under [data-shell="marketing"] so app routes are unaffected.
+   ============================================ */
+
+[data-shell="marketing"] {
+  /* Surfaces */
+  --m-canvas: #FDFBF7;
+  --m-sand: #F5F0E8;
+  --m-white: #FFFFFF;
+
+  /* Ink */
+  --m-ink-primary: #1A2B33;     /* navy — headings, primary text */
+  --m-ink-secondary: #5A6B73;   /* slate — body text */
+  --m-ink-tertiary: #8B9499;    /* caption — meta/labels */
+
+  /* Accents */
+  --m-accent-teal: #0FA9A0;
+  --m-accent-teal-dark: #0B7F78;
+  --m-accent-teal-soft: rgba(15, 169, 160, 0.08);
+  --m-accent-coral: #E8765A;
+  --m-accent-coral-dark: #CC5A3E;
+  --m-accent-coral-soft: #FCEDE6;
+
+  /* Borders */
+  --m-border-soft: rgba(26, 43, 51, 0.07);
+  --m-border-default: rgba(26, 43, 51, 0.12);
+  --m-border-strong: rgba(26, 43, 51, 0.15);
+  --m-border-teal: rgba(15, 169, 160, 0.22);
+  --m-border-coral: rgba(232, 118, 90, 0.22);
+
+  /* Shadows */
+  --m-shadow-xs: 0 2px 8px rgba(26, 43, 51, 0.04);
+  --m-shadow-sm: 0 4px 16px rgba(26, 43, 51, 0.06);
+  --m-shadow-md: 0 8px 28px rgba(26, 43, 51, 0.07);
+  --m-shadow-lg: 0 12px 40px rgba(26, 43, 51, 0.1);
+  --m-shadow-xl: 0 24px 64px rgba(26, 43, 51, 0.13);
+  --m-shadow-teal-sm: 0 4px 16px rgba(15, 169, 160, 0.2);
+  --m-shadow-teal-md: 0 8px 24px rgba(15, 169, 160, 0.35);
+  --m-shadow-coral-sm: 0 4px 18px rgba(232, 118, 90, 0.22);
+  --m-shadow-coral-md: 0 10px 28px rgba(232, 118, 90, 0.38);
+
+  /* Radius */
+  --m-radius-sm: 8px;
+  --m-radius-md: 10px;
+  --m-radius-lg: 14px;
+  --m-radius-xl: 16px;
+  --m-radius-2xl: 20px;
+
+  /* Containers / spacing */
+  --m-container: 1200px;
+  --m-section: 96px;
+  --m-section-mobile: 64px;
+  --m-hero: 88px;
+  --m-nav-h: 68px;
+
+  /* Type scale (clamp values) */
+  --m-text-display: clamp(40px, 5.5vw, 66px);
+  --m-text-display-xl: clamp(52px, 6vw, 80px);
+  --m-text-h1: clamp(40px, 5vw, 62px);
+  --m-text-h2: clamp(28px, 3.5vw, 42px);
+  --m-text-h3: clamp(22px, 2.5vw, 30px);
+  --m-text-overline: 11.5px;
+
+  /* Force light surface + ink and Inter typography on marketing routes,
+     even though the app's :root carries dark-mode defaults. */
+  background-color: var(--m-canvas);
+  color: var(--m-ink-primary);
+  font-family: var(--font-inter), 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-shell="marketing"] ::selection {
+  background: rgba(15, 169, 160, 0.12);
+}
+
+/* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */
 
@@ -346,6 +424,26 @@
   --font-sans: var(--font-dm-sans), "Noto Sans JP", -apple-system, sans-serif;
   --font-serif: var(--font-dm-serif), serif;
   --font-mono: var(--font-jetbrains-mono), monospace;
+  --font-inter: var(--font-inter), "Noto Sans JP", -apple-system, sans-serif;
+
+  /* Marketing shell tokens (used inside [data-shell="marketing"]) */
+  --color-m-canvas: var(--m-canvas);
+  --color-m-sand: var(--m-sand);
+  --color-m-white: var(--m-white);
+  --color-m-ink-primary: var(--m-ink-primary);
+  --color-m-ink-secondary: var(--m-ink-secondary);
+  --color-m-ink-tertiary: var(--m-ink-tertiary);
+  --color-m-accent-teal: var(--m-accent-teal);
+  --color-m-accent-teal-dark: var(--m-accent-teal-dark);
+  --color-m-accent-teal-soft: var(--m-accent-teal-soft);
+  --color-m-accent-coral: var(--m-accent-coral);
+  --color-m-accent-coral-dark: var(--m-accent-coral-dark);
+  --color-m-accent-coral-soft: var(--m-accent-coral-soft);
+  --color-m-border-soft: var(--m-border-soft);
+  --color-m-border-default: var(--m-border-default);
+  --color-m-border-strong: var(--m-border-strong);
+  --color-m-border-teal: var(--m-border-teal);
+  --color-m-border-coral: var(--m-border-coral);
 
   --text-display: clamp(32px, 7vw, 64px);
   --text-h1: clamp(26px, 5vw, 44px);

@@ -10,6 +10,8 @@
     "type-check": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
+    "verify:fast": "pnpm type-check && pnpm test:run",
+    "verify": "pnpm type-check && pnpm test:run && pnpm build",
     "seed:glossary": "node scripts/seed-glossary.mjs"
   },
   "dependencies": {
@@ -53,6 +55,6 @@
     "jsdom": "^28.1.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.0.18"
+    "vitest": "^3.2.4"
   }
 }

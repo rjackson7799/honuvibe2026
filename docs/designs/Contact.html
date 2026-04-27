@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — HonuVibe.AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FDFBF7;
+    color: #1A2B33;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: rgba(15,169,160,0.12); }
+  input, select, textarea, button { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const T = {
+  teal: '#0FA9A0', tealDark: '#0B7F78',
+  coral: '#E8765A', coralSoft: '#FCEDE6',
+  navy: '#1A2B33', slate: '#5A6B73', caption: '#8B9499',
+  canvas: '#FDFBF7', sand: '#F5F0E8', white: '#FFFFFF',
+};
+
+// ─── ICONS ───────────────────────────────────────────────────────────────────
+const IconHonu = () => (
+  <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+    <ellipse cx="16" cy="17" rx="10" ry="8" fill="currentColor" opacity="0.15"/>
+    <ellipse cx="16" cy="16" rx="8" ry="6.5" fill="currentColor"/>
+    <ellipse cx="16" cy="15" rx="5" ry="4" fill="currentColor" opacity="0.25"/>
+    <ellipse cx="9" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(-20 9 20)"/>
+    <ellipse cx="23" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(20 23 20)"/>
+    <ellipse cx="8" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(-30 8 14)"/>
+    <ellipse cx="24" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(30 24 14)"/>
+    <ellipse cx="16" cy="10" rx="3" ry="2.5" fill="currentColor"/>
+    <path d="M16 23.5 Q15.5 26 16 27 Q16.5 26 16 23.5" fill="currentColor"/>
+    <circle cx="14.5" cy="10" r="0.8" fill="#FDFBF7"/>
+    <circle cx="17.5" cy="10" r="0.8" fill="#FDFBF7"/>
+  </svg>
+);
+const IconArrow = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 8h10M9 4l4 4-4 4"/>
+  </svg>
+);
+const IconEnvelope = ({ size = 18, color }) => (
+  <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke={color || T.teal} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="14" height="10" rx="2"/>
+    <path d="M2 6l7 5 7-5"/>
+  </svg>
+);
+const IconPin = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke={T.teal} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 17S3 11.5 3 7a6 6 0 0112 0c0 4.5-6 10-6 10z"/>
+    <circle cx="9" cy="7" r="2"/>
+  </svg>
+);
+const IconClock = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 18 18" fill="none" stroke={T.teal} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="9" r="7"/>
+    <path d="M9 5v4l2.5 2.5"/>
+  </svg>
+);
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [langJP, setLangJP] = useState(false);
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+  const links = [
+    { label: 'Learn', href: 'Learn.html' },
+    { label: 'Explore', href: 'Explore.html' },
+    { label: 'Partnerships', href: 'Partnerships.html' },
+    { label: 'About', href: 'About.html' },
+    { label: 'Contact', active: true },
+  ];
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      background: T.canvas,
+      borderBottom: scrolled ? '1px solid rgba(26,43,51,0.1)' : '1px solid transparent',
+      boxShadow: scrolled ? '0 2px 20px rgba(26,43,51,0.06)' : 'none',
+      transition: 'border-color 0.3s, box-shadow 0.3s',
+    }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto', padding: '0 32px',
+        height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <a href="Homepage.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: T.teal }}>
+          <IconHonu />
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: T.navy }}>
+            HonuVibe<span style={{ color: T.teal }}>.AI</span>
+          </span>
+        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          {links.map(link => (
+            <a key={link.label} href={link.href || '#'} style={{
+              color: link.active ? T.teal : T.slate,
+              fontSize: 14.5, fontWeight: link.active ? 600 : 500,
+              textDecoration: 'none',
+              borderBottom: link.active ? `2px solid ${T.teal}` : '2px solid transparent',
+              paddingBottom: 2, transition: 'color 0.2s',
+            }}>{link.label}</a>
+          ))}
+        </div>
+        <button onClick={() => setLangJP(p => !p)} style={{
+          background: 'none', border: '1px solid rgba(26,43,51,0.15)',
+          borderRadius: 6, padding: '5px 12px', fontSize: 12.5, fontWeight: 600,
+          cursor: 'pointer', color: T.slate, letterSpacing: '0.04em',
+        }}>{langJP ? 'EN' : '日本語'}</button>
+      </div>
+    </nav>
+  );
+}
+
+// ─── SECTION 1: HERO ─────────────────────────────────────────────────────────
+function Hero() {
+  const [pillHover, setPillHover] = useState(false);
+  return (
+    <section style={{ background: T.canvas, paddingTop: 68 }}>
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: '96px 32px 72px', textAlign: 'center' }}>
+        <p style={{
+          fontSize: 11.5, fontWeight: 700, letterSpacing: '0.11em',
+          textTransform: 'uppercase', color: T.caption, marginBottom: 20,
+        }}>Get in Touch</p>
+        <h1 style={{
+          fontSize: 'clamp(40px, 5.5vw, 64px)', fontWeight: 700,
+          letterSpacing: '-0.03em', color: T.navy, lineHeight: 1.08,
+          marginBottom: 20,
+        }}>We'd love to<br />hear from you.</h1>
+        <p style={{
+          fontSize: 18, lineHeight: 1.7, color: T.slate,
+          maxWidth: 480, margin: '0 auto 32px',
+        }}>
+          Whether it's a question, an idea, or a partnership conversation — reach out anytime.
+        </p>
+        {/* Email pill */}
+        <a
+          href="mailto:hello@honuvibe.ai"
+          onMouseEnter={() => setPillHover(true)}
+          onMouseLeave={() => setPillHover(false)}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 9,
+            background: pillHover ? 'rgba(15,169,160,0.06)' : T.white,
+            border: `1px solid ${pillHover ? 'rgba(15,169,160,0.25)' : 'rgba(26,43,51,0.12)'}`,
+            borderRadius: 40, padding: '10px 20px',
+            textDecoration: 'none',
+            boxShadow: pillHover ? '0 4px 16px rgba(15,169,160,0.1)' : '0 2px 8px rgba(26,43,51,0.05)',
+            transition: 'all 0.2s',
+          }}
+        >
+          <IconEnvelope size={16} />
+          <span style={{ fontSize: 14.5, fontWeight: 600, color: T.navy, letterSpacing: '-0.005em' }}>hello@honuvibe.ai</span>
+        </a>
+      </div>
+    </section>
+  );
+}
+
+// ─── SECTION 2: CONTACT FORM ──────────────────────────────────────────────────
+function ContactForm() {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const inputStyle = {
+    width: '100%', padding: '13px 16px',
+    border: '1.5px solid rgba(26,43,51,0.13)',
+    borderRadius: 9, fontSize: 15, outline: 'none',
+    background: T.white, color: T.navy,
+    fontFamily: 'Inter, sans-serif',
+    transition: 'border-color 0.2s',
+  };
+  const selectStyle = {
+    ...inputStyle,
+    appearance: 'none',
+    backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235A6B73' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 14px center',
+    paddingRight: 36, cursor: 'pointer',
+  };
+  const labelStyle = {
+    fontSize: 12.5, fontWeight: 600, color: T.navy,
+    letterSpacing: '0.02em', marginBottom: 7, display: 'block',
+  };
+
+  if (submitted) {
+    return (
+      <section style={{ background: T.canvas, padding: '0 32px 96px' }}>
+        <div style={{
+          maxWidth: 700, margin: '0 auto',
+          background: T.white, borderRadius: 20, padding: '72px 48px',
+          textAlign: 'center',
+          border: '1px solid rgba(26,43,51,0.07)',
+          boxShadow: '0 8px 40px rgba(26,43,51,0.07)',
+        }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'rgba(15,169,160,0.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 24px',
+          }}>
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke={T.teal} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 14l7 7 11-11"/>
+            </svg>
+          </div>
+          <h3 style={{ fontSize: 26, fontWeight: 700, color: T.navy, marginBottom: 10, letterSpacing: '-0.015em' }}>
+            Message sent.
+          </h3>
+          <p style={{ fontSize: 16, lineHeight: 1.65, color: T.slate }}>
+            Thanks for reaching out — we'll get back to you within 2 business days.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section style={{ background: T.canvas, padding: '0 32px 96px' }}>
+      <div style={{ maxWidth: 700, margin: '0 auto' }}>
+        <form
+          onSubmit={e => { e.preventDefault(); setSubmitted(true); }}
+          style={{
+            background: T.white, borderRadius: 20, padding: '52px 52px',
+            border: '1px solid rgba(26,43,51,0.07)',
+            boxShadow: '0 8px 40px rgba(26,43,51,0.07)',
+            display: 'flex', flexDirection: 'column', gap: 26,
+          }}
+        >
+          {/* Row 1 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+            <div>
+              <label style={labelStyle}>Name</label>
+              <input
+                type="text" required value={form.name}
+                onChange={e => set('name', e.target.value)}
+                placeholder="Your name" style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Email</label>
+              <input
+                type="email" required value={form.email}
+                onChange={e => set('email', e.target.value)}
+                placeholder="your@email.com" style={inputStyle}
+              />
+            </div>
+          </div>
+
+          {/* Row 2 */}
+          <div>
+            <label style={labelStyle}>Subject</label>
+            <select
+              value={form.subject}
+              onChange={e => set('subject', e.target.value)}
+              style={selectStyle}
+            >
+              <option value="">Select a topic…</option>
+              <option>General Inquiry</option>
+              <option>Course Question</option>
+              <option>Partnership Inquiry</option>
+              <option>Media &amp; Press</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          {/* Row 3 — textarea with character count */}
+          <div>
+            <label style={labelStyle}>Message</label>
+            <div style={{ position: 'relative' }}>
+              <textarea
+                required rows={6}
+                value={form.message}
+                onChange={e => { if (e.target.value.length <= 2000) set('message', e.target.value); }}
+                placeholder="How can we help?"
+                style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.65, paddingBottom: 32 }}
+              />
+              <span style={{
+                position: 'absolute', bottom: 10, right: 14,
+                fontSize: 12, color: form.message.length > 1800 ? T.coral : T.caption,
+                pointerEvents: 'none',
+              }}>{form.message.length} / 2000</span>
+            </div>
+          </div>
+
+          {/* Submit */}
+          <div>
+            <SubmitButton />
+            <p style={{ textAlign: 'center', fontSize: 13.5, color: T.caption, marginTop: 18, lineHeight: 1.6 }}>
+              We respond within 2 business days. For partnership inquiries, you can also{' '}
+              <a href="Partnerships.html" style={{ color: T.teal, textDecoration: 'none', fontWeight: 500 }}>
+                apply directly on our partnerships page →
+              </a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </section>
+  );
+}
+
+function SubmitButton() {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      type="submit"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        width: '100%', background: hover ? T.tealDark : T.teal,
+        color: '#fff', border: 'none', borderRadius: 10,
+        padding: '16px', fontSize: 16, fontWeight: 700, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        boxShadow: hover ? '0 8px 24px rgba(15,169,160,0.35)' : '0 4px 16px rgba(15,169,160,0.2)',
+        transform: hover ? 'translateY(-1px)' : 'none',
+        transition: 'all 0.2s',
+      }}
+    >Send Message <IconArrow /></button>
+  );
+}
+
+// ─── SECTION 3: QUICK INFO STRIP ─────────────────────────────────────────────
+function InfoStrip() {
+  const items = [
+    { icon: <IconEnvelope size={20} />, label: 'Email', detail: 'hello@honuvibe.ai' },
+    { icon: <IconPin size={20} />, label: 'Location', detail: 'Honolulu, Hawaii (Global)' },
+    { icon: <IconClock size={20} />, label: 'Response time', detail: 'Within 2 business days' },
+  ];
+  return (
+    <section style={{ background: T.canvas, padding: '0 32px 80px' }}>
+      <div style={{
+        maxWidth: 700, margin: '0 auto',
+        display: 'flex', justifyContent: 'center', gap: 0,
+        border: '1px solid rgba(26,43,51,0.08)',
+        borderRadius: 14, overflow: 'hidden', background: T.white,
+      }}>
+        {items.map((item, i) => (
+          <div key={i} style={{
+            flex: 1, padding: '28px 24px', textAlign: 'center',
+            borderRight: i < items.length - 1 ? '1px solid rgba(26,43,51,0.08)' : 'none',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+              {item.icon}
+            </div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: T.caption, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 5 }}>
+              {item.label}
+            </p>
+            <p style={{ fontSize: 14, fontWeight: 500, color: T.navy }}>{item.detail}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── SECTION 4: SOCIAL ────────────────────────────────────────────────────────
+function SocialSection() {
+  const socials = [
+    { name: 'TikTok', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M20 6.5c-1.5-.5-2.8-1.8-3.2-3.5h-3.3v13.5c0 1.5-1.2 2.7-2.8 2.7s-2.7-1.2-2.7-2.7c0-1.5 1.2-2.7 2.7-2.7.3 0 .6.05.8.1V11c-.3-.04-.6-.06-.8-.06-3.2 0-5.7 2.5-5.7 5.7S8 22.3 11.2 22.3s5.8-2.5 5.8-5.7V11.4c1.3.9 2.8 1.4 4.5 1.4V9.6c-.9 0-1.7-.4-2.3-1.1" fill={T.teal}/>
+      </svg>
+    )},
+    { name: 'Instagram', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke={T.teal} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4" y="4" width="20" height="20" rx="6"/>
+        <circle cx="14" cy="14" r="5"/>
+        <circle cx="20" cy="8" r="1" fill={T.teal} stroke="none"/>
+      </svg>
+    )},
+    { name: 'YouTube', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="6" width="24" height="16" rx="5" fill={T.teal} opacity="0.15"/>
+        <rect x="2" y="6" width="24" height="16" rx="5" stroke={T.teal} strokeWidth="1.6"/>
+        <polygon points="11,10 11,18 19,14" fill={T.teal}/>
+      </svg>
+    )},
+    { name: 'LinkedIn', icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="2" y="2" width="24" height="24" rx="5" fill={T.teal} opacity="0.12" stroke={T.teal} strokeWidth="1.6"/>
+        <path d="M8 12v8M8 9v.5" stroke={T.teal} strokeWidth="2" strokeLinecap="round"/>
+        <path d="M12 20v-4c0-2 1-4 3.5-4S19 14 19 16v4M12 12v8" stroke={T.teal} strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    )},
+  ];
+  return (
+    <section style={{ background: T.sand, padding: '80px 32px 96px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+          <p style={{
+            fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+            textTransform: 'uppercase', color: T.teal, marginBottom: 14,
+          }}>Connect With Us</p>
+          <h2 style={{
+            fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 700,
+            letterSpacing: '-0.022em', color: T.navy,
+          }}>Follow along.</h2>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+          {socials.map((s, i) => <SocialCard key={i} social={s} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SocialCard({ social }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <a
+      href="#"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        gap: 14, padding: '36px 48px',
+        background: hover ? 'rgba(15,169,160,0.06)' : T.white,
+        border: `1px solid ${hover ? 'rgba(15,169,160,0.22)' : 'rgba(26,43,51,0.08)'}`,
+        borderRadius: 16, textDecoration: 'none',
+        boxShadow: hover ? '0 8px 28px rgba(15,169,160,0.1)' : '0 2px 8px rgba(26,43,51,0.04)',
+        transition: 'all 0.22s',
+        transform: hover ? 'translateY(-3px)' : 'none',
+        minWidth: 130,
+      }}
+    >
+      {social.icon}
+      <span style={{ fontSize: 14, fontWeight: 600, color: T.navy }}>{social.name}</span>
+    </a>
+  );
+}
+
+// ─── NEWSLETTER ───────────────────────────────────────────────────────────────
+function Newsletter() {
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
+  return (
+    <section style={{
+      background: `linear-gradient(135deg, rgba(15,169,160,0.06) 0%, ${T.sand} 50%, rgba(232,118,90,0.06) 100%)`,
+      padding: '96px 32px',
+      borderTop: '1px solid rgba(15,169,160,0.12)',
+    }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
+          letterSpacing: '-0.02em', color: T.navy, marginBottom: 12,
+        }}>Join the wave.</h2>
+        <p style={{ fontSize: 17, lineHeight: 1.65, color: T.slate, marginBottom: 36 }}>
+          Get weekly insights, tutorials, and community highlights from the HonuVibe community.
+        </p>
+        {!done ? (
+          <>
+            <form onSubmit={e => { e.preventDefault(); if (email) setDone(true); }}
+              style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="Your email address"
+                style={{
+                  flex: 1, padding: '14px 18px', borderRadius: 10,
+                  border: '1.5px solid rgba(26,43,51,0.15)',
+                  fontSize: 15, outline: 'none', background: T.white,
+                  color: T.navy, fontFamily: 'inherit',
+                }}
+              />
+              <button type="submit" style={{
+                background: T.teal, color: '#fff', border: 'none',
+                padding: '14px 24px', borderRadius: 10, fontSize: 15,
+                fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>Subscribe</button>
+            </form>
+            <a href="#" style={{ fontSize: 14, color: T.slate, textDecoration: 'none', borderBottom: '1px solid rgba(90,107,115,0.3)' }}>
+              Or join the free Skool community →
+            </a>
+          </>
+        ) : (
+          <div style={{
+            background: 'rgba(15,169,160,0.08)', borderRadius: 14,
+            padding: '24px', border: `1.5px solid ${T.teal}`,
+          }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: T.teal, marginBottom: 6 }}>🐢 You're in!</p>
+            <p style={{ fontSize: 15, color: T.slate }}>Welcome to the HonuVibe community. Check your inbox.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+function Footer() {
+  const cols = [
+    { title: 'Navigate', links: ['Learn', 'Explore', 'Partnerships', 'About', 'Contact'] },
+    { title: 'Resources', links: ['The Vault', 'Blog', 'Tutorials', 'AI Glossary', 'FAQ'] },
+    { title: 'Partners', links: ['Org Programs', 'Apply to Partner', 'Case Studies', 'Become a Mentor'] },
+    { title: 'Legal', links: ['Privacy Policy', 'Terms of Use', 'Cookie Policy', 'Accessibility'] },
+  ];
+  return (
+    <footer style={{ background: T.navy, color: '#fff', padding: '72px 32px 40px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 48, marginBottom: 56 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ color: T.teal }}><IconHonu /></div>
+              <span style={{ fontWeight: 700, fontSize: 18 }}>HonuVibe<span style={{ color: T.teal }}>.AI</span></span>
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', marginBottom: 24, maxWidth: 220 }}>
+              A new vibe for AI learning. Practical. Bilingual. Built for real people.
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              {['TikTok', 'IG', 'YT', 'LINE'].map((s, i) => (
+                <a key={i} href="#" style={{
+                  width: 36, height: 36, borderRadius: 8,
+                  background: 'rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
+                  textDecoration: 'none',
+                }}>{s}</a>
+              ))}
+            </div>
+          </div>
+          {cols.map((col, i) => (
+            <div key={i}>
+              <p style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 16,
+              }}>{col.title}</p>
+              {col.links.map((link, j) => (
+                <a key={j} href="#" style={{
+                  display: 'block', fontSize: 14, color: 'rgba(255,255,255,0.65)',
+                  textDecoration: 'none', marginBottom: 10,
+                }}>{link}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 28,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>© 2026 HonuVibe.AI · All rights reserved</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Made in Hawaii with Aloha 🐢</p>
+          <button style={{
+            background: 'rgba(255,255,255,0.08)', border: 'none',
+            color: 'rgba(255,255,255,0.6)', borderRadius: 6,
+            padding: '6px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+          }}>EN | 日本語</button>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+      <Nav />
+      <Hero />
+      <ContactForm />
+      <InfoStrip />
+      <SocialSection />
+      <Newsletter />
+      <Footer />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<div id="root"></div>
+</body>
+</html>

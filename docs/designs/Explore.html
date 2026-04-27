@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Explore — HonuVibe.AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #FDFBF7;
+    color: #1A2B33;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: rgba(15,169,160,0.12); }
+</style>
+</head>
+<body>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const T = {
+  teal: '#0FA9A0', tealDark: '#0B7F78',
+  coral: '#E8765A', coralSoft: '#FCEDE6',
+  navy: '#1A2B33', slate: '#5A6B73', caption: '#8B9499',
+  canvas: '#FDFBF7', sand: '#F5F0E8', white: '#FFFFFF',
+};
+
+// ─── ICONS ───────────────────────────────────────────────────────────────────
+const IconHonu = () => (
+  <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+    <ellipse cx="16" cy="17" rx="10" ry="8" fill="currentColor" opacity="0.15"/>
+    <ellipse cx="16" cy="16" rx="8" ry="6.5" fill="currentColor"/>
+    <ellipse cx="16" cy="15" rx="5" ry="4" fill="currentColor" opacity="0.25"/>
+    <ellipse cx="9" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(-20 9 20)"/>
+    <ellipse cx="23" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(20 23 20)"/>
+    <ellipse cx="8" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(-30 8 14)"/>
+    <ellipse cx="24" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(30 24 14)"/>
+    <ellipse cx="16" cy="10" rx="3" ry="2.5" fill="currentColor"/>
+    <path d="M16 23.5 Q15.5 26 16 27 Q16.5 26 16 23.5" fill="currentColor"/>
+    <circle cx="14.5" cy="10" r="0.8" fill="#FDFBF7"/>
+    <circle cx="17.5" cy="10" r="0.8" fill="#FDFBF7"/>
+  </svg>
+);
+const IconArrow = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 8h10M9 4l4 4-4 4"/>
+  </svg>
+);
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [langJP, setLangJP] = useState(false);
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
+  }, []);
+  const links = [
+    { label: 'Learn' }, { label: 'Explore', active: true },
+    { label: 'Partnerships' }, { label: 'About' }, { label: 'Contact' },
+  ];
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      background: T.canvas,
+      borderBottom: scrolled ? '1px solid rgba(26,43,51,0.1)' : '1px solid transparent',
+      boxShadow: scrolled ? '0 2px 20px rgba(26,43,51,0.06)' : 'none',
+      transition: 'border-color 0.3s, box-shadow 0.3s',
+    }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto', padding: '0 32px',
+        height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <a href="Homepage.html" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: T.teal }}>
+          <IconHonu />
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.01em', color: T.navy }}>
+            HonuVibe<span style={{ color: T.teal }}>.AI</span>
+          </span>
+        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+          {links.map(link => (
+            <a key={link.label} href="#" style={{
+              color: link.active ? T.teal : T.slate,
+              fontSize: 14.5, fontWeight: link.active ? 600 : 500,
+              textDecoration: 'none',
+              borderBottom: link.active ? `2px solid ${T.teal}` : '2px solid transparent',
+              paddingBottom: 2, transition: 'color 0.2s',
+            }}>{link.label}</a>
+          ))}
+        </div>
+        <button onClick={() => setLangJP(!langJP)} style={{
+          background: 'none', border: '1px solid rgba(26,43,51,0.15)',
+          borderRadius: 6, padding: '5px 12px', fontSize: 12.5, fontWeight: 600,
+          cursor: 'pointer', color: T.slate, letterSpacing: '0.04em',
+        }}>{langJP ? 'EN' : '日本語'}</button>
+      </div>
+    </nav>
+  );
+}
+
+// ─── HERO ─────────────────────────────────────────────────────────────────────
+function Hero() {
+  return (
+    <section style={{ background: T.canvas, paddingTop: 68 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '88px 32px 72px' }}>
+        <div style={{ maxWidth: 600 }}>
+          <p style={{
+            fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+            textTransform: 'uppercase', color: T.slate, marginBottom: 18,
+          }}>Our Work</p>
+          <h1 style={{
+            fontSize: 'clamp(40px, 5vw, 62px)', fontWeight: 700,
+            letterSpacing: '-0.025em', color: T.navy, lineHeight: 1.1,
+            marginBottom: 20,
+          }}>
+            Real projects.<br />
+            <span style={{ color: T.teal }}>Real outcomes.</span>
+          </h1>
+          <p style={{ fontSize: 18, lineHeight: 1.7, color: T.slate, maxWidth: 500 }}>
+            See what happens when AI education meets real-world application. These are projects built by HonuVibe and the HonuVibe community.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── STATS STRIP ──────────────────────────────────────────────────────────────
+function StatsStrip() {
+  const stats = [
+    { num: '20+', label: 'Projects Shipped' },
+    { num: '3', label: 'Countries Served' },
+    { num: '60%', label: 'Avg. Workflow Time Saved' },
+    { num: '2', label: 'Languages Supported' },
+  ];
+  return (
+    <section style={{ background: T.canvas, padding: '0 32px 80px' }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto',
+        border: '1px solid rgba(26,43,51,0.08)',
+        borderRadius: 16, background: T.white,
+        boxShadow: '0 4px 16px rgba(26,43,51,0.05)',
+        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+        overflow: 'hidden',
+      }}>
+        {stats.map((s, i) => (
+          <div key={i} style={{
+            padding: '40px 32px', textAlign: 'center',
+            borderRight: i < stats.length - 1 ? '1px solid rgba(26,43,51,0.08)' : 'none',
+          }}>
+            <p style={{
+              fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 700,
+              color: T.teal, letterSpacing: '-0.03em', lineHeight: 1,
+              marginBottom: 8,
+            }}>{s.num}</p>
+            <p style={{ fontSize: 13.5, color: T.slate, fontWeight: 500 }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── BROWSER FRAME ────────────────────────────────────────────────────────────
+function BrowserFrame({ url, children, height = 380 }) {
+  return (
+    <div style={{
+      borderRadius: 14, overflow: 'hidden',
+      boxShadow: '0 20px 56px rgba(26,43,51,0.13), 0 4px 12px rgba(26,43,51,0.07)',
+      border: '1px solid rgba(26,43,51,0.07)',
+    }}>
+      <div style={{
+        background: '#F2EDE4', padding: '10px 16px',
+        borderBottom: '1px solid rgba(26,43,51,0.08)',
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <div style={{ display: 'flex', gap: 5 }}>
+          {['#FF6058','#FFBD2E','#28CA42'].map((c,i) => (
+            <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c }}/>
+          ))}
+        </div>
+        <div style={{
+          flex: 1, background: 'rgba(26,43,51,0.07)', borderRadius: 5, height: 22,
+          display: 'flex', alignItems: 'center', paddingLeft: 10,
+          fontSize: 11, color: T.caption,
+        }}>🔒 {url}</div>
+      </div>
+      <div style={{ height, overflow: 'hidden' }}>{children}</div>
+    </div>
+  );
+}
+
+// ─── KWAME PROJECT MOCKUP ─────────────────────────────────────────────────────
+function KwameMockup() {
+  return (
+    <div style={{ background: '#0a0a0a', height: '100%', padding: '20px 24px', fontFamily: 'Inter, sans-serif' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <span style={{ color: '#fff', fontWeight: 700, fontSize: 16, letterSpacing: '0.08em' }}>KWAME BRATHWAITE</span>
+        <div style={{ display: 'flex', gap: 20 }}>
+          {['Archive', 'Exhibitions', 'Prints', 'About'].map(l => (
+            <span key={l} style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12 }}>{l}</span>
+          ))}
+        </div>
+      </div>
+      {/* Masonry grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr', gap: 8 }}>
+        {[
+          { h: 200, bg: 'linear-gradient(160deg, #2a2018 0%, #3d2e1a 100%)', label: '1963 — Harlem' },
+          { h: 90, bg: 'linear-gradient(160deg, #1a2028 0%, #253040 100%)', label: '1969 — Festival' },
+          { h: 90, bg: 'linear-gradient(160deg, #281820 0%, #3a2030 100%)', label: '1971 — Protest' },
+          { h: 100, bg: 'linear-gradient(160deg, #1e2818 0%, #2c3820 100%)', label: '1965 — Harlem' },
+          { h: 100, bg: 'linear-gradient(160deg, #281818 0%, #3a2020 100%)', label: '1970 — NYC' },
+        ].map((img, i) => (
+          <div key={i} style={{
+            gridColumn: i === 0 ? '1' : 'auto',
+            gridRow: i === 0 ? '1 / 3' : 'auto',
+            borderRadius: 6, background: img.bg, height: img.h,
+            position: 'relative', overflow: 'hidden',
+            display: 'flex', alignItems: 'flex-end', padding: 10,
+          }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>{img.label}</span>
+          </div>
+        ))}
+      </div>
+      {/* Filter row */}
+      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        {['All', '1960s', '1970s', 'Harlem', 'Protests'].map((f, i) => (
+          <span key={f} style={{
+            padding: '4px 12px', borderRadius: 20, fontSize: 10.5, fontWeight: 500,
+            background: i === 0 ? 'rgba(255,255,255,0.15)' : 'transparent',
+            color: i === 0 ? '#fff' : 'rgba(255,255,255,0.45)',
+            border: i === 0 ? 'none' : '1px solid rgba(255,255,255,0.15)',
+          }}>{f}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── HCI MEDICAL MOCKUP ───────────────────────────────────────────────────────
+function HCIMockup() {
+  return (
+    <div style={{ background: '#FAFCFF', height: '100%', padding: '20px 24px' }}>
+      {/* Header */}
+      <div style={{
+        background: '#fff', borderRadius: 10, padding: '12px 18px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        marginBottom: 16, boxShadow: '0 2px 8px rgba(26,43,51,0.06)',
+        border: '1px solid rgba(26,43,51,0.06)',
+      }}>
+        <span style={{ fontWeight: 700, fontSize: 14, color: '#1a3a5c' }}>HCI Medical Group</span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{
+            background: T.teal, color: '#fff', padding: '5px 14px',
+            borderRadius: 6, fontSize: 11.5, fontWeight: 600,
+          }}>New Patient</div>
+        </div>
+      </div>
+      {/* Dashboard */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
+        {[
+          { label: 'Active Patients', val: '248', color: '#1a3a5c' },
+          { label: 'Appointments Today', val: '14', color: T.teal },
+          { label: 'Pending Tasks', val: '7', color: T.coral },
+        ].map((card, i) => (
+          <div key={i} style={{
+            background: '#fff', borderRadius: 8, padding: '14px 16px',
+            border: '1px solid rgba(26,43,51,0.07)',
+            boxShadow: '0 2px 6px rgba(26,43,51,0.05)',
+          }}>
+            <p style={{ fontSize: 10.5, color: T.caption, marginBottom: 4 }}>{card.label}</p>
+            <p style={{ fontSize: 24, fontWeight: 700, color: card.color }}>{card.val}</p>
+          </div>
+        ))}
+      </div>
+      {/* Patient list */}
+      <div style={{ background: '#fff', borderRadius: 10, border: '1px solid rgba(26,43,51,0.07)', overflow: 'hidden' }}>
+        <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(26,43,51,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: T.navy }}>Recent Patients</span>
+          <span style={{ fontSize: 11.5, color: T.teal, fontWeight: 500 }}>View all →</span>
+        </div>
+        {[
+          { name: 'Tanaka, K.', appt: 'Today 9:00am', status: 'Confirmed', statusColor: T.teal },
+          { name: 'Reyes, M.', appt: 'Today 11:30am', status: 'Pending', statusColor: T.coral },
+          { name: 'Williams, J.', appt: 'Tomorrow 2pm', status: 'Confirmed', statusColor: T.teal },
+        ].map((p, i) => (
+          <div key={i} style={{
+            padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderBottom: '1px solid rgba(26,43,51,0.04)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(26,43,51,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: T.slate }}>{p.name[0]}</div>
+              <div>
+                <p style={{ fontSize: 12.5, fontWeight: 600, color: T.navy }}>{p.name}</p>
+                <p style={{ fontSize: 11, color: T.caption }}>{p.appt}</p>
+              </div>
+            </div>
+            <span style={{
+              background: p.statusColor === T.teal ? 'rgba(15,169,160,0.1)' : T.coralSoft,
+              color: p.statusColor, borderRadius: 20, padding: '3px 10px',
+              fontSize: 11, fontWeight: 600,
+            }}>{p.status}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── FEATURED PROJECTS ────────────────────────────────────────────────────────
+function FeaturedProjects() {
+  const projects = [
+    {
+      eyebrow: 'Featured Project',
+      status: 'In Development', statusColor: T.coral,
+      name: 'KwameBrathwaite.com',
+      desc: 'A photography archive gets a modern makeover.',
+      challenge: 'The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.',
+      outcome: 'Rebuilding from the ground up with Claude, Cursor, and a modern AI-powered workflow. The new site preserves the archive\'s cultural significance while driving real business outcomes.',
+      highlight: 'A mobile-first, conversion-optimized photography archive that honors a legendary artist\'s legacy while growing the business.',
+      stats: [
+        { val: '3×', label: 'Faster Load Time' },
+        { val: 'Mobile-First', label: 'Responsive Design' },
+        { val: 'AI-Powered', label: 'Modern Workflow' },
+      ],
+      stack: ['Next.js', 'Tailwind CSS', 'Claude AI', 'Cursor', 'Vercel'],
+      mockup: <KwameMockup />,
+      url: 'kwamebrathwaite.com',
+    },
+    {
+      eyebrow: 'Featured Project',
+      status: 'Live', statusColor: T.teal,
+      name: 'HCI Medical Group',
+      desc: 'A healthcare website and internal project management tool.',
+      challenge: 'HCI Medical Group needed a modern, professional web presence and an internal project management tool to streamline operations across their medical practice.',
+      outcome: 'A complete front-end redesign that elevated the brand\'s digital presence, plus a custom-built project management module for internal team coordination and workflow tracking.',
+      highlight: 'A polished, conversion-ready healthcare website paired with powerful internal tools that streamline daily operations.',
+      stats: [
+        { val: 'Live', label: 'In Production' },
+        { val: 'Custom', label: 'PM Backend Module' },
+        { val: 'Full-Stack', label: 'End-to-End' },
+      ],
+      stack: ['Next.js', 'Tailwind CSS', 'Supabase', 'Custom PM', 'Vercel'],
+      mockup: <HCIMockup />,
+      url: 'hcimedicalgroup.com',
+    },
+  ];
+
+  return (
+    <section style={{ background: T.canvas, padding: '0 32px 96px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <p style={{
+          fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+          textTransform: 'uppercase', color: T.teal, marginBottom: 56,
+        }}>Featured Projects</p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 72 }}>
+          {projects.map((proj, i) => (
+            <ProjectRow key={i} proj={proj} flip={i % 2 === 1} />
+          ))}
+
+          {/* Placeholder card */}
+          <PlaceholderProject />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProjectRow({ proj, flip }) {
+  const visual = (
+    <BrowserFrame url={proj.url} height={380}>
+      {proj.mockup}
+    </BrowserFrame>
+  );
+  const details = (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <p style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: T.teal,
+        }}>{proj.eyebrow}</p>
+        <span style={{
+          background: proj.statusColor === T.teal ? 'rgba(15,169,160,0.12)' : T.coralSoft,
+          color: proj.statusColor, borderRadius: 20, padding: '3px 12px',
+          fontSize: 11, fontWeight: 700,
+        }}>{proj.status}</span>
+      </div>
+
+      <h2 style={{
+        fontSize: 'clamp(26px, 3vw, 36px)', fontWeight: 700,
+        letterSpacing: '-0.02em', color: T.navy, marginBottom: 8,
+      }}>{proj.name}</h2>
+      <p style={{ fontSize: 16, color: T.slate, marginBottom: 28, lineHeight: 1.5 }}>{proj.desc}</p>
+
+      {/* Challenge */}
+      <p style={{
+        fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em',
+        textTransform: 'uppercase', color: T.coral, marginBottom: 8,
+      }}>The Challenge</p>
+      <p style={{ fontSize: 14.5, lineHeight: 1.7, color: T.slate, marginBottom: 24 }}>{proj.challenge}</p>
+
+      {/* Outcome */}
+      <p style={{
+        fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em',
+        textTransform: 'uppercase', color: T.teal, marginBottom: 8,
+      }}>The Outcome</p>
+      <p style={{ fontSize: 14.5, lineHeight: 1.7, color: T.slate, marginBottom: 12 }}>{proj.outcome}</p>
+      <p style={{ fontSize: 14.5, fontStyle: 'italic', color: T.coral, marginBottom: 28, lineHeight: 1.6 }}>
+        "{proj.highlight}"
+      </p>
+
+      {/* Mini stats */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 16, marginBottom: 24,
+        borderTop: '1px solid rgba(26,43,51,0.07)', paddingTop: 24,
+      }}>
+        {proj.stats.map((s, i) => (
+          <div key={i}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: T.teal, marginBottom: 3, letterSpacing: '-0.01em' }}>{s.val}</p>
+            <p style={{ fontSize: 12, color: T.caption }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Stack */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {proj.stack.map((tag, i) => (
+          <span key={i} style={{
+            border: '1px solid rgba(26,43,51,0.15)',
+            borderRadius: 20, padding: '4px 12px',
+            fontSize: 12, color: T.slate, fontWeight: 500,
+          }}>{tag}</span>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: flip ? '1fr 1.1fr' : '1.1fr 1fr',
+      gap: 64, alignItems: 'center',
+    }}>
+      {flip ? <>{details}{visual}</> : <>{visual}{details}</>}
+    </div>
+  );
+}
+
+function PlaceholderProject() {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: hover ? T.white : 'transparent',
+        border: `1.5px dashed ${hover ? T.teal : 'rgba(26,43,51,0.18)'}`,
+        borderRadius: 20, padding: '56px 64px',
+        textAlign: 'center',
+        transition: 'all 0.3s',
+        boxShadow: hover ? '0 8px 32px rgba(15,169,160,0.08)' : 'none',
+      }}
+    >
+      <div style={{
+        width: 56, height: 56, borderRadius: '50%',
+        border: `1.5px dashed ${T.teal}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        margin: '0 auto 20px',
+        color: T.teal,
+      }}>
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M11 4v14M4 11h14"/>
+        </svg>
+      </div>
+      <p style={{
+        fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+        textTransform: 'uppercase', color: T.caption, marginBottom: 10,
+      }}>Community Project</p>
+      <h3 style={{
+        fontSize: 26, fontWeight: 700, color: T.navy, marginBottom: 12, letterSpacing: '-0.015em',
+      }}>Your Project Could Be Here</h3>
+      <p style={{ fontSize: 15.5, lineHeight: 1.7, color: T.slate, maxWidth: 480, margin: '0 auto 24px' }}>
+        We partner with nonprofits, community organizations, and passionate builders to bring AI-powered projects to life. Some of our best work starts with a conversation.
+      </p>
+      <a href="#" style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6,
+        color: T.teal, fontSize: 15, fontWeight: 700, textDecoration: 'none',
+      }}>
+        Tell us about your project <IconArrow />
+      </a>
+    </div>
+  );
+}
+
+// ─── HOW WE BUILD ─────────────────────────────────────────────────────────────
+function HowWeBuild() {
+  const steps = [
+    {
+      n: '1',
+      title: 'Discovery',
+      body: 'We start by understanding your goals, your audience, and what success looks like. No assumptions.',
+    },
+    {
+      n: '2',
+      title: 'Design & Build',
+      body: 'AI-native development using Claude, Cursor, and modern tools. Fast iteration, transparent progress, real results.',
+    },
+    {
+      n: '3',
+      title: 'Launch & Support',
+      body: 'We ship, we measure, we refine. Every project includes post-launch support and documentation.',
+    },
+  ];
+  return (
+    <section style={{ background: T.sand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ maxWidth: 560, marginBottom: 56 }}>
+          <p style={{
+            fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+            textTransform: 'uppercase', color: T.teal, marginBottom: 14,
+          }}>Our Process</p>
+          <h2 style={{
+            fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 700,
+            letterSpacing: '-0.02em', color: T.navy, lineHeight: 1.15, marginBottom: 16,
+          }}>How we build.</h2>
+          <p style={{ fontSize: 16, lineHeight: 1.7, color: T.slate }}>
+            Every project follows the same disciplined process — whether it's a client engagement, a community build, or a pro-bono partnership.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
+          {steps.map((s, i) => (
+            <ProcessStep key={i} step={s} last={i === steps.length - 1} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProcessStep({ step, last }) {
+  return (
+    <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: T.teal, color: '#fff',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 16, fontWeight: 700, flexShrink: 0,
+      }}>{step.n}</div>
+      <div>
+        <h3 style={{ fontSize: 18, fontWeight: 700, color: T.navy, marginBottom: 8, letterSpacing: '-0.01em' }}>
+          {step.title}
+        </h3>
+        <p style={{ fontSize: 15, lineHeight: 1.7, color: T.slate }}>{step.body}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── ALOHA STANDARD ───────────────────────────────────────────────────────────
+function AlohaStandard() {
+  return (
+    <section style={{ background: T.canvas, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+          {/* Visual */}
+          <div style={{
+            borderRadius: 20, overflow: 'hidden',
+            background: 'linear-gradient(135deg, #e8d8c0 0%, #d4c4a8 50%, #c0b090 100%)',
+            height: 360, position: 'relative',
+          }}>
+            {/* Abstract community illustration */}
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', width: 200, height: 200 }}>
+                {/* Three overlapping circles — people coming together */}
+                {[
+                  { x: 60, y: 70, color: 'rgba(15,169,160,0.4)' },
+                  { x: 100, y: 50, color: 'rgba(232,118,90,0.35)' },
+                  { x: 140, y: 70, color: 'rgba(26,43,51,0.2)' },
+                ].map((c, i) => (
+                  <div key={i} style={{
+                    position: 'absolute',
+                    left: c.x, top: c.y,
+                    width: 80, height: 80, borderRadius: '50%',
+                    background: c.color,
+                    backdropFilter: 'blur(4px)',
+                  }}/>
+                ))}
+                <div style={{
+                  position: 'absolute', left: 80, top: 100,
+                  fontSize: 32, textAlign: 'center', width: 40,
+                }}>🐢</div>
+              </div>
+            </div>
+            {/* Caption */}
+            <div style={{
+              position: 'absolute', bottom: 24, left: 24, right: 24,
+              background: 'rgba(255,255,255,0.85)',
+              borderRadius: 10, padding: '12px 16px',
+            }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: T.navy }}>Pro-bono & nonprofit capacity</p>
+              <p style={{ fontSize: 12, color: T.caption, marginTop: 2 }}>Part of every quarter, by design</p>
+            </div>
+          </div>
+          {/* Text */}
+          <div>
+            <p style={{
+              fontSize: 11.5, fontWeight: 700, letterSpacing: '0.09em',
+              textTransform: 'uppercase', color: T.coral, marginBottom: 14,
+            }}>Giving Back</p>
+            <h2 style={{
+              fontSize: 'clamp(28px, 3.5vw, 40px)', fontWeight: 700,
+              letterSpacing: '-0.02em', color: T.navy, lineHeight: 1.2, marginBottom: 16,
+            }}>Built with Aloha.</h2>
+            <p style={{ fontSize: 16.5, lineHeight: 1.75, color: T.slate, marginBottom: 32 }}>
+              Giving back is core to how HonuVibe operates. We dedicate capacity to nonprofit and community projects — delivering the same quality and care as any commercial engagement.
+            </p>
+            <a href="#" style={{
+              fontSize: 14.5, color: T.teal, fontWeight: 600, textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              borderBottom: `1px solid rgba(15,169,160,0.3)`, paddingBottom: 2,
+            }}>
+              Interested in a community or nonprofit collaboration? Get in touch <IconArrow />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── TWO-PATH CTA ─────────────────────────────────────────────────────────────
+function TwoPathCTA() {
+  const [hoverA, setHoverA] = useState(false);
+  const [hoverB, setHoverB] = useState(false);
+  return (
+    <section style={{ background: T.sand, padding: '96px 32px' }}>
+      <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
+          letterSpacing: '-0.02em', color: T.navy, marginBottom: 14,
+        }}>Inspired by what you see?</h2>
+        <p style={{ fontSize: 17, lineHeight: 1.65, color: T.slate, marginBottom: 40 }}>
+          Whether you want to learn AI yourself or bring AI training to your organization — there's a path for you.
+        </p>
+        <div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>
+          <button
+            onMouseEnter={() => setHoverA(true)}
+            onMouseLeave={() => setHoverA(false)}
+            style={{
+              background: hoverA ? T.tealDark : T.teal,
+              color: '#fff', border: 'none',
+              padding: '14px 28px', borderRadius: 10,
+              fontSize: 15.5, fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8,
+              boxShadow: hoverA ? '0 8px 24px rgba(15,169,160,0.35)' : '0 4px 16px rgba(15,169,160,0.2)',
+              transition: 'all 0.2s',
+              transform: hoverA ? 'translateY(-1px)' : 'none',
+            }}
+          >Start Learning <IconArrow /></button>
+          <button
+            onMouseEnter={() => setHoverB(true)}
+            onMouseLeave={() => setHoverB(false)}
+            style={{
+              background: hoverB ? T.coralSoft : 'transparent',
+              color: T.coral,
+              border: `1.5px solid ${T.coral}`,
+              padding: '14px 28px', borderRadius: 10,
+              fontSize: 15.5, fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8,
+              transition: 'all 0.2s',
+            }}
+          >Explore Partnerships <IconArrow /></button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── NEWSLETTER ───────────────────────────────────────────────────────────────
+function Newsletter() {
+  const [email, setEmail] = useState('');
+  const [done, setDone] = useState(false);
+  return (
+    <section style={{
+      background: `linear-gradient(135deg, rgba(15,169,160,0.06) 0%, ${T.sand} 50%, rgba(232,118,90,0.06) 100%)`,
+      padding: '96px 32px',
+      borderTop: '1px solid rgba(15,169,160,0.12)',
+    }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700,
+          letterSpacing: '-0.02em', color: T.navy, marginBottom: 12,
+        }}>Join the wave.</h2>
+        <p style={{ fontSize: 17, lineHeight: 1.65, color: T.slate, marginBottom: 36 }}>
+          Get weekly insights, tutorials, and community highlights from the HonuVibe community.
+        </p>
+        {!done ? (
+          <>
+            <form onSubmit={e => { e.preventDefault(); if(email) setDone(true); }}
+              style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+              <input
+                type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="Your email address"
+                style={{
+                  flex: 1, padding: '14px 18px', borderRadius: 10,
+                  border: '1.5px solid rgba(26,43,51,0.15)',
+                  fontSize: 15, outline: 'none', background: T.white,
+                  color: T.navy, fontFamily: 'inherit',
+                }}
+              />
+              <button type="submit" style={{
+                background: T.teal, color: '#fff', border: 'none',
+                padding: '14px 24px', borderRadius: 10, fontSize: 15,
+                fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+              }}>Subscribe</button>
+            </form>
+            <a href="#" style={{ fontSize: 14, color: T.slate, textDecoration: 'none', borderBottom: '1px solid rgba(90,107,115,0.3)' }}>
+              Or join the free Skool community →
+            </a>
+          </>
+        ) : (
+          <div style={{
+            background: 'rgba(15,169,160,0.08)', borderRadius: 14,
+            padding: '24px', border: `1.5px solid ${T.teal}`,
+          }}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: T.teal, marginBottom: 6 }}>🐢 You're in!</p>
+            <p style={{ fontSize: 15, color: T.slate }}>Welcome to the HonuVibe community. Check your inbox.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ─── FOOTER ───────────────────────────────────────────────────────────────────
+function Footer() {
+  const cols = [
+    { title: 'Navigate', links: ['Learn', 'Explore', 'Partnerships', 'About', 'Contact'] },
+    { title: 'Resources', links: ['The Vault', 'Blog', 'Tutorials', 'AI Glossary', 'FAQ'] },
+    { title: 'Partners', links: ['Org Programs', 'Apply to Partner', 'Case Studies', 'Become a Mentor'] },
+    { title: 'Legal', links: ['Privacy Policy', 'Terms of Use', 'Cookie Policy', 'Accessibility'] },
+  ];
+  return (
+    <footer style={{ background: T.navy, color: '#fff', padding: '72px 32px 40px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 48, marginBottom: 56 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ color: T.teal }}><IconHonu /></div>
+              <span style={{ fontWeight: 700, fontSize: 18 }}>HonuVibe<span style={{ color: T.teal }}>.AI</span></span>
+            </div>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', marginBottom: 24, maxWidth: 220 }}>
+              A new vibe for AI learning. Practical. Bilingual. Built for real people.
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              {['TikTok', 'IG', 'YT', 'LINE'].map((s, i) => (
+                <a key={i} href="#" style={{
+                  width: 36, height: 36, borderRadius: 8,
+                  background: 'rgba(255,255,255,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
+                  textDecoration: 'none',
+                }}>{s}</a>
+              ))}
+            </div>
+          </div>
+          {cols.map((col, i) => (
+            <div key={i}>
+              <p style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 16,
+              }}>{col.title}</p>
+              {col.links.map((link, j) => (
+                <a key={j} href="#" style={{
+                  display: 'block', fontSize: 14, color: 'rgba(255,255,255,0.65)',
+                  textDecoration: 'none', marginBottom: 10,
+                }}>{link}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 28,
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>© 2026 HonuVibe.AI · All rights reserved</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Made in Hawaii with Aloha 🐢</p>
+          <button style={{
+            background: 'rgba(255,255,255,0.08)', border: 'none',
+            color: 'rgba(255,255,255,0.6)', borderRadius: 6,
+            padding: '6px 14px', fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+          }}>EN | 日本語</button>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+      <Nav />
+      <Hero />
+      <StatsStrip />
+      <FeaturedProjects />
+      <HowWeBuild />
+      <AlohaStandard />
+      <TwoPathCTA />
+      <Newsletter />
+      <Footer />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<div id="root"></div>
+</body>
+</html>

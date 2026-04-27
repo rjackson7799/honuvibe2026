@@ -11,11 +11,14 @@ import { MobileMenu } from './mobile-menu';
 import { ThemeToggle } from './theme-toggle';
 import { UserMenu } from './user-menu';
 import { useTheme } from '@/components/providers/theme-provider';
+import { isMarketingPath } from '@/lib/marketing-routes';
 
 type NavLink = { href: string; label: string };
 
 type UserMenuLabels = {
   signIn: string;
+  studentLogin: string;
+  account: string;
   dashboard: string;
   admin: string;
   signOut: string;
@@ -32,6 +35,7 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
   const isLightMode = theme === 'light';
   const isAuthRoute = /^\/(ja\/)?(learn\/(dashboard|vault|[^/]+\/checkout)|admin)(\/|$)/.test(pathname);
   const isLightZonePage = pathname.startsWith('/partners/');
+  const isMarketingShellRoute = isMarketingPath(pathname);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -51,6 +55,10 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Marketing routes mount their own <MarketingNav /> via <MarketingShell>;
+  // the existing dark Nav must yield to avoid double-rendering.
+  if (isMarketingShellRoute) return null;
 
   return (
     <>
@@ -89,7 +97,12 @@ export function NavClient({ links, userMenuLabels }: NavClientProps) {
         <div className="flex items-center gap-1">
           {/* On auth routes, controls move to sidebar on desktop — show only on mobile */}
           <div className={isAuthRoute ? 'md:hidden' : 'hidden lg:flex items-center'}>
-            <UserMenu labels={userMenuLabels} compact direction="horizontal" />
+            <UserMenu
+              labels={userMenuLabels}
+              variant={isAuthRoute ? 'row' : 'dropdown'}
+              compact={isAuthRoute}
+              direction="horizontal"
+            />
           </div>
           <div className={isAuthRoute ? 'md:hidden flex items-center gap-1' : 'flex items-center gap-1'}>
             {!isAuthRoute && <ThemeToggle />}
