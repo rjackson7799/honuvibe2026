@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — HonuVibe.AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F0EBE3;
+    color: #1A2B33;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(26,43,51,0.15); border-radius: 10px; }
+  ::selection { background: rgba(15,169,160,0.12); }
+</style>
+</head>
+<body>
+<script type="text/babel">
+const { useState } = React;
+
+const T = {
+  teal: '#0FA9A0', tealDark: '#0B7F78', tealSoft: 'rgba(15,169,160,0.1)',
+  coral: '#E8765A', coralDark: '#CC5A3E', coralSoft: '#FCEDE6',
+  navy: '#1A2B33', slate: '#5A6B73', caption: '#8B9499',
+  canvas: '#FDFBF7', sand: '#F5F0E8', white: '#FFFFFF',
+  bg: '#F0EBE3',
+};
+
+// ─── ICONS ───────────────────────────────────────────────────────────────────
+const IconHonu = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+    <ellipse cx="16" cy="17" rx="10" ry="8" fill="currentColor" opacity="0.15"/>
+    <ellipse cx="16" cy="16" rx="8" ry="6.5" fill="currentColor"/>
+    <ellipse cx="16" cy="15" rx="5" ry="4" fill="currentColor" opacity="0.25"/>
+    <ellipse cx="9" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(-20 9 20)"/>
+    <ellipse cx="23" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(20 23 20)"/>
+    <ellipse cx="8" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(-30 8 14)"/>
+    <ellipse cx="24" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(30 24 14)"/>
+    <ellipse cx="16" cy="10" rx="3" ry="2.5" fill="currentColor"/>
+    <path d="M16 23.5 Q15.5 26 16 27 Q16.5 26 16 23.5" fill="currentColor"/>
+    <circle cx="14.5" cy="10" r="0.8" fill="#FDFBF7"/>
+    <circle cx="17.5" cy="10" r="0.8" fill="#FDFBF7"/>
+  </svg>
+);
+
+const Ic = ({ d, size = 18, stroke = 1.5 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+    <path d={d}/>
+  </svg>
+);
+
+const icons = {
+  dashboard: "M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z",
+  courses:   "M4 4h12v1.5H4zM4 7.5h12v1.5H4zM4 11h8v1.5H4zM14 13l2 2 3-3",
+  vault:     "M10 2L3 6v4c0 4.4 3 8.5 7 9.5 4-1 7-5.1 7-9.5V6l-7-4z",
+  community: "M17 20c0-2.2-3.1-4-7-4s-7 1.8-7 4M10 12a4 4 0 100-8 4 4 0 000 8z",
+  billing:   "M2 5h16v12H2zM2 9h16M6 13h2M10 13h4",
+  profile:   "M10 11a4 4 0 100-8 4 4 0 000 8zM3 19c0-3.3 3.1-6 7-6s7 2.7 7 6",
+  admin:     "M10 2l2.4 4.8 5.3.8-3.8 3.7.9 5.2L10 14l-4.8 2.5.9-5.2L2.3 7.6l5.3-.8z",
+  signout:   "M13 16l4-6-4-6M17 10H7M7 3H4a1 1 0 00-1 1v12a1 1 0 001 1h3",
+  book:      "M4 3h10a2 2 0 012 2v12a2 2 0 01-2 2H4V3zM4 3a2 2 0 00-2 2v12a2 2 0 002 2",
+  video:     "M15 10l-6-4v8l6-4z M3 5h14v10H3z",
+  template:  "M3 3h14v4H3zM3 10h6v7H3zM11 10h6v7h-6z",
+  article:   "M4 4h12v1.5H4zM4 8h12v1.5H4zM4 12h8v1.5H4z",
+  check:     "M4 10l5 5 7-7",
+  clock:     "M10 5v5l3 3M10 18a8 8 0 100-16 8 8 0 000 16z",
+  calendar:  "M3 5h14v13H3zM7 3v4M13 3v4M3 9h14",
+  star:      "M10 2l2.4 5 5.6.8-4 3.9.9 5.3-5-2.6-5 2.6.9-5.3-4-3.9 5.6-.8z",
+  eye:       "M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7zM10 13a3 3 0 100-6 3 3 0 000 6z",
+  arrow:     "M4 10h12M12 6l4 4-4 4",
+  bell:      "M10 2a6 6 0 016 6v3l2 2H2l2-2V8a6 6 0 016-6zM8 17a2 2 0 004 0",
+  globe:     "M10 2a8 8 0 100 16A8 8 0 0010 2zM2 10h16M10 2c-2 3-3 5-3 8s1 5 3 8M10 2c2 3 3 5 3 8s-1 5-3 8",
+};
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function Sidebar({ active, setActive }) {
+  const mainLinks = [
+    { id: 'dashboard', label: 'Dashboard', icon: icons.dashboard },
+    { id: 'courses',   label: 'My Courses',  icon: icons.courses },
+    { id: 'vault',     label: 'The Vault',   icon: icons.vault },
+    { id: 'community', label: 'Community',   icon: icons.community },
+    { id: 'billing',   label: 'Billing',     icon: icons.billing },
+    { id: 'profile',   label: 'Profile',     icon: icons.profile },
+  ];
+  const bottomLinks = [
+    { id: 'admin',   label: 'Admin',    icon: icons.admin },
+    { id: 'signout', label: 'Sign Out', icon: icons.signout },
+  ];
+
+  return (
+    <div style={{
+      width: 220, flexShrink: 0, height: '100%',
+      background: T.canvas,
+      borderRight: '1px solid rgba(26,43,51,0.08)',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      {/* Logo */}
+      <div style={{
+        padding: '20px 20px 16px',
+        borderBottom: '1px solid rgba(26,43,51,0.07)',
+        display: 'flex', alignItems: 'center', gap: 9,
+      }}>
+        <div style={{ color: T.teal }}><IconHonu size={26} /></div>
+        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', color: T.navy }}>
+          HonuVibe<span style={{ color: T.teal }}>.AI</span>
+        </span>
+      </div>
+
+      {/* Lang toggle */}
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(26,43,51,0.07)', display: 'flex', gap: 4, alignItems: 'center' }}>
+        {['EN', '日本語'].map((l, i) => (
+          <button key={i} style={{
+            padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+            background: i === 0 ? T.teal : 'transparent',
+            color: i === 0 ? '#fff' : T.caption,
+            fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+          }}>{l}</button>
+        ))}
+        {/* grid icon */}
+        <div style={{ marginLeft: 'auto', color: T.caption }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/>
+            <rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Main nav */}
+      <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2, overflowY: 'auto' }}>
+        {mainLinks.map(link => (
+          <NavItem key={link.id} link={link} active={active === link.id} onClick={() => setActive(link.id)} />
+        ))}
+      </nav>
+
+      {/* Bottom nav */}
+      <div style={{ padding: '10px 10px 16px', borderTop: '1px solid rgba(26,43,51,0.07)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {bottomLinks.map(link => (
+          <NavItem key={link.id} link={link} active={false} onClick={() => {}} muted={link.id === 'signout'} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ link, active, onClick, muted }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '9px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
+        background: active ? T.teal : hover ? 'rgba(26,43,51,0.05)' : 'transparent',
+        color: active ? '#fff' : muted ? T.caption : hover ? T.navy : T.slate,
+        fontSize: 13.5, fontWeight: active ? 600 : 500,
+        fontFamily: 'inherit', textAlign: 'left', width: '100%',
+        transition: 'all 0.15s',
+      }}
+    >
+      <span style={{ flexShrink: 0, opacity: active ? 1 : 0.75 }}>
+        <Ic d={link.icon} size={17} />
+      </span>
+      {link.label}
+    </button>
+  );
+}
+
+// ─── STAT CARD ───────────────────────────────────────────────────────────────
+function StatCard({ label, value, icon, accent }) {
+  return (
+    <div style={{
+      background: T.white, borderRadius: 14, padding: '20px 22px',
+      border: '1px solid rgba(26,43,51,0.07)',
+      boxShadow: '0 2px 10px rgba(26,43,51,0.05)',
+      display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: T.caption, letterSpacing: '0.03em' }}>{label}</p>
+        <div style={{
+          width: 32, height: 32, borderRadius: 8,
+          background: accent === 'coral' ? T.coralSoft : T.tealSoft,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: accent === 'coral' ? T.coral : T.teal,
+        }}>
+          <Ic d={icon} size={16} />
+        </div>
+      </div>
+      <p style={{ fontSize: 34, fontWeight: 700, color: T.navy, letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
+    </div>
+  );
+}
+
+// ─── CONTENT CARD ────────────────────────────────────────────────────────────
+function ContentCard({ item }) {
+  const [hover, setHover] = useState(false);
+  const typeColor = item.type === 'Video' ? T.coral : T.teal;
+  const levelColor = item.level === 'Intermediate' ? T.coral : T.teal;
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: T.white, borderRadius: 14,
+        border: `1px solid ${hover ? 'rgba(15,169,160,0.2)' : 'rgba(26,43,51,0.07)'}`,
+        boxShadow: hover ? '0 8px 28px rgba(26,43,51,0.09)' : '0 2px 8px rgba(26,43,51,0.04)',
+        transition: 'all 0.2s', cursor: 'pointer', overflow: 'hidden',
+        transform: hover ? 'translateY(-2px)' : 'none',
+        display: 'flex', flexDirection: 'column',
+      }}
+    >
+      {/* Thumbnail */}
+      <div style={{
+        height: 110, background: item.thumbBg || 'linear-gradient(135deg, #e8ddd0 0%, #d4c8b8 100%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative',
+      }}>
+        <div style={{ color: 'rgba(26,43,51,0.25)' }}><Ic d={item.thumbIcon || icons.book} size={32} stroke={1.2} /></div>
+        {item.duration && (
+          <div style={{
+            position: 'absolute', bottom: 8, right: 8,
+            background: 'rgba(26,43,51,0.7)', color: '#fff',
+            borderRadius: 6, padding: '2px 8px', fontSize: 11, fontWeight: 600,
+            backdropFilter: 'blur(4px)',
+          }}>{item.duration}</div>
+        )}
+      </div>
+      {/* Body */}
+      <div style={{ padding: '14px 14px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+          <span style={{
+            fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+            background: 'rgba(26,43,51,0.06)', color: T.slate,
+          }}>{item.type}</span>
+          <span style={{
+            fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+            background: levelColor === T.coral ? T.coralSoft : T.tealSoft,
+            color: levelColor,
+          }}>{item.level}</span>
+        </div>
+        <h4 style={{ fontSize: 13.5, fontWeight: 700, color: T.navy, lineHeight: 1.4, letterSpacing: '-0.01em' }}>
+          {item.title}
+        </h4>
+        <p style={{ fontSize: 12, lineHeight: 1.55, color: T.caption, flex: 1 }}>{item.desc}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: T.caption }}>
+          <Ic d={icons.eye} size={13} />
+          <span style={{ fontSize: 11.5 }}>{item.views}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── COURSE PROGRESS ROW ─────────────────────────────────────────────────────
+function CourseRow({ course }) {
+  const pct = Math.round((course.week / course.total) * 100);
+  return (
+    <div style={{ padding: '14px 0', borderBottom: '1px solid rgba(26,43,51,0.06)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <p style={{ fontSize: 13.5, fontWeight: 600, color: T.navy }}>{course.name}</p>
+        <span style={{ fontSize: 11.5, color: T.caption, fontWeight: 500 }}>Week {course.week} of {course.total}</span>
+      </div>
+      <div style={{ height: 5, background: 'rgba(26,43,51,0.07)', borderRadius: 10, overflow: 'hidden' }}>
+        <div style={{
+          height: '100%', width: `${pct}%`, borderRadius: 10,
+          background: pct === 100 ? T.coral : T.teal,
+          transition: 'width 0.5s ease',
+        }}></div>
+      </div>
+    </div>
+  );
+}
+
+// ─── UPCOMING ITEM ────────────────────────────────────────────────────────────
+function UpcomingItem({ item }) {
+  return (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+      padding: '14px 0', borderBottom: '1px solid rgba(26,43,51,0.06)', gap: 12,
+    }}>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 600, color: T.navy }}>{item.title}</span>
+          {item.live && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+              background: T.coralSoft, color: T.coral, letterSpacing: '0.04em',
+            }}>LIVE</span>
+          )}
+        </div>
+        <p style={{ fontSize: 12, color: T.caption }}>{item.course}</p>
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: T.slate }}>{item.date}</p>
+        <p style={{ fontSize: 12, color: T.caption }}>{item.time}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── ACTION ITEM ROW ──────────────────────────────────────────────────────────
+function ActionRow({ item }) {
+  const [done, setDone] = useState(false);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 12,
+      padding: '12px 16px', borderRadius: 10, background: T.white,
+      border: '1px solid rgba(26,43,51,0.07)',
+      opacity: done ? 0.5 : 1, transition: 'opacity 0.2s',
+    }}>
+      <button onClick={() => setDone(d => !d)} style={{
+        width: 20, height: 20, borderRadius: 6, flexShrink: 0,
+        border: `1.5px solid ${done ? T.teal : 'rgba(26,43,51,0.2)'}`,
+        background: done ? T.teal : 'transparent',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer', color: '#fff',
+        transition: 'all 0.15s',
+      }}>
+        {done && <Ic d={icons.check} size={12} stroke={2.5} />}
+      </button>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 600, color: T.navy, textDecoration: done ? 'line-through' : 'none' }}>
+            {item.title}
+          </span>
+          <span style={{
+            fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+            background: T.tealSoft, color: T.teal,
+          }}>{item.tag}</span>
+        </div>
+        <p style={{ fontSize: 12, color: T.caption }}>{item.course}</p>
+      </div>
+      <p style={{
+        fontSize: 12, fontWeight: 500, color: item.due ? T.coral : T.caption,
+        whiteSpace: 'nowrap', flexShrink: 0,
+      }}>{item.due || 'No due date'}</p>
+    </div>
+  );
+}
+
+// ─── MAIN DASHBOARD ──────────────────────────────────────────────────────────
+function Dashboard() {
+  const stats = [
+    { label: 'Active Courses',     value: '4',  icon: icons.book,     accent: 'teal' },
+    { label: 'Completed',          value: '0',  icon: icons.check,    accent: 'teal' },
+    { label: 'Upcoming Sessions',  value: '1',  icon: icons.calendar, accent: 'coral' },
+    { label: 'Study Hours',        value: '2',  icon: icons.clock,    accent: 'teal' },
+  ];
+
+  const recommended = [
+    { type: 'Guide',    level: 'Beginner',      title: 'Chain-of-Thought Prompting: Step-by-Step', desc: 'Learn how to use chain-of-thought prompting to dramatically improve AI reasoning quality.', views: 0, thumbBg: 'linear-gradient(135deg, #ddeedd 0%, #c8dcc8 100%)', thumbIcon: icons.book },
+    { type: 'Template', level: 'Beginner',      title: 'My Prompt Starter Kit', desc: 'A ready-to-use collection of 20 proven prompt templates covering email, research, summarization.', views: 0, thumbBg: 'linear-gradient(135deg, #dde8e8 0%, #c4d4d4 100%)', thumbIcon: icons.template },
+    { type: 'Video',    level: 'Intermediate',  title: 'Advanced System Prompts with Claude', desc: 'Go deep on system prompts: persona design, constraint setting, context injection.', views: 0, duration: '22 min', thumbBg: 'linear-gradient(135deg, #e8dde4 0%, #d4c4cc 100%)', thumbIcon: icons.video },
+    { type: 'Article',  level: 'Beginner',      title: 'Why Japanese Professionals Are Adopting AI Now', desc: 'An honest look at what is driving AI adoption in Japanese workplaces, the unique challenges.', views: 0, thumbBg: 'linear-gradient(135deg, #ede8dc 0%, #d8cdb8 100%)', thumbIcon: icons.article },
+    { type: 'Guide',    level: 'Intermediate',  title: 'Writing Japanese Business Email with ChatGPT', desc: 'A step-by-step guide to drafting professional Japanese business emails using ChatGPT.', views: 0, thumbBg: 'linear-gradient(135deg, #dde0ee 0%, #c4c8d8 100%)', thumbIcon: icons.book },
+    { type: 'Video',    level: 'Beginner',      title: 'What Is Prompt Engineering?', desc: 'A beginner-friendly introduction to prompt engineering — what it is, why it matters, and how to apply it.', views: 0, duration: '12 min', thumbBg: 'linear-gradient(135deg, #e0ede0 0%, #c8d8c8 100%)', thumbIcon: icons.video },
+  ];
+
+  const courses = [
+    { name: 'How to Make Different Types of Martinis', week: 1, total: 8 },
+    { name: 'AI Mastery: From Curious to Confident',   week: 5, total: 5 },
+    { name: 'Installing Chatbots on Your Website',     week: 4, total: 4 },
+  ];
+
+  const upcoming = [
+    { title: 'Integration Plan Presentations', course: 'AI Foundations for Business', live: true, date: 'Mon, Apr 27', time: '7:00 PM' },
+  ];
+
+  const actions = [
+    { title: 'Equipment Setup Challenge',      tag: 'Homework', course: 'How to Make Different Types of Martinis · Week 1', due: null },
+    { title: 'AI Starting Point + Claude vs. ChatGPT', tag: 'Homework', course: 'AI Mastery: From Curious to Confident · Week 1', due: null },
+    { title: 'Platform Selection Assignment',  tag: 'Homework', course: 'Installing Chatbots on Your Website · Week 1', due: null },
+    { title: 'AI Audit: Your Current Workflow',tag: 'Homework', course: 'AI Foundations for Business · Week 1', due: 'Due Mar 16' },
+  ];
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 28 }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 600, color: T.caption, letterSpacing: '0.05em', marginBottom: 4 }}>
+            MONDAY · APR 27, 2026
+          </p>
+          <h1 style={{ fontSize: 'clamp(22px, 2.5vw, 28px)', fontWeight: 700, color: T.navy, letterSpacing: '-0.02em' }}>
+            Welcome back, Ryan 👋
+          </h1>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button style={{
+            width: 38, height: 38, borderRadius: 10, border: '1px solid rgba(26,43,51,0.1)',
+            background: T.white, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: T.slate, position: 'relative',
+          }}>
+            <Ic d={icons.bell} size={17} />
+            <div style={{
+              position: 'absolute', top: 8, right: 8,
+              width: 7, height: 7, borderRadius: '50%', background: T.coral,
+              border: '1.5px solid #fff',
+            }}></div>
+          </button>
+          <div style={{
+            width: 38, height: 38, borderRadius: 10, background: T.teal,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 700, fontSize: 14, color: '#fff', letterSpacing: '-0.01em',
+          }}>RJ</div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+        {stats.map((s, i) => <StatCard key={i} {...s} />)}
+      </div>
+
+      {/* Recommended */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+              <span style={{ fontSize: 16 }}>✨</span>
+              <h2 style={{ fontSize: 15, fontWeight: 700, color: T.navy, letterSpacing: '-0.01em' }}>Recommended for You</h2>
+            </div>
+            <p style={{ fontSize: 12, color: T.caption }}>Based on your enrolled courses</p>
+          </div>
+          <a href="#" style={{ fontSize: 13, fontWeight: 600, color: T.teal, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+            View all <Ic d={icons.arrow} size={14} />
+          </a>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          {recommended.map((item, i) => <ContentCard key={i} item={item} />)}
+        </div>
+      </div>
+
+      {/* Courses + Coming Up */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        {/* My Courses */}
+        <div style={{ background: T.white, borderRadius: 14, padding: '20px 22px', border: '1px solid rgba(26,43,51,0.07)', boxShadow: '0 2px 8px rgba(26,43,51,0.04)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <h2 style={{ fontSize: 13.5, fontWeight: 700, color: T.navy, letterSpacing: '0.04em', textTransform: 'uppercase', fontSize: 11, color: T.caption }}>YOUR COURSES</h2>
+            <a href="#" style={{ fontSize: 12.5, fontWeight: 600, color: T.teal, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}>
+              View all <Ic d={icons.arrow} size={13} />
+            </a>
+          </div>
+          {courses.map((c, i) => <CourseRow key={i} course={c} />)}
+        </div>
+
+        {/* Coming Up */}
+        <div style={{ background: T.white, borderRadius: 14, padding: '20px 22px', border: '1px solid rgba(26,43,51,0.07)', boxShadow: '0 2px 8px rgba(26,43,51,0.04)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <h2 style={{ fontSize: 11, fontWeight: 700, color: T.caption, letterSpacing: '0.04em', textTransform: 'uppercase' }}>COMING UP</h2>
+            <a href="#" style={{ fontSize: 12.5, fontWeight: 600, color: T.teal, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}>
+              Full schedule <Ic d={icons.arrow} size={13} />
+            </a>
+          </div>
+          {upcoming.map((item, i) => <UpcomingItem key={i} item={item} />)}
+          {/* Empty state hint */}
+          <div style={{
+            marginTop: 16, padding: '20px',
+            background: T.tealSoft, borderRadius: 10, textAlign: 'center',
+            border: `1px dashed rgba(15,169,160,0.25)`,
+          }}>
+            <p style={{ fontSize: 13, color: T.teal, fontWeight: 600, marginBottom: 4 }}>No other sessions scheduled</p>
+            <p style={{ fontSize: 12, color: T.caption }}>New sessions will appear here when added</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Items */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <h2 style={{ fontSize: 11, fontWeight: 700, color: T.caption, letterSpacing: '0.06em', textTransform: 'uppercase' }}>ACTION ITEMS</h2>
+          <span style={{
+            fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20,
+            background: T.coralSoft, color: T.coral,
+          }}>{actions.length} pending</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {actions.map((item, i) => <ActionRow key={i} item={item} />)}
+        </div>
+      </div>
+
+      {/* Bottom spacer */}
+      <div style={{ height: 8 }}></div>
+    </div>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [active, setActive] = useState('dashboard');
+  return (
+    <div style={{ display: 'flex', height: '100vh', background: T.bg }}>
+      <Sidebar active={active} setActive={setActive} />
+      <Dashboard />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<div id="root"></div>
+</body>
+</html>

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 function getInitials(name: string, email: string): string {
   const source = name.trim() || email.trim();
@@ -121,14 +123,25 @@ export default function SettingsPage() {
     router.push(`${prefix}/learn/auth`);
   };
 
+  const heading = (
+    <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+      {t('profile_heading')}
+    </h1>
+  );
+
+  const inputClass =
+    'w-full px-3.5 py-2.5 rounded-[10px] bg-bg-tertiary border border-border-default text-fg-primary text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent-teal)]/40 focus:border-[color:var(--accent-teal)] transition-colors';
+  const labelClass = 'block text-[12px] font-semibold text-fg-secondary mb-1.5 tracking-[0.01em]';
+  const sectionLabel =
+    'text-[11.5px] font-bold text-fg-tertiary uppercase tracking-[0.06em]';
+
   if (loading) {
     return (
-      <div className="space-y-8 max-w-[600px]">
-        <h1 className="text-2xl font-serif text-fg-primary">{t('profile_heading')}</h1>
-        <div className="animate-pulse space-y-6">
-          <div className="h-12 bg-bg-tertiary rounded-lg" />
-          <div className="h-12 bg-bg-tertiary rounded-lg" />
-          <div className="h-12 bg-bg-tertiary rounded-lg" />
+      <div className="space-y-6 max-w-[600px]">
+        {heading}
+        <div className="animate-pulse space-y-4">
+          <div className="h-32 bg-bg-tertiary rounded-[14px]" />
+          <div className="h-32 bg-bg-tertiary rounded-[14px]" />
         </div>
       </div>
     );
@@ -137,33 +150,29 @@ export default function SettingsPage() {
   const displayAvatar = avatarPreview ?? avatarUrl;
 
   return (
-    <div className="space-y-8 max-w-[600px]">
-      <h1 className="text-2xl font-serif text-fg-primary">{t('profile_heading')}</h1>
+    <div className="space-y-6 max-w-[600px]">
+      {heading}
 
       {/* Profile section */}
-      <div className="bg-bg-secondary border border-border-default rounded-lg p-6 space-y-5">
-        <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
-          {t('settings_profile')}
-        </h2>
+      <Card variant="learn" padding="lg" className="space-y-5">
+        <h2 className={sectionLabel}>{t('settings_profile')}</h2>
 
         {/* Avatar */}
         <div>
-          <label className="block text-sm text-fg-secondary mb-2">
-            {t('profile_avatar_label')}
-          </label>
+          <label className={labelClass}>{t('profile_avatar_label')}</label>
           <div className="flex items-center gap-4">
             <div className="relative h-24 w-24 rounded-full overflow-hidden bg-bg-tertiary border border-border-default flex items-center justify-center shrink-0">
               {displayAvatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={displayAvatar} alt="" className="h-full w-full object-cover" />
               ) : (
-                <span className="text-xl font-medium text-fg-secondary">
+                <span className="text-xl font-bold text-fg-primary">
                   {getInitials(fullName, email)}
                 </span>
               )}
               {avatarUploading && (
-                <div className="absolute inset-0 bg-bg-primary/70 flex items-center justify-center">
-                  <div className="h-5 w-5 border-2 border-accent-teal border-t-transparent rounded-full animate-spin" />
+                <div className="absolute inset-0 bg-bg-secondary/80 flex items-center justify-center">
+                  <div className="h-5 w-5 border-2 border-[color:var(--accent-teal)] border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
@@ -175,16 +184,16 @@ export default function SettingsPage() {
                 onChange={handleAvatarSelect}
                 className="hidden"
               />
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={avatarUploading}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-fg-secondary border border-border-default hover:bg-bg-tertiary hover:text-fg-primary disabled:opacity-50 transition-colors"
               >
                 {avatarUploading ? t('profile_avatar_uploading') : t('profile_avatar_change')}
-              </button>
+              </Button>
               {avatarError && (
-                <p className="mt-2 text-sm text-red-500">{avatarError}</p>
+                <p className="mt-2 text-sm text-[color:var(--accent-coral)]">{avatarError}</p>
               )}
             </div>
           </div>
@@ -192,7 +201,7 @@ export default function SettingsPage() {
 
         {/* Full Name */}
         <div>
-          <label htmlFor="fullName" className="block text-sm text-fg-secondary mb-1.5">
+          <label htmlFor="fullName" className={labelClass}>
             {t('settings_name')}
           </label>
           <input
@@ -200,13 +209,13 @@ export default function SettingsPage() {
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-lg bg-bg-primary border border-border-default text-fg-primary text-sm focus:outline-none focus:ring-2 focus:ring-accent-teal/50 focus:border-accent-teal transition-colors"
+            className={inputClass}
           />
         </div>
 
         {/* Email (read-only) */}
         <div>
-          <label htmlFor="email" className="block text-sm text-fg-secondary mb-1.5">
+          <label htmlFor="email" className={labelClass}>
             {t('settings_email')}
           </label>
           <input
@@ -214,56 +223,48 @@ export default function SettingsPage() {
             type="email"
             value={email}
             disabled
-            className="w-full px-3 py-2.5 rounded-lg bg-bg-tertiary border border-border-default text-fg-tertiary text-sm cursor-not-allowed"
+            className="w-full px-3.5 py-2.5 rounded-[10px] bg-[rgba(26,43,51,0.04)] border border-border-secondary text-fg-tertiary text-sm cursor-not-allowed"
           />
         </div>
-      </div>
+      </Card>
 
       {/* Preferences section */}
-      <div className="bg-bg-secondary border border-border-default rounded-lg p-6 space-y-5">
-        <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
-          {t('settings_preferences')}
-        </h2>
+      <Card variant="learn" padding="lg" className="space-y-5">
+        <h2 className={sectionLabel}>{t('settings_preferences')}</h2>
 
-        {/* Language */}
         <div>
-          <label htmlFor="language" className="block text-sm text-fg-secondary mb-1.5">
+          <label htmlFor="language" className={labelClass}>
             {t('settings_language')}
           </label>
           <select
             id="language"
             value={langPref}
             onChange={(e) => setLangPref(e.target.value as 'en' | 'ja')}
-            className="w-full px-3 py-2.5 rounded-lg bg-bg-primary border border-border-default text-fg-primary text-sm focus:outline-none focus:ring-2 focus:ring-accent-teal/50 focus:border-accent-teal transition-colors"
+            className={inputClass}
           >
             <option value="en">English</option>
             <option value="ja">日本語</option>
           </select>
         </div>
-      </div>
+      </Card>
 
       {/* Save button */}
       <div className="flex items-center gap-4">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2.5 rounded-lg text-sm font-medium bg-accent-teal text-white hover:bg-accent-teal-hover disabled:opacity-50 transition-colors"
-        >
+        <Button variant="primary" size="md" onClick={handleSave} disabled={saving}>
           {saving ? '...' : t('settings_save')}
-        </button>
+        </Button>
         {saved && (
-          <span className="text-sm text-accent-teal">{t('settings_saved')}</span>
+          <span className="text-sm font-medium text-[color:var(--accent-teal)]">
+            {t('settings_saved')}
+          </span>
         )}
       </div>
 
       {/* Sign out */}
       <div className="pt-4 border-t border-border-default">
-        <button
-          onClick={handleSignOut}
-          className="px-6 py-2.5 rounded-lg text-sm font-medium text-fg-secondary border border-border-default hover:bg-bg-tertiary hover:text-fg-primary transition-colors"
-        >
+        <Button variant="ghost" size="md" onClick={handleSignOut}>
           {t('settings_sign_out')}
-        </button>
+        </Button>
       </div>
     </div>
   );

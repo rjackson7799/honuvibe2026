@@ -12,6 +12,7 @@ type StickyEnrollBarProps = {
   isLoggedIn: boolean;
   isEnrolled: boolean;
   isFull: boolean;
+  isInProgress: boolean;
 };
 
 export function StickyEnrollBar({
@@ -23,10 +24,14 @@ export function StickyEnrollBar({
   isLoggedIn,
   isEnrolled,
   isFull,
+  isInProgress,
 }: StickyEnrollBarProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-bg-primary border-t border-border-default px-4 py-3 md:hidden safe-area-bottom">
-      <p className="text-xs font-serif text-fg-primary truncate mb-1.5 max-w-lg mx-auto">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-default px-4 py-3 md:hidden safe-area-bottom backdrop-blur-md"
+      style={{ background: 'var(--glass-bg)' }}
+    >
+      <p className="text-[12px] font-semibold text-fg-secondary truncate mb-1 max-w-lg mx-auto">
         {title}
       </p>
       <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
@@ -37,6 +42,7 @@ export function StickyEnrollBar({
           isLoggedIn={isLoggedIn}
           isEnrolled={isEnrolled}
           isFull={isFull}
+          isInProgress={isInProgress}
           priceUsd={priceUsd}
           priceJpy={priceJpy}
           size="sm"

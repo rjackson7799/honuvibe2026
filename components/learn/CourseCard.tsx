@@ -42,6 +42,7 @@ export function CourseCard({ course, variant = 'catalog', viewCourseHref, classN
   ].filter(Boolean);
 
   const isStarted = course.start_date ? new Date(course.start_date) <= new Date() : false;
+  const isInProgress = isStarted || course.status === 'in-progress';
 
   const startDateFormatted = course.start_date
     ? new Date(course.start_date).toLocaleDateString(
@@ -122,15 +123,17 @@ export function CourseCard({ course, variant = 'catalog', viewCourseHref, classN
 
         {variant === 'dashboard' ? (
           <div className="mt-auto flex flex-col gap-2">
-            <Button
-              variant="primary"
-              size="sm"
-              icon={ArrowRight}
-              iconPosition="right"
-              onClick={handleEnroll}
-            >
-              {t('enroll_now')}
-            </Button>
+            {!isInProgress && (
+              <Button
+                variant="primary"
+                size="sm"
+                icon={ArrowRight}
+                iconPosition="right"
+                onClick={handleEnroll}
+              >
+                {t('enroll_now')}
+              </Button>
+            )}
             <Link href={viewCourseHref ?? `/learn/${course.slug}`}>
               <Button variant="ghost" size="sm" className="w-full">
                 {t('view_course')}

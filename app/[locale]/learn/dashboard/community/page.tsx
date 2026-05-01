@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Users, ExternalLink, Video } from 'lucide-react';
+import { Users, ExternalLink, Video, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import type { CommunityLink } from '@/lib/dashboard/types';
+import { Card } from '@/components/ui/card';
 
 function CommunityCard({ link, locale }: { link: CommunityLink; locale: string }) {
   const t = useTranslations('dashboard');
@@ -15,17 +16,20 @@ function CommunityCard({ link, locale }: { link: CommunityLink; locale: string }
   if (!hasCommunity && !hasZoom) return null;
 
   return (
-    <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
+    <Card variant="learn" padding="md">
       <div className="flex items-start gap-4">
         {link.thumbnail_url && (
-          <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-bg-tertiary">
+          <div className="w-16 h-16 rounded-[10px] overflow-hidden shrink-0 bg-bg-tertiary">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={link.thumbnail_url} alt="" className="w-full h-full object-cover" />
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-fg-primary mb-1">{courseTitle}</h3>
+          <h3 className="text-[15px] font-bold text-fg-primary tracking-[-0.01em] mb-1">
+            {courseTitle}
+          </h3>
           {link.community_duration_months && (
-            <p className="text-xs text-fg-tertiary mb-3">
+            <p className="text-[12px] text-fg-tertiary mb-3">
               {t('community_access_months', { months: link.community_duration_months })}
             </p>
           )}
@@ -35,9 +39,9 @@ function CommunityCard({ link, locale }: { link: CommunityLink; locale: string }
                 href={link.community_link!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-teal text-white hover:bg-accent-teal-hover transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[12.5px] font-semibold bg-[color:var(--accent-teal)] text-white hover:bg-[color:var(--accent-teal-hover)] shadow-sm hover:shadow-md transition-all"
               >
-                <Users size={12} />
+                <Users size={13} />
                 {t('community_join', { platform: link.community_platform! })}
                 <ExternalLink size={12} />
               </a>
@@ -47,9 +51,9 @@ function CommunityCard({ link, locale }: { link: CommunityLink; locale: string }
                 href={link.zoom_link!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-fg-secondary border border-border-default hover:bg-bg-tertiary transition-colors"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-[12.5px] font-semibold text-fg-secondary bg-bg-secondary border border-border-default hover:border-border-hover hover:text-fg-primary transition-colors"
               >
-                <Video size={12} />
+                <Video size={13} />
                 {t('community_zoom')}
                 <ExternalLink size={12} />
               </a>
@@ -57,7 +61,7 @@ function CommunityCard({ link, locale }: { link: CommunityLink; locale: string }
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -82,18 +86,26 @@ export default function CommunityPage() {
     loadData();
   }, []);
 
-  // Filter links that actually have community or zoom data
   const activeLinks = links.filter(
     (l) => (l.community_platform && l.community_link) || l.zoom_link,
   );
 
+  const heading = (
+    <div>
+      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+        {t('community_heading')}
+      </h1>
+      <p className="text-sm text-fg-secondary mt-1.5">{t('community_sub')}</p>
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="space-y-8 max-w-[1100px]">
-        <h1 className="text-2xl font-serif text-fg-primary">{t('heading_community')}</h1>
+      <div className="space-y-6 max-w-[1100px]">
+        {heading}
         <div className="animate-pulse space-y-4">
           {[1, 2].map((i) => (
-            <div key={i} className="h-32 bg-bg-tertiary rounded-lg" />
+            <div key={i} className="h-32 bg-bg-tertiary rounded-[14px]" />
           ))}
         </div>
       </div>
@@ -101,25 +113,24 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-[1100px]">
-      <div>
-        <h1 className="text-2xl font-serif text-fg-primary">{t('community_heading')}</h1>
-        <p className="text-sm text-fg-secondary mt-2">{t('community_sub')}</p>
-      </div>
+    <div className="space-y-6 max-w-[1100px]">
+      {heading}
 
       {activeLinks.length === 0 ? (
-        <div className="text-center py-16">
-          <Users size={48} className="mx-auto text-fg-tertiary mb-4" />
+        <div className="py-12 px-4 rounded-[14px] border border-dashed border-border-default bg-bg-tertiary text-center">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)] flex items-center justify-center">
+            <Users size={26} />
+          </div>
           <p className="text-fg-tertiary text-sm mb-4">{t('community_no_links')}</p>
           <Link
             href="/learn"
-            className="inline-flex items-center gap-2 text-sm text-accent-teal hover:underline"
+            className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--accent-teal)] hover:text-[color:var(--accent-teal-hover)] transition-colors"
           >
-            {t('explore_courses')} →
+            {t('explore_courses')} <ArrowRight size={14} />
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {activeLinks.map((link) => (
             <CommunityCard key={link.course_id} link={link} locale={locale} />
           ))}

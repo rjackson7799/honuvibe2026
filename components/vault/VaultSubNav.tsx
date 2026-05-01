@@ -29,7 +29,7 @@ export function VaultSubNav({ isAuthenticated = false }: VaultSubNavProps) {
   const links = isAuthenticated ? [...baseLinks, ...authLinks] : baseLinks;
 
   return (
-    <nav className="flex items-center gap-1 overflow-x-auto pb-1 -mb-1">
+    <nav className="flex items-center gap-5 overflow-x-auto overflow-y-hidden border-b border-border-default">
       {links.map((link) => {
         const isActive = link.exact
           ? logicalPath === link.href
@@ -41,10 +41,10 @@ export function VaultSubNav({ isAuthenticated = false }: VaultSubNavProps) {
             key={link.href}
             href={link.href}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
+              'inline-flex items-center gap-1.5 px-1 pt-2 pb-2.5 -mb-px text-[13.5px] font-semibold whitespace-nowrap transition-colors border-b-2',
               isActive
-                ? 'bg-accent-teal/10 text-accent-teal'
-                : 'text-fg-tertiary hover:text-fg-primary hover:bg-bg-tertiary',
+                ? 'text-[color:var(--accent-teal)] border-[color:var(--accent-teal)]'
+                : 'text-fg-tertiary hover:text-fg-primary border-transparent',
             )}
           >
             <Icon size={14} />

@@ -4,16 +4,23 @@ import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
 import { CourseCard } from '@/components/learn/CourseCard';
-import { SectionHeading } from '@/components/ui/section-heading';
+import { SectionHeading } from '@/components/learn/SectionHeading';
+import { BadgePill } from '@/components/ui/badge-pill';
 import { cn } from '@/lib/utils';
 import type { EnrollmentWithCourse } from '@/lib/enrollments/types';
 import type { Course } from '@/lib/courses/types';
 
 type FilterTab = 'all' | 'in_progress' | 'completed';
 
+const chipBase =
+  'px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all whitespace-nowrap';
+const chipInactive =
+  'bg-bg-secondary text-fg-secondary border-border-default hover:border-border-hover hover:text-fg-primary';
+const chipActive =
+  'bg-[color:var(--accent-teal)] text-white border-[color:var(--accent-teal)]';
+
 export default function MyCoursesPage() {
   const t = useTranslations('dashboard');
-  const tLearn = useTranslations('learn');
   const locale = useLocale();
   const prefix = locale === 'ja' ? '/ja' : '';
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
@@ -50,15 +57,26 @@ export default function MyCoursesPage() {
     return true;
   });
 
+  const heading = (
+    <div className="flex items-center gap-2 flex-wrap">
+      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+        {t('heading_courses')}
+      </h1>
+      {!loading && enrollments.length > 0 && (
+        <BadgePill variant="teal" size="sm">{enrollments.length}</BadgePill>
+      )}
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="space-y-6 max-w-[1100px]">
-        <h1 className="text-2xl font-serif text-fg-primary">{t('heading_courses')}</h1>
+        {heading}
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-bg-tertiary rounded-lg w-64" />
+          <div className="h-10 bg-bg-tertiary rounded-[14px] w-64" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="h-48 bg-bg-tertiary rounded-lg" />
-            <div className="h-48 bg-bg-tertiary rounded-lg" />
+            <div className="h-48 bg-bg-tertiary rounded-[14px]" />
+            <div className="h-48 bg-bg-tertiary rounded-[14px]" />
           </div>
         </div>
       </div>
@@ -67,20 +85,16 @@ export default function MyCoursesPage() {
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      <h1 className="text-2xl font-serif text-fg-primary">{t('heading_courses')}</h1>
+      {heading}
 
-      {/* Filter tabs */}
-      <div className="flex gap-2">
+      {/* Filter chips */}
+      <div className="flex gap-2 flex-wrap">
         {filters.map((filter) => (
           <button
             key={filter.key}
+            type="button"
             onClick={() => setActiveFilter(filter.key)}
-            className={cn(
-              'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-              activeFilter === filter.key
-                ? 'bg-accent-teal/10 text-accent-teal'
-                : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
-            )}
+            className={cn(chipBase, activeFilter === filter.key ? chipActive : chipInactive)}
           >
             {filter.label}
           </button>
@@ -91,48 +105,20 @@ export default function MyCoursesPage() {
       {filteredEnrollments.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredEnrollments.map((enrollment) => (
-            <DashboardCourseCard
-              key={enrollment.id}
-              enrollment={enrollment}
-            />
+            <DashboardCourseCard key={enrollment.id} enrollment={enrollment} />
           ))}
         </div>
       ) : (
-        <div className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-secondary px-4 py-3">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            className="shrink-0 text-accent-teal"
-          >
-            <path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-          </svg>
-          <p className="text-sm text-fg-secondary">
-            {t('no_courses')}
-          </p>
+        <div className="py-8 px-4 rounded-[10px] border border-dashed border-border-default bg-bg-tertiary text-center">
+          <p className="text-sm text-fg-tertiary">{t('no_courses')}</p>
         </div>
       )}
 
       {/* Explore More */}
       {exploreCourses.length > 0 && (
-        <div>
-          {enrollments.length > 0 ? (
-            <SectionHeading
-              heading={t('explore_more')}
-              centered
-            />
-          ) : (
-            <h2 className="text-lg font-serif text-fg-primary">
-              {t('explore_more')}
-            </h2>
-          )}
-          <div className={cn(
-            'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
-            enrollments.length > 0 ? 'mt-6' : 'mt-4',
-          )}>
+        <div className="pt-2">
+          <SectionHeading title={t('explore_more')} bordered />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
             {exploreCourses.map((course) => (
               <CourseCard
                 key={course.id}

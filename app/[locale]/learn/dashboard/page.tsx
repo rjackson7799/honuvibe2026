@@ -5,14 +5,16 @@ import { createClient } from '@/lib/supabase/server';
 import { getStudentDashboardData } from '@/lib/dashboard/queries';
 import { getCourseBySlug } from '@/lib/courses/queries';
 import { StatCard } from '@/components/admin/StatCard';
-import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
-import { BookOpen, CheckCircle, Calendar, Clock } from 'lucide-react';
+import { BookOpen, CheckCircle, Calendar, Clock, Bell, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { getVaultCourseRecommendations } from '@/lib/vault/queries';
 import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
 import { getInstructorByUserId } from '@/lib/instructors/queries';
 import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingBanner';
 import { WelcomeScreen } from '@/components/learn/WelcomeScreen';
+import { Card } from '@/components/ui/card';
+import { BadgePill } from '@/components/ui/badge-pill';
+import { SectionHeading } from '@/components/learn/SectionHeading';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -44,7 +46,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tLearn = await getTranslations({ locale, namespace: 'learn' });
 
-  // Get user profile for display name and onboarding state
   const { data: profile } = await supabase
     .from('users')
     .select('full_name, onboarded')
@@ -58,7 +59,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     getCourseBySlug('ai-essentials'),
   ]);
 
-  // Count instructor's assigned classes (lightweight — just count rows)
   let instructorClassCount = 0;
   if (instructorProfile?.is_active) {
     const { count } = await supabase
@@ -70,29 +70,61 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const { enrollments, upcomingSessions, pendingAssignments, stats } = dashboardData;
 
   const displayName = profile?.full_name ?? user.email?.split('@')[0] ?? '';
+  const initial = displayName.trim().charAt(0).toUpperCase() || '?';
 
-  // Show welcome screen for new students
   if (!profile?.onboarded || sp.welcome === 'true') {
     return <WelcomeScreen displayName={displayName} locale={locale} featuredCourse={featuredCourse} />;
   }
 
+  const now = new Date();
+  const overlineDate = now
+    .toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+    .toUpperCase();
+
   return (
-    <div className="space-y-8 max-w-[1100px]">
-      {/* Welcome + enrolled success toast */}
-      <div>
-        <h1 className="text-2xl font-serif text-fg-primary">
-          {t('welcome_back', { name: displayName })}
-        </h1>
-        {sp.enrolled === 'true' && (
-          <div className="mt-4 bg-accent-teal/10 border border-accent-teal/30 rounded-lg px-4 py-3">
-            <p className="text-sm text-accent-teal font-medium">
-              {tLearn('enrolled_success')}
-            </p>
-          </div>
-        )}
+    <div className="space-y-7 max-w-[1100px]">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[12px] font-semibold tracking-[0.05em] text-fg-tertiary mb-1">
+            {overlineDate}
+          </p>
+          <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+            {t('welcome_back', { name: displayName })} <span aria-hidden>👋</span>
+          </h1>
+        </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            aria-label="Notifications"
+            className="relative w-[38px] h-[38px] rounded-[10px] bg-bg-secondary border border-border-default text-fg-secondary hover:text-fg-primary hover:border-border-hover transition-all flex items-center justify-center"
+          >
+            <Bell size={17} />
+            <span className="absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[color:var(--accent-coral)] ring-[1.5px] ring-bg-secondary" />
+          </button>
+          <Link
+            href="/learn/dashboard/settings"
+            aria-label={displayName}
+            className="w-[38px] h-[38px] rounded-[10px] bg-[color:var(--accent-teal)] hover:bg-[color:var(--accent-teal-hover)] text-white text-[15px] font-bold flex items-center justify-center transition-colors"
+          >
+            {initial}
+          </Link>
+        </div>
       </div>
 
-      {/* Instructor teaching banner */}
+      {sp.enrolled === 'true' && (
+        <div className="bg-[color:var(--accent-teal-subtle)] border border-[color:var(--accent-teal)]/30 rounded-[14px] px-4 py-3">
+          <p className="text-sm text-[color:var(--accent-teal)] font-medium">
+            {tLearn('enrolled_success')}
+          </p>
+        </div>
+      )}
+
       {instructorClassCount > 0 && (
         <InstructorTeachingBanner classCount={instructorClassCount} />
       )}
@@ -100,21 +132,29 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
+          variant="learn"
+          accent="teal"
           label={t('stats_active_courses')}
           value={stats.active_courses}
           icon={BookOpen}
         />
         <StatCard
+          variant="learn"
+          accent="teal"
           label={t('stats_completed_courses')}
           value={stats.completed_courses}
           icon={CheckCircle}
         />
         <StatCard
+          variant="learn"
+          accent="coral"
           label={t('stats_upcoming_sessions')}
           value={stats.upcoming_sessions_count}
           icon={Calendar}
         />
         <StatCard
+          variant="learn"
+          accent="teal"
           label={t('stats_study_hours')}
           value={stats.total_study_hours}
           icon={Clock}
@@ -126,60 +166,58 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         <VaultCourseRecommendations items={vaultRecommendations} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* My Courses widget */}
-        <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
-              {t('section_my_courses')}
-            </h2>
-            {enrollments.length > 0 && (
-              <Link href="/learn/dashboard/courses" className="text-xs text-accent-teal hover:underline">
-                {t('view_all_courses')} →
-              </Link>
-            )}
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* My Courses */}
+        <Card variant="learn" padding="md">
+          <SectionHeading
+            title={t('section_my_courses')}
+            viewAllHref={enrollments.length > 0 ? '/learn/dashboard/courses' : undefined}
+            viewAllLabel={t('view_all_courses')}
+          />
           {enrollments.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-sm text-fg-tertiary mb-4">{t('no_courses')}</p>
+            <div className="py-6 text-center">
+              <p className="text-sm text-fg-tertiary mb-3">{t('no_courses')}</p>
               <Link
                 href="/learn"
-                className="inline-flex items-center gap-2 text-sm text-accent-teal hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-medium text-[color:var(--accent-teal)] hover:text-[color:var(--accent-teal-hover)]"
               >
-                {t('explore_courses')} →
+                {t('explore_courses')} <ArrowRight size={14} />
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
-              {enrollments.slice(0, 3).map((enrollment) => {
+            <div>
+              {enrollments.slice(0, 3).map((enrollment, i) => {
                 const course = enrollment.course;
                 const title = locale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
                 const totalWeeks = course.total_weeks ?? 1;
                 const startDate = course.start_date ? new Date(course.start_date) : null;
-                const now = new Date();
                 const weeksPassed = startDate
                   ? Math.max(1, Math.ceil((now.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)))
                   : 1;
                 const currentWeek = Math.min(weeksPassed, totalWeeks);
                 const progressPercent = Math.round((currentWeek / totalWeeks) * 100);
+                const isComplete = progressPercent === 100;
+                const isLast = i === Math.min(enrollments.length, 3) - 1;
 
                 return (
                   <Link
                     key={enrollment.id}
                     href={`/learn/dashboard/${course.slug}`}
-                    className="block p-3 rounded-lg hover:bg-bg-tertiary transition-colors"
+                    className={`block py-3.5 ${isLast ? '' : 'border-b border-border-default'} hover:opacity-90 transition-opacity`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-fg-primary truncate mr-2">
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <span className="text-[13.5px] font-semibold text-fg-primary truncate">
                         {title}
                       </span>
-                      <span className="text-xs text-fg-tertiary shrink-0">
+                      <span className="text-[11.5px] text-fg-tertiary font-medium shrink-0">
                         {tLearn('week_of', { current: currentWeek, total: totalWeeks })}
                       </span>
                     </div>
-                    <div className="w-full bg-bg-tertiary rounded-full h-1.5">
+                    <div className="h-[5px] bg-[rgba(26,43,51,0.07)] rounded-full overflow-hidden">
                       <div
-                        className="bg-accent-teal rounded-full h-1.5 transition-all"
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isComplete ? 'bg-[color:var(--accent-coral)]' : 'bg-[color:var(--accent-teal)]'
+                        }`}
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
@@ -188,120 +226,145 @@ export default async function DashboardPage({ params, searchParams }: Props) {
               })}
             </div>
           )}
-        </div>
+        </Card>
 
-        {/* Upcoming Sessions widget */}
-        <div className="bg-bg-secondary border border-border-default rounded-lg p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
-              {t('section_upcoming')}
-            </h2>
-            {upcomingSessions.length > 0 && (
-              <Link href="/learn/dashboard/schedule" className="text-xs text-accent-teal hover:underline">
-                {t('view_all_sessions')} →
-              </Link>
-            )}
-          </div>
+        {/* Upcoming Sessions */}
+        <Card variant="learn" padding="md">
+          <SectionHeading
+            title={t('section_upcoming')}
+            viewAllHref={upcomingSessions.length > 0 ? '/learn/dashboard/schedule' : undefined}
+            viewAllLabel={t('view_all_sessions')}
+          />
           {upcomingSessions.length === 0 ? (
-            <p className="text-sm text-fg-tertiary">{t('no_upcoming')}</p>
+            <div className="py-6 px-4 rounded-[10px] border border-dashed border-border-default bg-bg-tertiary text-center">
+              <p className="text-sm text-fg-tertiary">{t('no_upcoming')}</p>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {upcomingSessions.slice(0, 3).map((session) => {
+            <div>
+              {upcomingSessions.slice(0, 3).map((session, i) => {
                 const title = locale === 'ja' && session.title_jp ? session.title_jp : session.title_en;
-                const courseTitle = locale === 'ja' && session.course_title_jp
-                  ? session.course_title_jp : session.course_title_en;
+                const courseTitle =
+                  locale === 'ja' && session.course_title_jp
+                    ? session.course_title_jp
+                    : session.course_title_en;
                 const sessionDate = new Date(session.scheduled_at);
-                const formatBadgeColor = session.format === 'live'
-                  ? 'bg-accent-teal/10 text-accent-teal'
-                  : session.format === 'hybrid'
-                    ? 'bg-accent-gold/10 text-accent-gold'
-                    : 'bg-bg-tertiary text-fg-tertiary';
+                const isLast = i === Math.min(upcomingSessions.length, 3) - 1;
+                const isLive = session.format === 'live';
 
                 return (
-                  <div key={session.id} className="flex items-start justify-between gap-3 text-sm">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-medium text-fg-primary truncate">{title}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${formatBadgeColor}`}>
-                          {t(`format_${session.format}`)}
+                  <div
+                    key={session.id}
+                    className={`flex items-start justify-between gap-3 py-3.5 ${isLast ? '' : 'border-b border-border-default'}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-[13.5px] font-semibold text-fg-primary truncate">
+                          {title}
                         </span>
+                        {isLive && <BadgePill variant="live" size="xs">LIVE</BadgePill>}
                       </div>
-                      <span className="text-xs text-fg-tertiary">{courseTitle}</span>
+                      <p className="text-[12px] text-fg-tertiary truncate">{courseTitle}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-xs text-fg-tertiary">
+                      <p className="text-[12px] font-semibold text-fg-secondary">
                         {sessionDate.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
                           weekday: 'short',
                           month: 'short',
                           day: 'numeric',
                         })}
-                      </div>
-                      <div className="text-xs text-fg-tertiary">
+                      </p>
+                      <p className="text-[12px] text-fg-tertiary">
                         {sessionDate.toLocaleTimeString(locale === 'ja' ? 'ja-JP' : 'en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
                         })}
-                      </div>
+                      </p>
                     </div>
                   </div>
                 );
               })}
             </div>
           )}
-        </div>
+        </Card>
+      </div>
 
-        {/* Action Items widget */}
-        <div className="lg:col-span-2 bg-bg-secondary border border-border-default rounded-lg p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">
-              {t('section_action_items')}
-            </h2>
-          </div>
-          {pendingAssignments.length === 0 ? (
+      {/* Action Items — full width */}
+      <div>
+        <SectionHeading title={t('section_action_items')} />
+        {pendingAssignments.length === 0 ? (
+          <div className="py-6 px-4 rounded-[10px] border border-dashed border-border-default bg-bg-tertiary text-center">
             <p className="text-sm text-fg-tertiary">{t('no_assignments')}</p>
-          ) : (
-            <div className="space-y-3">
-              {pendingAssignments.slice(0, 4).map((assignment) => {
-                const title = locale === 'ja' && assignment.title_jp
-                  ? assignment.title_jp : assignment.title_en;
-                const courseTitle = locale === 'ja' && assignment.course_title_jp
-                  ? assignment.course_title_jp : assignment.course_title_en;
-                const typeBadge = assignment.assignment_type === 'homework'
-                  ? { label: t('homework'), color: 'bg-accent-teal/10 text-accent-teal' }
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {pendingAssignments.slice(0, 4).map((assignment) => {
+              const title =
+                locale === 'ja' && assignment.title_jp ? assignment.title_jp : assignment.title_en;
+              const courseTitle =
+                locale === 'ja' && assignment.course_title_jp
+                  ? assignment.course_title_jp
+                  : assignment.course_title_en;
+              const tagLabel =
+                assignment.assignment_type === 'homework'
+                  ? t('homework')
                   : assignment.assignment_type === 'action-challenge'
-                    ? { label: t('action_challenge'), color: 'bg-accent-gold/10 text-accent-gold' }
-                    : { label: t('project'), color: 'bg-bg-tertiary text-fg-secondary' };
+                    ? t('action_challenge')
+                    : t('project');
+              const tagVariant: 'teal' | 'coral' | 'gray' =
+                assignment.assignment_type === 'homework'
+                  ? 'teal'
+                  : assignment.assignment_type === 'action-challenge'
+                    ? 'coral'
+                    : 'gray';
 
-                return (
-                  <div key={assignment.id} className="flex items-start justify-between gap-3 text-sm">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-medium text-fg-primary truncate">{title}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded shrink-0 ${typeBadge.color}`}>
-                          {typeBadge.label}
-                        </span>
-                      </div>
-                      <span className="text-xs text-fg-tertiary">
-                        {courseTitle} · {t('week_label', { number: assignment.week_number })}
+              const due = assignment.due_date ? new Date(assignment.due_date) : null;
+              const daysUntilDue = due
+                ? Math.ceil((due.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+                : null;
+              const isUrgent = daysUntilDue !== null && daysUntilDue <= 3;
+              const dueLabel = due
+                ? t('due_date', {
+                    date: due.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    }),
+                  })
+                : t('no_due_date');
+
+              return (
+                <div
+                  key={assignment.id}
+                  className="flex items-center gap-3 px-4 py-3 bg-bg-secondary border border-border-default rounded-[10px]"
+                >
+                  <div
+                    aria-hidden
+                    className="w-5 h-5 rounded-md border-[1.5px] border-[rgba(26,43,51,0.2)] shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                      <span className="text-[13.5px] font-semibold text-fg-primary truncate">
+                        {title}
                       </span>
+                      <BadgePill variant={tagVariant} size="xs">
+                        {tagLabel}
+                      </BadgePill>
                     </div>
-                    <span className="text-xs text-fg-tertiary shrink-0">
-                      {assignment.due_date
-                        ? t('due_date', {
-                            date: new Date(assignment.due_date).toLocaleDateString(
-                              locale === 'ja' ? 'ja-JP' : 'en-US',
-                              { month: 'short', day: 'numeric' },
-                            ),
-                          })
-                        : t('no_due_date')}
-                    </span>
+                    <p className="text-[12px] text-fg-tertiary truncate">
+                      {courseTitle} · {t('week_label', { number: assignment.week_number })}
+                    </p>
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
+                  <span
+                    className={`text-[12px] font-medium whitespace-nowrap shrink-0 ${
+                      isUrgent ? 'text-[color:var(--accent-coral)]' : 'text-fg-tertiary'
+                    }`}
+                  >
+                    {dueLabel}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

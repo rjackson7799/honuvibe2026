@@ -12,9 +12,10 @@ type EnrollButtonProps = {
   isLoggedIn: boolean;
   isEnrolled: boolean;
   isFull: boolean;
+  isInProgress?: boolean;
   priceUsd?: number | null;
   priceJpy?: number | null;
-  variant?: 'primary' | 'gold';
+  variant?: 'primary' | 'gold' | 'coral';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
 };
@@ -25,9 +26,10 @@ export function EnrollButton({
   isLoggedIn,
   isEnrolled,
   isFull,
+  isInProgress = false,
   priceUsd,
   priceJpy,
-  variant = 'primary',
+  variant = 'coral',
   size = 'md',
   fullWidth = false,
 }: EnrollButtonProps) {
@@ -63,6 +65,10 @@ export function EnrollButton({
         {t('cohort_full')}
       </Button>
     );
+  }
+
+  if (isInProgress && !isEnrolled) {
+    return null;
   }
 
   async function handleEnroll() {

@@ -6,6 +6,8 @@ import { getUserPayments } from '@/lib/payments/queries';
 import { checkVaultAccess } from '@/lib/vault/access';
 import { VaultStatusCard } from '@/components/billing/VaultStatusCard';
 import { PaymentHistoryTable } from '@/components/billing/PaymentHistoryTable';
+import { Card } from '@/components/ui/card';
+import { SectionHeading } from '@/components/learn/SectionHeading';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -42,8 +44,10 @@ export default async function BillingPage({ params }: Props) {
   const payments = await getUserPayments(user.id);
 
   return (
-    <div className="space-y-8 max-w-[880px]">
-      <h1 className="text-2xl font-serif text-fg-primary">{t('title')}</h1>
+    <div className="space-y-6 max-w-[880px]">
+      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+        {t('title')}
+      </h1>
 
       <VaultStatusCard
         subscriptionStatus={profile?.subscription_status ?? 'none'}
@@ -53,10 +57,10 @@ export default async function BillingPage({ params }: Props) {
         hasAccess={vaultAccess.hasAccess}
       />
 
-      <div className="bg-bg-secondary border border-border-default rounded-lg p-6">
-        <h2 className="text-lg font-serif text-fg-primary mb-4">{t('payment_history')}</h2>
+      <Card variant="learn" padding="lg">
+        <SectionHeading title={t('payment_history')} bordered />
         <PaymentHistoryTable payments={payments} />
-      </div>
+      </Card>
     </div>
   );
 }

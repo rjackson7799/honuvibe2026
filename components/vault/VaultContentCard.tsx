@@ -18,11 +18,39 @@ const typeIcons: Record<string, typeof Video> = {
   course_recording: Video,
 };
 
-const difficultyColors: Record<string, string> = {
-  beginner: 'bg-emerald-500/10 text-emerald-400',
-  intermediate: 'bg-accent-gold/10 text-accent-gold',
-  advanced: 'bg-red-500/10 text-red-400',
+const typeLabels: Record<string, string> = {
+  video_custom: 'Video',
+  video_youtube: 'Video',
+  article: 'Article',
+  tool: 'Tool',
+  template: 'Template',
+  guide: 'Guide',
+  course_recording: 'Recording',
 };
+
+const difficultyColors: Record<string, string> = {
+  beginner: 'bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)]',
+  intermediate: 'bg-[color:var(--accent-coral-subtle)] text-[color:var(--accent-coral)]',
+  advanced: 'bg-[color:var(--accent-purple-subtle)] text-[color:var(--accent-purple)]',
+};
+
+// Deterministic gradient thumbnail per item (stable across renders)
+const thumbGradients = [
+  'linear-gradient(135deg, #ddeedd 0%, #c8dcc8 100%)',
+  'linear-gradient(135deg, #dde8e8 0%, #c4d4d4 100%)',
+  'linear-gradient(135deg, #e8dde4 0%, #d4c4cc 100%)',
+  'linear-gradient(135deg, #ede8dc 0%, #d8cdb8 100%)',
+  'linear-gradient(135deg, #dde0ee 0%, #c4c8d8 100%)',
+  'linear-gradient(135deg, #e0ede0 0%, #c8d8c8 100%)',
+  'linear-gradient(135deg, #f0e0d4 0%, #ddc8b4 100%)',
+  'linear-gradient(135deg, #d8e4ee 0%, #c0ccdc 100%)',
+];
+
+function gradientFor(slug: string) {
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) hash = (hash * 31 + slug.charCodeAt(i)) | 0;
+  return thumbGradients[Math.abs(hash) % thumbGradients.length];
+}
 
 type VaultContentCardProps = {
   item: VaultContentItem;
@@ -39,36 +67,39 @@ export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: V
   const [imgError, setImgError] = useState(false);
 
   const thumbnail = (
-    <div className="relative aspect-video bg-bg-tertiary">
+    <div
+      className="relative h-[120px] overflow-hidden"
+      style={!item.thumbnail_url || imgError ? { background: gradientFor(item.slug) } : undefined}
+    >
       {item.thumbnail_url && !imgError ? (
         <Image
           src={item.thumbnail_url}
           alt={title}
           fill
-          className={cn('object-cover', locked && 'blur-sm')}
+          className={cn('object-cover', locked && 'blur-[2px]')}
           sizes="(max-width: 768px) 100vw, (max-width: 1100px) 50vw, 33vw"
           onError={() => setImgError(true)}
         />
       ) : (
-        <div className={cn('flex items-center justify-center h-full', locked && 'blur-sm')}>
-          <Icon size={32} className="text-fg-tertiary" />
+        <div className={cn('flex items-center justify-center h-full', locked && 'blur-[2px]')}>
+          <Icon size={32} strokeWidth={1.2} className="text-[rgba(26,43,51,0.25)]" />
         </div>
       )}
       {locked && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm">
-            <Lock size={22} className="text-white drop-shadow" />
+        <div className="absolute inset-0 flex items-center justify-center bg-[rgba(15,169,160,0)] group-hover:bg-[rgba(15,169,160,0.15)] transition-colors">
+          <div className="flex items-center justify-center w-11 h-11 rounded-full bg-[rgba(26,43,51,0.7)] backdrop-blur-sm">
+            <Lock size={20} className="text-white" />
           </div>
         </div>
       )}
       {item.duration_minutes && (
-        <div className="absolute bottom-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/70 text-white text-xs">
+        <div className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-md bg-[rgba(26,43,51,0.7)] backdrop-blur-sm text-white text-[11px] font-semibold">
           <Clock size={10} />
           {item.duration_minutes} min
         </div>
       )}
       {isCompleted && (
-        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded bg-emerald-500/90 text-white text-xs font-medium">
+        <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-md bg-[color:var(--accent-teal)] text-white text-[10.5px] font-bold uppercase tracking-[0.04em]">
           <CheckCircle2 size={10} />
           Done
         </div>
@@ -76,26 +107,33 @@ export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: V
     </div>
   );
 
+  const typeLabel = typeLabels[item.content_type] ?? item.content_type.replace(/_/g, ' ');
+
   const body = (
-    <div className="p-4">
-      <div className="flex items-center gap-2 mb-2 flex-wrap">
-        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-bg-tertiary text-fg-tertiary capitalize">
-          <Icon size={12} />
-          {item.content_type.replace(/_/g, ' ')}
+    <div className="p-3.5 flex flex-col gap-2 flex-1">
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <span className="inline-flex items-center gap-1 text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[rgba(26,43,51,0.06)] text-fg-secondary">
+          <Icon size={11} />
+          {typeLabel}
         </span>
         {item.difficulty_level && (
-          <span className={cn('text-xs px-2 py-0.5 rounded capitalize', difficultyColors[item.difficulty_level])}>
+          <span
+            className={cn(
+              'text-[10.5px] font-bold px-2 py-0.5 rounded-full capitalize',
+              difficultyColors[item.difficulty_level],
+            )}
+          >
             {item.difficulty_level}
           </span>
         )}
       </div>
-      <h3 className="text-sm font-medium text-fg-primary mb-1 line-clamp-2 group-hover:text-accent-teal transition-colors">
+      <h3 className="text-[13.5px] font-bold text-fg-primary leading-[1.4] tracking-[-0.01em] line-clamp-2">
         {title}
       </h3>
       {description && (
-        <p className="text-xs text-fg-tertiary line-clamp-2 mb-3">{description}</p>
+        <p className="text-[12px] text-fg-tertiary leading-[1.55] line-clamp-2 flex-1">{description}</p>
       )}
-      <div className="flex items-center gap-3 text-xs text-fg-tertiary">
+      <div className="flex items-center gap-3 text-[11.5px] text-fg-tertiary">
         <span className="inline-flex items-center gap-1">
           <Eye size={12} />
           {item.view_count.toLocaleString()}
@@ -110,12 +148,15 @@ export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: V
     </div>
   );
 
+  const cardClass = cn(
+    'group relative flex flex-col bg-bg-secondary border border-border-default rounded-[14px] overflow-hidden',
+    'shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:-translate-y-0.5 hover:border-[color:var(--accent-teal)]/35',
+    'transition-all duration-200 cursor-pointer',
+  );
+
   if (locked) {
     return (
-      <div
-        onClick={onLockedClick}
-        className="group block bg-bg-secondary border border-border-default rounded-lg overflow-hidden cursor-pointer hover:border-accent-gold/50 hover:ring-1 hover:ring-accent-gold/20 transition-colors"
-      >
+      <div onClick={onLockedClick} className={cardClass}>
         {thumbnail}
         {body}
       </div>
@@ -123,10 +164,7 @@ export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: V
   }
 
   return (
-    <Link
-      href={`/learn/vault/${item.slug}`}
-      className="group block bg-bg-secondary border border-border-default rounded-lg overflow-hidden hover:border-border-hover transition-colors"
-    >
+    <Link href={`/learn/vault/${item.slug}`} className={cardClass}>
       {thumbnail}
       {body}
     </Link>

@@ -76,6 +76,10 @@ export default async function CourseDetailPage({ params }: Props) {
     !!course.max_enrollment &&
     course.current_enrollment >= course.max_enrollment;
 
+  const isInProgress =
+    (course.start_date ? new Date(course.start_date) <= new Date() : false) ||
+    course.status === 'in-progress';
+
   const isRecordedOnly = !course.live_sessions_count;
 
   const languageLabel =
@@ -92,7 +96,7 @@ export default async function CourseDetailPage({ params }: Props) {
   ].filter(Boolean) as string[];
 
   return (
-    <>
+    <div className="learn-zone bg-bg-primary text-fg-primary min-h-screen">
       {/* Hero Header */}
       <CourseDetailHero
         title={title}
@@ -386,7 +390,8 @@ export default async function CourseDetailPage({ params }: Props) {
         isLoggedIn={!!user}
         isEnrolled={isEnrolled}
         isFull={isFull}
+        isInProgress={isInProgress}
       />
-    </>
+    </div>
   );
 }

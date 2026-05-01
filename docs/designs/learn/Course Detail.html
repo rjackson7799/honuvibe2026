@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Essentials — HonuVibe.AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F0EBE3;
+    color: #1A2B33;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(26,43,51,0.15); border-radius: 10px; }
+  ::selection { background: rgba(15,169,160,0.12); }
+</style>
+</head>
+<body>
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+const T = {
+  teal: '#0FA9A0', tealDark: '#0B7F78', tealSoft: 'rgba(15,169,160,0.1)',
+  coral: '#E8765A', coralDark: '#CC5A3E', coralSoft: '#FCEDE6',
+  navy: '#1A2B33', slate: '#5A6B73', caption: '#8B9499',
+  canvas: '#FDFBF7', sand: '#F5F0E8', white: '#FFFFFF',
+  bg: '#F0EBE3',
+};
+
+// ─── ICONS ───────────────────────────────────────────────────────────────────
+const IconHonu = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
+    <ellipse cx="16" cy="17" rx="10" ry="8" fill="currentColor" opacity="0.15"/>
+    <ellipse cx="16" cy="16" rx="8" ry="6.5" fill="currentColor"/>
+    <ellipse cx="16" cy="15" rx="5" ry="4" fill="currentColor" opacity="0.25"/>
+    <ellipse cx="9" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(-20 9 20)"/>
+    <ellipse cx="23" cy="20" rx="3.5" ry="2" fill="currentColor" transform="rotate(20 23 20)"/>
+    <ellipse cx="8" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(-30 8 14)"/>
+    <ellipse cx="24" cy="14" rx="3" ry="1.8" fill="currentColor" transform="rotate(30 24 14)"/>
+    <ellipse cx="16" cy="10" rx="3" ry="2.5" fill="currentColor"/>
+    <path d="M16 23.5 Q15.5 26 16 27 Q16.5 26 16 23.5" fill="currentColor"/>
+    <circle cx="14.5" cy="10" r="0.8" fill="#FDFBF7"/>
+    <circle cx="17.5" cy="10" r="0.8" fill="#FDFBF7"/>
+  </svg>
+);
+
+const Ic = ({ d, size = 18, stroke = 1.5, color }) => (
+  <svg width={size} height={size} viewBox="0 0 20 20" fill="none"
+    stroke={color || 'currentColor'} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+    <path d={d}/>
+  </svg>
+);
+
+const icons = {
+  dashboard: "M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z",
+  courses:   "M4 4h12v1.5H4zM4 7.5h12v1.5H4zM4 11h8v1.5H4zM14 13l2 2 3-3",
+  vault:     "M10 2L3 6v4c0 4.4 3 8.5 7 9.5 4-1 7-5.1 7-9.5V6l-7-4z",
+  community: "M17 20c0-2.2-3.1-4-7-4s-7 1.8-7 4M10 12a4 4 0 100-8 4 4 0 000 8z",
+  billing:   "M2 5h16v12H2zM2 9h16M6 13h2M10 13h4",
+  profile:   "M10 11a4 4 0 100-8 4 4 0 000 8zM3 19c0-3.3 3.1-6 7-6s7 2.7 7 6",
+  admin:     "M10 2l2.4 4.8 5.3.8-3.8 3.7.9 5.2L10 14l-4.8 2.5.9-5.2L2.3 7.6l5.3-.8z",
+  signout:   "M13 16l4-6-4-6M17 10H7M7 3H4a1 1 0 00-1 1v12a1 1 0 001 1h3",
+  check:     "M4 10l5 5 7-7",
+  arrow:     "M4 10h12M12 6l4 4-4 4",
+  arrowLeft: "M14 10H4M8 6l-4 4 4 4",
+  chevDown:  "M5 8l5 5 5-5",
+  chevUp:    "M5 12l5-5 5 5",
+  zoom:      "M3 6h10v8H3zM13 8l5-3v10l-5-3z",
+  replay:    "M4 10a6 6 0 1010.6-3.9M4 6v4h4",
+  pencil:    "M14 3l3 3-9 9-4 1 1-4 9-9z",
+  people:    "M14 15c0-2-1.8-3-4-3s-4 1-4 3M10 10a3 3 0 100-6 3 3 0 000 6zM17 15c0-1.5-1-2.5-2.5-3M15 7a3 3 0 010 5",
+  bell:      "M10 2a6 6 0 016 6v3l2 2H2l2-2V8a6 6 0 016-6zM8 17a2 2 0 004 0",
+  clock:     "M10 5v5l3 3M10 18a8 8 0 100-16 8 8 0 000 16z",
+  globe:     "M10 2a8 8 0 100 16A8 8 0 0010 2zM2 10h16M10 2c-2 3-3 5-3 8s1 5 3 8M10 2c2 3 3 5 3 8s-1 5-3 8",
+  star:      "M10 2l2.4 5 5.6.8-4 3.9.9 5.3-5-2.6-5 2.6.9-5.3-4-3.9 5.6-.8z",
+  users:     "M17 20c0-2.2-2.7-4-6-4s-6 1.8-6 4M11 11a4 4 0 100-8 4 4 0 000 8zM19 20c0-1.7-1.5-3.1-3.5-3.6M17 7a4 4 0 010 6.3",
+};
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+function Sidebar({ active, setActive }) {
+  const mainLinks = [
+    { id: 'dashboard', label: 'Dashboard', icon: icons.dashboard },
+    { id: 'courses',   label: 'My Courses', icon: icons.courses },
+    { id: 'vault',     label: 'The Vault',  icon: icons.vault },
+    { id: 'community', label: 'Community',  icon: icons.community },
+    { id: 'billing',   label: 'Billing',    icon: icons.billing },
+    { id: 'profile',   label: 'Profile',    icon: icons.profile },
+  ];
+  const bottomLinks = [
+    { id: 'admin',   label: 'Admin',    icon: icons.admin },
+    { id: 'signout', label: 'Sign Out', icon: icons.signout },
+  ];
+  return (
+    <div style={{
+      width: 220, flexShrink: 0, height: '100%',
+      background: T.canvas, borderRight: '1px solid rgba(26,43,51,0.08)',
+      display: 'flex', flexDirection: 'column',
+    }}>
+      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid rgba(26,43,51,0.07)', display: 'flex', alignItems: 'center', gap: 9 }}>
+        <div style={{ color: T.teal }}><IconHonu size={26} /></div>
+        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', color: T.navy }}>
+          HonuVibe<span style={{ color: T.teal }}>.AI</span>
+        </span>
+      </div>
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(26,43,51,0.07)', display: 'flex', gap: 4 }}>
+        {['EN','日本語'].map((l,i) => (
+          <button key={i} style={{
+            padding:'4px 10px', borderRadius: 6, border: 'none', cursor:'pointer',
+            background: i===0 ? T.teal : 'transparent',
+            color: i===0 ? '#fff' : T.caption,
+            fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+          }}>{l}</button>
+        ))}
+      </div>
+      <nav style={{ flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {mainLinks.map(link => <NavItem key={link.id} link={link} active={active===link.id} onClick={() => setActive(link.id)} />)}
+      </nav>
+      <div style={{ padding: '10px 10px 16px', borderTop: '1px solid rgba(26,43,51,0.07)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {bottomLinks.map(link => <NavItem key={link.id} link={link} active={false} onClick={() => {}} muted={link.id==='signout'} />)}
+      </div>
+    </div>
+  );
+}
+
+function NavItem({ link, active, onClick, muted }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '9px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
+        background: active ? T.teal : hover ? 'rgba(26,43,51,0.05)' : 'transparent',
+        color: active ? '#fff' : muted ? T.caption : hover ? T.navy : T.slate,
+        fontSize: 13.5, fontWeight: active ? 600 : 500,
+        fontFamily: 'inherit', textAlign: 'left', width: '100%',
+        transition: 'all 0.15s',
+      }}
+    >
+      <span style={{ flexShrink: 0, opacity: active ? 1 : 0.75 }}><Ic d={link.icon} size={17} /></span>
+      {link.label}
+    </button>
+  );
+}
+
+// ─── ENROLL BUTTON ────────────────────────────────────────────────────────────
+function EnrollBtn({ size = 'md', full = false }) {
+  const [hover, setHover] = useState(false);
+  const pad = size === 'lg' ? '14px 32px' : '10px 22px';
+  const fs = size === 'lg' ? 16 : 14;
+  return (
+    <button
+      onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{
+        background: hover ? T.coralDark : T.coral,
+        color: '#fff', border: 'none', borderRadius: 10,
+        padding: pad, fontSize: fs, fontWeight: 700,
+        cursor: 'pointer', fontFamily: 'inherit',
+        width: full ? '100%' : 'auto',
+        boxShadow: hover ? '0 8px 24px rgba(232,118,90,0.35)' : '0 4px 14px rgba(232,118,90,0.22)',
+        transform: hover ? 'translateY(-1px)' : 'none',
+        transition: 'all 0.18s',
+        whiteSpace: 'nowrap',
+      }}
+    >Enroll Now →</button>
+  );
+}
+
+// ─── HOW IT WORKS CARD ────────────────────────────────────────────────────────
+function HowCard({ icon, title, desc }) {
+  return (
+    <div style={{
+      background: T.white, borderRadius: 14, padding: '24px 20px',
+      border: '1px solid rgba(26,43,51,0.07)',
+      boxShadow: '0 2px 8px rgba(26,43,51,0.04)',
+      textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center',
+    }}>
+      <div style={{
+        width: 48, height: 48, borderRadius: 12,
+        background: T.tealSoft, color: T.teal,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}><Ic d={icon} size={22} /></div>
+      <p style={{ fontSize: 13.5, fontWeight: 700, color: T.navy, lineHeight: 1.3, letterSpacing: '-0.01em' }}>{title}</p>
+      <p style={{ fontSize: 12.5, lineHeight: 1.6, color: T.caption }}>{desc}</p>
+    </div>
+  );
+}
+
+// ─── WEEK ACCORDION ───────────────────────────────────────────────────────────
+function WeekRow({ week }) {
+  const [open, setOpen] = useState(week.n === 1);
+  return (
+    <div style={{
+      border: '1px solid rgba(26,43,51,0.08)',
+      borderRadius: 12, overflow: 'hidden',
+      background: T.white,
+      boxShadow: open ? '0 4px 16px rgba(26,43,51,0.06)' : 'none',
+      transition: 'box-shadow 0.2s',
+    }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: 0,
+          padding: '16px 20px', background: 'none', border: 'none',
+          cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+        }}
+      >
+        {/* Week badge */}
+        <div style={{
+          width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+          background: open ? T.teal : 'rgba(26,43,51,0.06)',
+          color: open ? '#fff' : T.caption,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 12, fontWeight: 700, marginRight: 14,
+          transition: 'all 0.18s',
+        }}>{week.n}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: T.caption, letterSpacing: '0.04em' }}>
+              WEEK {week.n} · {week.type} · {week.duration}
+            </span>
+          </div>
+          <p style={{ fontSize: 14, fontWeight: 700, color: T.navy, letterSpacing: '-0.01em' }}>{week.title}</p>
+        </div>
+        <div style={{ color: T.caption, flexShrink: 0 }}>
+          <Ic d={open ? icons.chevUp : icons.chevDown} size={18} />
+        </div>
+      </button>
+      {open && (
+        <div style={{
+          padding: '0 20px 20px',
+          borderTop: '1px solid rgba(26,43,51,0.07)',
+        }}>
+          <div style={{ height: 14 }}></div>
+          <p style={{ fontSize: 14, lineHeight: 1.7, color: T.slate, marginBottom: 16 }}>{week.desc}</p>
+          {week.topics && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {week.topics.map((t, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+                    background: T.tealSoft,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: T.teal,
+                  }}><Ic d={icons.check} size={10} stroke={2.5} /></div>
+                  <span style={{ fontSize: 13.5, color: T.slate }}>{t}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MAIN COURSE DETAIL ───────────────────────────────────────────────────────
+function CourseDetail() {
+  const scrollRef = useRef(null);
+
+  const outcomes = [
+    'Identify which AI tools matter for your career and skip the ones that don\'t',
+    'Use AI to complete everyday work tasks: writing, research, translation, and planning',
+    'Ask AI better questions and get dramatically better results',
+    'Use AI to improve meetings, emails, and team communication',
+    'Set up a personal AI assistant configured for your specific job',
+    'Create a clear AI action plan for continued growth after the course',
+  ];
+
+  const tools = ['ChatGPT', 'Claude', 'Perplexity'];
+
+  const howCards = [
+    { icon: icons.zoom,    title: 'Live on Zoom twice a week', desc: 'Small cohort sessions built for participation, not lectures.' },
+    { icon: icons.replay,  title: 'Replays + transcripts available next day', desc: 'Life happens. Never fall behind with full session recordings.' },
+    { icon: icons.pencil,  title: 'Mini assignments to apply what you learn', desc: 'Short, practical exercises that fit into your real workflow.' },
+    { icon: icons.people,  title: 'Private community for 1 month', desc: 'Access to your cohort group for questions, sharing, and accountability.' },
+  ];
+
+  const weeks = [
+    {
+      n: 1, type: 'Live', duration: '60 min', title: 'The AI Tools That Matter',
+      desc: 'We cut through the noise. By the end of this session you\'ll know exactly which tools apply to your work and why.',
+      topics: ['AI landscape overview', 'ChatGPT vs Claude vs Perplexity', 'Your first hands-on prompts'],
+    },
+    {
+      n: 2, type: 'Live', duration: '60 min', title: 'Make AI Do Your Work',
+      desc: 'From drafting emails to summarizing documents — we turn AI into a practical daily assistant.',
+      topics: ['Prompt patterns that actually work', 'AI-powered writing and editing', 'Research and summarization workflows'],
+    },
+    {
+      n: 3, type: 'Live', duration: '60 min', title: 'AI at Work — With Your Team',
+      desc: 'How to use AI collaboratively without losing your voice or creating confusion.',
+      topics: ['Meeting prep and follow-up with AI', 'Team communication templates', 'Shared prompt libraries'],
+    },
+    {
+      n: 4, type: 'Live', duration: '60 min', title: 'Build Your First AI Tool',
+      desc: 'No code required. We\'ll build a custom GPT or Claude workflow tailored to your actual job.',
+      topics: ['Custom GPT setup walkthrough', 'System prompt design for your role', 'Testing and refining your tool'],
+    },
+    {
+      n: 5, type: 'Live', duration: '60 min', title: 'Your AI Action Plan',
+      desc: 'We close with a personalized roadmap — what to keep doing, what to learn next, and how to stay sharp.',
+      topics: ['Building your AI habit stack', 'Resources for continued learning', 'Cohort showcase and Q&A'],
+    },
+  ];
+
+  return (
+    <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', background: T.canvas, position: 'relative' }}>
+      {/* ── HERO BAND ─────────────────────────────────────────────────────── */}
+      <div style={{
+        background: T.navy, color: '#fff',
+        padding: '32px 48px 40px',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {/* decorative circles */}
+        <div style={{ position: 'absolute', top: -60, right: -60, width: 300, height: 300, borderRadius: '50%', background: 'rgba(15,169,160,0.07)', pointerEvents: 'none' }}></div>
+        <div style={{ position: 'absolute', bottom: -80, right: 120, width: 200, height: 200, borderRadius: '50%', background: 'rgba(232,118,90,0.06)', pointerEvents: 'none' }}></div>
+
+        {/* Breadcrumb */}
+        <a href="Dashboard.html" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 500,
+          textDecoration: 'none', marginBottom: 22,
+          transition: 'color 0.15s',
+        }}>
+          <Ic d={icons.arrowLeft} size={14} /> My Courses
+        </a>
+
+        {/* Badges */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+          {[
+            { label: 'Beginner', bg: T.tealSoft, color: T.teal },
+            { label: '5 Weeks',  bg: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.75)' },
+            { label: 'EN / 日本語', bg: T.coralSoft, color: T.coral },
+          ].map((b, i) => (
+            <span key={i} style={{
+              fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 20,
+              background: b.bg, color: b.color, letterSpacing: '0.04em',
+            }}>{b.label}</span>
+          ))}
+        </div>
+
+        <h1 style={{
+          fontSize: 'clamp(22px, 2.8vw, 32px)', fontWeight: 700,
+          letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: 14, color: '#fff',
+          maxWidth: 620,
+        }}>AI Essentials: Your First Steps into the Future</h1>
+        <p style={{ fontSize: 15.5, lineHeight: 1.7, color: 'rgba(255,255,255,0.65)', maxWidth: 580 }}>
+          Welcome to AI Essentials — your starting point for learning AI. In five weeks, you will go from curious to confident. Every class is live, hands-on, and designed so you walk out having done something real with AI.
+        </p>
+
+        {/* Meta row */}
+        <div style={{ display: 'flex', gap: 24, marginTop: 24, flexWrap: 'wrap' }}>
+          {[
+            { icon: icons.users, text: '5 live sessions' },
+            { icon: icons.replay, text: '5 recorded replays' },
+            { icon: icons.clock, text: 'Cohort size: 15' },
+            { icon: icons.star, text: '4.9 / 5.0 rating' },
+          ].map((m, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, color: 'rgba(255,255,255,0.55)' }}>
+              <Ic d={m.icon} size={14} />
+              <span style={{ fontSize: 13, fontWeight: 500 }}>{m.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── BODY ──────────────────────────────────────────────────────────── */}
+      <div style={{ padding: '0 48px 120px', maxWidth: 900 }}>
+
+        {/* ── Enroll Card ── */}
+        <div style={{
+          margin: '28px 0 40px',
+          background: T.white, borderRadius: 16,
+          border: '1px solid rgba(26,43,51,0.09)',
+          boxShadow: '0 4px 20px rgba(26,43,51,0.07)',
+          padding: '22px 28px',
+          display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap',
+        }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, color: T.caption, letterSpacing: '0.05em', marginBottom: 4 }}>PROGRAM FEE</p>
+            <p style={{ fontSize: 32, fontWeight: 700, color: T.navy, letterSpacing: '-0.03em', lineHeight: 1 }}>
+              $1,250
+            </p>
+          </div>
+          <div style={{ flex: 1, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            {[
+              { icon: icons.users, text: '5 live sessions' },
+              { icon: icons.replay, text: '5 recorded replays' },
+              { icon: icons.clock, text: 'Cohort size: 15' },
+            ].map((m, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, color: T.slate }}>
+                <Ic d={m.icon} size={14} />
+                <span style={{ fontSize: 13.5, fontWeight: 500 }}>{m.text}</span>
+              </div>
+            ))}
+          </div>
+          <EnrollBtn size="md" />
+        </div>
+
+        {/* ── What You'll Master ── */}
+        <Section title="What You'll Master">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {outcomes.map((o, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                <div style={{
+                  width: 20, height: 20, borderRadius: '50%', flexShrink: 0, marginTop: 1,
+                  background: T.tealSoft, color: T.teal,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}><Ic d={icons.check} size={10} stroke={2.5} /></div>
+                <p style={{ fontSize: 14, lineHeight: 1.55, color: T.slate }}>{o}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── Tools ── */}
+        <Section title="Tools You'll Learn">
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {tools.map((t, i) => (
+              <span key={i} style={{
+                padding: '8px 20px', borderRadius: 30,
+                background: T.white,
+                border: '1.5px solid rgba(26,43,51,0.12)',
+                fontSize: 14, fontWeight: 600, color: T.navy,
+                letterSpacing: '-0.005em',
+              }}>{t}</span>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── How It Works ── */}
+        <Section title="How It Works">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+            {howCards.map((c, i) => <HowCard key={i} {...c} />)}
+          </div>
+        </Section>
+
+        {/* ── Weekly Curriculum ── */}
+        <Section title="Weekly Curriculum">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {weeks.map(w => <WeekRow key={w.n} week={w} />)}
+          </div>
+        </Section>
+
+        {/* ── Bonus Sessions ── */}
+        <Section title="Bonus Sessions">
+          <div style={{
+            background: T.white, borderRadius: 14, padding: '20px 22px',
+            border: '1px solid rgba(26,43,51,0.08)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <span style={{
+                fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20,
+                background: T.coralSoft, color: T.coral, letterSpacing: '0.04em',
+              }}>Office Hours</span>
+            </div>
+            <p style={{ fontSize: 14.5, fontWeight: 700, color: T.navy, marginBottom: 6 }}>New Bonus Session</p>
+            <p style={{ fontSize: 13.5, lineHeight: 1.65, color: T.caption }}>
+              Additional office-hours sessions are added based on cohort needs. These are announced inside the private community channel.
+            </p>
+          </div>
+        </Section>
+
+        {/* ── Instructor ── */}
+        <Section title="Your Instructor">
+          <div style={{
+            background: T.white, borderRadius: 16, padding: '28px 28px',
+            border: '1px solid rgba(26,43,51,0.08)',
+            display: 'flex', alignItems: 'flex-start', gap: 22,
+          }}>
+            {/* Photo placeholder */}
+            <div style={{
+              width: 68, height: 68, borderRadius: '50%', flexShrink: 0,
+              background: 'linear-gradient(145deg, #d4c4a0 0%, #b8a47e 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 22, fontWeight: 700, color: 'rgba(255,255,255,0.8)',
+            }}>RJ</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                <p style={{ fontSize: 16, fontWeight: 700, color: T.navy }}>Ryan Jackson</p>
+                <div style={{ display: 'flex', gap: 5 }}>
+                  {['EN', '日本語'].map((l, i) => (
+                    <span key={i} style={{
+                      fontSize: 10.5, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                      background: i === 0 ? T.tealSoft : T.coralSoft,
+                      color: i === 0 ? T.teal : T.coral,
+                    }}>{l}</span>
+                  ))}
+                </div>
+              </div>
+              <p style={{ fontSize: 13, color: T.teal, fontWeight: 600, marginBottom: 12 }}>
+                Founder & Director of AI Education · Northwestern BS · USC Marshall MBA
+              </p>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: T.slate, marginBottom: 16 }}>
+                Ryan brings a unique combination of business strategy, international market experience, and hands-on AI expertise. His teaching style is hands-on and jargon-free — every session is built around doing, not just watching.
+              </p>
+              <a href="About.html" style={{
+                fontSize: 13.5, fontWeight: 600, color: T.teal, textDecoration: 'none',
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                borderBottom: '1px solid rgba(15,169,160,0.3)', paddingBottom: 1,
+              }}>Learn more <Ic d={icons.arrow} size={13} /></a>
+            </div>
+          </div>
+        </Section>
+
+      </div>
+
+      {/* ── STICKY BOTTOM CTA ─────────────────────────────────────────────── */}
+      <div style={{
+        position: 'sticky', bottom: 0, left: 0, right: 0, zIndex: 50,
+        background: 'rgba(253,251,247,0.95)',
+        borderTop: '1px solid rgba(26,43,51,0.1)',
+        backdropFilter: 'blur(12px)',
+        padding: '18px 48px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+      }}>
+        <div>
+          <p style={{ fontSize: 12, color: T.caption, marginBottom: 2 }}>Ready to join this course?</p>
+          <p style={{ fontSize: 22, fontWeight: 700, color: T.navy, letterSpacing: '-0.025em' }}>$1,250</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <p style={{ fontSize: 13, color: T.caption, maxWidth: 260 }}>
+            Next cohort starts soon. Small group — spots are limited.
+          </p>
+          <EnrollBtn size="md" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SECTION WRAPPER ─────────────────────────────────────────────────────────
+function Section({ title, children }) {
+  return (
+    <div style={{ marginBottom: 40 }}>
+      <h2 style={{
+        fontSize: 17, fontWeight: 700, color: T.navy,
+        letterSpacing: '-0.015em', marginBottom: 18,
+        paddingBottom: 12, borderBottom: '1px solid rgba(26,43,51,0.08)',
+      }}>{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [active, setActive] = useState('courses');
+  return (
+    <div style={{ display: 'flex', height: '100vh' }}>
+      <Sidebar active={active} setActive={setActive} />
+      <CourseDetail />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<div id="root"></div>
+</body>
+</html>

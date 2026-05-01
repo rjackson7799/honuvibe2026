@@ -81,6 +81,9 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
       ? course.learning_outcomes_jp
       : course.learning_outcomes_en;
     const isFull = course.max_enrollment !== null && course.current_enrollment >= course.max_enrollment;
+    const isInProgress =
+      (course.start_date ? new Date(course.start_date) <= new Date() : false) ||
+      course.status === 'in-progress';
 
     return (
       <div className="space-y-10">
@@ -125,6 +128,7 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
               isLoggedIn={true}
               isEnrolled={false}
               isFull={isFull}
+              isInProgress={isInProgress}
               priceUsd={course.price_usd}
               priceJpy={course.price_jpy}
               size="lg"
@@ -160,6 +164,7 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
             isLoggedIn={true}
             isEnrolled={false}
             isFull={isFull}
+            isInProgress={isInProgress}
             priceUsd={course.price_usd}
             priceJpy={course.price_jpy}
           />

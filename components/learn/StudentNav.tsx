@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useEffect, useState, useTransition } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useRouter as useI18nRouter, usePathname as useI18nPathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -12,16 +13,11 @@ import {
   Users,
   CreditCard,
   UserCircle,
-  PanelLeftClose,
-  PanelLeftOpen,
   GraduationCap,
+  Shield,
+  LogOut,
 } from 'lucide-react';
-import { ThemeToggle } from '@/components/layout/theme-toggle';
-import { LangToggle } from '@/components/layout/lang-toggle';
-import { UserMenu } from '@/components/layout/user-menu';
 import { createClient } from '@/lib/supabase/client';
-
-const STORAGE_KEY = 'honuvibe-sidebar-collapsed';
 
 type NavItem = {
   href: string;
@@ -48,23 +44,52 @@ const instructorNavItem: NavItem = {
   ns: 'instructor',
 };
 
+function LangPills() {
+  const locale = useLocale();
+  const i18nPathname = useI18nPathname();
+  const i18nRouter = useI18nRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const switchLocale = (newLocale: 'en' | 'ja') => {
+    if (newLocale === locale) return;
+    document.cookie = `NEXT_LOCALE=${newLocale};max-age=${60 * 60 * 24 * 30};path=/`;
+    startTransition(() => {
+      i18nRouter.replace(i18nPathname, { locale: newLocale });
+    });
+  };
+
+  const pillClass = (active: boolean) =>
+    cn(
+      'px-2.5 py-1 rounded-md text-xs font-semibold transition-colors duration-[var(--duration-fast)]',
+      active
+        ? 'bg-[color:var(--accent-teal)] text-white'
+        : 'text-fg-tertiary hover:text-fg-secondary',
+    );
+
+  return (
+    <div className={cn('flex items-center gap-1', isPending && 'opacity-50 pointer-events-none')}>
+      <button type="button" onClick={() => switchLocale('en')} className={pillClass(locale === 'en')}>
+        EN
+      </button>
+      <button type="button" onClick={() => switchLocale('ja')} className={pillClass(locale === 'ja')}>
+        日本語
+      </button>
+    </div>
+  );
+}
+
 export function StudentNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations('dashboard');
   const tInstructor = useTranslations('instructor');
   const navT = useTranslations('nav');
-  const [collapsed, setCollapsed] = useState(false);
+
   const [isInstructor, setIsInstructor] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  // Load collapse state from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'true') setCollapsed(true);
-  }, []);
-
-  // Check if user is an instructor
-  useEffect(() => {
-    async function checkInstructor() {
+    async function check() {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.user) return;
@@ -75,8 +100,9 @@ export function StudentNav() {
         .eq('id', session.user.id)
         .single();
 
+      if (profile?.role === 'admin') setIsAdmin(true);
+
       if (profile?.role === 'instructor' || profile?.role === 'admin') {
-        // Confirm they have an instructor profile
         const { data: instrProfile } = await supabase
           .from('instructor_profiles')
           .select('id')
@@ -87,114 +113,103 @@ export function StudentNav() {
         setIsInstructor(!!instrProfile);
       }
     }
-    checkInstructor();
+    check();
   }, []);
 
-  const toggleCollapse = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    localStorage.setItem(STORAGE_KEY, String(next));
-  };
+  async function handleSignOut() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.refresh();
+  }
 
-  // Strip locale prefix for matching
   const logicalPath = pathname.replace(/^\/(en|ja)/, '') || '/';
 
-  // Build nav items — insert instructor item after "Community" if applicable
   const navItems: NavItem[] = isInstructor
-    ? [
-        ...baseNavItems.slice(0, 4), // Home, My Courses, The Vault, Community
-        instructorNavItem,
-        ...baseNavItems.slice(4),    // Billing, Settings
-      ]
+    ? [...baseNavItems.slice(0, 4), instructorNavItem, ...baseNavItems.slice(4)]
     : baseNavItems;
 
   const getLabel = (item: NavItem) =>
     item.ns === 'instructor' ? tInstructor(item.labelKey) : t(item.labelKey);
 
-  const userMenuLabels = {
-    signIn: navT('sign_in'),
-    dashboard: navT('dashboard'),
-    admin: navT('admin'),
-    signOut: navT('sign_out'),
-  };
+  const itemClass = (active: boolean, muted = false) =>
+    cn(
+      'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[9px] text-[13.5px] text-left transition-all duration-[var(--duration-fast)]',
+      active
+        ? 'bg-[color:var(--accent-teal)] text-white font-semibold shadow-sm'
+        : muted
+          ? 'text-fg-tertiary hover:text-fg-secondary hover:bg-[rgba(26,43,51,0.05)]'
+          : 'text-fg-secondary hover:text-fg-primary hover:bg-[rgba(26,43,51,0.05)] font-medium',
+    );
 
   return (
     <>
       {/* Desktop sidebar */}
-      <nav
-        className={cn(
-          'hidden md:flex flex-col shrink-0 border-r border-border-default bg-bg-secondary sticky top-0 h-screen p-3 gap-2 transition-all duration-[var(--duration-normal)]',
-          collapsed ? 'w-16' : 'w-56',
-        )}
-      >
-        <div className={cn('flex items-center', collapsed ? 'flex-col gap-1' : 'justify-between px-1')}>
-          <div className={cn('flex items-center', collapsed ? 'flex-col gap-1' : 'gap-1')}>
-            <ThemeToggle />
-            <LangToggle compact={collapsed} />
-          </div>
-          <button
-            onClick={toggleCollapse}
-            className="text-fg-tertiary hover:text-fg-primary transition-colors p-1 rounded-md hover:bg-bg-tertiary"
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
-          </button>
+      <nav className="hidden md:flex flex-col shrink-0 w-[220px] h-screen sticky top-0 bg-bg-tertiary border-r border-border-default">
+        {/* Logo */}
+        <div className="px-5 pt-5 pb-4 border-b border-border-default flex items-center">
+          <span className="text-[18px] font-bold text-fg-primary tracking-[-0.01em]">
+            HonuVibe<span className="text-[color:var(--accent-teal)]">.AI</span>
+          </span>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-1">
+        {/* Lang pills */}
+        <div className="px-4 py-3 border-b border-border-default">
+          <LangPills />
+        </div>
+
+        {/* Main nav */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-2.5 py-3">
+          <div className="flex flex-col gap-0.5">
             {navItems.map((item) => {
               const isActive = item.exact
                 ? logicalPath === item.href
                 : logicalPath.startsWith(item.href);
               const Icon = item.icon;
-              const label = getLabel(item);
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  title={collapsed ? label : undefined}
-                  className={cn(
-                    'flex items-center rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
-                    collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5',
-                    isActive
-                      ? 'bg-accent-teal/10 text-accent-teal font-medium'
-                      : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
-                  )}
-                >
-                  <Icon size={18} />
-                  {!collapsed && label}
+                <Link key={item.href} href={item.href} className={itemClass(isActive)}>
+                  <Icon size={17} className="shrink-0 opacity-90" />
+                  <span className="truncate">{getLabel(item)}</span>
                 </Link>
               );
             })}
           </div>
         </div>
 
-        {/* Bottom controls — pushed down with mt-auto */}
-        <div className="mt-auto pt-4 border-t border-border-default">
-          <UserMenu labels={userMenuLabels} compact={collapsed} showDashboardLink={false} />
+        {/* Bottom: admin (if applicable) + sign out */}
+        <div className="border-t border-border-default px-2.5 py-3 flex flex-col gap-0.5">
+          {isAdmin && (
+            <Link href="/admin" className={itemClass(false, true)}>
+              <Shield size={17} className="shrink-0 opacity-90" />
+              <span className="truncate">{navT('admin')}</span>
+            </Link>
+          )}
+          <button type="button" onClick={handleSignOut} className={itemClass(false, true)}>
+            <LogOut size={17} className="shrink-0 opacity-90" />
+            <span className="truncate">{navT('sign_out')}</span>
+          </button>
         </div>
       </nav>
 
-      {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border-default bg-bg-secondary flex">
-        {navItems.map((item) => {
+      {/* Mobile bottom nav — restyled for canvas palette */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-tertiary border-t border-border-default flex">
+        {navItems.slice(0, 6).map((item) => {
           const isActive = item.exact
             ? logicalPath === item.href
             : logicalPath.startsWith(item.href);
           const Icon = item.icon;
-          const label = getLabel(item);
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex-1 flex flex-col items-center gap-1 py-3 text-xs transition-colors',
-                isActive ? 'text-accent-teal' : 'text-fg-tertiary',
+                'flex-1 flex flex-col items-center gap-1 py-2.5 text-[10.5px] font-medium transition-colors',
+                isActive
+                  ? 'text-[color:var(--accent-teal)]'
+                  : 'text-fg-tertiary hover:text-fg-secondary',
               )}
             >
-              <Icon size={20} />
-              <span className="truncate max-w-full px-1">{label}</span>
+              <Icon size={18} />
+              <span className="truncate max-w-full px-1">{getLabel(item)}</span>
             </Link>
           );
         })}
