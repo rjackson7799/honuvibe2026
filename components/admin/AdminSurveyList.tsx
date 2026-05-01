@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SurveyResponse } from '@/app/[locale]/admin/surveys/page';
 
@@ -65,6 +65,8 @@ function ExpandedRow({ r }: { r: SurveyResponse }) {
 
 export function AdminSurveyList({ responses }: { responses: SurveyResponse[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [items, setItems] = useState<SurveyResponse[]>(responses);
+  const [deleting, setDeleting] = useState<Set<string>>(new Set());
 
   function toggle(id: string) {
     setExpanded((prev) => {
@@ -74,7 +76,23 @@ export function AdminSurveyList({ responses }: { responses: SurveyResponse[] }) 
     });
   }
 
-  if (responses.length === 0) {
+  async function handleDelete(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    if (!confirm('Delete this survey response? This cannot be undone.')) return;
+    setDeleting((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch(`/api/admin/surveys/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      setItems((prev) => prev.filter((r) => r.id !== id));
+      setExpanded((prev) => { const next = new Set(prev); next.delete(id); return next; });
+    } catch {
+      alert('Failed to delete response. Please try again.');
+    } finally {
+      setDeleting((prev) => { const next = new Set(prev); next.delete(id); return next; });
+    }
+  }
+
+  if (items.length === 0) {
     return (
       <div className="rounded-xl border border-border-primary bg-bg-secondary px-6 py-12 text-center text-fg-tertiary">
         No responses yet.
@@ -85,55 +103,72 @@ export function AdminSurveyList({ responses }: { responses: SurveyResponse[] }) 
   return (
     <div className="overflow-hidden rounded-xl border border-border-primary">
       {/* Table header */}
-      <div className="hidden grid-cols-[1fr_1fr_120px_100px_40px] gap-4 border-b border-border-primary bg-bg-tertiary px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-fg-muted sm:grid">
+      <div className="hidden grid-cols-[1fr_1fr_120px_100px_40px_32px] gap-4 border-b border-border-primary bg-bg-tertiary px-4 py-2.5 text-xs font-semibold uppercase tracking-widest text-fg-muted sm:grid">
         <span>Name</span>
         <span>Background</span>
         <span>AI Level</span>
         <span>Submitted</span>
         <span />
+        <span />
       </div>
 
       {/* Rows */}
-      {responses.map((r) => {
+      {items.map((r) => {
         const isOpen = expanded.has(r.id);
+        const isDeleting = deleting.has(r.id);
         return (
-          <div key={r.id} className="border-b border-border-primary last:border-0">
-            <button
-              type="button"
-              onClick={() => toggle(r.id)}
+          <div key={r.id} className="group border-b border-border-primary last:border-0">
+            <div
               className={cn(
-                'grid w-full grid-cols-[1fr_40px] gap-4 px-4 py-3 text-left transition-colors duration-[var(--duration-fast)]',
-                'hover:bg-bg-secondary sm:grid-cols-[1fr_1fr_120px_100px_40px]',
+                'grid w-full grid-cols-[1fr_40px] gap-4 px-4 py-3 transition-colors duration-[var(--duration-fast)]',
+                'hover:bg-bg-secondary sm:grid-cols-[1fr_1fr_120px_100px_40px_32px]',
                 isOpen && 'bg-bg-secondary',
               )}
             >
-              <span className="font-medium text-fg-primary">{r.name}</span>
-              <span className="hidden text-sm text-fg-secondary sm:block">
-                {r.professional_background}
-              </span>
-              <span className="hidden sm:block">
-                <span
-                  className={cn(
-                    'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
-                    levelBadgeClass(r.ai_knowledge_level),
-                  )}
-                >
-                  {shortLevel(r.ai_knowledge_level)}
+              <button
+                type="button"
+                onClick={() => toggle(r.id)}
+                className="col-span-1 grid grid-cols-subgrid text-left sm:col-span-5 sm:grid-cols-[1fr_1fr_120px_100px_40px]"
+              >
+                <span className="font-medium text-fg-primary">{r.name}</span>
+                <span className="hidden text-sm text-fg-secondary sm:block">
+                  {r.professional_background}
                 </span>
-              </span>
-              <span className="hidden text-sm text-fg-tertiary sm:block">
-                {formatDate(r.submitted_at)}
-              </span>
+                <span className="hidden sm:block">
+                  <span
+                    className={cn(
+                      'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
+                      levelBadgeClass(r.ai_knowledge_level),
+                    )}
+                  >
+                    {shortLevel(r.ai_knowledge_level)}
+                  </span>
+                </span>
+                <span className="hidden text-sm text-fg-tertiary sm:block">
+                  {formatDate(r.submitted_at)}
+                </span>
+                <span className="flex items-center justify-center">
+                  <ChevronDown
+                    size={16}
+                    className={cn(
+                      'text-fg-muted transition-transform duration-[var(--duration-fast)]',
+                      isOpen && 'rotate-180',
+                    )}
+                  />
+                </span>
+              </button>
               <span className="flex items-center justify-center">
-                <ChevronDown
-                  size={16}
-                  className={cn(
-                    'text-fg-muted transition-transform duration-[var(--duration-fast)]',
-                    isOpen && 'rotate-180',
-                  )}
-                />
+                <button
+                  type="button"
+                  onClick={(e) => handleDelete(e, r.id)}
+                  disabled={isDeleting}
+                  className="rounded p-1 text-fg-muted opacity-0 transition-opacity duration-[var(--duration-fast)] hover:text-red-400 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Delete response"
+                >
+                  <Trash2 size={14} />
+                </button>
               </span>
-            </button>
+            </div>
 
             {isOpen && <ExpandedRow r={r} />}
           </div>

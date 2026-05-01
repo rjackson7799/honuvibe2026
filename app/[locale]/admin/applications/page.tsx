@@ -18,7 +18,9 @@ export default async function AdminApplicationsPage({ params }: Props) {
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      <h1 className="text-2xl font-serif text-fg-primary">Applications</h1>
+      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+        Applications
+      </h1>
       <AdminApplicationList applications={applications} />
     </div>
   );

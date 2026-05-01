@@ -91,7 +91,7 @@ export function AdminInstructorList({ instructors }: AdminInstructorListProps) {
         placeholder="Search by name or email..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-sm px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
+        className="w-full max-w-sm px-3.5 py-2.5 text-sm rounded-[10px] bg-bg-secondary border-[1.5px] border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-[color:var(--accent-teal)] transition-colors"
       />
       <DataTable
         columns={columns}

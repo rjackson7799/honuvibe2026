@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataTable } from './DataTable';
 import { StatusBadge } from './StatusBadge';
+import { BadgePill } from '@/components/ui/badge-pill';
 import type { Course } from '@/lib/courses/types';
 
 type AdminCourseListProps = {
@@ -32,7 +33,7 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
       key: 'title',
       header: 'Title',
       render: (course: Course) => (
-        <span className="text-fg-primary font-medium">{course.title_en}</span>
+        <span className="text-fg-primary font-semibold">{course.title_en}</span>
       ),
     },
     {
@@ -43,11 +44,12 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
     {
       key: 'visibility',
       header: 'Visibility',
-      render: (course: Course) => (
-        <span className={course.is_private ? 'text-accent-gold' : 'text-fg-secondary'}>
-          {course.is_private ? 'Private' : 'Public'}
-        </span>
-      ),
+      render: (course: Course) =>
+        course.is_private ? (
+          <BadgePill variant="coral" size="xs">Private</BadgePill>
+        ) : (
+          <BadgePill variant="gray" size="xs">Public</BadgePill>
+        ),
     },
     {
       key: 'enrollment',
@@ -81,20 +83,22 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
     },
   ];
 
+  const chipBase =
+    'px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold border transition-all whitespace-nowrap';
+  const chipActive = 'bg-[color:var(--accent-teal)] text-white border-[color:var(--accent-teal)]';
+  const chipInactive =
+    'bg-bg-secondary text-fg-secondary border-border-default hover:border-border-hover hover:text-fg-primary';
+
   return (
     <div className="space-y-4">
-      {/* Filter tabs */}
-      <div className="flex gap-1 overflow-x-auto">
+      {/* Filter chips */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mb-1">
         {statusFilters.map((s) => (
           <button
             key={s.key}
             type="button"
             onClick={() => setFilter(s.key)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
-              filter === s.key
-                ? 'bg-accent-teal/10 text-accent-teal'
-                : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
-            }`}
+            className={`${chipBase} ${filter === s.key ? chipActive : chipInactive}`}
           >
             {s.key === 'all' ? `${s.label} (${courses.length})` : s.label}
           </button>

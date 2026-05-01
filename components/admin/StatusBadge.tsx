@@ -5,29 +5,35 @@ type StatusBadgeProps = {
   className?: string;
 };
 
+const tealPill = 'bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)]';
+const coralPill = 'bg-[color:var(--accent-coral-subtle)] text-[color:var(--accent-coral)]';
+const grayPill = 'bg-[rgba(26,43,51,0.06)] text-fg-secondary';
+const mutedPill = 'bg-[rgba(26,43,51,0.04)] text-fg-tertiary';
+const dangerPill = 'bg-red-500/10 text-red-500';
+
 const statusStyles: Record<string, string> = {
   // Course statuses
-  draft: 'bg-bg-tertiary text-fg-tertiary',
-  proposal: 'bg-accent-gold/10 text-accent-gold',
-  published: 'bg-accent-teal/10 text-accent-teal',
-  'in-progress': 'bg-accent-gold/10 text-accent-gold',
-  completed: 'bg-bg-tertiary text-fg-secondary',
-  archived: 'bg-bg-tertiary text-fg-tertiary',
-  rejected: 'bg-red-500/10 text-red-400',
+  draft: mutedPill,
+  proposal: coralPill,
+  published: tealPill,
+  'in-progress': coralPill,
+  completed: grayPill,
+  archived: mutedPill,
+  rejected: dangerPill,
   // Enrollment statuses
-  active: 'bg-accent-teal/10 text-accent-teal',
-  cancelled: 'bg-red-500/10 text-red-400',
-  refunded: 'bg-bg-tertiary text-fg-tertiary',
+  active: tealPill,
+  cancelled: dangerPill,
+  refunded: mutedPill,
   // Application statuses
-  received: 'bg-accent-gold/10 text-accent-gold',
-  reviewing: 'bg-accent-teal/10 text-accent-teal',
-  responded: 'bg-bg-tertiary text-fg-secondary',
+  received: coralPill,
+  reviewing: tealPill,
+  responded: grayPill,
   // Session statuses
-  upcoming: 'bg-accent-gold/10 text-accent-gold',
-  live: 'bg-accent-teal/10 text-accent-teal',
+  upcoming: coralPill,
+  live: tealPill,
   // Library video statuses
-  featured: 'bg-accent-gold/10 text-accent-gold',
-  open: 'bg-accent-teal/10 text-accent-teal',
+  featured: coralPill,
+  open: tealPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -57,7 +63,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+        'inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-[0.04em]',
         style,
         className,
       )}

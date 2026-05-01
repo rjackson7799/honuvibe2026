@@ -1,7 +1,10 @@
 import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { getProposalsForAdmin } from '@/lib/instructor-portal/queries';
 import { createClient } from '@/lib/supabase/server';
+import { BadgePill } from '@/components/ui/badge-pill';
+import { StatusBadge } from '@/components/admin/StatusBadge';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -11,18 +14,12 @@ export const metadata = {
   title: 'Course proposals — Admin',
 };
 
-const statusStyles: Record<string, string> = {
-  proposal: 'bg-accent-gold/15 text-accent-gold border-accent-gold/30',
-  rejected: 'bg-red-500/15 text-red-500 border-red-500/30',
-};
-
 export default async function AdminProposalsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   const proposals = await getProposalsForAdmin();
 
-  // Resolve proposer display names (best-effort — RLS already lets admin read)
   const supabase = await createClient();
   const proposerIds = Array.from(
     new Set(
@@ -46,26 +43,24 @@ export default async function AdminProposalsPage({ params }: Props) {
   return (
     <div className="space-y-6 max-w-[1100px]">
       <div>
-        <h1 className="text-2xl font-serif text-fg-primary">Course proposals</h1>
-        <p className="text-sm text-fg-tertiary mt-1">
+        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+          Course Proposals
+        </h1>
+        <p className="text-sm text-fg-tertiary mt-1.5">
           Instructor-authored pitches awaiting review. Approving moves the course into{' '}
-          <span className="font-medium text-fg-secondary">draft</span> for you to finish authoring.
+          <span className="font-semibold text-fg-secondary">draft</span> for you to finish authoring.
         </p>
       </div>
 
-      <div className="flex gap-2 text-xs uppercase tracking-wider text-fg-tertiary">
-        <span className="px-2 py-1 rounded bg-accent-gold/10 text-accent-gold">
-          Pending: {pendingCount}
-        </span>
-        <span className="px-2 py-1 rounded bg-red-500/10 text-red-400">
-          Rejected: {rejectedCount}
-        </span>
+      <div className="flex gap-2 flex-wrap">
+        <BadgePill variant="coral" size="sm">Pending: {pendingCount}</BadgePill>
+        <BadgePill variant="gray" size="sm">Rejected: {rejectedCount}</BadgePill>
       </div>
 
       {proposals.length === 0 ? (
-        <p className="text-fg-tertiary text-center py-12 border border-dashed border-border-default rounded-lg">
-          No proposals to review right now.
-        </p>
+        <div className="py-10 px-4 rounded-[14px] border border-dashed border-border-default bg-bg-tertiary text-center">
+          <p className="text-sm text-fg-tertiary">No proposals to review right now.</p>
+        </div>
       ) : (
         <div className="space-y-2">
           {proposals.map((p) => {
@@ -76,32 +71,29 @@ export default async function AdminProposalsPage({ params }: Props) {
               <Link
                 key={p.id}
                 href={`/admin/courses/${p.id}`}
-                className="block border border-border-default rounded-lg p-4 hover:border-accent-teal/40 hover:bg-bg-tertiary/30 transition-colors"
+                className="group block bg-bg-secondary border border-border-default rounded-[14px] p-4 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-lg)] hover:border-[color:var(--accent-teal)]/35 hover:-translate-y-0.5 transition-all"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-sm font-medium text-fg-primary">{p.title_en}</span>
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded-full border uppercase tracking-wider font-medium ${
-                          statusStyles[p.status] ?? ''
-                        }`}
-                      >
-                        {p.status}
-                      </span>
+                      <span className="text-[14px] font-semibold text-fg-primary">{p.title_en}</span>
+                      <StatusBadge status={p.status} />
                     </div>
-                    <p className="text-xs text-fg-tertiary truncate">
+                    <p className="text-[12px] text-fg-tertiary truncate">
                       {proposerName ? `by ${proposerName}` : 'unknown proposer'}
                       {p.proposal_submitted_at &&
                         ` · submitted ${new Date(p.proposal_submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
                     </p>
                     {p.description_en && (
-                      <p className="mt-1 text-xs text-fg-tertiary line-clamp-2">
+                      <p className="mt-1 text-[12.5px] text-fg-tertiary line-clamp-2">
                         {p.description_en}
                       </p>
                     )}
                   </div>
-                  <span className="text-fg-tertiary text-sm shrink-0">→</span>
+                  <ArrowRight
+                    size={18}
+                    className="text-fg-tertiary group-hover:text-[color:var(--accent-teal)] shrink-0 mt-1 transition-colors"
+                  />
                 </div>
               </Link>
             );

@@ -65,9 +65,11 @@ export default async function AdminSurveysPage({ params, searchParams }: Props) 
 
   return (
     <div className="max-w-[1100px] space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="font-serif text-2xl text-fg-primary">Survey Responses</h1>
-        <span className="text-sm text-fg-tertiary">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+          Survey Responses
+        </h1>
+        <span className="text-sm text-fg-tertiary font-medium">
           {responses?.length ?? 0} response{responses?.length !== 1 ? 's' : ''} · {course}
         </span>
       </div>

@@ -19,10 +19,14 @@ export default async function AdminVaultFreshnessPage({ params }: Props) {
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      <h1 className="text-2xl font-serif text-fg-primary">Content Freshness Review</h1>
-      <p className="text-sm text-fg-secondary">
-        Content items flagged for review. Items are auto-flagged after 6 months without review.
-      </p>
+      <div>
+        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+          Content Freshness Review
+        </h1>
+        <p className="text-sm text-fg-secondary mt-1.5">
+          Content items flagged for review. Items are auto-flagged after 6 months without review.
+        </p>
+      </div>
       <VaultFreshnessQueue items={items} />
       <hr className="border-border-default" />
       <VaultContentRequests />

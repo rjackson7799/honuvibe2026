@@ -15,8 +15,10 @@ export default async function AdminCourseUploadPage({ params }: Props) {
 
   return (
     <div className="max-w-[880px]">
-      <h1 className="text-2xl font-serif text-fg-primary mb-2">Create Course</h1>
-      <p className="text-sm text-fg-tertiary mb-8">
+      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em] mb-2">
+        Create Course
+      </h1>
+      <p className="text-sm text-fg-tertiary mb-6">
         Use the AI wizard to generate a complete course, or upload a markdown file.
         Review and edit all fields before creating.
       </p>

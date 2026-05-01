@@ -29,19 +29,19 @@ export default async function AdminStudentDetailPage({ params }: Props) {
       {/* Back link */}
       <Link
         href="/admin/students"
-        className="flex items-center gap-1 text-sm text-fg-tertiary hover:text-fg-primary transition-colors"
+        className="inline-flex items-center gap-1 text-sm font-medium text-fg-tertiary hover:text-fg-primary transition-colors"
       >
         <ArrowLeft size={16} />
         Back to Students
       </Link>
 
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-serif text-fg-primary">
+          <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
             {student.full_name || 'Unknown Student'}
           </h1>
-          <p className="text-sm text-fg-tertiary">{student.email}</p>
+          <p className="text-sm text-fg-tertiary mt-1">{student.email}</p>
         </div>
         {student.role === 'student' && (
           <DeleteStudentButton
@@ -52,7 +52,7 @@ export default async function AdminStudentDetailPage({ params }: Props) {
       </div>
 
       {/* Info grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <InfoField label="User ID" value={student.id} mono />
         <InfoField label="Role" value={student.role} />
         <InfoField
@@ -64,9 +64,17 @@ export default async function AdminStudentDetailPage({ params }: Props) {
           })}
         />
         <InfoField label="Subscription" value={student.subscription_tier} />
-        <div className="bg-bg-secondary border border-border-default rounded-lg p-3">
-          <span className="text-xs text-fg-tertiary block mb-0.5">Email Status</span>
-          <span className={`text-sm ${student.email_confirmed_at ? 'text-accent-teal' : 'text-accent-gold'}`}>
+        <div className="bg-bg-secondary border border-border-default rounded-[14px] p-4 shadow-[var(--shadow-md)]">
+          <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-fg-tertiary block mb-1">
+            Email Status
+          </span>
+          <span
+            className={`text-sm font-semibold ${
+              student.email_confirmed_at
+                ? 'text-[color:var(--accent-teal)]'
+                : 'text-[color:var(--accent-coral)]'
+            }`}
+          >
             {student.email_confirmed_at ? 'Confirmed' : 'Pending Confirmation'}
           </span>
         </div>
@@ -83,23 +91,25 @@ export default async function AdminStudentDetailPage({ params }: Props) {
 
       {/* Enrollments */}
       <div>
-        <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider mb-3">
+        <h2 className="text-[11.5px] font-bold uppercase tracking-[0.06em] text-fg-tertiary mb-3">
           Enrollments ({student.enrollments.length})
         </h2>
         {student.enrollments.length === 0 ? (
-          <p className="text-sm text-fg-tertiary">No enrollments.</p>
+          <div className="py-8 px-4 rounded-[14px] border border-dashed border-border-default bg-bg-tertiary text-center">
+            <p className="text-sm text-fg-tertiary">No enrollments.</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {student.enrollments.map((e) => (
               <div
                 key={e.id}
-                className="flex items-center justify-between bg-bg-secondary border border-border-default rounded-lg p-4"
+                className="flex items-center justify-between gap-4 bg-bg-secondary border border-border-default rounded-[14px] p-4 shadow-[var(--shadow-md)]"
               >
-                <div>
-                  <span className="text-sm font-medium text-fg-primary">
+                <div className="min-w-0">
+                  <span className="text-[14px] font-semibold text-fg-primary">
                     {e.course_title}
                   </span>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-fg-tertiary">
+                  <div className="flex items-center gap-2 mt-1 text-[12px] text-fg-tertiary">
                     <span>
                       {new Date(e.enrolled_at).toLocaleDateString('en-US', {
                         month: 'short',
@@ -110,7 +120,7 @@ export default async function AdminStudentDetailPage({ params }: Props) {
                     {e.amount_paid !== null && (
                       <>
                         <span>·</span>
-                        <span>
+                        <span className="font-semibold text-fg-secondary">
                           {e.currency === 'jpy'
                             ? `¥${e.amount_paid.toLocaleString()}`
                             : `$${(e.amount_paid / 100).toFixed(2)}`}
@@ -131,9 +141,11 @@ export default async function AdminStudentDetailPage({ params }: Props) {
 
 function InfoField({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="bg-bg-secondary border border-border-default rounded-lg p-3">
-      <span className="text-xs text-fg-tertiary block mb-0.5">{label}</span>
-      <span className={`text-sm text-fg-primary capitalize ${mono ? 'font-mono text-xs' : ''}`}>
+    <div className="bg-bg-secondary border border-border-default rounded-[14px] p-4 shadow-[var(--shadow-md)]">
+      <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-fg-tertiary block mb-1">
+        {label}
+      </span>
+      <span className={`text-sm text-fg-primary capitalize font-semibold ${mono ? 'font-mono text-xs normal-case' : ''}`}>
         {value}
       </span>
     </div>

@@ -40,14 +40,14 @@ export function DataTable<T>({
 
   if (data.length === 0) {
     return (
-      <div className="text-center py-12 text-fg-tertiary">
-        {emptyMessage}
+      <div className="py-10 px-4 rounded-[14px] border border-dashed border-border-default bg-bg-tertiary text-center">
+        <p className="text-sm text-fg-tertiary">{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto border border-border-default rounded-lg">
+    <div className="overflow-x-auto bg-bg-secondary border border-border-default rounded-[14px] shadow-[var(--shadow-md)]">
       <table className="w-full text-left">
         <thead>
           <tr className="border-b border-border-default bg-bg-tertiary">
@@ -55,7 +55,7 @@ export function DataTable<T>({
               <th
                 key={col.key}
                 className={cn(
-                  'px-4 py-3 text-xs font-medium text-fg-tertiary uppercase tracking-wider',
+                  'px-4 py-3 text-[11.5px] font-bold text-fg-tertiary uppercase tracking-[0.06em]',
                   col.sortable && 'cursor-pointer select-none hover:text-fg-secondary',
                 )}
                 onClick={() => col.sortable && handleSort(col.key)}
@@ -72,7 +72,7 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-border-default">
+        <tbody className="divide-y divide-border-secondary">
           {data.map((row) => (
             <tr
               key={keyExtractor(row)}
@@ -83,7 +83,7 @@ export function DataTable<T>({
               onClick={() => onRowClick?.(row)}
             >
               {columns.map((col) => (
-                <td key={col.key} className="px-4 py-3 text-sm text-fg-secondary">
+                <td key={col.key} className="px-4 py-3.5 text-[13.5px] text-fg-secondary">
                   {col.render(row)}
                 </td>
               ))}

@@ -1,6 +1,5 @@
 import { setRequestLocale } from 'next-intl/server';
 import { getAdminCourses } from '@/lib/courses/queries';
-import { StatusBadge } from '@/components/admin/StatusBadge';
 import { AdminCourseList } from '@/components/admin/AdminCourseList';
 import Link from 'next/link';
 import { PlusCircle } from 'lucide-react';
@@ -21,11 +20,13 @@ export default async function AdminCoursesPage({ params }: Props) {
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-serif text-fg-primary">Courses</h1>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+          Courses
+        </h1>
         <Link
           href="/admin/courses/upload"
-          className="flex items-center gap-2 px-4 py-2 bg-accent-teal text-white rounded-lg text-sm font-medium hover:bg-accent-teal/90 transition-colors"
+          className="inline-flex items-center gap-2 h-10 px-4 rounded-[10px] bg-[color:var(--accent-teal)] hover:bg-[color:var(--accent-teal-hover)] text-white text-[13px] font-semibold shadow-sm hover:shadow-md transition-all"
         >
           <PlusCircle size={16} />
           Create Course

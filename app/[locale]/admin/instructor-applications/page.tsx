@@ -19,8 +19,10 @@ export default async function AdminInstructorApplicationsPage({ params }: Props)
   return (
     <div className="space-y-6 max-w-[1100px]">
       <div>
-        <h1 className="text-2xl font-serif text-fg-primary">Instructor Applications</h1>
-        <p className="text-sm text-fg-tertiary mt-1">
+        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+          Instructor Applications
+        </h1>
+        <p className="text-sm text-fg-tertiary mt-1.5">
           Review, approve, and reject instructor applicants.
         </p>
       </div>

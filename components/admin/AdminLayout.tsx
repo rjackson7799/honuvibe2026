@@ -6,9 +6,9 @@ type AdminLayoutProps = {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <div className="flex min-h-screen">
+    <div className="learn-zone flex min-h-screen bg-bg-primary text-fg-primary">
       <AdminNav />
-      <main className="flex-1 p-6 md:p-8 pb-24 md:pb-8">
+      <main className="flex-1 px-5 sm:px-7 md:px-8 py-7 pb-24 md:pb-8 overflow-x-hidden relative z-0">
         {children}
       </main>
     </div>

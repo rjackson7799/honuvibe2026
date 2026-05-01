@@ -21,8 +21,10 @@ export default async function AdminStudentsPage({ params }: Props) {
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-serif text-fg-primary">Students</h1>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
+          Students
+        </h1>
         <Link href="/admin/students/new">
           <Button variant="primary" size="sm">
             <Plus size={16} className="mr-1.5" />
