@@ -11,6 +11,8 @@ import { UserMenu } from './user-menu';
 
 type UserMenuLabels = {
   signIn: string;
+  studentLogin: string;
+  account: string;
   dashboard: string;
   admin: string;
   signOut: string;

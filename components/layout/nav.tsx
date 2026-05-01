@@ -16,6 +16,8 @@ export async function Nav() {
 
   const userMenuLabels = {
     signIn: t('sign_in'),
+    studentLogin: t('student_login'),
+    account: t('account'),
     dashboard: t('dashboard'),
     admin: t('admin'),
     signOut: t('sign_out'),
