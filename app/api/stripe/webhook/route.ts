@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import {
   handleCheckoutCompleted,
+  handleChargeRefunded,
   handleSubscriptionCreated,
   handleSubscriptionUpdated,
   handleSubscriptionDeleted,
@@ -67,6 +68,11 @@ export async function POST(request: NextRequest) {
       case 'invoice.paid': {
         const invoice = event.data.object;
         await handleInvoicePaid(invoice);
+        break;
+      }
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        await handleChargeRefunded(charge);
         break;
       }
       default:

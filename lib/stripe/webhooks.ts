@@ -1,6 +1,7 @@
 import type Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { resolvePartnerIdBySlug } from '@/lib/partner-attribution';
+import { persistEnrollmentSplit } from '@/lib/revenue-split/persist';
 
 /** Service role client for webhook handlers — bypasses RLS, no user session */
 function getServiceClient() {
@@ -58,21 +59,27 @@ export async function handleCheckoutCompleted(
   );
 
   // Create enrollment record
-  const { error: enrollError } = await supabase.from('enrollments').insert({
-    user_id: userId,
-    course_id: courseId,
-    stripe_checkout_session_id: session.id,
-    stripe_payment_intent_id:
-      typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null),
-    amount_paid: session.amount_total,
-    currency,
-    status: 'active',
-    partner_id: partnerId,
-  });
+  const paymentIntentId =
+    typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : (session.payment_intent?.id ?? null);
 
-  if (enrollError) {
+  const { data: enrollment, error: enrollError } = await supabase
+    .from('enrollments')
+    .insert({
+      user_id: userId,
+      course_id: courseId,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: paymentIntentId,
+      amount_paid: session.amount_total,
+      currency,
+      status: 'active',
+      partner_id: partnerId,
+    })
+    .select('id, course_id, partner_id, amount_paid, currency')
+    .single();
+
+  if (enrollError || !enrollment) {
     console.error(
       '[Stripe Webhook] Failed to create enrollment:',
       enrollError,
@@ -108,6 +115,22 @@ export async function handleCheckoutCompleted(
       .from('courses')
       .update({ current_enrollment: course.current_enrollment + 1 })
       .eq('id', courseId);
+  }
+
+  try {
+    await persistEnrollmentSplit(
+      supabase,
+      enrollment.id,
+      enrollment.course_id,
+      enrollment.partner_id,
+      enrollment.amount_paid ?? 0,
+      enrollment.currency ?? currency,
+    );
+  } catch (splitError) {
+    console.error(
+      `[Stripe Webhook] Failed to persist revenue split for enrollment ${enrollment.id}:`,
+      splitError,
+    );
   }
 
   // Send confirmation emails (fire-and-forget)
@@ -178,16 +201,105 @@ export async function handleCheckoutCompleted(
     type: 'course_purchase',
     course_id: courseId,
     stripe_checkout_session_id: session.id,
-    stripe_payment_intent_id:
-      typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : (session.payment_intent?.id ?? null),
+    stripe_payment_intent_id: paymentIntentId,
     amount: session.amount_total ?? 0,
     currency,
     status: 'succeeded',
     receipt_url: null,
     description: 'Course enrollment',
   });
+}
+
+export async function handleChargeRefunded(
+  charge: Stripe.Charge,
+): Promise<void> {
+  const paymentIntentId =
+    typeof charge.payment_intent === 'string'
+      ? charge.payment_intent
+      : charge.payment_intent?.id;
+
+  if (!paymentIntentId) {
+    console.error('[Stripe Webhook] charge.refunded missing payment_intent');
+    return;
+  }
+
+  const supabase = getServiceClient();
+  const { data: enrollment, error: enrollmentError } = await supabase
+    .from('enrollments')
+    .select('id, user_id, course_id, status')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .maybeSingle();
+
+  if (enrollmentError) {
+    console.error('[Stripe Webhook] Failed to resolve refunded enrollment:', enrollmentError);
+    return;
+  }
+
+  if (!enrollment) {
+    console.warn(
+      `[Stripe Webhook] No enrollment found for refunded payment intent ${paymentIntentId}`,
+    );
+    return;
+  }
+
+  const refundTimestamp = new Date().toISOString();
+
+  const { error: updateEnrollmentError } = await supabase
+    .from('enrollments')
+    .update({
+      status: 'refunded',
+      refunded_at: refundTimestamp,
+    })
+    .eq('id', enrollment.id);
+
+  if (updateEnrollmentError) {
+    console.error('[Stripe Webhook] Failed to mark enrollment refunded:', updateEnrollmentError);
+  }
+
+  const { error: clawbackError } = await supabase
+    .from('enrollment_instructor_shares')
+    .update({ status: 'clawed_back' })
+    .eq('enrollment_id', enrollment.id);
+
+  if (clawbackError) {
+    console.error('[Stripe Webhook] Failed to claw back instructor shares:', clawbackError);
+  }
+
+  if (enrollment.status !== 'refunded') {
+    const { data: course } = await supabase
+      .from('courses')
+      .select('current_enrollment')
+      .eq('id', enrollment.course_id)
+      .single();
+
+    if (course && course.current_enrollment > 0) {
+      await supabase
+        .from('courses')
+        .update({ current_enrollment: course.current_enrollment - 1 })
+        .eq('id', enrollment.course_id);
+    }
+  }
+
+  const { data: existingRefundPayment } = await supabase
+    .from('payments')
+    .select('id')
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .eq('status', 'refunded')
+    .maybeSingle();
+
+  if (!existingRefundPayment) {
+    await supabase.from('payments').insert({
+      user_id: enrollment.user_id,
+      type: 'course_purchase',
+      course_id: enrollment.course_id,
+      stripe_payment_intent_id: paymentIntentId,
+      amount: charge.amount_refunded ?? charge.amount ?? 0,
+      currency: charge.currency,
+      status: 'refunded',
+      receipt_url: charge.receipt_url ?? null,
+      description: 'Course enrollment refund',
+    });
+  }
 }
 
 export async function handleSubscriptionCreated(
