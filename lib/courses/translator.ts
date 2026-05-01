@@ -3,6 +3,7 @@ import type {
   SessionTopic,
   MaterialSummaryItem,
 } from './types';
+import { parseJsonFromClaude } from './json-response';
 
 // --- Translation input/output types ---
 
@@ -158,46 +159,9 @@ export async function translateCourseContent(
   }
 
   const result = await response.json();
-
-  // Check for truncation
-  if (result.stop_reason === 'max_tokens') {
-    throw new Error(
-      'Translation response was truncated. The course may be too large for a single translation request.',
-    );
-  }
-
-  const textBlock = result.content?.find(
-    (block: { type: string }) => block.type === 'text',
-  );
-
-  if (!textBlock?.text) {
-    throw new Error('No text response from Claude API');
-  }
-
-  // Extract JSON (may be wrapped in ```json blocks despite instructions)
-  let jsonStr = textBlock.text.trim();
-  const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (jsonMatch) {
-    jsonStr = jsonMatch[1].trim();
-  }
-
-  // Sanitize common LLM JSON issues: trailing commas before } or ]
-  jsonStr = jsonStr.replace(/,\s*([}\]])/g, '$1');
-
-  let parsed: CourseTranslationOutput;
-  try {
-    parsed = JSON.parse(jsonStr) as CourseTranslationOutput;
-  } catch (parseErr) {
-    // Log a snippet around the error position for debugging
-    const posMatch = String(parseErr).match(/position (\d+)/);
-    const pos = posMatch ? Number(posMatch[1]) : -1;
-    const snippet = pos >= 0
-      ? jsonStr.slice(Math.max(0, pos - 80), pos + 80)
-      : jsonStr.slice(0, 200);
-    throw new Error(
-      `Failed to parse translation JSON: ${String(parseErr)}. Near: ...${snippet}...`,
-    );
-  }
+  const parsed = parseJsonFromClaude<CourseTranslationOutput>(result, {
+    contextLabel: 'translation',
+  });
 
   // Basic validation
   if (!parsed.course?.title_jp) {

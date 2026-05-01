@@ -1,4 +1,5 @@
 import type { ParsedCourseData } from './types';
+import { parseJsonFromClaude } from './json-response';
 
 const SYSTEM_PROMPT = `You are a course data extraction assistant for HonuVibe.AI, an educational platform. Your task is to parse course markdown documents and extract structured data.
 
@@ -119,7 +120,7 @@ export async function parseCourseMarkdown(
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 8192,
+      max_tokens: 16384,
       system: SYSTEM_PROMPT,
       messages: [
         {
@@ -136,37 +137,9 @@ export async function parseCourseMarkdown(
   }
 
   const result = await response.json();
-  const textBlock = result.content?.find(
-    (block: { type: string }) => block.type === 'text',
-  );
-
-  if (!textBlock?.text) {
-    throw new Error('No text response from Claude API');
-  }
-
-  // Extract JSON from response (may be wrapped in code fence blocks)
-  let jsonStr = textBlock.text.trim();
-
-  // Try backtick fences first, then tilde fences
-  const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/)
-    || jsonStr.match(/~~~(?:json)?\s*([\s\S]*?)~~~/);
-  if (fenceMatch) {
-    jsonStr = fenceMatch[1].trim();
-  }
-
-  // Parse with fallback: extract outermost JSON object if direct parse fails
-  let parsed: ParsedCourseData;
-  try {
-    parsed = JSON.parse(jsonStr) as ParsedCourseData;
-  } catch {
-    const start = jsonStr.indexOf('{');
-    const end = jsonStr.lastIndexOf('}');
-    if (start !== -1 && end > start) {
-      parsed = JSON.parse(jsonStr.slice(start, end + 1)) as ParsedCourseData;
-    } else {
-      throw new Error('Failed to parse AI response as JSON');
-    }
-  }
+  const parsed = parseJsonFromClaude<ParsedCourseData>(result, {
+    contextLabel: 'course parsing',
+  });
 
   // Basic validation
   if (!parsed.course?.title_en) {
