@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { type LucideIcon } from 'lucide-react';
 
-type ButtonVariant = 'primary' | 'ghost' | 'gold' | 'gradient';
+type ButtonVariant = 'primary' | 'ghost' | 'gold' | 'gradient' | 'coral';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = {
@@ -27,6 +27,8 @@ const variantStyles: Record<ButtonVariant, string> = {
     'bg-accent-gold text-white hover:bg-accent-gold-hover btn-gold-glow',
   gradient:
     'btn-gradient text-white border-0',
+  coral:
+    'bg-[color:var(--accent-coral)] text-white hover:bg-[color:var(--accent-coral-hover)] shadow-sm hover:shadow-md hover:-translate-y-px',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
