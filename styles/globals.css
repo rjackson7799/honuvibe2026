@@ -659,6 +659,13 @@ body {
   50% { transform: translateY(-6px); }
 }
 
+/* Apply the float keyframe to a layered element. Reduced-motion is handled by the global
+   `* { animation-duration: 0.01ms !important }` rule above. */
+.float-anim {
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* Text shimmer — TechSpec §3.4 */
 .text-shimmer {
   background: linear-gradient(135deg, var(--accent-teal), var(--accent-gold), var(--accent-teal));

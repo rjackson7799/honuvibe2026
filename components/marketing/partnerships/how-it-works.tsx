@@ -28,7 +28,7 @@ export function PartnershipsHowItWorks() {
         <div className="relative">
           <div
             aria-hidden
-            className="pointer-events-none absolute top-5 left-5 right-5 hidden h-[2px] md:block"
+            className="pointer-events-none absolute left-5 right-5 top-5 hidden h-[2px] md:block"
             style={{
               background:
                 'linear-gradient(to right, var(--m-accent-teal), rgba(15,169,160,0.3))',

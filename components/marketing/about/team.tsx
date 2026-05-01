@@ -12,6 +12,7 @@ type Member = {
   key: 'ryan' | 'mizuho' | 'chimi';
   photoSrc: string;
   bg: string;
+  photoClassName: string;
   langs: readonly ('en' | 'jp')[];
 };
 
@@ -20,18 +21,21 @@ const MEMBERS: readonly Member[] = [
     key: 'ryan',
     photoSrc: '/images/partners/instructors/ryan.webp',
     bg: 'linear-gradient(145deg, #d4c4a0 0%, #b8a47e 100%)',
+    photoClassName: 'object-contain object-center p-1.5',
     langs: ['en'],
   },
   {
     key: 'mizuho',
     photoSrc: '/images/partners/instructors/mizuho.webp',
     bg: 'linear-gradient(145deg, #c4d4c0 0%, #a0b89a 100%)',
+    photoClassName: 'object-contain object-center p-1.5',
     langs: ['en', 'jp'],
   },
   {
     key: 'chimi',
     photoSrc: '/images/partners/instructors/chimi.webp',
     bg: 'linear-gradient(145deg, #c4c8d4 0%, #9aa0b8 100%)',
+    photoClassName: 'object-contain object-center p-1.5',
     langs: ['en', 'jp'],
   },
 ];
@@ -74,7 +78,7 @@ function TeamCard({ member }: { member: Member }) {
   return (
     <div className="overflow-hidden rounded-[20px] bg-[var(--m-white)] shadow-[0_4px_20px_rgba(26,43,51,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(26,43,51,0.1)]">
       <div
-        className="relative h-[220px] overflow-hidden"
+        className="relative mx-5 mt-5 h-[132px] overflow-hidden rounded-[16px] md:mx-6 md:mt-6 md:h-[144px]"
         style={{ background: member.bg }}
       >
         <Image
@@ -82,10 +86,10 @@ function TeamCard({ member }: { member: Member }) {
           alt={t(`members_${member.key}_photo_alt`)}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover"
+          className={member.photoClassName}
         />
       </div>
-      <div className="px-7 pb-8 pt-7">
+      <div className="px-6 pb-7 pt-5 md:px-7 md:pb-8 md:pt-5">
         <h3 className="mb-1 text-[18px] font-bold tracking-[-0.01em] text-[var(--m-ink-primary)]">
           {t(`members_${member.key}_name`)}
         </h3>

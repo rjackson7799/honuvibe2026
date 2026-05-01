@@ -65,10 +65,15 @@ function PricingCard({ tier }: { tier: Tier }) {
       )}
     >
       {isHighlight && (
-        <div
-          aria-hidden
-          className="absolute inset-x-0 -top-px h-1 rounded-t-2xl bg-[var(--m-accent-teal)]"
-        />
+        <>
+          <div
+            aria-hidden
+            className="absolute inset-x-0 -top-px h-1 rounded-t-2xl bg-[var(--m-accent-teal)]"
+          />
+          <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--m-accent-coral)] px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.1em] text-white shadow-[var(--m-shadow-coral-sm)]">
+            {t('popular_badge')}
+          </span>
+        </>
       )}
       <p
         className={cn(

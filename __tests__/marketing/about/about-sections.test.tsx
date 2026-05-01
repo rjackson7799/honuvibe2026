@@ -86,14 +86,14 @@ describe('About page sections', () => {
     expect(screen.getByText('2024')).toBeInTheDocument();
   });
 
-  it('OriginStory renders Born in Hawaii headline + credential badge + location marker', () => {
+  it('OriginStory renders headline + credential badge + location marker', () => {
     render(<AboutOriginStory />);
     const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading.textContent).toContain('Born in Hawaii.');
+    expect(heading.textContent).toContain('People first.');
     expect(heading.textContent).toContain('Built for the world.');
     expect(screen.getByText('Ryan Jackson')).toBeInTheDocument();
     expect(
-      screen.getByText(/Based in Waikiki, Honolulu, Hawaii/),
+      screen.getByText(/Los Angeles · Honolulu/),
     ).toBeInTheDocument();
   });
 

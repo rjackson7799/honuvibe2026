@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import {
@@ -33,13 +34,14 @@ export function HomeOrgSection() {
             </a>
           </div>
 
-          <div
-            className="relative h-[380px] overflow-hidden rounded-[20px]"
-            style={{
-              background:
-                'linear-gradient(135deg, #f2d9bc 0%, #e8c9a0 50%, #d9b888 100%)',
-            }}
-          >
+          <div className="relative h-[380px] overflow-hidden rounded-[20px]">
+            <Image
+              src="/images/honu_hub.jpg"
+              alt={t('image_caption')}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+            />
             <div className="absolute inset-0 flex items-end p-6">
               <div className="rounded-[10px] bg-white/[0.88] px-4 py-3">
                 <p className="text-[13px] font-semibold text-[var(--m-ink-primary)]">

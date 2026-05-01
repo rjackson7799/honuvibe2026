@@ -15,11 +15,11 @@ export function AboutOriginStory() {
   return (
     <Section variant="canvas">
       <Container>
-        <div className="grid items-start gap-12 md:grid-cols-[5fr_7fr] md:gap-20">
+        <div className="grid items-start gap-12 md:grid-cols-[4fr_8fr] md:gap-16">
           {/* Photo column */}
-          <div className="relative">
+          <div className="relative mx-auto w-full max-w-[300px] md:mx-0 md:max-w-[340px]">
             <div
-              className="relative h-[400px] w-full overflow-hidden rounded-[16px] border border-[var(--m-border-soft)] md:h-[480px]"
+              className="relative h-[280px] w-full overflow-hidden rounded-[16px] border border-[var(--m-border-soft)] md:h-[340px]"
               style={{
                 background:
                   'linear-gradient(155deg, #d4c4a0 0%, #c0a87a 40%, #a89060 100%)',
@@ -30,11 +30,11 @@ export function AboutOriginStory() {
                 alt={t('photo_alt')}
                 fill
                 sizes="(max-width: 768px) 100vw, 40vw"
-                className="object-cover"
+                className="object-cover object-[center_18%] scale-[0.94]"
                 priority={false}
               />
             </div>
-            <div className="absolute -bottom-6 right-2 max-w-[220px] rounded-[14px] border border-[var(--m-border-soft)] bg-[var(--m-white)] p-5 shadow-[var(--m-shadow-lg)] md:-right-6">
+            <div className="absolute -bottom-5 right-2 max-w-[200px] rounded-[14px] border border-[var(--m-border-soft)] bg-[var(--m-white)] p-4 shadow-[var(--m-shadow-lg)] md:-right-5">
               <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.06em] text-[var(--m-accent-teal)]">
                 {t('badge_name')}
               </p>

@@ -34,7 +34,14 @@ export function HomeVaultSection() {
         </BrowserFrame>
 
         <p className="mt-4 text-center text-[13px] text-[var(--m-ink-tertiary)]">
-          {t('caption')}
+          {t('caption_lead')}{' '}
+          <a
+            href="/learn"
+            className="font-semibold text-[var(--m-accent-teal)] underline-offset-4 transition-colors hover:underline hover:text-[var(--m-accent-teal-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--m-accent-teal)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--m-sand)] rounded-sm"
+          >
+            {t('caption_cta')}
+            <span aria-hidden="true"> →</span>
+          </a>
         </p>
       </Container>
     </Section>

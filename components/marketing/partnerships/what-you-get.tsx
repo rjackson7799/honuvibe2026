@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { FileText, Globe, Handshake, PlayCircle, type LucideIcon } from 'lucide-react';
+import { FileText, TrendingUp, Handshake, PlayCircle, type LucideIcon } from 'lucide-react';
 import {
   Card,
   Container,
@@ -8,11 +8,11 @@ import {
   SectionHeading,
 } from '@/components/marketing/primitives';
 
-type CardKey = 'curriculum' | 'bilingual' | 'cobranded' | 'live';
+type CardKey = 'curriculum' | 'monetize' | 'cobranded' | 'live';
 
 const CARDS: ReadonlyArray<{ key: CardKey; Icon: LucideIcon }> = [
   { key: 'curriculum', Icon: FileText },
-  { key: 'bilingual', Icon: Globe },
+  { key: 'monetize', Icon: TrendingUp },
   { key: 'cobranded', Icon: Handshake },
   { key: 'live', Icon: PlayCircle },
 ];

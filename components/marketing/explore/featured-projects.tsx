@@ -1,10 +1,10 @@
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import {
   BrowserFrame,
   Container,
   Overline,
-  PhotoPlaceholder,
   Section,
 } from '@/components/marketing/primitives';
 import { cn } from '@/lib/utils';
@@ -15,20 +15,29 @@ type Project = {
   key: 'kwame' | 'hci';
   status: ProjectStatus;
   url: string;
+  liveUrl: string;
+  image: string;
+  imageAlt: string;
   stack: readonly string[];
 };
 
 const PROJECTS: readonly Project[] = [
   {
     key: 'kwame',
-    status: 'in_development',
+    status: 'live',
     url: 'kwamebrathwaite.com',
+    liveUrl: 'https://kwamebrathwaite.com',
+    image: '/projects/kwame-brathwaite/KB_1.jpg',
+    imageAlt: 'KwameBrathwaite.com homepage',
     stack: ['Next.js', 'Tailwind CSS', 'Claude AI', 'Cursor', 'Vercel'],
   },
   {
     key: 'hci',
     status: 'live',
-    url: 'hcimedicalgroup.com',
+    url: 'hcimed.com',
+    liveUrl: 'https://hcimed.com',
+    image: '/projects/hci-medical/HCI_1.jpg',
+    imageAlt: 'HCI Medical Group homepage',
     stack: ['Next.js', 'Tailwind CSS', 'Supabase', 'Custom PM', 'Vercel'],
   },
 ] as const;
@@ -64,19 +73,17 @@ function ProjectRow({ project, flip }: { project: Project; flip: boolean }) {
 
   const visual = (
     <div className="w-full">
-      <BrowserFrame url={project.url} height={380}>
-        <PhotoPlaceholder
-          variant="gradient"
-          height={380}
-          width="100%"
-          label={`${project.key.toUpperCase()} mockup`}
-          className="rounded-none border-0"
-          bg={
-            project.key === 'kwame'
-              ? 'linear-gradient(160deg, #2a2018 0%, #3d2e1a 60%, #1a2028 100%)'
-              : 'linear-gradient(155deg, #FAFCFF 0%, #E8F2FA 60%, #D4E6F0 100%)'
-          }
-        />
+      <BrowserFrame url={project.url} height="auto">
+        <div className="relative aspect-[2/1] w-full bg-[var(--m-white)]">
+          <Image
+            src={project.image}
+            alt={project.imageAlt}
+            fill
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover object-top"
+            priority={project.key === 'kwame'}
+          />
+        </div>
       </BrowserFrame>
     </div>
   );
@@ -144,6 +151,16 @@ function ProjectRow({ project, flip }: { project: Project; flip: boolean }) {
           </span>
         ))}
       </div>
+
+      <a
+        href={project.liveUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 inline-flex items-center gap-1.5 text-[14px] font-bold text-[var(--m-accent-teal)] transition-opacity hover:opacity-80"
+      >
+        Visit {project.url}
+        <ArrowRight size={14} strokeWidth={2} />
+      </a>
     </div>
   );
 

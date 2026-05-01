@@ -2221,7 +2221,8 @@
       "lesson_6": "API Integration",
       "completed_label": "Completed",
       "duration_label": "8–12 min",
-      "caption": "The Vault — AI learning library for HonuVibe members"
+      "caption_lead": "Members get full Vault access —",
+      "caption_cta": "start with any course"
     },
     "featured_courses": {
       "heading": "Featured Courses",
@@ -2299,7 +2300,7 @@
       "challenge_label": "The Challenge",
       "outcome_label": "The Outcome",
       "kwame_eyebrow": "Featured Project",
-      "kwame_status": "IN DEVELOPMENT",
+      "kwame_status": "LIVE",
       "kwame_name": "KwameBrathwaite.com",
       "kwame_desc": "A photography archive gets a modern makeover.",
       "kwame_challenge": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
@@ -2375,16 +2376,16 @@
     },
     "origin_story": {
       "overline": "The Story",
-      "headline_line_1": "Born in Hawaii.",
+      "headline_line_1": "People first.",
       "headline_line_2": "Built for the world.",
       "p1": "HonuVibe started with a question: what would happen if AI education felt less like a tech bootcamp and more like learning from someone who actually cares whether you succeed?",
       "p2": "Ryan Jackson — Northwestern grad, USC Marshall MBA, and lifelong builder — had spent years at the intersection of business strategy, international markets, and hands-on AI work. He saw the same pattern everywhere: people were curious about AI but overwhelmed by the noise. The courses were too technical, too theoretical, or too impersonal.",
-      "p3": "So he built HonuVibe from Waikiki — a training company grounded in the Hawaiian concept of aloha: show up fully, give generously, treat every person's goals as worthy of real attention. Today, HonuVibe serves learners and organizations globally, in English and Japanese, with a growing team of practitioners who teach what they actually do.",
+      "p3": "So he built HonuVibe — a training company grounded in the Hawaiian concept of aloha: show up fully, give generously, treat every person's goals as worthy of real attention. Today, HonuVibe serves learners and organizations globally, in English and Japanese, with a growing team of practitioners who teach what they actually do.",
       "photo_alt": "Ryan Jackson, founder of HonuVibe.AI",
       "badge_name": "Ryan Jackson",
       "badge_credential_1": "Northwestern BS",
       "badge_credential_2": "USC Marshall MBA",
-      "location_marker": "Based in Waikiki, Honolulu, Hawaii"
+      "location_marker": "Los Angeles · Honolulu"
     },
     "team": {
       "overline": "The Team",
@@ -2393,7 +2394,7 @@
       "subhead": "Every HonuVibe instructor is a working practitioner — not an academic, not a script reader.",
       "members_ryan_name": "Ryan Jackson",
       "members_ryan_title": "Founder & Director of AI Education",
-      "members_ryan_location": "Honolulu, Hawaii",
+      "members_ryan_location": "Los Angeles · Honolulu",
       "members_ryan_bio": "Ryan brings a unique combination of business strategy, international market experience, and hands-on AI expertise. His teaching style is hands-on and jargon-free — every session is built around doing, not just watching.",
       "members_ryan_photo_alt": "Ryan Jackson, founder",
       "members_mizuho_name": "Mizuho H.",
@@ -2504,7 +2505,8 @@
       "headline_line_1": "Bring AI training",
       "headline_line_2": "to your community.",
       "subhead": "We build private, bilingual AI training programs for professional networks, creative communities, nonprofits, and organizations — fully tailored to your audience, co-delivered with your brand.",
-      "cta": "Apply for Partnership"
+      "cta": "Apply for Partnership",
+      "composite_alt": "HonuVibe AI training platform — bilingual student dashboard, presentation slide, and live cohort session"
     },
     "what_you_get": {
       "overline": "What You Get",
@@ -2513,8 +2515,8 @@
       "cards": {
         "curriculum_title": "Custom Curriculum",
         "curriculum_body": "Every program starts with your audience. We design curriculum around their skill level, industry, and goals — not a generic syllabus.",
-        "bilingual_title": "Bilingual Delivery",
-        "bilingual_body": "Programs delivered in English, Japanese, or both simultaneously. Native-speaking instructors, not translators reading scripts.",
+        "monetize_title": "A New Revenue Stream",
+        "monetize_body": "Turn AI training into a paid program under your brand — and give members skills they can monetize too. New revenue for you, real outcomes for them.",
         "cobranded_title": "Co-Branded Experience",
         "cobranded_body": "Your community, your brand, your platform. We deliver under a co-branded experience that strengthens your relationship with your members.",
         "live_title": "Live + On-Demand",
@@ -2550,6 +2552,11 @@
       "vertice_detail_size": "10 students per cohort",
       "vertice_quote": "Placeholder testimonial from Vertice Society leadership about the quality of the program and partnership experience.",
       "vertice_attribution": "— Name, Title, Vertice Society",
+      "vertice_attribution_name": "Name Placeholder",
+      "vertice_attribution_role": "Title, Vertice Society",
+      "vertice_logo_alt": "Vertice Society logo",
+      "vertice_session_alt": "Bilingual AI training session with Vertice Society participants",
+      "vertice_avatar_alt": "Headshot of the Vertice Society participant being quoted",
       "more_overline": "We're Building",
       "more_headline": "More partnerships launching soon.",
       "more_body": "We're actively talking with networks, communities, and companies that want to bring AI training to their people. Want to be next?",
@@ -2606,7 +2613,20 @@
       "enterprise_includes_4": "Dedicated support",
       "cta_apply": "Apply for Partnership",
       "cta_enterprise": "Let's talk",
+      "popular_badge": "Most Popular",
       "footnote": "All programs include bilingual delivery at no additional cost. Nonprofit and community organization pricing available — ask us."
+    },
+    "metrics": {
+      "overline": "By the Numbers",
+      "headline": "Measurable bilingual impact.",
+      "participants_label": "Participants Trained",
+      "participants_value": "30+",
+      "hours_label": "Bilingual Hours Delivered",
+      "hours_value": "120+",
+      "courses_label": "Custom Courses Built",
+      "courses_value": "6",
+      "bilingual_label": "Bilingual Delivery",
+      "bilingual_value": "100%"
     },
     "application_form": {
       "overline": "Get Started",

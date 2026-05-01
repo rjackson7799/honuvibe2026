@@ -8,8 +8,8 @@ import {
   PartnershipsWhatYouGet,
   PartnershipsHowItWorks,
   PartnershipsCurrentPartners,
+  PartnershipsMetrics,
   PartnershipsWhoIsItFor,
-  PartnershipsPricing,
   PartnershipsApplicationForm,
 } from '@/components/marketing/partnerships';
 
@@ -38,8 +38,8 @@ export default async function PartnershipsPage({ params }: Props) {
         <PartnershipsWhatYouGet />
         <PartnershipsHowItWorks />
         <PartnershipsCurrentPartners />
+        <PartnershipsMetrics />
         <PartnershipsWhoIsItFor />
-        <PartnershipsPricing />
         <PartnershipsApplicationForm />
       </main>
       <MarketingNewsletter />

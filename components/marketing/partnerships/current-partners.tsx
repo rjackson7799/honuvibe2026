@@ -42,6 +42,7 @@ export function PartnershipsCurrentPartners() {
           <article className="overflow-hidden rounded-[18px] bg-[var(--m-white)] shadow-[0_6px_32px_rgba(26,43,51,0.08)]">
             <div className="h-[5px] bg-[var(--m-accent-teal)]" />
             <div className="px-9 pb-8 pt-9">
+              <VerticeLogoMark altText={t('vertice_logo_alt')} />
               <div className="mb-2.5 flex items-start justify-between gap-3">
                 <h3 className="text-[19px] font-bold leading-[1.2] tracking-[-0.015em] text-[var(--m-ink-primary)]">
                   {t('vertice_name')}
@@ -71,12 +72,25 @@ export function PartnershipsCurrentPartners() {
                 ))}
               </div>
               <blockquote className="border-l-[3px] border-[var(--m-accent-coral)] pl-4">
-                <p className="mb-2.5 text-[14.5px] italic leading-[1.68] text-[var(--m-ink-secondary)]">
+                <p className="mb-3 text-[14.5px] italic leading-[1.68] text-[var(--m-ink-secondary)]">
                   &ldquo;{t('vertice_quote')}&rdquo;
                 </p>
-                <p className="text-[13px] font-medium text-[var(--m-ink-tertiary)]">
-                  {t('vertice_attribution')}
-                </p>
+                <div className="flex items-center gap-2.5">
+                  <span
+                    aria-label={t('vertice_avatar_alt')}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--m-accent-coral-soft)] text-[13px] font-bold text-[var(--m-accent-coral)]"
+                  >
+                    V
+                  </span>
+                  <div className="leading-tight">
+                    <p className="text-[13px] font-bold text-[var(--m-ink-primary)]">
+                      {t('vertice_attribution_name')}
+                    </p>
+                    <p className="text-[12px] text-[var(--m-ink-tertiary)]">
+                      {t('vertice_attribution_role')}
+                    </p>
+                  </div>
+                </div>
               </blockquote>
             </div>
           </article>
@@ -107,5 +121,22 @@ export function PartnershipsCurrentPartners() {
         </p>
       </Container>
     </Section>
+  );
+}
+
+// Typographic stand-in for the Vertice logo until the partner logo PNG is delivered.
+// Swap for `<Image src="/images/logos/vertice-society.png" alt={altText} />` once available.
+function VerticeLogoMark({ altText }: { altText: string }) {
+  return (
+    <div
+      aria-label={altText}
+      role="img"
+      className="mb-5 inline-flex items-center gap-2 rounded-[6px] border border-[rgba(26,43,51,0.12)] bg-[var(--m-canvas)] px-3 py-1.5"
+    >
+      <span className="h-2 w-2 rounded-full bg-[var(--m-accent-teal)]" />
+      <span className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[var(--m-ink-primary)]">
+        Vertice Society
+      </span>
+    </div>
   );
 }
