@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useScrollProgress } from '@/hooks/use-scroll-progress';
 import { HonuMark } from './honu-mark';
 import { createClient } from '@/lib/supabase/client';
+import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 
 export function HonuCompanion() {
+  const pathname = usePathname();
   const scrollProgress = useScrollProgress();
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,6 +40,9 @@ export function HonuCompanion() {
 
   if (reducedMotion) return null;
   if (isAuthenticated) return null;
+  // Marketing pages have a light canvas — the dark-mode honu glows
+  // would visually clash, so suppress on those routes.
+  if (isMarketingPathWithLocale(pathname)) return null;
 
   const rotation = Math.sin(scrollProgress * Math.PI * 4) * 12;
   const yPosition = 10 + scrollProgress * 70; // 10% to 80% of viewport
