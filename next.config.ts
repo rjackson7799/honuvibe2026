@@ -12,19 +12,24 @@ const nextConfig: NextConfig = {
       // /newsletter, /become-an-instructor are deleted; redirect to their new
       // homes. next-intl middleware passes the full path through, so register
       // both /path and /ja/path explicitly.
-      { source: '/build', destination: '/explore', permanent: true },
-      { source: '/ja/build', destination: '/ja/explore', permanent: true },
-      { source: '/community', destination: '/about#aloha', permanent: true },
-      { source: '/ja/community', destination: '/ja/about#aloha', permanent: true },
-      { source: '/resources', destination: '/learn', permanent: true },
-      { source: '/ja/resources', destination: '/ja/learn', permanent: true },
-      { source: '/newsletter', destination: '/#newsletter', permanent: true },
-      { source: '/ja/newsletter', destination: '/ja/#newsletter', permanent: true },
+      // NOTE: temporary 307s (permanent: false) during the post-cutover soak
+      // window so browsers don't permanently cache these redirects in case we
+      // need to roll back to the legacy dark design (legacy-dark-design-prod
+      // tag, branch legacy-dark-design at 08736f5). Promote back to 308
+      // (permanent: true) after ~1–2 weeks of clean prod metrics.
+      { source: '/build', destination: '/explore', permanent: false },
+      { source: '/ja/build', destination: '/ja/explore', permanent: false },
+      { source: '/community', destination: '/about#aloha', permanent: false },
+      { source: '/ja/community', destination: '/ja/about#aloha', permanent: false },
+      { source: '/resources', destination: '/learn', permanent: false },
+      { source: '/ja/resources', destination: '/ja/learn', permanent: false },
+      { source: '/newsletter', destination: '/#newsletter', permanent: false },
+      { source: '/ja/newsletter', destination: '/ja/#newsletter', permanent: false },
       // Catch-all for old issue archive permalinks.
-      { source: '/newsletter/:slug*', destination: '/#newsletter', permanent: true },
-      { source: '/ja/newsletter/:slug*', destination: '/ja/#newsletter', permanent: true },
-      { source: '/become-an-instructor', destination: '/partnerships', permanent: true },
-      { source: '/ja/become-an-instructor', destination: '/ja/partnerships', permanent: true },
+      { source: '/newsletter/:slug*', destination: '/#newsletter', permanent: false },
+      { source: '/ja/newsletter/:slug*', destination: '/ja/#newsletter', permanent: false },
+      { source: '/become-an-instructor', destination: '/partnerships', permanent: false },
+      { source: '/ja/become-an-instructor', destination: '/ja/partnerships', permanent: false },
 
       // Resources alias chain → terminate directly at /learn (was /resources, now deleted).
       { source: '/tools', destination: '/learn', permanent: true },
