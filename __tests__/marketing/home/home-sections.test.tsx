@@ -158,8 +158,8 @@ describe('Home page sections', () => {
       screen.getByRole('heading', { name: 'Explore Our Work' }),
     ).toBeInTheDocument();
     expect(screen.getByText('KwameBrathwaite.com')).toBeInTheDocument();
-    expect(screen.getByText('MamaTree Market')).toBeInTheDocument();
-    expect(screen.getByText('HonuHub Scheduler')).toBeInTheDocument();
+    expect(screen.getByText("Harper's Circle")).toBeInTheDocument();
+    expect(screen.getByText('HCI Medical Group')).toBeInTheDocument();
     const cta = screen.getByRole('link', { name: /Explore our work/i });
     expect(cta).toHaveAttribute('href', '/explore');
   });

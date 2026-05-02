@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import {
@@ -7,12 +8,25 @@ import {
   SectionHeading,
 } from '@/components/marketing/primitives';
 
-const projectColors = ['#c8d8e4', '#d8e4c8', '#e4d8c8'] as const;
+const projectImages = [
+  {
+    src: '/projects/kwame-brathwaite/Card_Kwame.jpg',
+    alt: 'KwameBrathwaite.com homepage',
+  },
+  {
+    src: '/projects/harpers-circle/Card_Harper.jpg',
+    alt: "Harper's Circle app interface",
+  },
+  {
+    src: '/projects/hci-medical/Card_HCI.jpg',
+    alt: 'HCI Medical Group homepage',
+  },
+] as const;
 
 const projectTags: ReadonlyArray<readonly string[]> = [
   ['Next.js', 'Tailwind', 'Claude AI'],
-  ['Shopify', 'Claude API', 'Automation'],
-  ['React', 'Supabase', 'AI Workflows'],
+  ['Next.js', 'Supabase', 'Claude AI'],
+  ['Next.js', 'Supabase', 'Custom PM'],
 ];
 
 export function HomeExploration() {
@@ -21,7 +35,7 @@ export function HomeExploration() {
   const projects = ([1, 2, 3] as const).map((n, i) => ({
     title: t(`project_${n}_title` as 'project_1_title'),
     desc: t(`project_${n}_desc` as 'project_1_desc'),
-    color: projectColors[i],
+    image: projectImages[i],
     tags: projectTags[i],
   }));
 
@@ -51,10 +65,14 @@ export function HomeExploration() {
               interactive
               className="cursor-default overflow-hidden p-0"
             >
-              <div
-                className="relative h-40"
-                style={{ background: project.color }}
-              >
+              <div className="relative h-40 overflow-hidden bg-[var(--m-sand)]">
+                <Image
+                  src={project.image.src}
+                  alt={project.image.alt}
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover"
+                />
                 <div
                   className="absolute inset-0 opacity-40"
                   style={{
