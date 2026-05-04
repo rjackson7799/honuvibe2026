@@ -2510,17 +2510,31 @@
     },
     "what_you_get": {
       "overline": "What You Get",
+      "overline_most_differentiated": "MOST DIFFERENTIATED",
       "headline_line_1": "A complete AI training program.",
       "headline_line_2": "Built for your people.",
       "cards": {
         "curriculum_title": "Custom Curriculum",
         "curriculum_body": "Every program starts with your audience. We design curriculum around their skill level, industry, and goals — not a generic syllabus.",
+        "curriculum_proof": "Bilingual programs delivered to Vertice Society and other partner organizations.",
+        "curriculum_alt": "Stacked rounded cards illustration representing custom curriculum design",
         "monetize_title": "A New Revenue Stream",
         "monetize_body": "Turn AI training into a paid program under your brand — and give members skills they can monetize too. New revenue for you, real outcomes for them.",
+        "monetize_proof": "Partner-led programs typically launch within 4–6 weeks.",
+        "monetize_alt": "Ascending coral discs illustration representing new revenue stream",
         "cobranded_title": "Co-Branded Experience",
         "cobranded_body": "Your community, your brand, your platform. We deliver under a co-branded experience that strengthens your relationship with your members.",
+        "cobranded_proof": "Your brand. Your community. Our infrastructure and instruction.",
+        "cobranded_alt": "Interlocking rings illustration representing co-branded partnership",
         "live_title": "Live + On-Demand",
-        "live_body": "Live cohort sessions on Zoom plus recorded replays and access to The Vault self-study library. Flexible for global time zones."
+        "live_body": "Live cohort sessions on Zoom plus recorded replays and access to The Vault self-study library. Flexible for global time zones.",
+        "live_proof": "5-week live cohorts on Zoom, with permanent access to The Vault.",
+        "live_alt": "Layered panels illustration representing live and on-demand learning"
+      },
+      "cta": {
+        "lead": "Ready to bring AI training to your people?",
+        "button": "Schedule a partnership conversation",
+        "case_study": "Or read the Vertice Society case study"
       }
     },
     "how_it_works": {
