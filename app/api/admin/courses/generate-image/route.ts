@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import sharp from 'sharp';
 import { createClient } from '@/lib/supabase/server';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 function getLevelMood(level: string | null): string {
   switch (level) {
     case 'beginner':
-      return 'approachable, friendly, and welcoming — clear and uncluttered';
+      return 'open, airy, and welcoming with plenty of negative space';
     case 'intermediate':
-      return 'professional and capable — balanced detail with confident energy';
+      return 'balanced and confident with moderate compositional layering';
     case 'advanced':
-      return 'sophisticated and technical — rich detail, layered depth, expert-level atmosphere';
+      return 'richer composition with more layered geometry, still calm and uncluttered';
     default:
-      return 'professional and engaging';
+      return 'calm, modern, and intelligent';
   }
 }
 
@@ -52,19 +54,37 @@ function buildImagePrompt(
   ].filter(Boolean).join('\n');
 
   const styleGuidance = [
-    `Visual style: ${mood}.`,
-    'Professional quality suitable for a premium education platform.',
-    'Subtle representational elements and visual metaphors relevant to the topic are welcome.',
-    'Avoid generic stock-photo aesthetics — prefer illustrative, modern, or slightly stylized visuals.',
-    'Color tone: dark, deep backgrounds preferred. Teal and gold accents welcome if they suit the subject.',
+    'Visual style: soft, modern 3D-rendered illustration with a glassmorphic, premium-tech feel.',
+    `Mood: ${mood} — calm, intelligent, optimistic, premium AI-education brand.`,
+    'Background: light cream, off-white, or pale seafoam — never dark, never neon.',
+    'Composition: floating geometric forms (spheres, soft cubes, network nodes, layered translucent panels, gentle dotted-grid accents) representing the course topic abstractly.',
+    'Materials: matte and glassy surfaces with subtle depth and soft shadows; occasional pastel coral spheres for warmth.',
+    'Color palette: seafoam teal as primary, coral as occasional accent, pale neutral grounds. No deep navy, no dark backgrounds, no neon glows, no cyberpunk.',
+    'Avoid generic stock-photo aesthetics and busy compositions.',
     'Absolutely no text, letters, numbers, or words anywhere in the image.',
   ].join(' ');
 
   const composition = imageType === 'thumbnail'
-    ? 'Compose for a course card thumbnail: 16:9 aspect ratio, balanced centered focal point, visually striking and clear even at small sizes.'
-    : 'Compose for a wide panoramic hero banner: 21:9 aspect ratio, visual interest toward the edges, calm open center area where course title text will be overlaid, cinematic horizontal flow.';
+    ? 'Compose for a course-card thumbnail: a centered focal subject readable at small sizes, with plenty of clean negative space. Light cream or pale seafoam ground.'
+    : 'Compose for a wide panoramic hero banner: visual interest weighted toward the edges, with a calm open center area where overlay text will sit. Cinematic horizontal flow on a light cream or pale seafoam ground.';
 
   return [courseContext, styleGuidance, composition].join('\n\n');
+}
+
+async function cropToAspect(
+  pngBuffer: Buffer,
+  imageType: 'thumbnail' | 'hero',
+): Promise<Buffer> {
+  // gpt-image-1 returns 1536x1024 (3:2). Crop vertically to target aspect ratio.
+  // Thumbnail: 16:9 → 1536x864 (crop 160px total, 80 top / 80 bottom — center crop).
+  // Hero:      21:9 → 1536x658 (crop 366px total, 183 top / 183 bottom — center crop).
+  const targetHeight = imageType === 'thumbnail' ? 864 : 658;
+  const top = Math.floor((1024 - targetHeight) / 2);
+
+  return sharp(pngBuffer)
+    .extract({ left: 0, top, width: 1536, height: targetHeight })
+    .jpeg({ quality: 88, mozjpeg: true })
+    .toBuffer();
 }
 
 export async function POST(request: NextRequest) {
@@ -86,9 +106,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
+    return NextResponse.json({ error: 'OPENAI_API_KEY not configured' }, { status: 500 });
   }
 
   try {
@@ -119,76 +139,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Course not found' }, { status: 404 });
     }
 
-    // Configure aspect ratio and size based on image type
-    const imageConfig = imageType === 'thumbnail'
-      ? { aspectRatio: '16:9', imageSize: '2K' }
-      : { aspectRatio: '21:9', imageSize: '2K' };
-
     const prompt = buildImagePrompt(course, imageType);
 
-    // Call Gemini Image Generation API
-    const model = 'gemini-3-pro-image-preview';
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: 'POST',
-        headers: {
-          'x-goog-api-key': apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }],
-            },
-          ],
-          generationConfig: {
-            responseModalities: ['IMAGE'],
-            imageConfig,
-          },
-        }),
-      },
-    );
+    // Generate via OpenAI gpt-image-1 (1536x1024 landscape, high quality)
+    const openai = new OpenAI({ apiKey });
+    const result = await openai.images.generate({
+      model: 'gpt-image-1',
+      prompt,
+      size: '1536x1024',
+      quality: 'high',
+      n: 1,
+    });
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.json().catch(() => ({}));
-      const message = (err as { error?: { message?: string } })?.error?.message
-        || `Gemini API error (${geminiRes.status})`;
+    const b64 = result.data?.[0]?.b64_json;
+    if (!b64) {
       return NextResponse.json(
-        { error: `Image generation failed: ${message}` },
+        { error: 'No image returned from OpenAI' },
         { status: 502 },
       );
     }
 
-    const geminiData = await geminiRes.json();
+    const rawBuffer = Buffer.from(b64, 'base64');
+    const croppedBuffer = await cropToAspect(rawBuffer, imageType);
 
-    // Extract base64 image from response
-    const candidates = geminiData.candidates as Array<{
-      content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> };
-    }> | undefined;
-
-    const imagePart = candidates?.[0]?.content?.parts?.find(
-      (part) => part.inlineData,
-    );
-
-    if (!imagePart?.inlineData?.data) {
-      return NextResponse.json(
-        { error: 'No image returned from Gemini' },
-        { status: 502 },
-      );
-    }
-
-    const imageBuffer = Buffer.from(imagePart.inlineData.data, 'base64');
-
-    // Upload to Supabase Storage
-    const mimeType = imagePart.inlineData.mimeType || 'image/png';
-    const ext = mimeType === 'image/jpeg' ? 'jpg' : 'png';
-    const storagePath = `${courseId}/${imageType}.${ext}`;
-
+    // Upload to Supabase Storage as JPEG
+    const storagePath = `${courseId}/${imageType}.jpg`;
     const { error: uploadError } = await supabase.storage
       .from('course-images')
-      .upload(storagePath, imageBuffer, {
-        contentType: mimeType,
+      .upload(storagePath, croppedBuffer, {
+        contentType: 'image/jpeg',
         upsert: true,
       });
 
@@ -199,12 +178,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get public URL
+    // Get public URL (cache-bust so the UI sees the new image)
     const { data: urlData } = supabase.storage
       .from('course-images')
       .getPublicUrl(storagePath);
 
-    const publicUrl = urlData.publicUrl;
+    const publicUrl = `${urlData.publicUrl}?v=${Date.now()}`;
 
     // Update course record
     const column = imageType === 'thumbnail' ? 'thumbnail_url' : 'hero_image_url';
