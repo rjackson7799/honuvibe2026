@@ -8,6 +8,7 @@ import { LayoutDashboard, BookOpen, GraduationCap, Lock, Users, FileText, Dollar
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
+import { HonuVibeWordmark } from '@/components/ui/honuvibe-wordmark';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -40,41 +41,52 @@ export function AdminNav() {
   return (
     <>
       {/* Desktop sidebar */}
-      <nav className="hidden md:flex flex-col w-56 shrink-0 border-r border-border-default bg-bg-secondary sticky top-14 md:top-16 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] overflow-y-auto p-4 gap-1">
-        <div className="mb-6 px-3">
-          <h2 className="text-sm font-semibold text-fg-primary uppercase tracking-wider">Admin</h2>
+      <nav className="hidden md:flex flex-col shrink-0 w-56 h-screen sticky top-0 bg-bg-secondary border-r border-border-default">
+        {/* Logo */}
+        <div className="px-5 pt-5 pb-4 border-b border-border-default flex items-center">
+          <HonuVibeWordmark />
         </div>
-        {navItems.map((item) => {
-          const isActive = item.exact
-            ? logicalPath === item.href
-            : item.href === '/admin/courses'
-              ? logicalPath.startsWith('/admin/courses') &&
-                !logicalPath.startsWith('/admin/courses/proposals')
-              : logicalPath.startsWith(item.href);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
-                isActive
-                  ? 'bg-accent-teal/10 text-accent-teal font-medium'
-                  : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
-              )}
-            >
-              <Icon size={18} />
-              {item.label}
-            </Link>
-          );
-        })}
 
-        {/* Bottom controls — pushed down with mt-auto */}
-        <div className="mt-auto pt-4 border-t border-border-default flex flex-col gap-1">
+        {/* Lang toggle */}
+        <div className="px-4 py-3 border-b border-border-default">
+          <LangToggle />
+        </div>
+
+        {/* Main nav */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-2.5 py-3">
+          <div className="flex flex-col gap-1">
+            {navItems.map((item) => {
+              const isActive = item.exact
+                ? logicalPath === item.href
+                : item.href === '/admin/courses'
+                  ? logicalPath.startsWith('/admin/courses') &&
+                    !logicalPath.startsWith('/admin/courses/proposals')
+                  : logicalPath.startsWith(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
+                    isActive
+                      ? 'bg-accent-teal/10 text-accent-teal font-medium'
+                      : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
+                  )}
+                >
+                  <Icon size={18} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Bottom controls */}
+        <div className="border-t border-border-default px-2.5 py-3 flex flex-col gap-2">
           <UserMenu labels={userMenuLabels} />
-          <div className="pt-2 border-t border-border-default flex items-center gap-1">
+          <div className="flex items-center gap-1">
             <ThemeToggle />
-            <LangToggle />
           </div>
         </div>
       </nav>

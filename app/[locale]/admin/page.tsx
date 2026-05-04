@@ -1,4 +1,4 @@
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { getDashboardStats } from '@/lib/admin/queries';
 import { StatCard } from '@/components/admin/StatCard';
 import { BookOpen, Users, Calendar, FileText, ArrowRight } from 'lucide-react';
@@ -7,6 +7,8 @@ import { PathStatsWidget } from '@/components/admin/PathStatsWidget';
 import { Card } from '@/components/ui/card';
 import { BadgePill } from '@/components/ui/badge-pill';
 import { SectionHeading } from '@/components/learn/SectionHeading';
+import { DashboardWelcomeHeader } from '@/components/learn/DashboardWelcomeHeader';
+import { createClient } from '@/lib/supabase/server';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -20,14 +22,39 @@ export default async function AdminDashboardPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const stats = await getDashboardStats();
+  const t = await getTranslations({ locale, namespace: 'dashboard' });
+
+  const supabase = await createClient();
+  const [{ data: { user } }, stats] = await Promise.all([
+    supabase.auth.getUser(),
+    getDashboardStats(),
+  ]);
+
+  const { data: profile } = user
+    ? await supabase.from('users').select('full_name').eq('id', user.id).single()
+    : { data: null };
+
+  const displayName = profile?.full_name ?? user?.email?.split('@')[0] ?? '';
+  const initial = displayName.trim().charAt(0).toUpperCase() || '?';
+
+  const overlineDate = new Date()
+    .toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+    .toUpperCase();
 
   return (
     <div className="space-y-6 max-w-[1100px]">
-      {/* Header */}
-      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
-        Dashboard
-      </h1>
+      <DashboardWelcomeHeader
+        overlineDate={overlineDate}
+        welcomeLabel={t('welcome_back', { name: displayName })}
+        displayName={displayName}
+        initial={initial}
+        settingsHref="/learn/dashboard/settings"
+      />
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

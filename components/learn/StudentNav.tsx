@@ -18,6 +18,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { HonuVibeWordmark } from '@/components/ui/honuvibe-wordmark';
 
 type NavItem = {
   href: string;
@@ -147,9 +148,7 @@ export function StudentNav() {
       <nav className="hidden md:flex flex-col shrink-0 w-[220px] h-screen sticky top-0 bg-bg-tertiary border-r border-border-default">
         {/* Logo */}
         <div className="px-5 pt-5 pb-4 border-b border-border-default flex items-center">
-          <span className="text-[18px] font-bold text-fg-primary tracking-[-0.01em]">
-            HonuVibe<span className="text-[color:var(--accent-teal)]">.AI</span>
-          </span>
+          <HonuVibeWordmark />
         </div>
 
         {/* Lang pills */}

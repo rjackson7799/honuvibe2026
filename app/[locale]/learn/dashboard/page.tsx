@@ -5,8 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 import { getStudentDashboardData } from '@/lib/dashboard/queries';
 import { getCourseBySlug } from '@/lib/courses/queries';
 import { StatCard } from '@/components/admin/StatCard';
-import { BookOpen, CheckCircle, Calendar, Clock, Bell, ArrowRight } from 'lucide-react';
+import { BookOpen, CheckCircle, Calendar, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { DashboardWelcomeHeader } from '@/components/learn/DashboardWelcomeHeader';
 import { getVaultCourseRecommendations } from '@/lib/vault/queries';
 import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
 import { getInstructorByUserId } from '@/lib/instructors/queries';
@@ -88,34 +89,13 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-7 max-w-[1100px]">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-[12px] font-semibold tracking-[0.05em] text-fg-tertiary mb-1">
-            {overlineDate}
-          </p>
-          <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
-            {t('welcome_back', { name: displayName })} <span aria-hidden>👋</span>
-          </h1>
-        </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative w-[38px] h-[38px] rounded-[10px] bg-bg-secondary border border-border-default text-fg-secondary hover:text-fg-primary hover:border-border-hover transition-all flex items-center justify-center"
-          >
-            <Bell size={17} />
-            <span className="absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[color:var(--accent-coral)] ring-[1.5px] ring-bg-secondary" />
-          </button>
-          <Link
-            href="/learn/dashboard/settings"
-            aria-label={displayName}
-            className="w-[38px] h-[38px] rounded-[10px] bg-[color:var(--accent-teal)] hover:bg-[color:var(--accent-teal-hover)] text-white text-[15px] font-bold flex items-center justify-center transition-colors"
-          >
-            {initial}
-          </Link>
-        </div>
-      </div>
+      <DashboardWelcomeHeader
+        overlineDate={overlineDate}
+        welcomeLabel={t('welcome_back', { name: displayName })}
+        displayName={displayName}
+        initial={initial}
+        settingsHref="/learn/dashboard/settings"
+      />
 
       {sp.enrolled === 'true' && (
         <div className="bg-[color:var(--accent-teal-subtle)] border border-[color:var(--accent-teal)]/30 rounded-[14px] px-4 py-3">
