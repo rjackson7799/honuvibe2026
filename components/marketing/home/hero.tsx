@@ -73,7 +73,9 @@ export function HomeHero() {
             </div>
           </div>
 
-          <HeroVaultMockup />
+          <div className="hidden lg:block">
+            <HeroVaultMockup />
+          </div>
         </div>
       </Container>
     </Section>

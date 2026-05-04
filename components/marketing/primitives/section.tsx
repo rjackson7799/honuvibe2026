@@ -23,7 +23,7 @@ const variantClasses: Record<SectionVariant, string> = {
 
 const spacingClasses: Record<NonNullable<SectionProps['spacing']>, string> = {
   default: 'py-16 md:py-24',  // 64 / 96
-  hero: 'pt-[88px] pb-16 md:pb-20',
+  hero: 'pt-24 pb-16 md:pt-[88px] md:pb-20',
   tight: 'py-12 md:py-16',
   flush: '',
 };
