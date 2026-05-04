@@ -73,6 +73,7 @@ vi.mock('next-intl', () => {
 
   return {
     useTranslations: (namespace: string) => tFor(namespace),
+    useLocale: () => 'en',
   };
 });
 
@@ -119,13 +120,25 @@ describe('Home page sections', () => {
     expect(screen.getByText('Members only')).toBeInTheDocument();
   });
 
-  it('VaultSection shows heading and full lesson grid', () => {
+  it('VaultSection shows headline, chips, primary CTA, and the new lesson mockup', () => {
     render(<HomeVaultSection />);
     expect(
-      screen.getByRole('heading', { name: 'A learning library that grows with you.' }),
+      screen.getByRole('heading', {
+        name: /A learning library that\s*grows\s*with you\./,
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Tool Use Basics')).toBeInTheDocument();
-    expect(screen.getByText('API Integration')).toBeInTheDocument();
+    expect(screen.getByText('Always-on access')).toBeInTheDocument();
+    expect(screen.getByText('Prompt libraries')).toBeInTheDocument();
+    expect(screen.getByText('Real-world workflows')).toBeInTheDocument();
+    const cta = screen.getByRole('link', { name: /Explore the Vault/i });
+    expect(cta).toHaveAttribute('href', '/learn');
+    expect(
+      screen.getByRole('heading', {
+        name: /Building a\s*Customer Research\s*Agent with Claude/,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("What you'll build")).toBeInTheDocument();
+    expect(screen.getByText('Synthesize')).toBeInTheDocument();
   });
 
   it('FeaturedCourses shows three course titles, the TRACK ribbon, and routes CTAs to /learn', () => {

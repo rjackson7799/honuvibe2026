@@ -409,6 +409,23 @@
   --m-accent-coral: #E8765A;
   --m-accent-coral-dark: #CC5A3E;
   --m-accent-coral-soft: #FCEDE6;
+  --m-accent-verdigris: #2C7A6B;
+  --m-accent-verdigris-soft: #DCEAE6;
+
+  /* Vault lesson palette — reference-exact, scoped to the home Vault section */
+  --m-seafoam: #4FA89C;
+  --m-seafoam-light: #A8D5C9;
+  --m-seafoam-pale: #E8F2EE;
+  --m-seafoam-faint: #F4F9F6;
+  --m-teal-deep: #0A2929;
+  --m-teal-dark-2: #0F3D3D;
+  --m-code-bg: #0E2828;
+  --m-code-bg-light: #143434;
+  --m-code-text: #D4E0D8;
+  --m-code-accent: #82C7B7;
+  --m-code-string: #F4C28A;
+  --m-code-comment: #5A6A6A;
+  --m-code-keyword: #94B8AD;
 
   /* Borders */
   --m-border-soft: rgba(26, 43, 51, 0.07);
@@ -531,11 +548,26 @@
   --color-m-accent-coral: var(--m-accent-coral);
   --color-m-accent-coral-dark: var(--m-accent-coral-dark);
   --color-m-accent-coral-soft: var(--m-accent-coral-soft);
+  --color-m-accent-verdigris: var(--m-accent-verdigris);
+  --color-m-accent-verdigris-soft: var(--m-accent-verdigris-soft);
   --color-m-border-soft: var(--m-border-soft);
   --color-m-border-default: var(--m-border-default);
   --color-m-border-strong: var(--m-border-strong);
   --color-m-border-teal: var(--m-border-teal);
   --color-m-border-coral: var(--m-border-coral);
+  --color-m-seafoam: var(--m-seafoam);
+  --color-m-seafoam-light: var(--m-seafoam-light);
+  --color-m-seafoam-pale: var(--m-seafoam-pale);
+  --color-m-seafoam-faint: var(--m-seafoam-faint);
+  --color-m-teal-deep: var(--m-teal-deep);
+  --color-m-teal-dark-2: var(--m-teal-dark-2);
+  --color-m-code-bg: var(--m-code-bg);
+  --color-m-code-bg-light: var(--m-code-bg-light);
+  --color-m-code-text: var(--m-code-text);
+  --color-m-code-accent: var(--m-code-accent);
+  --color-m-code-string: var(--m-code-string);
+  --color-m-code-comment: var(--m-code-comment);
+  --color-m-code-keyword: var(--m-code-keyword);
 
   --text-display: clamp(32px, 7vw, 64px);
   --text-h1: clamp(26px, 5vw, 44px);
