@@ -1,4 +1,6 @@
 import { useTranslations } from 'next-intl';
+import { BadgePill } from '@/components/ui/badge-pill';
+import { SectionHeading } from '@/components/marketing/primitives/section-heading';
 
 type ToolsBadgesProps = {
   tools: string[] | null;
@@ -11,17 +13,14 @@ export function ToolsBadges({ tools }: ToolsBadgesProps) {
 
   return (
     <div>
-      <h2 className="text-xl font-serif text-fg-primary mb-4">
+      <SectionHeading size="h3" className="mb-4">
         {t('tools_youll_learn')}
-      </h2>
+      </SectionHeading>
       <div className="flex flex-wrap gap-2">
         {tools.map((tool) => (
-          <span
-            key={tool}
-            className="px-3 py-1.5 text-sm font-mono bg-bg-tertiary text-fg-secondary border border-border-default rounded"
-          >
+          <BadgePill key={tool} variant="gray" size="md">
             {tool}
-          </span>
+          </BadgePill>
         ))}
       </div>
     </div>

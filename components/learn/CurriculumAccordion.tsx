@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BadgePill } from '@/components/ui/badge-pill';
+import { SectionHeading } from '@/components/marketing/primitives/section-heading';
 import type { CourseWeekWithContent } from '@/lib/courses/types';
 
 type CurriculumAccordionProps = {
@@ -13,17 +15,17 @@ type CurriculumAccordionProps = {
   isEnrolled?: boolean;
 };
 
-export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = false, isEnrolled = false }: CurriculumAccordionProps) {
+export function CurriculumAccordion({ weeks, freeSessionIds = [], isEnrolled = false }: CurriculumAccordionProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
   const [openWeek, setOpenWeek] = useState<number | null>(null);
 
   return (
     <div>
-      <h2 className="text-xl font-serif text-fg-primary mb-4">
+      <SectionHeading size="h2" className="mb-6">
         {t('weekly_curriculum')}
-      </h2>
-      <div className="space-y-2">
+      </SectionHeading>
+      <div className="space-y-3">
         {weeks.map((week) => {
           const isOpen = openWeek === week.week_number;
           const title =
@@ -49,67 +51,60 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
           return (
             <div
               key={week.id}
-              className="border border-border-default rounded overflow-hidden"
+              className="bg-[var(--m-white)] border border-[var(--m-border-default)] rounded-[var(--m-radius-md)] overflow-hidden shadow-[var(--m-shadow-xs)]"
             >
-              {/* Header */}
               <button
                 type="button"
                 onClick={() =>
                   setOpenWeek(isOpen ? null : week.week_number)
                 }
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-bg-tertiary transition-colors duration-[var(--duration-fast)]"
+                className="w-full flex items-center justify-between p-5 text-left hover:bg-[var(--m-canvas)] transition-colors duration-150"
               >
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 text-sm text-fg-tertiary mb-1">
-                    <span>{t('week', { number: week.week_number })}</span>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1.5">
+                    <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--m-ink-tertiary)]">
+                      {t('week', { number: week.week_number })}
+                    </span>
                     {formatLabel && (
-                      <>
-                        <span>·</span>
-                        <span>{formatLabel}</span>
-                      </>
+                      <BadgePill variant="gray" size="xs">
+                        {formatLabel}
+                      </BadgePill>
                     )}
                     {duration && (
-                      <>
-                        <span>·</span>
-                        <span>{duration}</span>
-                      </>
+                      <span className="text-[12px] text-[var(--m-ink-tertiary)]">
+                        · {duration}
+                      </span>
                     )}
                     {hasFreeSession && !isEnrolled && (
-                      <>
-                        <span>·</span>
-                        <span className="text-accent-teal font-medium">
-                          {t('freemium.freePreview')}
-                        </span>
-                      </>
+                      <BadgePill variant="teal" size="xs">
+                        {t('freemium.freePreview')}
+                      </BadgePill>
                     )}
                   </div>
-                  <span className="text-fg-primary font-medium">
+                  <span className="text-[var(--m-ink-primary)] font-bold text-[16px] tracking-[-0.01em]">
                     {title}
                   </span>
                 </div>
                 <ChevronDown
                   size={20}
                   className={cn(
-                    'shrink-0 text-fg-tertiary transition-transform duration-[var(--duration-fast)]',
+                    'shrink-0 text-[var(--m-ink-tertiary)] transition-transform duration-150',
                     isOpen && 'rotate-180',
                   )}
                 />
               </button>
 
-              {/* Content */}
               {isOpen && (
-                <div className="px-4 pb-4 space-y-4 border-t border-border-default pt-4">
-                  {/* Subtitle */}
+                <div className="px-5 pb-5 space-y-4 border-t border-[var(--m-border-soft)] pt-4">
                   {subtitle && (
-                    <p className="text-sm text-fg-secondary italic">
+                    <p className="text-sm text-[var(--m-ink-secondary)] italic">
                       {subtitle}
                     </p>
                   )}
 
-                  {/* Topics */}
                   {(session?.topics_en || session?.topics_jp) && (
                     <div>
-                      <h4 className="text-sm font-medium text-fg-primary mb-2">
+                      <h4 className="text-sm font-bold text-[var(--m-ink-primary)] mb-2">
                         {t('topics_covered')}
                       </h4>
                       <ul className="space-y-2">
@@ -122,7 +117,7 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                           }[]
                         ).map((topic, i) => (
                           <li key={i}>
-                            <span className="text-sm font-medium text-fg-secondary">
+                            <span className="text-sm font-medium text-[var(--m-ink-secondary)]">
                               {topic.title}
                             </span>
                             {topic.subtopics && (
@@ -130,7 +125,7 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                                 {topic.subtopics.map((sub, j) => (
                                   <li
                                     key={j}
-                                    className="text-sm text-fg-tertiary"
+                                    className="text-sm text-[var(--m-ink-tertiary)]"
                                   >
                                     • {sub}
                                   </li>
@@ -143,10 +138,9 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                     </div>
                   )}
 
-                  {/* Materials */}
                   {(session?.materials_en || session?.materials_jp) && (
                     <div>
-                      <h4 className="text-sm font-medium text-fg-primary mb-2">
+                      <h4 className="text-sm font-bold text-[var(--m-ink-primary)] mb-2">
                         {t('session_materials')}
                       </h4>
                       <ul className="space-y-1">
@@ -157,7 +151,7 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                         ).map((material, i) => (
                           <li
                             key={i}
-                            className="text-sm text-fg-secondary"
+                            className="text-sm text-[var(--m-ink-secondary)]"
                           >
                             • {material}
                           </li>
@@ -166,7 +160,6 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                     </div>
                   )}
 
-                  {/* Assignments preview */}
                   {week.assignments.length > 0 && (
                     <div>
                       {week.assignments.map((assignment) => {
@@ -177,9 +170,9 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                         return (
                           <div
                             key={assignment.id}
-                            className="text-sm text-fg-secondary"
+                            className="text-sm"
                           >
-                            <span className="font-medium text-accent-teal">
+                            <span className="font-semibold text-[var(--m-accent-teal)]">
                               {assignTitle}
                             </span>
                           </div>
@@ -188,20 +181,16 @@ export function CurriculumAccordion({ weeks, freeSessionIds = [], isLoggedIn = f
                     </div>
                   )}
 
-                  {/* Vocabulary */}
                   {week.vocabulary.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-fg-primary mb-2">
+                      <h4 className="text-sm font-bold text-[var(--m-ink-primary)] mb-2">
                         {t('vocabulary')}
                       </h4>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5">
                         {week.vocabulary.map((v) => (
-                          <span
-                            key={v.id}
-                            className="text-xs px-2 py-1 bg-bg-tertiary rounded text-fg-secondary"
-                          >
+                          <BadgePill key={v.id} variant="gray" size="xs">
                             {v.term_en} / {v.term_jp}
-                          </span>
+                          </BadgePill>
                         ))}
                       </div>
                     </div>

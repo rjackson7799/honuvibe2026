@@ -1127,6 +1127,9 @@
     "all_levels": "All Levels",
     "showing_courses": "Showing {count} courses",
     "breadcrumb_learn": "Learn",
+    "final_cta_heading": "Ready to start?",
+    "final_cta_sub": "Join the next cohort and start applying AI to your work this week.",
+    "final_cta_button": "Enroll now",
     "freemium": {
       "freePreview": "Free Preview",
       "loginToAccess": "Login to access",

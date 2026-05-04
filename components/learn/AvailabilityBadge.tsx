@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { BadgePill } from '@/components/ui/badge-pill';
 
 type AvailabilityBadgeProps = {
   currentEnrollment: number;
@@ -23,54 +23,37 @@ export function AvailabilityBadge({
 
   if (effectiveStatus === 'completed') {
     return (
-      <span
-        className={cn(
-          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-          'bg-bg-tertiary text-fg-muted border border-border-default',
-          className,
-        )}
-      >
+      <BadgePill variant="gray" size="sm" className={className}>
         {t('course_complete')}
-      </span>
+      </BadgePill>
     );
   }
 
   if (effectiveStatus === 'in-progress') {
     return (
-      <span
-        className={cn(
-          'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-          'bg-accent-gold/10 text-accent-gold border border-accent-gold/20',
-          className,
-        )}
-      >
+      <BadgePill variant="coral" size="sm" className={className}>
         {t('in_progress')}
-      </span>
+      </BadgePill>
     );
   }
 
   if (maxEnrollment && currentEnrollment >= maxEnrollment) {
     return (
-      <span
-        className={cn(
-          'text-sm font-medium text-accent-gold',
-          className,
-        )}
-      >
+      <BadgePill variant="coral" size="sm" className={className}>
         {t('cohort_full')}
-      </span>
+      </BadgePill>
     );
   }
 
   const remaining = maxEnrollment ? maxEnrollment - currentEnrollment : null;
 
   return (
-    <span className={cn('inline-flex items-center gap-2', className)}>
-      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-accent-teal/10 text-accent-teal border border-accent-teal/20">
+    <span className={`inline-flex items-center gap-2 ${className ?? ''}`.trim()}>
+      <BadgePill variant="teal" size="sm">
         {t('open_for_enrollment')}
-      </span>
+      </BadgePill>
       {remaining !== null && (
-        <span className="text-sm text-fg-tertiary">
+        <span className="text-sm text-[var(--m-ink-tertiary)]">
           {t('spots_left', { count: remaining })}
         </span>
       )}

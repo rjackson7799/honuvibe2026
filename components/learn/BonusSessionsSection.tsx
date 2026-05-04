@@ -3,6 +3,8 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { Clock, Mic, Wrench, MessageCircle, Video, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BadgePill } from '@/components/ui/badge-pill';
+import { SectionHeading } from '@/components/marketing/primitives/section-heading';
 import type { CourseSession, BonusSessionType } from '@/lib/courses/types';
 import Image from 'next/image';
 
@@ -11,26 +13,26 @@ type BonusSessionsSectionProps = {
   isEnrolled: boolean;
 };
 
+type BonusVariant = 'teal' | 'coral' | 'purple' | 'navy';
+
 const BONUS_CONFIG: Record<BonusSessionType, {
   icon: typeof Clock;
-  colorClass: string;
+  variant: BonusVariant;
   labelKey: string;
 }> = {
-  'office-hours': { icon: Clock, colorClass: 'text-accent-teal bg-accent-teal/10 border-accent-teal/20', labelKey: 'officeHours' },
-  'guest-speaker': { icon: Mic, colorClass: 'text-accent-gold bg-accent-gold/10 border-accent-gold/20', labelKey: 'guestSpeaker' },
-  'workshop': { icon: Wrench, colorClass: 'text-territory-web bg-territory-web/10 border-territory-web/20', labelKey: 'workshop' },
-  'qa': { icon: MessageCircle, colorClass: 'text-territory-pro bg-territory-pro/10 border-territory-pro/20', labelKey: 'qa' },
+  'office-hours': { icon: Clock, variant: 'teal', labelKey: 'officeHours' },
+  'guest-speaker': { icon: Mic, variant: 'purple', labelKey: 'guestSpeaker' },
+  'workshop': { icon: Wrench, variant: 'coral', labelKey: 'workshop' },
+  'qa': { icon: MessageCircle, variant: 'navy', labelKey: 'qa' },
 };
 
 function sortBonusSessions(sessions: CourseSession[]): CourseSession[] {
   return [...sessions].sort((a, b) => {
-    // Upcoming first, completed last, no-date at the end
     const statusOrder = { upcoming: 0, live: 0, completed: 1 };
     const aStatus = statusOrder[a.status] ?? 0;
     const bStatus = statusOrder[b.status] ?? 0;
     if (aStatus !== bStatus) return aStatus - bStatus;
 
-    // Within same status group, sort by date (nulls last)
     if (a.scheduled_at && b.scheduled_at) {
       return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
     }
@@ -50,7 +52,7 @@ export function BonusSessionsSection({ sessions, isEnrolled }: BonusSessionsSect
 
   return (
     <div>
-      <h2 className="text-xl font-serif text-fg-primary mb-4">{t('title')}</h2>
+      <SectionHeading size="h2" className="mb-6">{t('title')}</SectionHeading>
       <div className="space-y-3">
         {sorted.map((session) => (
           <BonusSessionCard
@@ -90,34 +92,32 @@ function BonusSessionCard({
   const isLive = session.status === 'live';
 
   return (
-    <div className="border border-border-default rounded-lg p-4 bg-bg-secondary/50 space-y-3">
-      {/* Header row: badge + status */}
+    <div className="bg-[var(--m-white)] border border-[var(--m-border-default)] rounded-[var(--m-radius-md)] p-5 shadow-[var(--m-shadow-xs)] space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full border ${config.colorClass}`}>
+        <BadgePill variant={config.variant} size="sm">
           <Icon size={12} />
           {t(config.labelKey)}
-        </span>
+        </BadgePill>
         {isLive && (
-          <span className="text-xs font-medium text-red-400 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+          <BadgePill variant="live" size="sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--m-accent-coral)] animate-pulse" />
             Live
-          </span>
+          </BadgePill>
         )}
         {isCompleted && (
-          <span className="text-xs text-fg-tertiary">Completed</span>
+          <span className="text-xs text-[var(--m-ink-tertiary)]">Completed</span>
         )}
       </div>
 
-      {/* Title */}
-      <h3 className="text-sm font-medium text-fg-primary">{title}</h3>
+      <h3 className="text-[15px] font-bold text-[var(--m-ink-primary)] tracking-[-0.01em]">
+        {title}
+      </h3>
 
-      {/* Description */}
       {description && (
-        <p className="text-sm text-fg-secondary">{description}</p>
+        <p className="text-sm text-[var(--m-ink-secondary)] leading-relaxed">{description}</p>
       )}
 
-      {/* Meta row: instructor, date, duration */}
-      <div className="flex flex-wrap items-center gap-3 text-xs text-fg-tertiary">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--m-ink-tertiary)]">
         {session.instructor && (
           <div className="flex items-center gap-1.5">
             {session.instructor.photo_url && (
@@ -151,7 +151,6 @@ function BonusSessionCard({
         )}
       </div>
 
-      {/* Enrollment-gated links */}
       {isEnrolled ? (
         <div className="flex flex-wrap gap-2">
           {session.zoom_link && !isCompleted && (
@@ -177,7 +176,7 @@ function BonusSessionCard({
         </div>
       ) : (
         (session.zoom_link || session.replay_url) && (
-          <p className="text-xs text-fg-tertiary italic">{t('enrollToAccess')}</p>
+          <p className="text-xs text-[var(--m-ink-tertiary)] italic">{t('enrollToAccess')}</p>
         )
       )}
     </div>

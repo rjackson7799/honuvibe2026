@@ -1,134 +1,163 @@
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
-import { Container } from '@/components/layout/container';
+import { BadgePill } from '@/components/ui/badge-pill';
+import { Container } from '@/components/marketing/primitives/container';
+import { Section } from '@/components/marketing/primitives/section';
 
 type CourseDetailHeroProps = {
   title: string;
   jpTitle?: string | null;
   description?: string | null;
-  overlineParts: string[];
+  level?: string | null;
+  levelLabel?: string | null;
+  formatLabel?: string | null;
+  languageLabel?: string | null;
   heroImageUrl?: string | null;
   thumbnailUrl?: string | null;
   tags?: string[] | null;
   locale: string;
   breadcrumbLabel: string;
+  slug: string;
+  statsParts?: string[];
+};
+
+const thumbGradients = [
+  'linear-gradient(135deg, #ddeedd 0%, #c8dcc8 100%)',
+  'linear-gradient(135deg, #dde8e8 0%, #c4d4d4 100%)',
+  'linear-gradient(135deg, #e8dde4 0%, #d4c4cc 100%)',
+  'linear-gradient(135deg, #ede8dc 0%, #d8cdb8 100%)',
+  'linear-gradient(135deg, #dde0ee 0%, #c4c8d8 100%)',
+  'linear-gradient(135deg, #e0ede0 0%, #c8d8c8 100%)',
+  'linear-gradient(135deg, #f0e0d4 0%, #ddc8b4 100%)',
+  'linear-gradient(135deg, #d8e4ee 0%, #c0ccdc 100%)',
+];
+
+function gradientFor(slug: string) {
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) hash = (hash * 31 + slug.charCodeAt(i)) | 0;
+  return thumbGradients[Math.abs(hash) % thumbGradients.length];
+}
+
+const levelVariant: Record<string, 'teal' | 'coral' | 'purple'> = {
+  beginner: 'teal',
+  intermediate: 'coral',
+  advanced: 'purple',
 };
 
 export function CourseDetailHero({
   title,
   jpTitle,
   description,
-  overlineParts,
+  level,
+  levelLabel,
+  formatLabel,
+  languageLabel,
   heroImageUrl,
   thumbnailUrl,
   tags,
   locale,
   breadcrumbLabel,
+  slug,
+  statsParts,
 }: CourseDetailHeroProps) {
   const imageUrl = heroImageUrl || thumbnailUrl;
   const learnHref = locale === 'ja' ? '/ja/learn' : '/learn';
+  const gradient = gradientFor(slug);
 
   return (
-    <div className="relative overflow-hidden bg-[#1A2B33] text-white">
-      {/* Background image — heavily darkened for legibility */}
-      {imageUrl && (
-        <>
-          <div className="absolute inset-0 z-0">
-            <Image
-              src={imageUrl}
-              alt=""
-              fill
-              className="object-cover opacity-40"
-              priority
-              sizes="100vw"
-            />
-          </div>
-          <div className="absolute inset-0 z-[1] bg-gradient-to-r from-[#1A2B33] via-[#1A2B33]/85 to-[#1A2B33]/40" />
-        </>
-      )}
+    <Section variant="canvas" spacing="hero">
+      <Container>
+        <a
+          href={learnHref}
+          className="inline-flex items-center gap-1.5 text-[14px] font-medium text-[var(--m-ink-tertiary)] hover:text-[var(--m-accent-teal)] transition-colors duration-150 mb-10"
+          aria-label="Breadcrumb"
+        >
+          <ArrowLeft size={16} />
+          {breadcrumbLabel}
+        </a>
 
-      {/* Decorative circles per mock */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 -right-20 w-[420px] h-[420px] rounded-full"
-        style={{ background: 'rgba(15,169,160,0.07)' }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 right-32 w-[300px] h-[300px] rounded-full"
-        style={{ background: 'rgba(232,118,90,0.06)' }}
-      />
-
-      <Container className="relative z-10 max-w-[1100px]">
-        <div className="py-14 md:py-20 max-w-2xl">
-          {/* Breadcrumb */}
-          <nav
-            className="mb-5 text-sm text-white/55 inline-flex items-center gap-1.5"
-            aria-label="Breadcrumb"
-          >
-            <ArrowLeft size={14} />
-            <a
-              href={learnHref}
-              className="hover:text-white transition-colors duration-[var(--duration-fast)]"
-            >
-              {breadcrumbLabel}
-            </a>
-          </nav>
-
-          {/* Badges row (overline parts) */}
-          {overlineParts.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {overlineParts.map((part, i) => {
-                const styles =
-                  i === 0
-                    ? 'bg-[rgba(15,169,160,0.18)] text-[#7fd8d2]'
-                    : i === overlineParts.length - 1
-                      ? 'bg-[rgba(232,118,90,0.18)] text-[#f0a08c]'
-                      : 'bg-white/10 text-white/85 border border-white/15';
-                return (
-                  <span
-                    key={part + i}
-                    className={`text-[10.5px] font-bold uppercase tracking-[0.06em] px-2.5 py-1 rounded-full ${styles}`}
+        <div className="grid gap-10 md:gap-14 md:grid-cols-[minmax(0,1fr)_minmax(0,440px)] md:items-center">
+          {/* Left column: title, badges, description */}
+          <div className="min-w-0">
+            {(levelLabel || formatLabel || languageLabel) && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {levelLabel && (
+                  <BadgePill
+                    variant={(level && levelVariant[level]) || 'teal'}
+                    size="sm"
                   >
-                    {part}
-                  </span>
-                );
-              })}
+                    {levelLabel}
+                  </BadgePill>
+                )}
+                {formatLabel && (
+                  <BadgePill variant="navy" size="sm">
+                    {formatLabel}
+                  </BadgePill>
+                )}
+                {languageLabel && (
+                  <BadgePill variant="gray" size="sm">
+                    {languageLabel}
+                  </BadgePill>
+                )}
+              </div>
+            )}
+
+            <h1
+              className="font-serif font-normal text-[var(--m-ink-primary)] leading-[1.05] tracking-[-0.018em]"
+              style={{ fontSize: 'clamp(32px, 5.2vw, 64px)' }}
+            >
+              {title}
+            </h1>
+
+            {locale === 'en' && jpTitle && (
+              <p className="mt-3 text-[clamp(18px,2.2vw,22px)] text-[var(--m-ink-secondary)] font-jp">
+                {jpTitle}
+              </p>
+            )}
+
+            {description && (
+              <p className="mt-5 text-[17px] leading-[1.65] text-[var(--m-ink-secondary)] max-w-[560px]">
+                {description}
+              </p>
+            )}
+
+            {statsParts && statsParts.length > 0 && (
+              <p className="mt-6 text-[12px] font-bold uppercase tracking-[0.09em] text-[var(--m-ink-tertiary)]">
+                {statsParts.join(' · ')}
+              </p>
+            )}
+
+            {tags && tags.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-1.5">
+                {tags.map((tag) => (
+                  <BadgePill key={tag} variant="gray" size="xs">
+                    {tag}
+                  </BadgePill>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right column: illustration card */}
+          <div className="relative hidden md:block">
+            <div
+              className="relative aspect-[4/3] w-full rounded-[var(--m-radius-xl)] overflow-hidden border border-[var(--m-border-default)] shadow-[var(--m-shadow-md)]"
+              style={{ background: gradient }}
+            >
+              {imageUrl && (
+                <Image
+                  src={imageUrl}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 440px"
+                />
+              )}
             </div>
-          )}
-
-          {/* Title */}
-          <h1 className="text-[clamp(26px,4vw,40px)] font-bold tracking-[-0.025em] leading-[1.15] text-white">
-            {title}
-          </h1>
-
-          {/* JP subtitle */}
-          {locale === 'en' && jpTitle && (
-            <p className="mt-2 text-lg text-white/55 font-jp">{jpTitle}</p>
-          )}
-
-          {/* Description */}
-          {description && (
-            <p className="mt-4 text-[15.5px] leading-[1.7] text-white/80 max-w-xl">
-              {description}
-            </p>
-          )}
-
-          {/* Tags */}
-          {tags && tags.length > 0 && (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="text-[11.5px] font-medium px-2.5 py-0.5 rounded-md bg-white/8 text-white/70 border border-white/10"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </Container>
-    </div>
+    </Section>
   );
 }

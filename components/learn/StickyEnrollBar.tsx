@@ -28,10 +28,10 @@ export function StickyEnrollBar({
 }: StickyEnrollBarProps) {
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-default px-4 py-3 md:hidden safe-area-bottom backdrop-blur-md"
-      style={{ background: 'var(--glass-bg)' }}
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--m-border-default)] px-4 py-3 md:hidden safe-area-bottom backdrop-blur-md"
+      style={{ background: 'rgba(253, 251, 247, 0.94)' }}
     >
-      <p className="text-[12px] font-semibold text-fg-secondary truncate mb-1 max-w-lg mx-auto">
+      <p className="text-[12px] font-semibold text-[var(--m-ink-secondary)] truncate mb-1 max-w-lg mx-auto">
         {title}
       </p>
       <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
@@ -45,6 +45,7 @@ export function StickyEnrollBar({
           isInProgress={isInProgress}
           priceUsd={priceUsd}
           priceJpy={priceJpy}
+          variant="primary"
           size="sm"
         />
       </div>

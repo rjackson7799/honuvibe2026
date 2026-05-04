@@ -1127,6 +1127,9 @@
     "all_levels": "すべてのレベル",
     "showing_courses": "{count}件のコースを表示中",
     "breadcrumb_learn": "学ぶ",
+    "final_cta_heading": "始める準備はできましたか？",
+    "final_cta_sub": "次のコホートに参加して、今週から仕事にAIを活用しましょう。",
+    "final_cta_button": "今すぐ申し込む",
     "freemium": {
       "freePreview": "無料プレビュー",
       "loginToAccess": "ログインしてアクセス",

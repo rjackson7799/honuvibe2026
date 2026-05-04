@@ -23,6 +23,20 @@ type StickyEnrollSidebarProps = {
   isRecordedOnly?: boolean;
 };
 
+const thumbGradients = [
+  'linear-gradient(135deg, #ddeedd 0%, #c8dcc8 100%)',
+  'linear-gradient(135deg, #dde8e8 0%, #c4d4d4 100%)',
+  'linear-gradient(135deg, #e8dde4 0%, #d4c4cc 100%)',
+  'linear-gradient(135deg, #ede8dc 0%, #d8cdb8 100%)',
+  'linear-gradient(135deg, #dde0ee 0%, #c4c8d8 100%)',
+];
+
+function gradientFor(slug: string) {
+  let hash = 0;
+  for (let i = 0; i < slug.length; i++) hash = (hash * 31 + slug.charCodeAt(i)) | 0;
+  return thumbGradients[Math.abs(hash) % thumbGradients.length];
+}
+
 export function StickyEnrollSidebar({
   title,
   courseId,
@@ -57,10 +71,13 @@ export function StickyEnrollSidebar({
     : null;
 
   return (
-    <div className="hidden md:block sticky top-8 w-72 shrink-0 self-start">
-      <div className="bg-bg-secondary border border-border-default rounded-2xl overflow-hidden shadow-[var(--shadow-lg)]">
-        {thumbnailUrl && (
-          <div className="aspect-[16/9] bg-bg-tertiary overflow-hidden">
+    <aside className="hidden md:block sticky top-8 w-72 shrink-0 self-start">
+      <div className="bg-[var(--m-white)] border border-[var(--m-border-default)] rounded-[var(--m-radius-lg)] overflow-hidden shadow-[var(--m-shadow-md)]">
+        <div
+          className="aspect-[16/9] overflow-hidden"
+          style={!thumbnailUrl ? { background: gradientFor(courseSlug) } : undefined}
+        >
+          {thumbnailUrl && (
             <Image
               src={thumbnailUrl}
               alt=""
@@ -68,23 +85,23 @@ export function StickyEnrollSidebar({
               height={162}
               className="w-full h-full object-cover"
             />
-          </div>
-        )}
+          )}
+        </div>
         <div className="p-6 space-y-4">
-          <h3 className="text-[17px] font-bold text-fg-primary tracking-[-0.015em] leading-snug">
+          <h3 className="text-[17px] font-bold text-[var(--m-ink-primary)] tracking-[-0.015em] leading-snug">
             {title}
           </h3>
 
           <PriceDisplay priceUsd={priceUsd} priceJpy={priceJpy} size="lg" />
 
           {freePreviewCount > 0 && !isEnrolled && (
-            <p className="text-sm font-semibold text-[color:var(--accent-teal)]">
+            <p className="text-sm font-semibold text-[var(--m-accent-teal)]">
               {t('freemium.firstNFree', { count: freePreviewCount })}
             </p>
           )}
 
           {startDateFormatted && !isRecordedOnly && (
-            <p className="text-sm text-fg-secondary">
+            <p className="text-sm text-[var(--m-ink-secondary)]">
               {t('starts', { date: startDateFormatted })}
             </p>
           )}
@@ -104,17 +121,18 @@ export function StickyEnrollSidebar({
             isInProgress={isInProgress}
             priceUsd={priceUsd}
             priceJpy={priceJpy}
+            variant="primary"
             fullWidth
           />
 
           <a
             href="/contact"
-            className="block text-sm text-center text-fg-tertiary hover:text-[color:var(--accent-teal)] transition-colors"
+            className="block text-sm text-center text-[var(--m-ink-tertiary)] hover:text-[var(--m-accent-teal)] transition-colors"
           >
             {t('cancellation_policy')} →
           </a>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

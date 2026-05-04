@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Video, Play, Pencil, Users, FileText } from 'lucide-react';
+import { SectionHeading } from '@/components/marketing/primitives/section-heading';
 
 type HowItWorksProps = {
   communityMonths?: number | null;
@@ -32,19 +33,19 @@ export function HowItWorks({
 
   return (
     <div>
-      <h2 className="text-xl font-serif text-fg-primary mb-6">
+      <SectionHeading size="h2" className="mb-8">
         {t('how_it_works')}
-      </h2>
+      </SectionHeading>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {steps.map((step, i) => (
           <div
             key={i}
-            className="flex flex-col items-center text-center p-4 bg-bg-secondary rounded border border-border-default"
+            className="flex flex-col items-center text-center p-6 bg-[var(--m-white)] rounded-[var(--m-radius-lg)] border border-[var(--m-border-default)] shadow-[var(--m-shadow-xs)]"
           >
-            <div className="w-10 h-10 rounded-full bg-accent-teal/10 flex items-center justify-center mb-3">
-              <step.icon size={20} className="text-accent-teal" />
+            <div className="w-12 h-12 rounded-full bg-[var(--m-accent-teal-soft)] flex items-center justify-center mb-4">
+              <step.icon size={22} className="text-[var(--m-accent-teal)]" />
             </div>
-            <span className="text-sm text-fg-secondary leading-snug">
+            <span className="text-sm text-[var(--m-ink-secondary)] leading-snug">
               {step.label}
             </span>
           </div>
