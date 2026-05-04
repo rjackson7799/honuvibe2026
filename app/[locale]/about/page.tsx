@@ -6,7 +6,6 @@ import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing
 import {
   AboutHero,
   AboutOriginStory,
-  AboutTeam,
   AboutAlohaStandard,
   AboutMissionVision,
   AboutSocialSection,
@@ -37,7 +36,6 @@ export default async function AboutPage({ params }: Props) {
       <main>
         <AboutHero />
         <AboutOriginStory />
-        <AboutTeam />
         <AboutAlohaStandard />
         <AboutMissionVision />
         <AboutSocialSection />
