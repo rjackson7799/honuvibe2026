@@ -22,6 +22,16 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     // trailing slash should still match
     ['/learn/', true],
     ['/about/', true],
+    // /glossary and its slug children are marketing (prefix-matched)
+    ['/glossary', true],
+    ['/glossary/', true],
+    ['/glossary/transformer', true],
+    ['/glossary/large-language-model', true],
+    // /blog and its slug children are marketing (prefix-matched)
+    ['/blog', true],
+    ['/blog/', true],
+    ['/blog/some-post', true],
+    ['/blog/aloha-and-ai', true],
   ])('matches %s -> %s', (path, expected) => {
     expect(isMarketingPath(path)).toBe(expected);
   });
@@ -43,10 +53,6 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/partners/vertice-society', false],
     ['/partners/smashhaus', false],
     ['/honuhub', false],
-    ['/blog', false],
-    ['/blog/some-post', false],
-    ['/glossary', false],
-    ['/glossary/transformer', false],
     ['/privacy', false],
     ['/terms', false],
     ['/cookies', false],
@@ -103,6 +109,24 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/ja/honuhub', false],
   ])('does not match %s', (path) => {
     expect(isMarketingPathWithLocale(path)).toBe(false);
+  });
+
+  it.each([
+    ['/glossary', true],
+    ['/ja/glossary', true],
+    ['/glossary/transformer', true],
+    ['/ja/glossary/transformer', true],
+  ])('matches glossary %s -> true', (path) => {
+    expect(isMarketingPathWithLocale(path)).toBe(true);
+  });
+
+  it.each([
+    ['/blog', true],
+    ['/ja/blog', true],
+    ['/blog/some-post', true],
+    ['/ja/blog/some-post', true],
+  ])('matches blog %s -> true', (path) => {
+    expect(isMarketingPathWithLocale(path)).toBe(true);
   });
 
   // Defensive: paths that LOOK like a locale prefix but aren't (should treat as non-marketing)

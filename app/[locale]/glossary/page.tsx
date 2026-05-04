@@ -5,10 +5,11 @@ import { generatePageMetadata } from '@/lib/metadata';
 import { generateGlossaryCollectionSchema } from '@/lib/json-ld';
 import { sanityPublicClient } from '@/lib/sanity/client';
 import { glossaryIndexQuery } from '@/lib/sanity/queries';
-import type { GlossaryTermSummary, GlossaryCategory, GlossaryDifficulty } from '@/lib/sanity/types';
-import { Section } from '@/components/layout/section';
-import { Container } from '@/components/layout/container';
-import { SectionHeading } from '@/components/ui/section-heading';
+import type { GlossaryTermSummary } from '@/lib/sanity/types';
+import { MarketingShell } from '@/components/marketing/shell';
+import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
+import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
+import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import { GlossaryIndexContent } from '@/components/glossary/GlossaryIndexContent';
 
 export const revalidate = 60;
@@ -43,64 +44,25 @@ export default async function GlossaryPage({ params }: Props) {
     }
   }
 
+  const plainTitle = t.raw('title').replace(/<\/?em>/g, '');
   const jsonLd = generateGlossaryCollectionSchema({
-    title: t('title'),
+    title: plainTitle,
     description: t('subtitle'),
     locale,
   });
 
-  const categoryOptions: { value: 'all' | GlossaryCategory; label: string }[] = [
-    { value: 'all', label: t('filter_all') },
-    { value: 'core-concepts', label: t('filter_core') },
-    { value: 'models-architecture', label: t('filter_models') },
-    { value: 'tools-platforms', label: t('filter_tools') },
-    { value: 'business-strategy', label: t('filter_business') },
-  ];
-
-  const difficultyLabels: Record<GlossaryDifficulty, string> = {
-    beginner: t('difficulty_beginner'),
-    intermediate: t('difficulty_intermediate'),
-    advanced: t('difficulty_advanced'),
-  };
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      <Section>
-        <Container>
-          <SectionHeading
-            overline={t('overline')}
-            heading={t('title')}
-            sub={t('subtitle')}
-          />
-        </Container>
-      </Section>
-
-      <Section className="!pt-0" noReveal>
-        <Container size="wide">
-          <GlossaryIndexContent
-            terms={terms}
-            locale={locale}
-            categoryOptions={categoryOptions}
-            difficultyLabels={difficultyLabels}
-            uiStrings={{
-              searchPlaceholder: t('search_placeholder'),
-              emptyState: t('empty_state'),
-              termCount: t('term_count', { count: terms.length }),
-            }}
-            ctaProps={{
-              heading: t('cta_heading'),
-              sub: t('cta_sub'),
-              ctaText: t('cta_button'),
-              ctaHref: '/learn',
-            }}
-          />
-        </Container>
-      </Section>
-    </>
+    <MarketingShell>
+      <MarketingNav />
+      <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <GlossaryIndexContent terms={terms} />
+      </main>
+      <MarketingNewsletter />
+      <MarketingFooter />
+    </MarketingShell>
   );
 }

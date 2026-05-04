@@ -67,7 +67,7 @@ export function ShareButtons({ url, title, locale, slug }: ShareButtonsProps) {
 
   return (
     <div className="flex items-center gap-1">
-      <span className="text-sm text-fg-tertiary mr-2">{t('share')}</span>
+      <span className="text-[13px] font-medium text-[var(--m-ink-tertiary)] mr-2">{t('share')}</span>
 
       {orderedLinks.map(({ key, icon: Icon, label, url: shareUrl }) => (
         <button
@@ -75,9 +75,11 @@ export function ShareButtons({ url, title, locale, slug }: ShareButtonsProps) {
           onClick={() => handleShare(key, shareUrl)}
           aria-label={label}
           className={cn(
-            'inline-flex items-center justify-center w-10 h-10 rounded',
-            'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
-            'transition-colors duration-[var(--duration-fast)]',
+            'inline-flex items-center justify-center w-10 h-10 rounded-full',
+            'text-[var(--m-ink-secondary)]',
+            'border border-transparent',
+            'hover:text-[var(--m-accent-teal-dark)] hover:bg-[var(--m-white)] hover:border-[var(--m-border-default)]',
+            'transition-all duration-150',
           )}
         >
           <Icon />
@@ -88,10 +90,12 @@ export function ShareButtons({ url, title, locale, slug }: ShareButtonsProps) {
         onClick={handleCopyLink}
         aria-label={t('copy_link')}
         className={cn(
-          'inline-flex items-center justify-center w-10 h-10 rounded',
-          'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
-          'transition-colors duration-[var(--duration-fast)]',
-          copied && 'text-accent-teal',
+          'inline-flex items-center justify-center w-10 h-10 rounded-full',
+          'text-[var(--m-ink-secondary)]',
+          'border border-transparent',
+          'hover:text-[var(--m-accent-teal-dark)] hover:bg-[var(--m-white)] hover:border-[var(--m-border-default)]',
+          'transition-all duration-150',
+          copied && 'text-[var(--m-accent-teal)]',
         )}
       >
         {copied ? <Check size={18} /> : <Link2 size={18} />}

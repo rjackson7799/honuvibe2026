@@ -8,14 +8,18 @@ import { sanityPublicClient } from '@/lib/sanity/client';
 import { glossaryTermQuery, glossarySlugQuery } from '@/lib/sanity/queries';
 import type { GlossaryTerm, GlossaryDifficulty } from '@/lib/sanity/types';
 import { BlogPortableText } from '@/lib/sanity/portable-text';
-import { Section } from '@/components/layout/section';
-import { Container } from '@/components/layout/container';
-import { Overline } from '@/components/ui/overline';
-import { Tag } from '@/components/ui/tag';
 import { Link } from '@/i18n/navigation';
+import { MarketingShell } from '@/components/marketing/shell';
+import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
+import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
+import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
+import { Section } from '@/components/marketing/primitives/section';
+import { Container } from '@/components/marketing/primitives/container';
+import { Overline } from '@/components/marketing/primitives/overline';
+import { SectionHeading } from '@/components/marketing/primitives/section-heading';
+import { Button } from '@/components/marketing/primitives/button';
 import { DifficultyBadge } from '@/components/glossary/DifficultyBadge';
 import { RelatedTerms } from '@/components/glossary/RelatedTerms';
-import { CtaStrip } from '@/components/sections/cta-strip';
 import { GlossaryTermAnalytics } from '@/components/glossary/GlossaryTermAnalytics';
 
 export const revalidate = 60;
@@ -112,6 +116,7 @@ export default async function GlossaryTermPage({ params }: Props) {
     : term.example_en;
 
   const termDisplayName = term.abbreviation || term.term_en;
+  const plainGlossaryTitle = t.raw('title').replace(/<\/?em>/g, '');
 
   const jsonLd = generateDefinedTermSchema({
     termName: termDisplayName,
@@ -120,7 +125,7 @@ export default async function GlossaryTermPage({ params }: Props) {
       : term.definition_short_en,
     slug,
     locale,
-    glossaryTitle: t('title'),
+    glossaryTitle: plainGlossaryTitle,
   });
 
   const difficultyLabels: Record<GlossaryDifficulty, string> = {
@@ -132,167 +137,169 @@ export default async function GlossaryTermPage({ params }: Props) {
   const hasGoDeeper = term.relatedCourseSlug || term.relatedBlogSlug || term.relatedLibraryVideoSlug;
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <MarketingShell>
+      <MarketingNav />
+      <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
-      <GlossaryTermAnalytics
-        slug={slug}
-        category={term.category}
-        difficulty={term.difficulty}
-        locale={locale}
-      />
+        <GlossaryTermAnalytics
+          slug={slug}
+          category={term.category}
+          difficulty={term.difficulty}
+          locale={locale}
+        />
 
-      <article>
-        <Section>
+        <Section variant="canvas" spacing="hero">
           <Container>
-            {/* Back link */}
             <Link
               href="/glossary"
-              className="inline-flex items-center gap-1.5 text-sm text-fg-tertiary hover:text-accent-teal transition-colors duration-[var(--duration-fast)] mb-8"
+              className="inline-flex items-center gap-1.5 text-[14px] font-medium text-[var(--m-ink-tertiary)] hover:text-[var(--m-accent-teal)] transition-colors duration-150 mb-10"
             >
               <ArrowLeft size={16} />
               {t('back_to_glossary')}
             </Link>
 
-            {/* Term header */}
-            <div className="mb-8">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <h1 className="font-serif text-h1 font-normal text-fg-primary">
+            <article className="mx-auto max-w-[820px]">
+              <header className="mb-10">
+                <h1 className="font-bold text-[var(--m-ink-primary)] text-[var(--m-text-h1)] leading-[1.1] tracking-[-0.022em]">
                   {termDisplayName}
                   {term.abbreviation && (
-                    <span className="ml-3 text-fg-tertiary font-sans text-h3">
+                    <span className="ml-3 text-[var(--m-ink-tertiary)] font-medium text-[clamp(20px,3.5vw,28px)]">
                       {term.term_en}
                     </span>
                   )}
                 </h1>
-              </div>
-              {term.term_jp && (
-                <p className="mt-2 text-h3 text-fg-secondary">
-                  {term.term_jp}
-                  {term.reading_jp && (
-                    <span className="ml-2 text-base text-fg-tertiary">
-                      ({term.reading_jp})
-                    </span>
-                  )}
-                </p>
-              )}
-              <div className="flex items-center gap-2 mt-4">
-                <DifficultyBadge
-                  difficulty={term.difficulty}
-                  label={difficultyLabels[term.difficulty]}
-                />
-                <Tag>{categoryLabels[term.category] || term.category}</Tag>
-              </div>
-            </div>
-
-            {/* Short definition */}
-            <p className="text-lg text-fg-secondary leading-relaxed max-w-[880px] mb-8">
-              {locale === 'ja' && term.definition_short_jp
-                ? term.definition_short_jp
-                : term.definition_short_en}
-            </p>
-
-            {/* Full definition (Portable Text) */}
-            {fullDef && fullDef.length > 0 && (
-              <div className="max-w-[880px] mb-8">
-                <BlogPortableText value={fullDef} />
-              </div>
-            )}
-
-            {/* Why It Matters */}
-            {whyItMatters && (
-              <div className="bg-bg-tertiary rounded-lg p-6 border-l-2 border-accent-teal mb-6 max-w-[880px]">
-                <Overline className="mb-3">{t('why_it_matters')}</Overline>
-                <p className="text-base text-fg-secondary leading-relaxed">
-                  {whyItMatters}
-                </p>
-              </div>
-            )}
-
-            {/* Example */}
-            {example && (
-              <div className="bg-bg-tertiary rounded-lg p-6 border-l-2 border-accent-gold mb-8 max-w-[880px]">
-                <Overline className="mb-3">{t('example')}</Overline>
-                <p className="text-base text-fg-secondary leading-relaxed">
-                  {example}
-                </p>
-              </div>
-            )}
-
-            {/* Related Terms */}
-            {term.relatedTerms && term.relatedTerms.length > 0 && (
-              <div className="mb-8">
-                <h2 className="font-sans text-sm font-semibold text-fg-primary uppercase tracking-wider mb-4">
-                  {t('related_terms')}
-                </h2>
-                <RelatedTerms
-                  terms={term.relatedTerms}
-                  locale={locale}
-                  difficultyLabels={difficultyLabels}
-                  sourceTermSlug={slug}
-                />
-              </div>
-            )}
-
-            {/* Go Deeper */}
-            {hasGoDeeper && (
-              <div className="mb-8">
-                <h2 className="font-sans text-sm font-semibold text-fg-primary uppercase tracking-wider mb-4">
-                  {t('learn_more')}
-                </h2>
-                <div className="flex flex-col gap-3 max-w-[880px]">
-                  {term.relatedCourseSlug && (
-                    <Link
-                      href={`/learn/${term.relatedCourseSlug}`}
-                      className="inline-flex items-center gap-3 px-4 py-3 rounded-lg border border-border-default bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary transition-all duration-[var(--duration-fast)] group"
-                    >
-                      <span className="text-accent-teal"><BookOpen size={16} /></span>
-                      <span className="text-sm font-medium text-fg-secondary group-hover:text-fg-primary">
-                        {t('learn_more_course')}
+                {term.term_jp && (
+                  <p className="mt-3 text-[clamp(18px,2.5vw,22px)] text-[var(--m-ink-secondary)]">
+                    {term.term_jp}
+                    {term.reading_jp && (
+                      <span className="ml-2 text-[15px] text-[var(--m-ink-tertiary)]">
+                        ({term.reading_jp})
                       </span>
-                      <ArrowRight size={14} className="ml-auto text-fg-tertiary group-hover:text-fg-secondary" />
-                    </Link>
-                  )}
-                  {term.relatedBlogSlug && (
-                    <Link
-                      href={`/blog/${term.relatedBlogSlug}`}
-                      className="inline-flex items-center gap-3 px-4 py-3 rounded-lg border border-border-default bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary transition-all duration-[var(--duration-fast)] group"
-                    >
-                      <span className="text-accent-teal"><FileText size={16} /></span>
-                      <span className="text-sm font-medium text-fg-secondary group-hover:text-fg-primary">
-                        {t('learn_more_blog')}
-                      </span>
-                      <ArrowRight size={14} className="ml-auto text-fg-tertiary group-hover:text-fg-secondary" />
-                    </Link>
-                  )}
-                  {term.relatedLibraryVideoSlug && (
-                    <Link
-                      href={`/learn/library/${term.relatedLibraryVideoSlug}`}
-                      className="inline-flex items-center gap-3 px-4 py-3 rounded-lg border border-border-default bg-bg-secondary hover:border-border-hover hover:bg-bg-tertiary transition-all duration-[var(--duration-fast)] group"
-                    >
-                      <span className="text-accent-teal"><Play size={16} /></span>
-                      <span className="text-sm font-medium text-fg-secondary group-hover:text-fg-primary">
-                        {t('learn_more_video')}
-                      </span>
-                      <ArrowRight size={14} className="ml-auto text-fg-tertiary group-hover:text-fg-secondary" />
-                    </Link>
-                  )}
+                    )}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-2 mt-5">
+                  <DifficultyBadge
+                    difficulty={term.difficulty}
+                    label={difficultyLabels[term.difficulty]}
+                  />
+                  <span className="inline-flex items-center rounded-full border border-[var(--m-border-default)] bg-[var(--m-white)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--m-ink-secondary)]">
+                    {categoryLabels[term.category] || term.category}
+                  </span>
                 </div>
-              </div>
-            )}
+              </header>
+
+              <p className="text-[18px] text-[var(--m-ink-secondary)] leading-[1.65] mb-10">
+                {locale === 'ja' && term.definition_short_jp
+                  ? term.definition_short_jp
+                  : term.definition_short_en}
+              </p>
+
+              {fullDef && fullDef.length > 0 && (
+                <div className="mb-10 text-[var(--m-ink-secondary)]">
+                  <BlogPortableText value={fullDef} />
+                </div>
+              )}
+
+              {whyItMatters && (
+                <div className="bg-[var(--m-accent-teal-soft)] rounded-[var(--m-radius-lg)] p-5 sm:p-6 border-l-2 border-[var(--m-accent-teal)] mb-6">
+                  <Overline tone="teal" className="mb-3">{t('why_it_matters')}</Overline>
+                  <p className="text-[16px] text-[var(--m-ink-primary)] leading-[1.65]">
+                    {whyItMatters}
+                  </p>
+                </div>
+              )}
+
+              {example && (
+                <div className="bg-[var(--m-accent-coral-soft)] rounded-[var(--m-radius-lg)] p-5 sm:p-6 border-l-2 border-[var(--m-accent-coral)] mb-10">
+                  <Overline tone="coral" className="mb-3">{t('example')}</Overline>
+                  <p className="text-[16px] text-[var(--m-ink-primary)] leading-[1.65]">
+                    {example}
+                  </p>
+                </div>
+              )}
+
+              {term.relatedTerms && term.relatedTerms.length > 0 && (
+                <div className="mb-10">
+                  <Overline className="mb-4">{t('related_terms')}</Overline>
+                  <RelatedTerms
+                    terms={term.relatedTerms}
+                    locale={locale}
+                    difficultyLabels={difficultyLabels}
+                    sourceTermSlug={slug}
+                  />
+                </div>
+              )}
+
+              {hasGoDeeper && (
+                <div className="mb-10">
+                  <Overline className="mb-4">{t('learn_more')}</Overline>
+                  <div className="flex flex-col gap-3">
+                    {term.relatedCourseSlug && (
+                      <Link
+                        href={`/learn/${term.relatedCourseSlug}`}
+                        className="inline-flex items-center gap-3 px-4 py-3 rounded-[var(--m-radius-md)] border border-[var(--m-border-default)] bg-[var(--m-white)] hover:border-[var(--m-accent-teal)] hover:shadow-[var(--m-shadow-xs)] transition-all duration-150 group"
+                      >
+                        <span className="text-[var(--m-accent-teal)]"><BookOpen size={16} /></span>
+                        <span className="text-[14px] font-semibold text-[var(--m-ink-primary)]">
+                          {t('learn_more_course')}
+                        </span>
+                        <ArrowRight size={14} className="ml-auto text-[var(--m-ink-tertiary)] group-hover:text-[var(--m-accent-teal)]" />
+                      </Link>
+                    )}
+                    {term.relatedBlogSlug && (
+                      <Link
+                        href={`/blog/${term.relatedBlogSlug}`}
+                        className="inline-flex items-center gap-3 px-4 py-3 rounded-[var(--m-radius-md)] border border-[var(--m-border-default)] bg-[var(--m-white)] hover:border-[var(--m-accent-teal)] hover:shadow-[var(--m-shadow-xs)] transition-all duration-150 group"
+                      >
+                        <span className="text-[var(--m-accent-teal)]"><FileText size={16} /></span>
+                        <span className="text-[14px] font-semibold text-[var(--m-ink-primary)]">
+                          {t('learn_more_blog')}
+                        </span>
+                        <ArrowRight size={14} className="ml-auto text-[var(--m-ink-tertiary)] group-hover:text-[var(--m-accent-teal)]" />
+                      </Link>
+                    )}
+                    {term.relatedLibraryVideoSlug && (
+                      <Link
+                        href={`/learn/library/${term.relatedLibraryVideoSlug}`}
+                        className="inline-flex items-center gap-3 px-4 py-3 rounded-[var(--m-radius-md)] border border-[var(--m-border-default)] bg-[var(--m-white)] hover:border-[var(--m-accent-teal)] hover:shadow-[var(--m-shadow-xs)] transition-all duration-150 group"
+                      >
+                        <span className="text-[var(--m-accent-teal)]"><Play size={16} /></span>
+                        <span className="text-[14px] font-semibold text-[var(--m-ink-primary)]">
+                          {t('learn_more_video')}
+                        </span>
+                        <ArrowRight size={14} className="ml-auto text-[var(--m-ink-tertiary)] group-hover:text-[var(--m-accent-teal)]" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </article>
           </Container>
         </Section>
-      </article>
 
-      <CtaStrip
-        heading={t('cta_heading')}
-        sub={t('cta_sub')}
-        ctaText={t('cta_button')}
-        ctaHref="/learn"
-      />
-    </>
+        <Section variant="sand" spacing="default">
+          <Container>
+            <div className="mx-auto flex max-w-[640px] flex-col items-center gap-4 text-center">
+              <SectionHeading>{t('cta_heading')}</SectionHeading>
+              <p className="text-[16px] leading-[1.65] text-[var(--m-ink-secondary)]">
+                {t('cta_sub')}
+              </p>
+              <div className="mt-2">
+                <Button href="/learn" variant="primary-teal" size="lg" withArrow>
+                  {t('cta_button')}
+                </Button>
+              </div>
+            </div>
+          </Container>
+        </Section>
+      </main>
+      <MarketingNewsletter />
+      <MarketingFooter />
+    </MarketingShell>
   );
 }

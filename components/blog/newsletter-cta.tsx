@@ -2,10 +2,9 @@
 
 import { useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { trackEvent } from '@/lib/analytics';
 import { motion, useMotionValue, useMotionTemplate } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 export function NewsletterCta() {
   const t = useTranslations('blog');
@@ -14,14 +13,13 @@ export function NewsletterCta() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [isHovered, setIsHovered] = useState(false);
 
-  // Spotlight mouse tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
   const spotlightBg = useMotionTemplate`
     radial-gradient(
       350px circle at ${mouseX}px ${mouseY}px,
-      rgba(var(--accent-teal-rgb, 94, 170, 168), 0.07),
+      rgba(15, 169, 160, 0.10),
       transparent 80%
     )
   `;
@@ -32,7 +30,7 @@ export function NewsletterCta() {
       mouseX.set(e.clientX - left);
       mouseY.set(e.clientY - top);
     },
-    [mouseX, mouseY]
+    [mouseX, mouseY],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,33 +60,18 @@ export function NewsletterCta() {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-lg bg-bg-secondary border border-border-default p-6 my-8"
+      className={cn(
+        'group relative overflow-hidden my-10 p-5 sm:p-7',
+        'rounded-[var(--m-radius-xl)]',
+        'border border-[var(--m-border-soft)]',
+        'bg-[linear-gradient(135deg,rgba(15,169,160,0.05)_0%,var(--m-sand)_55%,rgba(232,118,90,0.05)_100%)]',
+      )}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Geometric faceted overlay */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <div
-          className="absolute -top-1/4 -left-1/4 w-3/4 h-3/4 opacity-35"
-          style={{
-            background: 'linear-gradient(215deg, var(--bg-tertiary) 0%, transparent 60%)',
-          }}
-        />
-        <div
-          className="absolute top-0 -right-1/4 w-3/4 h-full opacity-25"
-          style={{
-            background: 'linear-gradient(145deg, var(--bg-secondary) 0%, transparent 50%)',
-          }}
-        />
-      </div>
-
-      {/* Decorative gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent-teal/5 via-transparent to-accent-gold/5 pointer-events-none rounded-lg" />
-
-      {/* Mouse-tracking spotlight */}
       <motion.div
-        className="absolute inset-0 rounded-lg pointer-events-none transition-opacity duration-300"
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
         style={{
           background: spotlightBg,
           opacity: isHovered ? 1 : 0,
@@ -96,38 +79,54 @@ export function NewsletterCta() {
         aria-hidden="true"
       />
 
-      {/* Content */}
       <div className="relative z-10">
-        <h3 className="font-serif text-lg font-normal text-fg-primary mb-1">{t('newsletter_heading')}</h3>
-        <p className="text-sm text-fg-secondary mb-4">{t('newsletter_sub')}</p>
+        <h3 className="font-bold text-[20px] leading-[1.25] text-[var(--m-ink-primary)] mb-1.5">
+          {t('newsletter_heading')}
+        </h3>
+        <p className="text-[14px] text-[var(--m-ink-secondary)] mb-5">
+          {t('newsletter_sub')}
+        </p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:gap-0">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 sm:flex-row">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={tNewsletter('placeholder')}
             required
-            className="h-11 flex-1 rounded sm:rounded-r-none bg-bg-tertiary px-4 text-[16px] text-fg-primary border border-border-default placeholder:text-fg-tertiary focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal transition-colors duration-[var(--duration-fast)]"
+            className={cn(
+              'h-12 flex-1 rounded-[10px] px-4 text-[15px]',
+              'border-[1.5px] border-[var(--m-border-strong)] bg-[var(--m-white)]',
+              'text-[var(--m-ink-primary)] placeholder:text-[var(--m-ink-tertiary)]',
+              'outline-none transition-colors',
+              'focus:border-[var(--m-accent-teal)] focus:ring-2 focus:ring-[var(--m-accent-teal-soft)]',
+            )}
           />
-          <Button
-            variant="primary"
-            size="md"
+          <button
             type="submit"
             disabled={status === 'loading'}
-            className="sm:rounded-l-none sm:border-l-0"
-            icon={Send}
-            iconPosition="right"
+            className={cn(
+              'shrink-0 rounded-[10px] px-6 py-3 text-[15px] font-bold',
+              'bg-[var(--m-accent-teal)] text-white',
+              'shadow-[var(--m-shadow-teal-sm)]',
+              'transition-all duration-200',
+              'hover:bg-[var(--m-accent-teal-dark)] hover:shadow-[var(--m-shadow-teal-md)]',
+              'disabled:opacity-60 disabled:cursor-not-allowed',
+            )}
           >
             {tNewsletter('cta')}
-          </Button>
+          </button>
         </form>
 
         {status === 'success' && (
-          <p className="mt-3 text-sm text-accent-teal">{tNewsletter('success')}</p>
+          <p className="mt-3 text-[14px] font-medium text-[var(--m-accent-teal-dark)]">
+            {tNewsletter('success')}
+          </p>
         )}
         {status === 'error' && (
-          <p className="mt-3 text-sm text-red-400">{tNewsletter('error')}</p>
+          <p className="mt-3 text-[14px] font-medium text-[var(--m-accent-coral-dark)]">
+            {tNewsletter('error')}
+          </p>
         )}
       </div>
     </div>

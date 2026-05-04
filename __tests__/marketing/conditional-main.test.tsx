@@ -22,7 +22,24 @@ describe('ConditionalMain padding gate', () => {
     mockUsePathname.mockReset();
   });
 
-  it.each(['/', '/ja', '/learn', '/ja/learn', '/explore', '/about', '/contact', '/partnerships'])(
+  it.each([
+    '/',
+    '/ja',
+    '/learn',
+    '/ja/learn',
+    '/explore',
+    '/about',
+    '/contact',
+    '/partnerships',
+    '/glossary',
+    '/ja/glossary',
+    '/glossary/transformer',
+    '/ja/glossary/transformer',
+    '/blog',
+    '/ja/blog',
+    '/blog/some-post',
+    '/ja/blog/some-post',
+  ])(
     'omits dark-Nav padding on marketing route %s',
     (pathname) => {
       mockUsePathname.mockReturnValue(pathname);
@@ -52,7 +69,7 @@ describe('ConditionalMain padding gate', () => {
     },
   );
 
-  it.each(['/blog', '/blog/some-post', '/glossary', '/glossary/transformer', '/honuhub', '/privacy', '/terms'])(
+  it.each(['/honuhub', '/privacy', '/terms'])(
     'keeps dark-Nav padding on legacy public route %s',
     (pathname) => {
       mockUsePathname.mockReturnValue(pathname);

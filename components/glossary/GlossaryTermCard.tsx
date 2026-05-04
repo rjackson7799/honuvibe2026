@@ -27,33 +27,30 @@ export function GlossaryTermCard({
     <Link
       href={`/glossary/${slug.current}`}
       className={cn(
-        'group flex items-start justify-between gap-4 py-4',
-        'border-b border-border-secondary',
-        'transition-colors duration-[var(--duration-fast)]',
-        'hover:bg-bg-tertiary px-2 -mx-2 rounded',
+        'group flex items-start justify-between gap-3 sm:gap-4 px-4 py-4 -mx-4',
+        'border-b border-[var(--m-border-soft)]',
+        'transition-colors duration-150',
+        'hover:bg-[var(--m-white)] hover:rounded-[var(--m-radius-md)]',
       )}
     >
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="font-sans text-base font-medium text-fg-primary">
+          <span className="text-[16px] font-semibold text-[var(--m-ink-primary)]">
             {abbreviation || term_en}
           </span>
           {abbreviation && (
-            <span className="text-sm text-fg-tertiary">{term_en}</span>
+            <span className="text-[14px] text-[var(--m-ink-tertiary)]">{term_en}</span>
           )}
         </div>
         {term_jp && (
-          <p className="text-sm text-fg-tertiary mt-0.5">{term_jp}</p>
+          <p className="text-[13px] text-[var(--m-ink-tertiary)] mt-0.5">{term_jp}</p>
         )}
-        <p className="text-sm text-fg-secondary mt-1 line-clamp-2 md:line-clamp-1">
+        <p className="text-[14px] text-[var(--m-ink-secondary)] leading-[1.55] mt-1 line-clamp-2 md:line-clamp-1">
           {definition_short}
         </p>
       </div>
 
-      <div className="shrink-0 mt-0.5 hidden md:block">
-        <DifficultyBadge difficulty={difficulty} label={difficultyLabel} />
-      </div>
-      <div className="shrink-0 mt-1 md:hidden">
+      <div className="shrink-0 mt-0.5">
         <DifficultyBadge difficulty={difficulty} label={difficultyLabel} />
       </div>
     </Link>

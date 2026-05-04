@@ -35,6 +35,7 @@ describe('GlossaryAlphaNav', () => {
   it('applies muted styling to inactive letters', () => {
     render(<GlossaryAlphaNav activeLetters={new Set(['L'])} />);
     const bButton = screen.getByText('B');
-    expect(bButton.className).toContain('text-fg-muted');
+    expect(bButton.className).toContain('--m-ink-tertiary');
+    expect(bButton.className).toContain('opacity-40');
   });
 });

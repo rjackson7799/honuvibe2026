@@ -33,10 +33,11 @@ export function RelatedTerms({ terms, locale, difficultyLabels, sourceTermSlug }
               });
             }}
             className={cn(
-              'inline-flex items-center gap-2 rounded-full border border-border-primary px-3 py-1.5',
-              'text-sm text-fg-secondary',
-              'transition-colors duration-[var(--duration-fast)]',
-              'hover:border-border-accent hover:text-accent-teal',
+              'inline-flex items-center gap-2 rounded-full px-3.5 py-1.5',
+              'border border-[var(--m-border-default)] bg-[var(--m-white)]',
+              'text-[14px] font-medium text-[var(--m-ink-secondary)]',
+              'transition-all duration-150',
+              'hover:border-[var(--m-accent-teal)] hover:text-[var(--m-accent-teal-dark)] hover:shadow-[var(--m-shadow-xs)]',
             )}
           >
             <span>{displayName}</span>

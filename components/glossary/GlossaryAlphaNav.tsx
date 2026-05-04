@@ -39,9 +39,10 @@ export function GlossaryAlphaNav({ activeLetters }: GlossaryAlphaNavProps) {
     <div
       className={cn(
         'hidden md:flex',
-        'sticky top-[64px] z-40',
+        'sticky top-[var(--m-nav-h)] z-30',
         'gap-1 justify-center py-3',
-        'bg-bg-primary border-b border-border-secondary',
+        'bg-[var(--m-canvas)]/90 backdrop-blur',
+        'border-b border-[var(--m-border-soft)]',
       )}
     >
       {LETTERS.map((letter) => {
@@ -54,14 +55,14 @@ export function GlossaryAlphaNav({ activeLetters }: GlossaryAlphaNavProps) {
             disabled={!hasTerms}
             aria-label={`Jump to terms starting with ${letter}`}
             className={cn(
-              'w-8 h-8 flex items-center justify-center rounded',
-              'text-sm font-mono',
-              'transition-colors duration-[var(--duration-fast)]',
+              'w-8 h-8 flex items-center justify-center rounded-full',
+              'text-[13px] font-semibold',
+              'transition-colors duration-150',
               isActive && hasTerms
-                ? 'text-accent-teal bg-accent-teal/10'
+                ? 'bg-[var(--m-accent-teal)] text-white shadow-[var(--m-shadow-teal-sm)]'
                 : hasTerms
-                  ? 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary cursor-pointer'
-                  : 'text-fg-muted cursor-default',
+                  ? 'text-[var(--m-ink-secondary)] hover:bg-[var(--m-accent-teal-soft)] hover:text-[var(--m-accent-teal-dark)] cursor-pointer'
+                  : 'text-[var(--m-ink-tertiary)] opacity-40 cursor-default',
             )}
           >
             {letter}

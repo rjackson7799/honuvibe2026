@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { Overline } from '@/components/marketing/primitives/overline';
 import { urlForImage } from '@/lib/sanity/image';
 import type { Author } from '@/lib/sanity/types';
 
@@ -21,10 +22,8 @@ export function AuthorBio({ author }: AuthorBioProps) {
     : null;
 
   return (
-    <div className="border-t border-border-default pt-8 mt-8">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-teal mb-4">
-        {t('author_bio_heading')}
-      </p>
+    <div className="border-t border-[var(--m-border-soft)] pt-8 mt-10">
+      <Overline tone="teal" className="mb-4">{t('author_bio_heading')}</Overline>
       <div className="flex items-start gap-4">
         {imageUrl ? (
           <Image
@@ -32,17 +31,19 @@ export function AuthorBio({ author }: AuthorBioProps) {
             alt={displayAuthor.name}
             width={56}
             height={56}
-            className="rounded-full shrink-0"
+            className="rounded-full shrink-0 ring-2 ring-[var(--m-border-soft)]"
           />
         ) : (
-          <div className="w-14 h-14 rounded-full bg-bg-tertiary shrink-0 flex items-center justify-center text-fg-tertiary text-lg font-serif">
+          <div className="w-14 h-14 rounded-full bg-[var(--m-sand)] border border-[var(--m-border-soft)] shrink-0 flex items-center justify-center text-[var(--m-ink-secondary)] text-lg font-bold">
             {displayAuthor.name.charAt(0)}
           </div>
         )}
         <div>
-          <p className="font-medium text-fg-primary">{displayAuthor.name}</p>
+          <p className="font-semibold text-[var(--m-ink-primary)]">{displayAuthor.name}</p>
           {displayAuthor.bio && (
-            <p className="text-sm text-fg-secondary leading-relaxed mt-1">{displayAuthor.bio}</p>
+            <p className="text-[14px] text-[var(--m-ink-secondary)] leading-[1.6] mt-1">
+              {displayAuthor.bio}
+            </p>
           )}
         </div>
       </div>

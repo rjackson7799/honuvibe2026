@@ -946,7 +946,7 @@
   },
   "blog": {
     "overline": "ブログ",
-    "heading": "インサイト＆ストーリー",
+    "heading": "インサイト＆<em>ストーリー</em>",
     "sub": "実践的なAIインサイト、ビルドの裏側のストーリー、日米テックエコシステムをつなぐ視点。",
     "all_posts": "すべての投稿",
     "featured": "注目",
@@ -1578,7 +1578,7 @@
     }
   },
   "glossary": {
-    "title": "AI用語辞典",
+    "title": "AI<em>用語辞典</em>",
     "subtitle": "AIの時代に必要な用語を、わかりやすい言葉で解説します。",
     "meta_title": "AI用語辞典 — わかりやすいAI用語解説 | HonuVibe",
     "meta_description": "LLM、RAG、ファインチューニングなど、AI用語をわかりやすく解説。英語・日本語バイリンガル対応。",

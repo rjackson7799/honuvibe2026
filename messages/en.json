@@ -946,7 +946,7 @@
   },
   "blog": {
     "overline": "Blog",
-    "heading": "Insights & Stories",
+    "heading": "Insights & <em>Stories</em>",
     "sub": "Practical AI insights, behind-the-build stories, and perspectives bridging the US-Japan tech ecosystem.",
     "all_posts": "All Posts",
     "featured": "Featured",
@@ -1578,7 +1578,7 @@
     }
   },
   "glossary": {
-    "title": "AI Glossary",
+    "title": "The AI <em>Glossary</em>",
     "subtitle": "Plain-language definitions for the AI era. Every term explained for real people, not researchers.",
     "meta_title": "AI Glossary — Plain-Language AI Definitions | HonuVibe",
     "meta_description": "Clear, beginner-friendly definitions of AI terms like LLM, RAG, fine-tuning, and more. Bilingual English and Japanese.",

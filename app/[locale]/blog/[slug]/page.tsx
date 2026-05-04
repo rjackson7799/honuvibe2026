@@ -8,10 +8,13 @@ import { sanityPublicClient } from '@/lib/sanity/client';
 import { postBySlugQuery, allPostSlugsQuery } from '@/lib/sanity/queries';
 import type { BlogPost } from '@/lib/sanity/types';
 import { BlogPortableText } from '@/lib/sanity/portable-text';
-import { Section } from '@/components/layout/section';
-import { Container } from '@/components/layout/container';
-import { Tag } from '@/components/ui/tag';
 import { Link } from '@/i18n/navigation';
+import { MarketingShell } from '@/components/marketing/shell';
+import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
+import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
+import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
+import { Section } from '@/components/marketing/primitives/section';
+import { Container } from '@/components/marketing/primitives/container';
 import { ShareButtons } from '@/components/blog/share-buttons';
 import { AuthorBio } from '@/components/blog/author-bio';
 import { NewsletterCta } from '@/components/blog/newsletter-cta';
@@ -90,78 +93,78 @@ export default async function BlogPostPage({ params }: Props) {
   });
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
+    <MarketingShell>
+      <MarketingNav />
+      <main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+        />
 
-      <article>
-        {/* Header */}
-        <Section>
-          <Container>
-            {/* Back link */}
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-1.5 text-sm text-fg-tertiary hover:text-fg-secondary transition-colors duration-[var(--duration-fast)] mb-8"
-            >
-              <ArrowLeft size={16} />
-              {t('back_to_blog')}
-            </Link>
+        <article>
+          <Section variant="canvas" spacing="hero">
+            <Container>
+              <div className="mx-auto max-w-[820px]">
+                <Link
+                  href="/blog"
+                  className="inline-flex items-center gap-1.5 text-[14px] font-medium text-[var(--m-ink-tertiary)] hover:text-[var(--m-accent-teal)] transition-colors duration-150 mb-10"
+                >
+                  <ArrowLeft size={16} />
+                  {t('back_to_blog')}
+                </Link>
 
-            {/* Article meta */}
-            <div className="flex items-center gap-3 mb-4">
-              <Tag>{t(`categories.${post.category}`)}</Tag>
-              <span className="text-sm text-fg-tertiary">{date}</span>
-              {readingTime && (
-                <span className="text-sm text-fg-tertiary">
-                  {readingTime} {t('min_read')}
-                </span>
-              )}
-            </div>
+                <div className="flex flex-wrap items-center gap-3 mb-5">
+                  <span className="inline-flex items-center rounded-full border border-[var(--m-border-teal)] bg-[var(--m-accent-teal-soft)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--m-accent-teal-dark)]">
+                    {t(`categories.${post.category}`)}
+                  </span>
+                  <span className="text-[13px] text-[var(--m-ink-tertiary)]">{date}</span>
+                  {readingTime && (
+                    <span className="text-[13px] text-[var(--m-ink-tertiary)]">
+                      {readingTime} {t('min_read')}
+                    </span>
+                  )}
+                </div>
 
-            {/* Title */}
-            <h1 className="font-serif text-h1 font-normal text-fg-primary mb-6">{title}</h1>
+                <h1 className="font-bold text-[var(--m-text-h1)] leading-[1.1] tracking-[-0.022em] text-[var(--m-ink-primary)] mb-7">
+                  {title}
+                </h1>
 
-            {/* Author + Share */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border-default pb-6">
-              <div className="flex items-center gap-3">
-                {post.author?.name && (
-                  <span className="text-sm text-fg-secondary">{post.author.name}</span>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[var(--m-border-soft)] pb-6">
+                  <div className="flex items-center gap-3">
+                    {post.author?.name && (
+                      <span className="text-[14px] font-medium text-[var(--m-ink-secondary)]">
+                        {post.author.name}
+                      </span>
+                    )}
+                  </div>
+                  <ShareButtons url={postUrl} title={title} locale={locale} slug={slug} />
+                </div>
+              </div>
+            </Container>
+          </Section>
+
+          <Section variant="canvas" spacing="flush" className="pb-20 md:pb-24">
+            <Container>
+              <div className="mx-auto max-w-[820px]">
+                {body && body.length > 0 ? (
+                  <div className="text-[var(--m-ink-secondary)]">
+                    <BlogPortableText value={body} />
+                    <NewsletterCta />
+                  </div>
+                ) : (
+                  <p className="text-[var(--m-ink-secondary)]">{t('no_posts')}</p>
                 )}
+
+                <AuthorBio author={post.author} />
+
+                <RelatedPosts category={post.category} currentSlug={slug} />
               </div>
-              <ShareButtons url={postUrl} title={title} locale={locale} slug={slug} />
-            </div>
-          </Container>
-        </Section>
-
-        {/* Body */}
-        <Section className="!pt-0">
-          <Container>
-            {body && body.length > 0 ? (
-              <div className="max-w-content">
-                <BlogPortableText value={body} />
-
-                {/* Mid-article newsletter CTA */}
-                <NewsletterCta />
-
-                {/* End of article */}
-              </div>
-            ) : (
-              <p className="text-fg-secondary">{t('no_posts')}</p>
-            )}
-
-            {/* Author bio */}
-            <AuthorBio author={post.author} />
-
-            {/* End newsletter CTA */}
-            <NewsletterCta />
-
-            {/* Related posts */}
-            <RelatedPosts category={post.category} currentSlug={slug} />
-          </Container>
-        </Section>
-      </article>
-    </>
+            </Container>
+          </Section>
+        </article>
+      </main>
+      <MarketingNewsletter />
+      <MarketingFooter />
+    </MarketingShell>
   );
 }
