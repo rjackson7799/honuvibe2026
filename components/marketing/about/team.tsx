@@ -16,7 +16,7 @@ type Member = {
   langs: readonly ('en' | 'jp')[];
 };
 
-const MEMBERS: readonly Member[] = [
+const ALL_MEMBERS: readonly Member[] = [
   {
     key: 'ryan',
     photoSrc: '/images/partners/instructors/ryan.webp',
@@ -40,6 +40,8 @@ const MEMBERS: readonly Member[] = [
   },
 ];
 
+const MEMBERS: readonly Member[] = ALL_MEMBERS.filter((m) => m.key === 'ryan');
+
 export function AboutTeam() {
   const t = useTranslations('about.team');
 
@@ -62,7 +64,7 @@ export function AboutTeam() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-md grid-cols-1 items-start gap-6">
           {MEMBERS.map((m) => (
             <TeamCard key={m.key} member={m} />
           ))}
