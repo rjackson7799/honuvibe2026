@@ -18,11 +18,20 @@ import type {
   VaultDifficulty,
 } from '@/lib/vault/types';
 
+type PartnerOpt = {
+  id: string;
+  slug: string;
+  name_en: string;
+  logo_url: string | null;
+  revenue_share_pct: number;
+};
+
 type AdminVaultSeriesDetailProps = {
   series: VaultSeries | null;
   tags: VaultTag[];
   allItems: VaultContentItem[];
   seriesItems: VaultContentItem[];
+  partners?: PartnerOpt[];
 };
 
 const DIFFICULTIES: VaultDifficulty[] = ['beginner', 'intermediate', 'advanced'];
@@ -43,6 +52,7 @@ export function AdminVaultSeriesDetail({
   tags,
   allItems,
   seriesItems: initialSeriesItems,
+  partners = [],
 }: AdminVaultSeriesDetailProps) {
   const router = useRouter();
   const isCreate = series === null;
@@ -63,6 +73,13 @@ export function AdminVaultSeriesDetail({
   );
   const [isFeatured, setIsFeatured] = useState(series?.is_featured ?? false);
   const [selectedTags, setSelectedTags] = useState<string[]>(series?.tags ?? []);
+
+  // Partner state
+  const [partnerId, setPartnerId] = useState<string | null>(series?.partner_id ?? null);
+  const [savingPartner, setSavingPartner] = useState(false);
+  const [bulkApplying, setBulkApplying] = useState(false);
+  const selectedPartner = partners.find((p) => p.id === partnerId) ?? null;
+  const showRevShareWarning = selectedPartner ? selectedPartner.revenue_share_pct > 0 : false;
 
   // Item management
   const [orderedItems, setOrderedItems] = useState<VaultContentItem[]>(initialSeriesItems);
@@ -547,6 +564,93 @@ export function AdminVaultSeriesDetail({
                   )}
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Section 4: Partner Ownership (edit mode only) */}
+        {!isCreate && series && (
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+              Partner (owner)
+            </h3>
+            <select
+              value={partnerId ?? ''}
+              onChange={(e) => setPartnerId(e.target.value || null)}
+              className="block w-full max-w-md rounded-md border border-border-default bg-bg-secondary px-3 py-2 text-sm text-fg-primary"
+            >
+              <option value="">— HonuVibe (default) —</option>
+              {partners.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name_en}
+                  {p.revenue_share_pct > 0 ? ` (${p.revenue_share_pct}% rev-share)` : ''}
+                </option>
+              ))}
+            </select>
+            {showRevShareWarning && (
+              <div className="rounded-md border border-accent-gold/40 bg-accent-gold/10 px-3 py-2 text-xs text-accent-gold max-w-md">
+                <strong>Rev-share warning:</strong> {selectedPartner!.name_en} has a{' '}
+                {selectedPartner!.revenue_share_pct}% revenue share. Tagging this series as
+                partner-owned will route share dollars to them via the INS-3 ledger for any
+                revenue this series drives. Confirm this is intended.
+              </div>
+            )}
+            <button
+              type="button"
+              disabled={savingPartner || partnerId === (series.partner_id ?? null)}
+              onClick={async () => {
+                setSavingPartner(true);
+                try {
+                  await updateVaultSeries(series.id, { partner_id: partnerId });
+                  router.refresh();
+                } catch (err) {
+                  setSaveMessage(err instanceof Error ? err.message : 'Failed to save partner');
+                } finally {
+                  setSavingPartner(false);
+                }
+              }}
+              className="rounded-md bg-accent-teal px-3 py-1.5 text-xs font-medium text-bg-primary disabled:opacity-50"
+            >
+              {savingPartner ? 'Saving...' : 'Save partner'}
+            </button>
+            {partnerId && orderedItems.length > 0 && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (
+                    !confirm(
+                      `Apply ${selectedPartner?.name_en ?? 'this partner'} to all ${orderedItems.length} items in this series?`,
+                    )
+                  )
+                    return;
+                  setBulkApplying(true);
+                  try {
+                    const res = await fetch(
+                      `/api/admin/vault/series/${series.id}/apply-partner`,
+                      {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ partner_id: partnerId }),
+                      },
+                    );
+                    if (res.ok) {
+                      router.refresh();
+                    } else {
+                      setSaveMessage('Failed to bulk-apply partner');
+                    }
+                  } catch {
+                    setSaveMessage('Failed to bulk-apply partner');
+                  } finally {
+                    setBulkApplying(false);
+                  }
+                }}
+                disabled={bulkApplying}
+                className="text-xs text-accent-teal hover:underline disabled:opacity-50"
+              >
+                {bulkApplying
+                  ? 'Applying...'
+                  : `Apply this partner to all ${orderedItems.length} items in this series →`}
+              </button>
             )}
           </div>
         )}

@@ -275,7 +275,9 @@ export interface VaultSeriesCreateInput {
   is_featured?: boolean;
 }
 
-export interface VaultSeriesUpdateInput extends Partial<VaultSeriesCreateInput> {}
+export interface VaultSeriesUpdateInput extends Partial<VaultSeriesCreateInput> {
+  partner_id?: string | null;
+}
 
 // ---------------------------------------------------------------------------
 // Admin list filter

@@ -6,6 +6,7 @@ import {
   getVaultTags,
   getVaultAdminItems,
 } from '@/lib/vault/queries';
+import { createAdminClient } from '@/lib/supabase/server';
 import { AdminVaultSeriesDetail } from '@/components/admin/AdminVaultSeriesDetail';
 
 type Props = {
@@ -24,7 +25,15 @@ export default async function AdminVaultSeriesDetailPage({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const tags = await getVaultTags();
+  const adminClient = createAdminClient();
+  const [tags, { data: partners }] = await Promise.all([
+    getVaultTags(),
+    adminClient
+      .from('partners')
+      .select('id, slug, name_en, logo_url, revenue_share_pct')
+      .eq('is_active', true)
+      .order('name_en'),
+  ]);
 
   if (id === 'new') {
     const allItems = await getVaultAdminItems({});
@@ -34,6 +43,7 @@ export default async function AdminVaultSeriesDetailPage({ params }: Props) {
         tags={tags}
         allItems={allItems}
         seriesItems={[]}
+        partners={partners ?? []}
       />
     );
   }
@@ -52,6 +62,7 @@ export default async function AdminVaultSeriesDetailPage({ params }: Props) {
       tags={tags}
       allItems={allItems}
       seriesItems={seriesItems}
+      partners={partners ?? []}
     />
   );
 }
