@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { resolveEnrollmentPartnerId } from '@/lib/partner-attribution/resolve';
 
 export async function simulatedEnroll(courseId: string, locale: string) {
   const supabase = await createClient();
@@ -26,7 +27,7 @@ export async function simulatedEnroll(courseId: string, locale: string) {
   // Check course capacity
   const { data: course } = await supabase
     .from('courses')
-    .select('max_enrollment, current_enrollment, slug')
+    .select('max_enrollment, current_enrollment, slug, partner_id')
     .eq('id', courseId)
     .single();
 
@@ -39,6 +40,24 @@ export async function simulatedEnroll(courseId: string, locale: string) {
     throw new Error('Course is full');
   }
 
+  // Partner attribution — ownership wins over cookie.
+  // Free enrollments don't read the hv_partner cookie here; cookie attribution
+  // for free courses is handled by Slice B's existing wiring at cookie-set time.
+  const { data: courseOwnerRow, error: courseOwnerError } = await supabase
+    .from('courses')
+    .select('partner_id')
+    .eq('id', courseId)
+    .maybeSingle();
+  if (courseOwnerError) {
+    console.error('[FreeEnrollment] Failed to fetch course owner row:', courseOwnerError);
+    // Attribution is non-critical — continue with null owner
+  }
+
+  const partnerId = resolveEnrollmentPartnerId({
+    coursePartnerId: courseOwnerRow?.partner_id ?? null,
+    cookiePartnerId: null,
+  });
+
   // Create enrollment (simulated — no real payment)
   const { error: enrollError } = await supabase.from('enrollments').insert({
     user_id: user.id,
@@ -46,6 +65,7 @@ export async function simulatedEnroll(courseId: string, locale: string) {
     amount_paid: 0,
     currency: locale === 'ja' ? 'jpy' : 'usd',
     status: 'active',
+    partner_id: partnerId,
   });
 
   if (enrollError) throw enrollError;
