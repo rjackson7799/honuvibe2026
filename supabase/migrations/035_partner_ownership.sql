@@ -4,25 +4,25 @@
 -- All columns nullable, no defaults => zero row rewrites on existing data.
 
 -- Course-level partner ownership (1:1; null = HonuVibe-owned)
-alter table courses
-  add column partner_id uuid references partners(id) on delete set null;
-create index courses_partner_id_idx on courses(partner_id) where partner_id is not null;
+ALTER TABLE courses
+  ADD COLUMN IF NOT EXISTS partner_id uuid REFERENCES partners(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS courses_partner_id_idx ON courses(partner_id) WHERE partner_id IS NOT NULL;
 
 -- Vault item-level partner ownership (source of truth)
-alter table content_items
-  add column partner_id uuid references partners(id) on delete set null;
-create index content_items_partner_id_idx on content_items(partner_id) where partner_id is not null;
+ALTER TABLE content_items
+  ADD COLUMN IF NOT EXISTS partner_id uuid REFERENCES partners(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS content_items_partner_id_idx ON content_items(partner_id) WHERE partner_id IS NOT NULL;
 
 -- Vault series-level partner ownership (admin UX sugar; defaults onto items)
-alter table vault_series
-  add column partner_id uuid references partners(id) on delete set null;
+ALTER TABLE vault_series
+  ADD COLUMN IF NOT EXISTS partner_id uuid REFERENCES partners(id) ON DELETE SET NULL;
 
 -- ============================================================
 -- Down migration (manual — Supabase doesn't run these automatically):
 --
--- drop index if exists courses_partner_id_idx;
--- drop index if exists content_items_partner_id_idx;
--- alter table courses        drop column if exists partner_id;
--- alter table content_items  drop column if exists partner_id;
--- alter table vault_series   drop column if exists partner_id;
+-- DROP INDEX IF EXISTS courses_partner_id_idx;
+-- DROP INDEX IF EXISTS content_items_partner_id_idx;
+-- ALTER TABLE courses        DROP COLUMN IF EXISTS partner_id;
+-- ALTER TABLE content_items  DROP COLUMN IF EXISTS partner_id;
+-- ALTER TABLE vault_series   DROP COLUMN IF EXISTS partner_id;
 -- ============================================================
