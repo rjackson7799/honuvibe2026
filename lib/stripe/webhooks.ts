@@ -62,11 +62,15 @@ export async function handleCheckoutCompleted(
   // Ownership resolution: course.partner_id (owner) wins over cookie.
   // Column added in migration 035; returns null for all rows until applied,
   // so the resolver falls back to the cookie path transparently.
-  const { data: courseOwnerRow } = await supabase
+  const { data: courseOwnerRow, error: courseOwnerError } = await supabase
     .from('courses')
     .select('partner_id')
     .eq('id', courseId)
-    .single();
+    .maybeSingle();
+  if (courseOwnerError) {
+    console.error('[Stripe Webhook] Failed to fetch course owner row:', courseOwnerError);
+    // Attribution is non-critical — continue with null owner
+  }
 
   const partnerId = resolveEnrollmentPartnerId({
     coursePartnerId: courseOwnerRow?.partner_id ?? null,
