@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import {
   getVaultItemBySlug,
+  getVaultItemBySlugWithPartner,
   getVaultDownloads,
   getVaultUserState,
   getVaultRelatedItems,
@@ -13,6 +14,7 @@ import { recordView } from '@/lib/vault/actions';
 import { VaultContentDetail } from '@/components/vault/VaultContentDetail';
 import { VaultPremiumGate } from '@/components/vault/VaultPremiumGate';
 import { VaultDifficultyPath } from '@/components/vault/VaultDifficultyPath';
+import { PartnerBadge } from '@/components/partners/PartnerBadge';
 import type { VaultContentDetail as VaultContentDetailType } from '@/lib/vault/types';
 
 type Props = {
@@ -53,7 +55,7 @@ export default async function VaultDetailPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const item = await getVaultItemBySlug(slug);
+  const item = await getVaultItemBySlugWithPartner(slug);
   if (!item) notFound();
 
   const supabase = await createClient();
@@ -128,7 +130,15 @@ export default async function VaultDetailPage({ params }: Props) {
 
   return (
     <>
-      <VaultContentDetail detail={detail} locale={locale} />
+      <VaultContentDetail
+        detail={detail}
+        locale={locale}
+        partnerBadge={
+          item.partners ? (
+            <PartnerBadge partner={item.partners} locale={locale} />
+          ) : undefined
+        }
+      />
       {showDifficultyPath && difficultyPath && primaryTag && (
         <div className="max-w-[1100px] mx-auto mt-12">
           <VaultDifficultyPath

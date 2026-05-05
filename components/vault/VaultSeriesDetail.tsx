@@ -1,3 +1,4 @@
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Library, Clock, Layers, Lock, Video, FileText, BookOpen, Wrench, LayoutTemplate } from 'lucide-react';
@@ -24,9 +25,10 @@ type VaultSeriesDetailProps = {
   series: VaultSeriesWithItems;
   locale: string;
   hasAccess: boolean;
+  partnerBadge?: React.ReactNode;
 };
 
-export function VaultSeriesDetail({ series, locale, hasAccess }: VaultSeriesDetailProps) {
+export function VaultSeriesDetail({ series, locale, hasAccess, partnerBadge }: VaultSeriesDetailProps) {
   const title = locale === 'ja' && series.title_jp ? series.title_jp : series.title_en;
   const description =
     locale === 'ja' && series.description_jp ? series.description_jp : series.description_en;
@@ -54,6 +56,7 @@ export function VaultSeriesDetail({ series, locale, hasAccess }: VaultSeriesDeta
 
         {/* Info */}
         <div className="flex-1 min-w-0">
+          {partnerBadge && <div className="mb-3">{partnerBadge}</div>}
           <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-3">{title}</h1>
           {description && (
             <p className="text-fg-secondary leading-relaxed mb-4">{description}</p>

@@ -10,6 +10,7 @@ import type {
   VaultSeries,
   VaultSeriesWithItems,
   VaultSeriesWithPartnerRow,
+  VaultPartnerRow,
   VaultNote,
   VaultBookmarkType,
   VaultTag,
@@ -177,6 +178,37 @@ export async function getVaultItemBySlug(
     return data as VaultContentItem | null;
   } catch (error) {
     console.error('getVaultItemBySlug error:', error);
+    return null;
+  }
+}
+
+export async function getVaultItemBySlugWithPartner(
+  slug: string,
+): Promise<VaultContentItemWithPartner | null> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from('content_items')
+      .select('*, partners!content_items_partner_id_fkey ( slug, name_en, name_jp, logo_url )')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .maybeSingle();
+
+    if (error) {
+      console.error('getVaultItemBySlugWithPartner error:', error);
+      return null;
+    }
+
+    if (!data) return null;
+
+    const rawPartner = (data as Record<string, unknown>).partners;
+    const partner = Array.isArray(rawPartner)
+      ? (rawPartner[0] ?? null)
+      : rawPartner ?? null;
+    return { ...(data as VaultContentItem), partners: partner } as VaultContentItemWithPartner;
+  } catch (error) {
+    console.error('getVaultItemBySlugWithPartner error:', error);
     return null;
   }
 }
@@ -516,6 +548,50 @@ export async function getVaultSeriesBySlug(
     };
   } catch (error) {
     console.error('getVaultSeriesBySlug error:', error);
+    return null;
+  }
+}
+
+export async function getVaultSeriesBySlugWithPartner(
+  slug: string,
+): Promise<(VaultSeriesWithItems & { partners?: VaultPartnerRow | null }) | null> {
+  try {
+    const supabase = await createClient();
+
+    const { data: seriesRaw, error: seriesError } = await supabase
+      .from('vault_series')
+      .select('*, partners!vault_series_partner_id_fkey ( slug, name_en, name_jp, logo_url )')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (seriesError || !seriesRaw) {
+      if (seriesError) console.error('getVaultSeriesBySlugWithPartner error:', seriesError);
+      return null;
+    }
+
+    const rawPartner = (seriesRaw as Record<string, unknown>).partners;
+    const partner = Array.isArray(rawPartner)
+      ? (rawPartner[0] ?? null)
+      : rawPartner ?? null;
+
+    const { data: items, error: itemsError } = await supabase
+      .from('content_items')
+      .select('*')
+      .eq('series_id', seriesRaw.id)
+      .eq('is_published', true)
+      .order('series_order', { ascending: true });
+
+    if (itemsError) {
+      console.error('getVaultSeriesBySlugWithPartner items error:', itemsError);
+    }
+
+    return {
+      ...(seriesRaw as VaultSeries),
+      partners: partner as VaultPartnerRow | null,
+      items: (items as VaultContentItem[]) ?? [],
+    };
+  } catch (error) {
+    console.error('getVaultSeriesBySlugWithPartner error:', error);
     return null;
   }
 }

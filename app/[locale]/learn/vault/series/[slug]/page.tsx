@@ -1,10 +1,11 @@
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getVaultSeriesBySlug } from '@/lib/vault/queries';
+import { getVaultSeriesBySlug, getVaultSeriesBySlugWithPartner } from '@/lib/vault/queries';
 import { checkVaultAccess } from '@/lib/vault/access';
 import { VaultSeriesDetail } from '@/components/vault/VaultSeriesDetail';
 import { VaultAnalyticsTracker } from '@/components/vault/VaultAnalyticsTracker';
+import { PartnerBadge } from '@/components/partners/PartnerBadge';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -38,7 +39,7 @@ export default async function VaultSeriesDetailPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const series = await getVaultSeriesBySlug(slug);
+  const series = await getVaultSeriesBySlugWithPartner(slug);
   if (!series) notFound();
 
   const supabase = await createClient();
@@ -55,7 +56,16 @@ export default async function VaultSeriesDetailPage({ params }: Props) {
   return (
     <>
       <VaultAnalyticsTracker event="vault_series_view" props={{ series: slug }} />
-      <VaultSeriesDetail series={series} locale={locale} hasAccess={hasAccess} />
+      <VaultSeriesDetail
+        series={series}
+        locale={locale}
+        hasAccess={hasAccess}
+        partnerBadge={
+          series.partners ? (
+            <PartnerBadge partner={series.partners} locale={locale} />
+          ) : undefined
+        }
+      />
     </>
   );
 }

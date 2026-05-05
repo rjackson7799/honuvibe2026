@@ -1,3 +1,4 @@
+import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { VaultVideoPlayer } from './VaultVideoPlayer';
@@ -13,9 +14,10 @@ import type { VaultContentDetail as VaultContentDetailType } from '@/lib/vault/t
 type VaultContentDetailProps = {
   detail: VaultContentDetailType;
   locale: string;
+  partnerBadge?: React.ReactNode;
 };
 
-export function VaultContentDetail({ detail, locale }: VaultContentDetailProps) {
+export function VaultContentDetail({ detail, locale, partnerBadge }: VaultContentDetailProps) {
   const { item, downloads, relatedItems, series, seriesItems, userState } = detail;
   const title = locale === 'ja' && item.title_jp ? item.title_jp : item.title_en;
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
@@ -62,6 +64,7 @@ export function VaultContentDetail({ detail, locale }: VaultContentDetailProps) 
             <span className="text-xs text-fg-tertiary">{item.duration_minutes} min</span>
           )}
         </div>
+        {partnerBadge && <div className="mb-3">{partnerBadge}</div>}
         <h1 className="text-2xl sm:text-3xl font-serif text-fg-primary mb-3">{title}</h1>
         {description && (
           <p className="text-fg-secondary leading-relaxed">{description}</p>
