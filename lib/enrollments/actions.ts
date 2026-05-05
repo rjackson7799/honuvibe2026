@@ -43,18 +43,8 @@ export async function simulatedEnroll(courseId: string, locale: string) {
   // Partner attribution — ownership wins over cookie.
   // Free enrollments don't read the hv_partner cookie here; cookie attribution
   // for free courses is handled by Slice B's existing wiring at cookie-set time.
-  const { data: courseOwnerRow, error: courseOwnerError } = await supabase
-    .from('courses')
-    .select('partner_id')
-    .eq('id', courseId)
-    .maybeSingle();
-  if (courseOwnerError) {
-    console.error('[FreeEnrollment] Failed to fetch course owner row:', courseOwnerError);
-    // Attribution is non-critical — continue with null owner
-  }
-
   const partnerId = resolveEnrollmentPartnerId({
-    coursePartnerId: courseOwnerRow?.partner_id ?? null,
+    coursePartnerId: course.partner_id ?? null,
     cookiePartnerId: null,
   });
 
