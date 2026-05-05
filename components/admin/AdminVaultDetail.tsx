@@ -26,13 +26,22 @@ import type {
   VaultFreshnessStatus,
 } from '@/lib/vault/types';
 
+type PartnerOpt = {
+  id: string;
+  slug: string;
+  name_en: string;
+  logo_url: string | null;
+  revenue_share_pct: number;
+};
+
 type AdminVaultDetailProps = {
   item: VaultContentItem | null;
   tags: VaultTag[];
-  seriesOptions: { id: string; title: string }[];
+  seriesOptions: { id: string; title: string; partner_id: string | null }[];
   courseOptions: { id: string; title: string }[];
   downloads?: VaultDownload[];
   allItems?: { id: string; title_en: string; title_jp: string | null; content_type: string }[];
+  partners?: PartnerOpt[];
 };
 
 const CONTENT_TYPES: VaultContentType[] = [
@@ -78,6 +87,7 @@ export function AdminVaultDetail({
   courseOptions,
   downloads = [],
   allItems = [],
+  partners = [],
 }: AdminVaultDetailProps) {
   const router = useRouter();
   const isCreate = item === null;
@@ -115,6 +125,19 @@ export function AdminVaultDetail({
   const [freshnessStatus, setFreshnessStatus] = useState<VaultFreshnessStatus>(
     item?.freshness_status ?? 'current',
   );
+
+  // Partner state — default to item's own partner_id, then fall back to the
+  // parent series partner_id (if the item already belongs to a series).
+  const seriesPartnerDefault =
+    item?.series_id
+      ? (seriesOptions.find((s) => s.id === item.series_id)?.partner_id ?? null)
+      : null;
+  const [partnerId, setPartnerId] = useState<string | null>(
+    item?.partner_id ?? seriesPartnerDefault,
+  );
+  const [savingPartner, setSavingPartner] = useState(false);
+  const selectedPartner = partners.find((p) => p.id === partnerId) ?? null;
+  const showRevShareWarning = selectedPartner ? selectedPartner.revenue_share_pct > 0 : false;
 
   // Download form state
   const [showDownloadForm, setShowDownloadForm] = useState(false);
@@ -163,6 +186,7 @@ export function AdminVaultDetail({
         tags: selectedTags.length > 0 ? selectedTags : undefined,
         access_tier: accessTier,
         source_course_id: relatedCourseId || undefined,
+        partner_id: partnerId,
         related_item_ids: relatedItemIds.length > 0 ? relatedItemIds : undefined,
         admin_notes: adminNotes.trim() || undefined,
         series_id: seriesId || undefined,
@@ -704,7 +728,50 @@ export function AdminVaultDetail({
           </div>
         </div>
 
-        {/* Section 6: Freshness (edit mode only) */}
+        {/* Section 6: Partner Ownership */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+            Partner (owner)
+          </h3>
+          <select
+            value={partnerId ?? ''}
+            onChange={(e) => setPartnerId(e.target.value || null)}
+            className="block w-full max-w-md rounded-md border border-border-default bg-bg-secondary px-3 py-2 text-sm text-fg-primary"
+          >
+            <option value="">— HonuVibe (default) —</option>
+            {partners.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name_en}
+                {p.revenue_share_pct > 0 ? ` (${p.revenue_share_pct}% rev-share)` : ''}
+              </option>
+            ))}
+          </select>
+          {showRevShareWarning && (
+            <div className="rounded-md border border-accent-gold/40 bg-accent-gold/10 px-3 py-2 text-xs text-accent-gold max-w-md">
+              <strong>Rev-share warning:</strong> {selectedPartner!.name_en} has a {selectedPartner!.revenue_share_pct}% revenue share. Tagging this Vault item as partner-owned will route share dollars to them via the INS-3 ledger if the item drives revenue in the future. Confirm this is intended.
+            </div>
+          )}
+          {!isCreate && (
+            <button
+              type="button"
+              disabled={savingPartner || partnerId === (item.partner_id ?? null)}
+              onClick={async () => {
+                setSavingPartner(true);
+                try {
+                  await updateVaultItem(item.id, { partner_id: partnerId });
+                  router.refresh();
+                } finally {
+                  setSavingPartner(false);
+                }
+              }}
+              className="rounded-md bg-accent-teal px-3 py-1.5 text-xs font-medium text-bg-primary disabled:opacity-50"
+            >
+              {savingPartner ? 'Saving...' : 'Save partner'}
+            </button>
+          )}
+        </div>
+
+        {/* Section 7: Freshness (edit mode only) */}
         {!isCreate && (
           <div className="space-y-4">
             <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
@@ -745,7 +812,7 @@ export function AdminVaultDetail({
           </div>
         )}
 
-        {/* Section 7: Downloads (edit mode only) */}
+        {/* Section 8: Downloads (edit mode only) */}
         {!isCreate && item && (
           <div className="space-y-4">
             <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">

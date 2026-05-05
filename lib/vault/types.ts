@@ -48,6 +48,7 @@ export interface VaultContentItem {
   access_tier: VaultAccessTier;
   source_course_id: string | null;
   source_session_id: string | null;
+  partner_id: string | null;
   admin_notes: string | null;
   is_published: boolean;
   is_featured: boolean;
@@ -78,6 +79,7 @@ export interface VaultSeries {
   thumbnail_url: string | null;
   difficulty_level: VaultDifficulty | null;
   tags: string[] | null;
+  partner_id: string | null;
   item_count: number;
   total_duration_minutes: number;
   is_published: boolean;
@@ -247,6 +249,7 @@ export interface VaultItemCreateInput {
   tags?: string[];
   access_tier?: VaultAccessTier;
   source_course_id?: string;
+  partner_id?: string | null;
   admin_notes?: string;
   series_id?: string;
   series_order?: number;
