@@ -87,6 +87,7 @@ export async function createVaultItem(
       tags: data.tags ?? null,
       access_tier: data.access_tier ?? 'free',
       source_course_id: data.source_course_id ?? null,
+      partner_id: data.partner_id ?? null,
       admin_notes: data.admin_notes ?? null,
       series_id: data.series_id ?? null,
       series_order: data.series_order ?? null,
