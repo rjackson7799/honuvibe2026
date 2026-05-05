@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, BookOpen, Settings, Eye } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Library, Settings, Eye } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
@@ -13,6 +13,7 @@ import { UserMenu } from '@/components/layout/user-menu';
 const navItems = [
   { href: '/partner', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/partner/courses', label: 'Courses', icon: BookOpen },
+  { href: '/partner/vault', label: 'Vault', icon: Library },
   { href: '/partner/settings', label: 'Settings', icon: Settings },
 ];
 
