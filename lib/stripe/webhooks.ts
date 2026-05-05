@@ -1,6 +1,7 @@
 import type Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { resolvePartnerIdBySlug } from '@/lib/partner-attribution';
+import { resolveEnrollmentPartnerId } from '@/lib/partner-attribution/resolve';
 import { persistEnrollmentSplit } from '@/lib/revenue-split/persist';
 
 /** Service role client for webhook handlers — bypasses RLS, no user session */
@@ -53,10 +54,24 @@ export async function handleCheckoutCompleted(
   // Partner attribution — resolve slug from checkout metadata to partner_id.
   // Attribution is non-critical: a resolve failure logs and continues with
   // partner_id = null so enrollment itself never fails because of it.
-  const partnerId = await resolvePartnerIdBySlug(
+  const cookiePartnerId = await resolvePartnerIdBySlug(
     supabase,
     session.metadata?.partner_slug,
   );
+
+  // Ownership resolution: course.partner_id (owner) wins over cookie.
+  // Column added in migration 035; returns null for all rows until applied,
+  // so the resolver falls back to the cookie path transparently.
+  const { data: courseOwnerRow } = await supabase
+    .from('courses')
+    .select('partner_id')
+    .eq('id', courseId)
+    .single();
+
+  const partnerId = resolveEnrollmentPartnerId({
+    coursePartnerId: courseOwnerRow?.partner_id ?? null,
+    cookiePartnerId,
+  });
 
   // Create enrollment record
   const paymentIntentId =
