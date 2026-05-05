@@ -25,6 +25,7 @@ export type PartnerStats = {
   revenueUsd: number;
   revenueJpy: number;
   courseCount: number;
+  ownedCourseCount: number;
   monthOverMonth: {
     students: number;
     revenueUsd: number;
@@ -125,6 +126,7 @@ function monthBoundaries() {
 }
 
 type EnrollmentRow = {
+  id: string;
   user_id: string;
   status: string;
   amount_paid: number | null;
@@ -133,29 +135,78 @@ type EnrollmentRow = {
   course_id: string;
 };
 
-async function fetchAttributedEnrollments(partnerId: string): Promise<EnrollmentRow[]> {
+export type PartnerOwnedCourse = {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_jp: string | null;
+  is_published: boolean;
+};
+
+async function fetchPartnerEnrollments(partnerId: string): Promise<EnrollmentRow[]> {
   const adminClient = createAdminClient();
-  const { data, error } = await adminClient
+
+  // 1) Get owned-course ids
+  const { data: ownedCourses } = await adminClient
+    .from('courses')
+    .select('id')
+    .eq('partner_id', partnerId);
+  const ownedIds = (ownedCourses ?? []).map((c: { id: string }) => c.id);
+
+  // 2) Cookie-attributed enrollments
+  const { data: attributedRows, error: attrErr } = await adminClient
     .from('enrollments')
-    .select('user_id, status, amount_paid, currency, enrolled_at, course_id')
+    .select('id, user_id, status, amount_paid, currency, enrolled_at, course_id')
     .eq('partner_id', partnerId)
     .neq('status', 'refunded');
+  if (attrErr) console.error('[PartnerPortal] attributed fetch failed:', attrErr);
 
+  // 3) Owned-course enrollments (may overlap with #2)
+  let ownedRows: EnrollmentRow[] = [];
+  if (ownedIds.length > 0) {
+    const { data, error } = await adminClient
+      .from('enrollments')
+      .select('id, user_id, status, amount_paid, currency, enrolled_at, course_id')
+      .in('course_id', ownedIds)
+      .neq('status', 'refunded');
+    if (error) console.error('[PartnerPortal] owned fetch failed:', error);
+    ownedRows = (data ?? []) as EnrollmentRow[];
+  }
+
+  // 4) Dedupe by enrollment id
+  const seen = new Set<string>();
+  const merged: EnrollmentRow[] = [];
+  for (const r of [...(attributedRows ?? []), ...ownedRows]) {
+    if (seen.has(r.id)) continue;
+    seen.add(r.id);
+    merged.push(r as EnrollmentRow);
+  }
+  return merged;
+}
+
+export async function getPartnerOwnedCourses(partnerId: string): Promise<PartnerOwnedCourse[]> {
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from('courses')
+    .select('id, slug, title_en, title_jp, is_published')
+    .eq('partner_id', partnerId);
   if (error) {
-    console.error('[PartnerPortal] fetch enrollments failed:', error);
+    console.error('[PartnerPortal] owned courses fetch failed:', error);
     return [];
   }
-  return (data ?? []) as EnrollmentRow[];
+  return (data ?? []) as PartnerOwnedCourse[];
 }
 
 export async function getPartnerStats(partnerId: string): Promise<PartnerStats> {
   const adminClient = createAdminClient();
-  const [{ data: courseLinks }, rows] = await Promise.all([
+  const [{ data: courseLinks }, { data: ownedCourseRows }, rows] = await Promise.all([
     adminClient.from('partner_courses').select('course_id').eq('partner_id', partnerId),
-    fetchAttributedEnrollments(partnerId),
+    adminClient.from('courses').select('id').eq('partner_id', partnerId),
+    fetchPartnerEnrollments(partnerId),
   ]);
 
   const courseCount = courseLinks?.length ?? 0;
+  const ownedCourseCount = ownedCourseRows?.length ?? 0;
 
   const uniqueStudents = new Set(rows.map((r) => r.user_id));
   let revenueUsd = 0;
@@ -189,6 +240,7 @@ export async function getPartnerStats(partnerId: string): Promise<PartnerStats> 
     revenueUsd,
     revenueJpy,
     courseCount,
+    ownedCourseCount,
     monthOverMonth: mom,
   };
 }
@@ -202,7 +254,7 @@ export async function getPartnerCourses(partnerId: string): Promise<PartnerCours
       .select('course_id, display_order, courses:course_id ( id, slug, title_en, is_published )')
       .eq('partner_id', partnerId)
       .order('display_order', { ascending: true }),
-    fetchAttributedEnrollments(partnerId),
+    fetchPartnerEnrollments(partnerId),
   ]);
 
   type LinkRow = {
