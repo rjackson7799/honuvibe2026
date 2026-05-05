@@ -14,6 +14,7 @@ import { Container } from '@/components/marketing/primitives/container';
 import { Overline } from '@/components/marketing/primitives/overline';
 import { SectionHeading } from '@/components/marketing/primitives/section-heading';
 import { CourseDetailHero } from '@/components/learn/CourseDetailHero';
+import { PartnerBadge } from '@/components/partners/PartnerBadge';
 import { LearningOutcomes } from '@/components/learn/LearningOutcomes';
 import { ToolsBadges } from '@/components/learn/ToolsBadges';
 import { HowItWorks } from '@/components/learn/HowItWorks';
@@ -141,6 +142,14 @@ export default async function CourseDetailPage({ params }: Props) {
           breadcrumbLabel={t('breadcrumb_learn')}
           slug={slug}
           statsParts={statsParts}
+          partnerBadge={
+            course.partners ? (
+              <PartnerBadge
+                partner={course.partners}
+                locale={locale}
+              />
+            ) : undefined
+          }
         />
 
         {/* Body — sticky sidebar wraps the full body */}

@@ -1,3 +1,4 @@
+import React from 'react';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { BadgePill } from '@/components/ui/badge-pill';
@@ -19,6 +20,8 @@ type CourseDetailHeroProps = {
   breadcrumbLabel: string;
   slug: string;
   statsParts?: string[];
+  /** Optional partner badge rendered above the course title */
+  partnerBadge?: React.ReactNode;
 };
 
 const thumbGradients = [
@@ -59,6 +62,7 @@ export function CourseDetailHero({
   breadcrumbLabel,
   slug,
   statsParts,
+  partnerBadge,
 }: CourseDetailHeroProps) {
   const imageUrl = heroImageUrl || thumbnailUrl;
   const learnHref = locale === 'ja' ? '/ja/learn' : '/learn';
@@ -100,6 +104,10 @@ export function CourseDetailHero({
                   </BadgePill>
                 )}
               </div>
+            )}
+
+            {partnerBadge && (
+              <div className="mb-2">{partnerBadge}</div>
             )}
 
             <h1

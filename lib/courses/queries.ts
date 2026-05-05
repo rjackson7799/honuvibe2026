@@ -138,15 +138,29 @@ export async function getCourseWithCurriculum(
 ): Promise<CourseWithCurriculum | null> {
   const supabase = await createClient();
 
-  // Fetch course
-  const { data: course, error: courseError } = await supabase
+  // Fetch course with partner FK join
+  const { data: courseRaw, error: courseError } = await supabase
     .from('courses')
-    .select('*')
+    .select(
+      `*, partners!courses_partner_id_fkey ( slug, name_en, name_jp, logo_url )`,
+    )
     .eq('slug', slug)
     .eq('is_published', true)
     .single();
 
-  if (courseError || !course) return null;
+  if (courseError || !courseRaw) return null;
+
+  // Normalise the FK join: Supabase may return `partners` as array or object
+  const rawPartner = (courseRaw as Record<string, unknown>).partners;
+  const partner = Array.isArray(rawPartner)
+    ? (rawPartner[0] ?? null)
+    : rawPartner ?? null;
+
+  // Strip the joined field so the rest of the query pipeline works on a plain Course row
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { partners: _partners, ...course } = courseRaw as typeof courseRaw & {
+    partners?: unknown;
+  };
 
   // Fetch weeks with all related content
   const { data: weeks } = await supabase
@@ -172,7 +186,7 @@ export async function getCourseWithCurriculum(
       ...s,
       instructor: s.instructor_id ? instructorMap.get(s.instructor_id) ?? null : null,
     }));
-    return { ...course, weeks: [], bonusSessions, instructors, instructor: lead?.instructor ?? null };
+    return { ...course, weeks: [], bonusSessions, instructors, instructor: lead?.instructor ?? null, partners: partner };
   }
 
   // Fetch all sessions, assignments, vocabulary, resources for these weeks
@@ -243,7 +257,7 @@ export async function getCourseWithCurriculum(
   // Lead instructor for backward compat
   const lead = instructors.find((i) => i.role === 'lead') ?? instructors[0] ?? null;
 
-  return { ...course, weeks: weeksWithContent, bonusSessions, instructors, instructor: lead?.instructor ?? null };
+  return { ...course, weeks: weeksWithContent, bonusSessions, instructors, instructor: lead?.instructor ?? null, partners: partner };
 }
 
 // Admin queries (bypass RLS via service role or admin session)

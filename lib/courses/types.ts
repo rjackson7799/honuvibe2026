@@ -226,6 +226,8 @@ export interface CourseWithCurriculum extends Course {
   instructors: CourseInstructorWithProfile[];
   // Backward compat: lead instructor (first with role='lead', or first in list)
   instructor?: InstructorCardData | null;
+  // Optional partner join (populated by getCourseWithCurriculum)
+  partners?: PartnerRow | null;
 }
 
 // Enrolled student (for admin roster)
