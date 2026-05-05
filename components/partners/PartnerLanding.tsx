@@ -8,6 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Overline } from '@/components/ui/overline';
 import { Container } from '@/components/layout/container';
 import { trackEvent } from '@/lib/analytics';
+import {
+  PartnerVaultSection,
+  type PartnerVaultSeriesCard,
+  type PartnerVaultItemCard,
+} from '@/components/partners/PartnerVaultSection';
 
 export interface PartnerLandingData {
   slug: string;
@@ -38,6 +43,8 @@ export interface PartnerCourseCard {
 interface Props {
   partner: PartnerLandingData;
   courses: PartnerCourseCard[];
+  vaultSeries: PartnerVaultSeriesCard[];
+  vaultStandaloneItems: PartnerVaultItemCard[];
   locale: string;
   copy: {
     featured_courses_heading: string;
@@ -53,7 +60,7 @@ function setPartnerCookie(slug: string) {
   document.cookie = `hv_partner=${encodeURIComponent(slug)}; Max-Age=${thirtyDays}; Path=/; SameSite=Lax`;
 }
 
-export function PartnerLanding({ partner, courses, locale, copy }: Props) {
+export function PartnerLanding({ partner, courses, vaultSeries, vaultStandaloneItems, locale, copy }: Props) {
   useEffect(() => {
     setPartnerCookie(partner.slug);
     trackEvent('partner_landing_view', { partner: partner.slug, locale });
@@ -151,6 +158,13 @@ export function PartnerLanding({ partner, courses, locale, copy }: Props) {
               ))}
             </div>
           )}
+
+          <PartnerVaultSection
+            partnerName={name}
+            series={vaultSeries}
+            standaloneItems={vaultStandaloneItems}
+            locale={locale}
+          />
         </Container>
       </section>
     </div>

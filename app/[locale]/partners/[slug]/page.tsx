@@ -6,6 +6,10 @@ import {
   type PartnerLandingData,
   type PartnerCourseCard,
 } from '@/components/partners/PartnerLanding';
+import type {
+  PartnerVaultSeriesCard,
+  PartnerVaultItemCard,
+} from '@/components/partners/PartnerVaultSection';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -21,6 +25,8 @@ async function fetchPartnerWithCourses(slug: string): Promise<
   | {
       partner: PartnerRow;
       courses: PartnerCourseCard[];
+      vaultSeries: PartnerVaultSeriesCard[];
+      vaultStandaloneItems: PartnerVaultItemCard[];
     }
   | null
 > {
@@ -36,13 +42,25 @@ async function fetchPartnerWithCourses(slug: string): Promise<
 
   if (!partner || !partner.is_active) return null;
 
-  const { data: courseRows } = await supabase
-    .from('partner_courses')
-    .select(
-      'display_order, courses:course_id(id, slug, title_en, title_jp, description_en, description_jp, thumbnail_url, level, language, total_weeks, is_published)',
-    )
-    .eq('partner_id', partner.id)
-    .order('display_order', { ascending: true });
+  const [{ data: courseRows }, { data: rawSeries }, { data: rawStandalone }] = await Promise.all([
+    supabase
+      .from('partner_courses')
+      .select(
+        'display_order, courses:course_id(id, slug, title_en, title_jp, description_en, description_jp, thumbnail_url, level, language, total_weeks, is_published)',
+      )
+      .eq('partner_id', partner.id)
+      .order('display_order', { ascending: true }),
+    supabase
+      .from('vault_series')
+      .select('id, slug, title_en, title_jp, item_count')
+      .eq('partner_id', partner.id)
+      .eq('is_published', true),
+    supabase
+      .from('content_items')
+      .select('id, slug, title_en, title_jp')
+      .eq('partner_id', partner.id)
+      .is('series_id', null),
+  ]);
 
   type CourseJoinRow = {
     display_order: number;
@@ -65,7 +83,22 @@ async function fetchPartnerWithCourses(slug: string): Promise<
       total_weeks: c.total_weeks,
     }));
 
-  return { partner, courses };
+  const vaultSeries: PartnerVaultSeriesCard[] = (rawSeries ?? []).map((s) => ({
+    id: s.id as string,
+    slug: s.slug as string,
+    title_en: s.title_en as string,
+    title_jp: (s.title_jp as string | null) ?? null,
+    item_count: (s.item_count as number) ?? 0,
+  }));
+
+  const vaultStandaloneItems: PartnerVaultItemCard[] = (rawStandalone ?? []).map((i) => ({
+    id: i.id as string,
+    slug: i.slug as string,
+    title_en: i.title_en as string,
+    title_jp: (i.title_jp as string | null) ?? null,
+  }));
+
+  return { partner, courses, vaultSeries, vaultStandaloneItems };
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -104,6 +137,8 @@ export default async function PartnerLandingPage({ params }: Props) {
     <PartnerLanding
       partner={result.partner}
       courses={result.courses}
+      vaultSeries={result.vaultSeries}
+      vaultStandaloneItems={result.vaultStandaloneItems}
       locale={locale}
       copy={{
         featured_courses_heading: t('featured_courses_heading'),
