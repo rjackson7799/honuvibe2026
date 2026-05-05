@@ -2141,6 +2141,10 @@
       "stripe": "Stripe"
     }
   },
+  "partner_badge": {
+    "presented_by": "{name}提供",
+    "from_partner": "{name}より"
+  },
   "partners": {
     "featured_courses_heading": "注目のコース",
     "cta_browse_courses": "コースを見る",

@@ -2141,6 +2141,10 @@
       "stripe": "Stripe"
     }
   },
+  "partner_badge": {
+    "presented_by": "Presented by {name}",
+    "from_partner": "From {name}"
+  },
   "partners": {
     "featured_courses_heading": "Featured courses",
     "cta_browse_courses": "Browse courses",
