@@ -297,27 +297,65 @@ export async function getPartnerCourses(partnerId: string): Promise<PartnerCours
     });
 }
 
+/** Private helper: same union+dedup as fetchPartnerEnrollments but filtered to
+ *  enrollments on or after `sinceIso`. Avoids pulling all-time rows into memory
+ *  just to window them in JS.
+ */
+async function fetchPartnerEnrollmentsSince(
+  partnerId: string,
+  sinceIso: string,
+): Promise<EnrollmentRow[]> {
+  const adminClient = createAdminClient();
+
+  // 1) Get owned-course ids
+  const { data: ownedCourses } = await adminClient
+    .from('courses')
+    .select('id')
+    .eq('partner_id', partnerId);
+  const ownedIds = (ownedCourses ?? []).map((c: { id: string }) => c.id);
+
+  // 2) Cookie-attributed enrollments within the window
+  const { data: attributedRows, error: attrErr } = await adminClient
+    .from('enrollments')
+    .select('id, user_id, status, amount_paid, currency, enrolled_at, course_id')
+    .eq('partner_id', partnerId)
+    .neq('status', 'refunded')
+    .gte('enrolled_at', sinceIso);
+  if (attrErr) console.error('[PartnerPortal] attributed (windowed) fetch failed:', attrErr);
+
+  // 3) Owned-course enrollments within the window (may overlap with #2)
+  let ownedRows: EnrollmentRow[] = [];
+  if (ownedIds.length > 0) {
+    const { data, error } = await adminClient
+      .from('enrollments')
+      .select('id, user_id, status, amount_paid, currency, enrolled_at, course_id')
+      .in('course_id', ownedIds)
+      .neq('status', 'refunded')
+      .gte('enrolled_at', sinceIso);
+    if (error) console.error('[PartnerPortal] owned (windowed) fetch failed:', error);
+    ownedRows = (data ?? []) as EnrollmentRow[];
+  }
+
+  // 4) Dedupe by enrollment id
+  const seen = new Set<string>();
+  const merged: EnrollmentRow[] = [];
+  for (const r of [...(attributedRows ?? []), ...ownedRows]) {
+    if (seen.has(r.id)) continue;
+    seen.add(r.id);
+    merged.push(r as EnrollmentRow);
+  }
+  return merged;
+}
+
 export async function getPartnerDailyEnrollments(
   partnerId: string,
   days: number,
 ): Promise<DailyEnrollmentPoint[]> {
-  const adminClient = createAdminClient();
   const since = new Date();
   since.setUTCHours(0, 0, 0, 0);
   since.setUTCDate(since.getUTCDate() - (days - 1));
 
-  const { data, error } = await adminClient
-    .from('enrollments')
-    .select('enrolled_at, status')
-    .eq('partner_id', partnerId)
-    .neq('status', 'refunded')
-    .gte('enrolled_at', since.toISOString())
-    .order('enrolled_at', { ascending: true });
-
-  if (error) {
-    console.error('[PartnerPortal] daily enrollments failed:', error);
-    return [];
-  }
+  const rows = await fetchPartnerEnrollmentsSince(partnerId, since.toISOString());
 
   const counts = new Map<string, number>();
   // Pre-seed every day in the window with 0
@@ -327,8 +365,8 @@ export async function getPartnerDailyEnrollments(
     counts.set(d.toISOString().slice(0, 10), 0);
   }
 
-  for (const row of data ?? []) {
-    const day = (row.enrolled_at as string).slice(0, 10);
+  for (const row of rows) {
+    const day = row.enrolled_at.slice(0, 10);
     counts.set(day, (counts.get(day) ?? 0) + 1);
   }
 

@@ -48,16 +48,23 @@ function buildAdminClient(opts: {
       if (table === 'enrollments') {
         return {
           select: () => ({
-            // Mimic .eq().neq() chain used by cookie-attributed query
+            // Mimic .eq().neq().gte() chain used by cookie-attributed query
+            // (getPartnerStats / fetchPartnerEnrollments uses eq+neq only;
+            //  fetchPartnerEnrollmentsSince adds .gte() on both branches)
             eq: () => ({
-              neq: () => ({ data: enrollments, error: null }),
-              gte: () => ({
-                order: () => ({ data: enrollments, error: null }),
+              neq: () => ({
+                data: enrollments,
+                error: null,
+                gte: () => ({ data: enrollments, error: null }),
               }),
             }),
-            // Variant: in().neq() chain for owned-course set
+            // Variant: in().neq().gte() chain for owned-course set
             in: () => ({
-              neq: () => ({ data: enrollments, error: null }),
+              neq: () => ({
+                data: enrollments,
+                error: null,
+                gte: () => ({ data: enrollments, error: null }),
+              }),
             }),
           }),
         };
