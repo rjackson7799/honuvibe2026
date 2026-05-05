@@ -96,6 +96,9 @@ export interface Course {
   syllabus_url_en: string | null;
   syllabus_url_jp: string | null;
 
+  // Partner ownership (migration 035) — null = HonuVibe-owned
+  partner_id: string | null;
+
   // Proposal fields (migration 032) — populated when instructor drafts a course
   proposed_by_instructor_id: string | null;
   proposal_submitted_at: string | null;

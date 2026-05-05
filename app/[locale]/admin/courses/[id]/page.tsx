@@ -2,7 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { getAdminCourseById, getEnrolledStudents } from '@/lib/courses/queries';
 import { getActiveInstructorOptions } from '@/lib/instructors/queries';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { AdminCourseDetail } from '@/components/admin/AdminCourseDetail';
 import { AdminProposalActions } from '@/components/admin/AdminProposalActions';
 
@@ -20,9 +20,15 @@ export default async function AdminCourseDetailPage({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [course, instructors] = await Promise.all([
+  const adminClient = createAdminClient();
+  const [course, instructors, { data: partners }] = await Promise.all([
     getAdminCourseById(id),
     getActiveInstructorOptions(),
+    adminClient
+      .from('partners')
+      .select('id, slug, name_en, logo_url, revenue_share_pct')
+      .eq('is_active', true)
+      .order('name_en'),
   ]);
 
   if (!course) notFound();
@@ -58,6 +64,7 @@ export default async function AdminCourseDetailPage({ params }: Props) {
         course={course}
         instructors={instructors}
         enrolledStudents={enrolledStudents}
+        partners={partners ?? []}
       />
     </div>
   );

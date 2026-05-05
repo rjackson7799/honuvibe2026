@@ -22,13 +22,22 @@ type InstructorOption = {
   photo_url: string | null;
 };
 
+type PartnerOpt = {
+  id: string;
+  slug: string;
+  name_en: string;
+  logo_url: string | null;
+  revenue_share_pct: number;
+};
+
 type AdminCourseDetailProps = {
   course: CourseWithCurriculum;
   instructors?: InstructorOption[];
   enrolledStudents?: EnrolledStudent[];
+  partners?: PartnerOpt[];
 };
 
-export function AdminCourseDetail({ course, instructors = [], enrolledStudents = [] }: AdminCourseDetailProps) {
+export function AdminCourseDetail({ course, instructors = [], enrolledStudents = [], partners = [] }: AdminCourseDetailProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState('overview');
@@ -76,6 +85,11 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
 
   const [freePreviewCount, setFreePreviewCount] = useState(course.free_preview_count ?? 0);
   const [savingPreview, setSavingPreview] = useState(false);
+
+  const [partnerId, setPartnerId] = useState<string | null>(course.partner_id ?? null);
+  const [savingPartner, setSavingPartner] = useState(false);
+  const selectedPartner = partners.find((p) => p.id === partnerId) ?? null;
+  const showRevShareWarning = selectedPartner ? selectedPartner.revenue_share_pct > 0 : false;
 
   const [eslEnabled, setEslEnabled] = useState(course.esl_enabled);
   const [eslToggling, setEslToggling] = useState(false);
@@ -377,6 +391,45 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
             priceUsd={course.price_usd}
             priceJpy={course.price_jpy}
           />
+
+          {/* Partner Ownership */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-fg-primary">Partner (owner)</label>
+            <select
+              value={partnerId ?? ''}
+              onChange={(e) => setPartnerId(e.target.value || null)}
+              className="block w-full rounded-md border border-border-default bg-bg-secondary px-3 py-2 text-sm text-fg-primary"
+            >
+              <option value="">— HonuVibe (default) —</option>
+              {partners.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name_en}
+                  {p.revenue_share_pct > 0 ? ` (${p.revenue_share_pct}% rev-share)` : ''}
+                </option>
+              ))}
+            </select>
+            {showRevShareWarning && (
+              <div className="rounded-md border border-accent-gold/40 bg-accent-gold/10 px-3 py-2 text-xs text-accent-gold">
+                <strong>Rev-share warning:</strong> {selectedPartner!.name_en} has a {selectedPartner!.revenue_share_pct}% revenue share. Tagging this course as owned will route share dollars to them via the INS-3 ledger on every enrollment. Confirm this is intended for Phase 1 (typically owner partners should be 0%).
+              </div>
+            )}
+            <button
+              type="button"
+              disabled={savingPartner || partnerId === (course.partner_id ?? null)}
+              onClick={async () => {
+                setSavingPartner(true);
+                try {
+                  await updateCourse(course.id, { partner_id: partnerId });
+                  router.refresh();
+                } finally {
+                  setSavingPartner(false);
+                }
+              }}
+              className="rounded-md bg-accent-teal px-3 py-1.5 text-xs font-medium text-bg-primary disabled:opacity-50"
+            >
+              {savingPartner ? 'Saving...' : 'Save partner'}
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <EditableInfoField

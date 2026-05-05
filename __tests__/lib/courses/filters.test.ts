@@ -62,6 +62,7 @@ function makeCourse(overrides: Partial<Course> = {}): Course {
     free_preview_count: 0,
     syllabus_url_en: null,
     syllabus_url_jp: null,
+    partner_id: null,
     proposed_by_instructor_id: null,
     proposal_submitted_at: null,
     proposal_review_notes: null,

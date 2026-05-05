@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type { BonusSessionType, ParsedCourseData } from './types';
 
@@ -29,6 +29,31 @@ export async function updateCourse(
     .eq('id', courseId);
 
   if (error) throw error;
+
+  // Auto-feature: when a partner is assigned, idempotent-insert into partner_courses.
+  // If a row already exists for this (partner_id, course_id) pair, ignoreDuplicates
+  // preserves the existing display_order (cross-promotion preservation per design Decision #1).
+  // De-featuring on partner removal is intentionally NOT done here.
+  if ('partner_id' in updates && updates.partner_id) {
+    const adminClient = createAdminClient();
+    const { data: existing } = await adminClient
+      .from('partner_courses')
+      .select('display_order')
+      .eq('partner_id', updates.partner_id as string)
+      .order('display_order', { ascending: false })
+      .limit(1);
+    const nextOrder = (existing?.[0]?.display_order ?? -1) + 1;
+    await adminClient
+      .from('partner_courses')
+      .upsert(
+        {
+          partner_id: updates.partner_id as string,
+          course_id: courseId,
+          display_order: nextOrder,
+        },
+        { onConflict: 'partner_id,course_id', ignoreDuplicates: true },
+      );
+  }
 
   // Invalidate cached syllabus PDFs when course content changes
   await invalidateSyllabusCache(courseId);
