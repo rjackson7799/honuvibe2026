@@ -1739,4 +1739,11 @@ Renamed the student dashboard's "Settings" to "Profile" and added avatar upload.
 
 ---
 
+## Partner-Owned Content (Phase 1) — 2026-05-04
+
+Implemented partner ownership for courses and Vault content. Migration 035 (renamed from 034 due to slot conflict). Admin assignment forms with rev-share warning. Public badging and filter on /learn and /learn/vault. Partner portal extended with owned-content stats and a /partner/vault page.
+
+Plan: docs/plans/2026-05-04-partner-owned-content-phase1-plan.md
+Spec: docs/plans/2026-05-04-partner-owned-content-phase1-design.md
+
 *HonuVibe.AI — Progress Tracker | Updated as build progresses*
