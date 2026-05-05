@@ -1,7 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Users, DollarSign, BookOpen, JapaneseYen, ExternalLink } from 'lucide-react';
+import { Users, DollarSign, BookOpen, JapaneseYen, ExternalLink, Library, Eye } from 'lucide-react';
 import { StatCard } from '@/components/admin/StatCard';
 import { PartnerPortalLayout } from '@/components/partner-portal/PartnerPortalLayout';
 import { EnrollmentTrendChart } from '@/components/partner-portal/EnrollmentTrendChart';
@@ -10,6 +10,8 @@ import {
   getPartnerStats,
   getPartnerCourses,
   getPartnerDailyEnrollments,
+  getPartnerVaultStats,
+  getPartnerOwnedCourses,
 } from '@/lib/partner-portal/queries';
 
 type Props = {
@@ -29,11 +31,15 @@ export default async function PartnerDashboardPage({ params, searchParams }: Pro
   }
 
   const { partner, previewMode } = scope;
-  const [stats, courses, daily] = await Promise.all([
+  const [stats, courses, daily, vaultStats, ownedCourses] = await Promise.all([
     getPartnerStats(partner.id),
     getPartnerCourses(partner.id),
     getPartnerDailyEnrollments(partner.id, 30),
+    getPartnerVaultStats(partner.id),
+    getPartnerOwnedCourses(partner.id),
   ]);
+
+  const ownedCourseIds = new Set(ownedCourses.map((c) => c.id));
 
   const shareUrl = `https://honuvibe.com/${locale}/partners/${partner.slug}`;
   const isEmpty = stats.studentCount === 0;
@@ -79,7 +85,14 @@ export default async function PartnerDashboardPage({ params, searchParams }: Pro
                 : undefined
             }
           />
+          <StatCard label="Courses owned" value={stats.ownedCourseCount} icon={BookOpen} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <StatCard label="Courses featured" value={stats.courseCount} icon={BookOpen} />
+          <StatCard label="Vault items owned" value={vaultStats.itemsOwned} icon={Library} />
+          <StatCard label="Vault series owned" value={vaultStats.seriesOwned} icon={Library} />
+          <StatCard label="Vault views (30d)" value={vaultStats.views30d} icon={Eye} />
         </div>
 
         {isEmpty ? (
@@ -109,7 +122,7 @@ export default async function PartnerDashboardPage({ params, searchParams }: Pro
 
             <section>
               <div className="mb-3 flex items-baseline justify-between">
-                <h2 className="font-serif text-xl text-fg-primary">Featured courses</h2>
+                <h2 className="font-serif text-xl text-fg-primary">Course performance</h2>
                 <Link
                   href="/partner/courses"
                   className="text-sm text-accent-teal hover:underline"
@@ -128,6 +141,7 @@ export default async function PartnerDashboardPage({ params, searchParams }: Pro
                     <thead>
                       <tr className="border-b border-border-default text-fg-tertiary">
                         <th className="px-4 py-3 text-left font-medium">Course</th>
+                        <th className="px-4 py-3 text-left font-medium">Owned</th>
                         <th className="px-4 py-3 text-right font-medium">Lifetime</th>
                         <th className="px-4 py-3 text-right font-medium">This month</th>
                         <th className="px-4 py-3 text-right font-medium">USD</th>
@@ -145,6 +159,13 @@ export default async function PartnerDashboardPage({ params, searchParams }: Pro
                             {!c.is_published && (
                               <span className="ml-2 rounded bg-bg-tertiary px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-fg-tertiary">
                                 unpublished
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            {ownedCourseIds.has(c.course_id) && (
+                              <span className="rounded bg-accent-teal/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-accent-teal">
+                                Owned
                               </span>
                             )}
                           </td>
