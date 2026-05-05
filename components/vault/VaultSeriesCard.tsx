@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,9 +16,10 @@ const difficultyColors: Record<string, string> = {
 
 type VaultSeriesCardProps = {
   series: VaultSeries;
+  badgeSlot?: ReactNode;
 };
 
-export function VaultSeriesCard({ series }: VaultSeriesCardProps) {
+export function VaultSeriesCard({ series, badgeSlot }: VaultSeriesCardProps) {
   const locale = useLocale();
   const title = locale === 'ja' && series.title_jp ? series.title_jp : series.title_en;
   const description =
@@ -85,6 +87,7 @@ export function VaultSeriesCard({ series }: VaultSeriesCardProps) {
         {description && (
           <p className="text-xs text-fg-tertiary line-clamp-2">{description}</p>
         )}
+        {badgeSlot}
       </div>
     </Link>
   );

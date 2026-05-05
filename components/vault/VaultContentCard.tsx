@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -57,9 +58,10 @@ type VaultContentCardProps = {
   isCompleted?: boolean;
   locked?: boolean;
   onLockedClick?: () => void;
+  badgeSlot?: ReactNode;
 };
 
-export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: VaultContentCardProps) {
+export function VaultContentCard({ item, isCompleted, locked, onLockedClick, badgeSlot }: VaultContentCardProps) {
   const locale = useLocale();
   const title = locale === 'ja' && item.title_jp ? item.title_jp : item.title_en;
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
@@ -145,6 +147,7 @@ export function VaultContentCard({ item, isCompleted, locked, onLockedClick }: V
           </span>
         )}
       </div>
+      {badgeSlot}
     </div>
   );
 

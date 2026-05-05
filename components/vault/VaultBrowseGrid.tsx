@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { VaultContentCard } from './VaultContentCard';
 import { VaultFilters } from './VaultFilters';
 import { VaultKeyboardShortcuts } from './VaultKeyboardShortcuts';
@@ -14,9 +15,11 @@ type VaultBrowseGridProps = {
   initialItems: VaultContentItem[];
   initialTotalCount: number;
   hasAccess?: boolean;
+  /** Pre-rendered PartnerBadge nodes keyed by item id (from Server Component parent). */
+  badgeSlots?: Record<string, ReactNode>;
 };
 
-export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true }: VaultBrowseGridProps) {
+export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true, badgeSlots = {} }: VaultBrowseGridProps) {
   const t = useTranslations('vault');
   const [items, setItems] = useState(initialItems);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
@@ -151,6 +154,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
                 item={item}
                 locked={locked}
                 onLockedClick={locked ? () => setModalOpen(true) : undefined}
+                badgeSlot={badgeSlots[item.id]}
               />
             );
           })}

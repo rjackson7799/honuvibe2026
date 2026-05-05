@@ -179,6 +179,25 @@ export interface VaultTag {
 }
 
 // ---------------------------------------------------------------------------
+// Partner join types (from FK joins)
+// ---------------------------------------------------------------------------
+
+export interface VaultPartnerRow {
+  slug: string;
+  name_en: string;
+  name_jp: string | null;
+  logo_url: string | null;
+}
+
+export interface VaultContentItemWithPartner extends VaultContentItem {
+  partners?: VaultPartnerRow | null;
+}
+
+export interface VaultSeriesWithPartnerRow extends VaultSeries {
+  partners?: VaultPartnerRow | null;
+}
+
+// ---------------------------------------------------------------------------
 // Browse / filter types
 // ---------------------------------------------------------------------------
 

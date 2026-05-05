@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type {
   VaultContentItem,
+  VaultContentItemWithPartner,
   VaultBrowseFilters,
   VaultBrowseResult,
   VaultDownload,
@@ -8,11 +9,13 @@ import type {
   VaultFeedbackType,
   VaultSeries,
   VaultSeriesWithItems,
+  VaultSeriesWithPartnerRow,
   VaultNote,
   VaultBookmarkType,
   VaultTag,
   VaultAdminFilters,
 } from '@/lib/vault/types';
+import type { PartnerSlim } from '@/lib/courses/types';
 
 // ---------------------------------------------------------------------------
 // Public queries
@@ -300,6 +303,184 @@ export async function getVaultSeriesList(): Promise<VaultSeries[]> {
     return [];
   }
 }
+
+// ---------------------------------------------------------------------------
+// Partner-aware public queries (for vault catalog with badge + filter)
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns published content_items with partner FK join and optional owner filter.
+ * - ownerSlug === 'honuvibe' → partner_id IS NULL
+ * - ownerSlug === '<partner-slug>' → resolve to id, then eq filter
+ * - ownerSlug === null → no filter
+ */
+export async function getVaultBrowseWithPartners(
+  filters: VaultBrowseFilters,
+  ownerSlug?: string | null,
+): Promise<{ items: VaultContentItemWithPartner[]; totalCount: number; page: number; pageSize: number; hasMore: boolean }> {
+  try {
+    const supabase = await createClient();
+
+    const page = filters.page ?? 1;
+    const pageSize = filters.pageSize ?? 20;
+    const from = (page - 1) * pageSize;
+    const to = page * pageSize - 1;
+
+    // Resolve partner slug → id up-front if needed
+    let partnerId: string | null = null;
+    if (ownerSlug && ownerSlug !== 'honuvibe') {
+      const { data: p } = await supabase
+        .from('partners')
+        .select('id')
+        .eq('slug', ownerSlug)
+        .maybeSingle();
+      partnerId = p?.id ?? null;
+    }
+
+    // Build base query with partner FK join
+    let query = supabase
+      .from('content_items')
+      .select(
+        '*, partners!content_items_partner_id_fkey ( slug, name_en, name_jp, logo_url )',
+      )
+      .eq('is_published', true);
+
+    // Owner filter
+    if (ownerSlug === 'honuvibe') {
+      query = query.is('partner_id', null);
+    } else if (partnerId) {
+      query = query.eq('partner_id', partnerId);
+    }
+
+    // Apply content filters
+    if (filters.search) {
+      const pattern = `%${filters.search}%`;
+      query = query.or(
+        `title_en.ilike.${pattern},title_jp.ilike.${pattern},description_en.ilike.${pattern}`,
+      );
+    }
+    if (filters.contentType) query = query.eq('content_type', filters.contentType);
+    if (filters.difficulty) query = query.eq('difficulty_level', filters.difficulty);
+    if (filters.tags) {
+      for (const tag of filters.tags) {
+        query = query.contains('tags', JSON.stringify([tag]));
+      }
+    }
+    if (filters.accessTier) query = query.eq('access_tier', filters.accessTier);
+
+    switch (filters.sort) {
+      case 'oldest': query = query.order('created_at', { ascending: true }); break;
+      case 'popular': query = query.order('view_count', { ascending: false }); break;
+      case 'helpful': query = query.order('helpful_count', { ascending: false }); break;
+      case 'newest':
+      default: query = query.order('created_at', { ascending: false }); break;
+    }
+
+    // Count query (no FK join needed)
+    let countQuery = supabase
+      .from('content_items')
+      .select('*', { head: true, count: 'exact' })
+      .eq('is_published', true);
+
+    if (ownerSlug === 'honuvibe') {
+      countQuery = countQuery.is('partner_id', null);
+    } else if (partnerId) {
+      countQuery = countQuery.eq('partner_id', partnerId);
+    }
+    if (filters.search) {
+      const pattern = `%${filters.search}%`;
+      countQuery = countQuery.or(
+        `title_en.ilike.${pattern},title_jp.ilike.${pattern},description_en.ilike.${pattern}`,
+      );
+    }
+    if (filters.contentType) countQuery = countQuery.eq('content_type', filters.contentType);
+    if (filters.difficulty) countQuery = countQuery.eq('difficulty_level', filters.difficulty);
+    if (filters.tags) {
+      for (const tag of filters.tags) {
+        countQuery = countQuery.contains('tags', JSON.stringify([tag]));
+      }
+    }
+    if (filters.accessTier) countQuery = countQuery.eq('access_tier', filters.accessTier);
+
+    const [dataRes, countRes] = await Promise.all([
+      query.range(from, to),
+      countQuery,
+    ]);
+
+    const totalCount = countRes.count ?? 0;
+    const items = (dataRes.data ?? []).map((row) => {
+      const rawPartner = (row as Record<string, unknown>).partners;
+      const partner = Array.isArray(rawPartner)
+        ? (rawPartner[0] ?? null)
+        : rawPartner ?? null;
+      return { ...(row as VaultContentItem), partners: partner } as VaultContentItemWithPartner;
+    });
+
+    return { items, totalCount, page, pageSize, hasMore: page * pageSize < totalCount };
+  } catch (error) {
+    console.error('getVaultBrowseWithPartners error:', error);
+    return { items: [], totalCount: 0, page: 1, pageSize: 20, hasMore: false };
+  }
+}
+
+/**
+ * Returns published vault_series with partner FK join and optional owner filter.
+ */
+export async function getVaultSeriesListWithPartners(
+  ownerSlug?: string | null,
+): Promise<VaultSeriesWithPartnerRow[]> {
+  try {
+    const supabase = await createClient();
+
+    // Resolve partner slug → id if needed
+    let partnerId: string | null = null;
+    if (ownerSlug && ownerSlug !== 'honuvibe') {
+      const { data: p } = await supabase
+        .from('partners')
+        .select('id')
+        .eq('slug', ownerSlug)
+        .maybeSingle();
+      partnerId = p?.id ?? null;
+    }
+
+    let query = supabase
+      .from('vault_series')
+      .select(
+        '*, partners!vault_series_partner_id_fkey ( slug, name_en, name_jp, logo_url )',
+      )
+      .eq('is_published', true);
+
+    if (ownerSlug === 'honuvibe') {
+      query = query.is('partner_id', null);
+    } else if (partnerId) {
+      query = query.eq('partner_id', partnerId);
+    }
+
+    const { data, error } = await query.order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('getVaultSeriesListWithPartners error:', error);
+      return [];
+    }
+
+    return (data ?? []).map((row) => {
+      const rawPartner = (row as Record<string, unknown>).partners;
+      const partner = Array.isArray(rawPartner)
+        ? (rawPartner[0] ?? null)
+        : rawPartner ?? null;
+      return { ...(row as VaultSeries), partners: partner } as VaultSeriesWithPartnerRow;
+    });
+  } catch (error) {
+    console.error('getVaultSeriesListWithPartners error:', error);
+    return [];
+  }
+}
+
+/**
+ * Re-exported from lib/courses/queries for convenience.
+ * Returns active, public partners ordered by name_en.
+ */
+export { getActivePublicPartners } from '@/lib/courses/queries';
 
 export async function getVaultSeriesBySlug(
   slug: string,

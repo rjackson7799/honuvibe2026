@@ -1,16 +1,27 @@
+import type { ReactNode } from 'react';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
-import { getVaultBrowse, getVaultRecentlyViewed } from '@/lib/vault/queries';
+import {
+  getVaultBrowseWithPartners,
+  getVaultRecentlyViewed,
+  getActivePublicPartners,
+} from '@/lib/vault/queries';
 import { checkVaultAccess } from '@/lib/vault/access';
 import { VaultBrowseGrid } from '@/components/vault/VaultBrowseGrid';
 import { VaultSubNav } from '@/components/vault/VaultSubNav';
 import { VaultRecentlyViewed } from '@/components/vault/VaultRecentlyViewed';
 import { VaultContentRequest } from '@/components/vault/VaultContentRequest';
+import {
+  PartnerBadge,
+  type PartnerBadgePartner,
+} from '@/components/partners/PartnerBadge';
+import { PartnerFilterChips } from '@/components/partners/PartnerFilterChips';
 import { Lock } from 'lucide-react';
 import { BadgePill } from '@/components/ui/badge-pill';
 
 type Props = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -31,9 +42,13 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function VaultBrowsePage({ params }: Props) {
+export default async function VaultBrowsePage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const sp = await searchParams;
+  const ownerParam = sp.owner;
+  const ownerSlug = typeof ownerParam === 'string' ? ownerParam : null;
 
   const t = await getTranslations('vault');
   const supabase = await createClient();
@@ -73,37 +88,65 @@ export default async function VaultBrowsePage({ params }: Props) {
     );
   }
 
-  // If no access, show all items with premium ones locked
+  // Fetch items with partner data + active partners for chips
+  const [result, partners, recentItems] = await Promise.all([
+    getVaultBrowseWithPartners({ pageSize: 20 }, ownerSlug),
+    getActivePublicPartners(),
+    user && hasAccess ? getVaultRecentlyViewed(user.id, 6) : Promise.resolve([]),
+  ]);
+
+  // Build badge slots (Server Component — PartnerBadge uses useTranslations)
+  const badgeSlots: Record<string, ReactNode> = {};
+  for (const item of result.items) {
+    if (item.partners) {
+      badgeSlots[item.id] = (
+        <PartnerBadge
+          key={item.id}
+          partner={item.partners as PartnerBadgePartner}
+          locale={locale}
+          variant="compact"
+          className="mt-2"
+        />
+      );
+    }
+  }
+
+  const filterChips = partners.length > 0 ? (
+    <PartnerFilterChips
+      partners={partners}
+      selectedSlug={ownerSlug}
+      basePath="/learn/vault"
+      locale={locale}
+    />
+  ) : null;
+
   if (!hasAccess) {
-    const result = await getVaultBrowse({ pageSize: 20 });
     return (
       <div className="space-y-6 max-w-[1100px] mx-auto">
         <VaultHeader count={result.totalCount} />
         <VaultSubNav isAuthenticated={!!user} />
+        {filterChips}
         <VaultBrowseGrid
           initialItems={result.items}
           initialTotalCount={result.totalCount}
           hasAccess={false}
+          badgeSlots={badgeSlots}
         />
       </div>
     );
   }
 
-  // Full access — show all content + recently viewed
-  const [result, recentItems] = await Promise.all([
-    getVaultBrowse({ pageSize: 20 }),
-    user ? getVaultRecentlyViewed(user.id, 6) : Promise.resolve([]),
-  ]);
-
   return (
     <div className="space-y-6 max-w-[1100px] mx-auto">
       <VaultHeader count={result.totalCount} />
       <VaultSubNav isAuthenticated={!!user} />
+      {filterChips}
       <VaultRecentlyViewed items={recentItems} />
       <VaultBrowseGrid
         initialItems={result.items}
         initialTotalCount={result.totalCount}
         hasAccess={true}
+        badgeSlots={badgeSlots}
       />
       {user && <VaultContentRequest />}
     </div>
