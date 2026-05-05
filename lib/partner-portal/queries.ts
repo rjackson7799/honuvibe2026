@@ -347,6 +347,75 @@ async function fetchPartnerEnrollmentsSince(
   return merged;
 }
 
+export type PartnerVaultStats = {
+  itemsOwned: number;
+  seriesOwned: number;
+  views30d: number;
+  helpfulSum: number;
+};
+
+export async function getPartnerVaultStats(partnerId: string): Promise<PartnerVaultStats> {
+  const adminClient = createAdminClient();
+
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 30);
+
+  const [{ data: items }, { data: series }, { data: views }] = await Promise.all([
+    adminClient
+      .from('content_items')
+      .select('id, helpful_count')
+      .eq('partner_id', partnerId),
+    adminClient.from('vault_series').select('id').eq('partner_id', partnerId),
+    adminClient
+      .from('vault_views')
+      .select('content_item_id')
+      .gte('viewed_at', since.toISOString()),
+  ]);
+
+  const ownedItemIds = new Set((items ?? []).map((i: { id: string }) => i.id));
+  const views30d = (views ?? []).filter((v: { content_item_id: string }) =>
+    ownedItemIds.has(v.content_item_id),
+  ).length;
+  const helpfulSum = (items ?? []).reduce(
+    (s: number, i: { helpful_count: number | null }) => s + (i.helpful_count ?? 0),
+    0,
+  );
+
+  return {
+    itemsOwned: items?.length ?? 0,
+    seriesOwned: series?.length ?? 0,
+    views30d,
+    helpfulSum,
+  };
+}
+
+export type PartnerVaultItem = {
+  id: string;
+  slug: string;
+  title_en: string;
+  title_jp: string | null;
+  freshness_status: string | null;
+  helpful_count: number | null;
+  not_helpful_count: number | null;
+  series_id: string | null;
+};
+
+export async function getPartnerVaultItems(partnerId: string): Promise<PartnerVaultItem[]> {
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from('content_items')
+    .select(
+      'id, slug, title_en, title_jp, freshness_status, helpful_count, not_helpful_count, series_id',
+    )
+    .eq('partner_id', partnerId)
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('[PartnerPortal] vault items fetch failed:', error);
+    return [];
+  }
+  return (data ?? []) as PartnerVaultItem[];
+}
+
 export async function getPartnerDailyEnrollments(
   partnerId: string,
   days: number,
