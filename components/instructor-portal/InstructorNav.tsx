@@ -4,13 +4,14 @@ import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { BookOpen, GraduationCap } from 'lucide-react';
+import { BookOpen, DollarSign, GraduationCap } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
 
 const navItems = [
   { href: '/instructor/courses', label: 'Courses', icon: BookOpen },
+  { href: '/instructor/payouts', label: 'Payouts', icon: DollarSign },
 ];
 
 type Props = {
