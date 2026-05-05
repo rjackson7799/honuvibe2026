@@ -2,6 +2,28 @@
 // Mirrors Supabase schema from supabase/migrations/001_phase2_schema.sql
 import type { InstructorCardData, CourseInstructorWithProfile } from '@/lib/instructors/types';
 
+// Partner row returned from FK join on courses.partner_id
+export interface PartnerRow {
+  slug: string;
+  name_en: string;
+  name_jp: string | null;
+  logo_url: string | null;
+}
+
+// Course with optional resolved partner data (from FK join).
+// `partners` is optional so plain Course objects can be widened to this type
+// without requiring callers to explicitly set it to null.
+export interface CourseWithPartner extends Course {
+  partners?: PartnerRow | null;
+}
+
+// Slim partner record used in filter chips
+export interface PartnerSlim {
+  slug: string;
+  name_en: string;
+  name_jp: string | null;
+}
+
 export type CourseType = 'cohort' | 'self-study';
 export type CourseStatus =
   | 'draft'

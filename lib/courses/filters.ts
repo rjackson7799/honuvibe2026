@@ -21,11 +21,11 @@ export function isBuilderTrack(course: Course): boolean {
   return course.tags?.includes(BUILDER_TRACK_TAG) ?? false;
 }
 
-export function filterCatalog(
-  courses: Course[],
+export function filterCatalog<T extends Course>(
+  courses: T[],
   filter: CatalogFilter,
-): Course[] {
+): T[] {
   if (filter === 'all') return courses;
-  if (filter === 'builder-track') return courses.filter(isBuilderTrack);
+  if (filter === 'builder-track') return courses.filter(isBuilderTrack) as T[];
   return courses.filter((c) => c.level === filter);
 }

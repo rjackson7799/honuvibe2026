@@ -1,20 +1,46 @@
 import { useTranslations } from 'next-intl';
+import type { ReactNode } from 'react';
 import {
   Container,
   Overline,
   Section,
   SectionHeading,
 } from '@/components/marketing/primitives';
-import type { Course } from '@/lib/courses/types';
+import type { CourseWithPartner, PartnerSlim } from '@/lib/courses/types';
+import {
+  PartnerBadge,
+  type PartnerBadgePartner,
+} from '@/components/partners/PartnerBadge';
+import { PartnerFilterChips } from '@/components/partners/PartnerFilterChips';
 import { LearnCoursesCatalogClient } from './courses-catalog-client';
 
 type Props = {
-  courses: Course[];
+  courses: CourseWithPartner[];
   locale: string;
+  partners: PartnerSlim[];
+  ownerSlug: string | null;
 };
 
-export function LearnCoursesCatalog({ courses, locale }: Props) {
+export function LearnCoursesCatalog({ courses, locale, partners, ownerSlug }: Props) {
   const t = useTranslations('learn.courses_catalog');
+
+  // Pre-render PartnerBadge for each course that has a partner.
+  // We do this here (Server Component) because PartnerBadge uses useTranslations
+  // and cannot be imported directly from the 'use client' catalog client.
+  const badgeSlots: Record<string, ReactNode> = {};
+  for (const course of courses) {
+    if (course.partners) {
+      badgeSlots[course.id] = (
+        <PartnerBadge
+          key={course.id}
+          partner={course.partners as PartnerBadgePartner}
+          locale={locale}
+          variant="compact"
+          className="mt-2"
+        />
+      );
+    }
+  }
 
   return (
     <Section variant="sand" id="catalog">
@@ -29,7 +55,22 @@ export function LearnCoursesCatalog({ courses, locale }: Props) {
           </div>
         </div>
 
-        <LearnCoursesCatalogClient courses={courses} locale={locale} />
+        {partners.length > 0 && (
+          <div className="mb-8">
+            <PartnerFilterChips
+              partners={partners}
+              selectedSlug={ownerSlug}
+              basePath="/learn"
+              locale={locale}
+            />
+          </div>
+        )}
+
+        <LearnCoursesCatalogClient
+          courses={courses}
+          locale={locale}
+          badgeSlots={badgeSlots}
+        />
       </Container>
     </Section>
   );

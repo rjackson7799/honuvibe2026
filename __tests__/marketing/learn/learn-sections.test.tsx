@@ -9,7 +9,7 @@ import {
   LearnPrivateCohorts,
   LearnComparisonTable,
 } from '@/components/marketing/learn';
-import type { Course, CourseLevel } from '@/lib/courses/types';
+import type { Course, CourseLevel, CourseWithPartner } from '@/lib/courses/types';
 
 vi.mock('next-intl', () => {
   function getNs(ns: string): Record<string, unknown> {
@@ -127,7 +127,7 @@ function makeCourse(overrides: Partial<Course> = {}): Course {
   };
 }
 
-const fixtureCourses: Course[] = [
+const fixtureCourses: CourseWithPartner[] = [
   makeCourse({
     id: 'c-essentials',
     slug: 'ai-essentials',
@@ -205,13 +205,13 @@ describe('Learn page sections', () => {
   });
 
   it('CoursesCatalog (server wrapper) renders heading and subhead', () => {
-    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" />);
+    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" partners={[]} ownerSlug={null} />);
     expect(screen.getByRole('heading', { name: 'Browse the catalog.' })).toBeInTheDocument();
     expect(screen.getByText(/Per-course enrollment/)).toBeInTheDocument();
   });
 
   it('CoursesCatalog default filter shows all fixture courses with /learn/{slug} hrefs', () => {
-    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" />);
+    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" partners={[]} ownerSlug={null} />);
     expect(screen.getByRole('heading', { name: 'AI Essentials' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AI Mastery' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Claude Code' })).toBeInTheDocument();
@@ -228,7 +228,7 @@ describe('Learn page sections', () => {
   });
 
   it('CoursesCatalog Beginner filter narrows to beginner courses', () => {
-    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" />);
+    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" partners={[]} ownerSlug={null} />);
     fireEvent.click(screen.getByRole('tab', { name: 'Beginner' }));
     expect(screen.getByRole('heading', { name: 'AI Essentials' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'AI Mastery' })).not.toBeInTheDocument();
@@ -236,7 +236,7 @@ describe('Learn page sections', () => {
   });
 
   it('CoursesCatalog Builder Track filter narrows to tagged courses', () => {
-    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" />);
+    render(<LearnCoursesCatalog courses={fixtureCourses} locale="en" partners={[]} ownerSlug={null} />);
     fireEvent.click(screen.getByRole('tab', { name: 'Builder Track' }));
     expect(screen.queryByRole('heading', { name: 'AI Essentials' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'AI Mastery' })).not.toBeInTheDocument();
@@ -246,7 +246,7 @@ describe('Learn page sections', () => {
   });
 
   it('CoursesCatalog shows the empty state when no courses match', () => {
-    render(<LearnCoursesCatalog courses={[]} locale="en" />);
+    render(<LearnCoursesCatalog courses={[]} locale="en" partners={[]} ownerSlug={null} />);
     fireEvent.click(screen.getByRole('tab', { name: 'Builder Track' }));
     expect(
       screen.getByText(/No courses match this filter yet/),
@@ -285,7 +285,7 @@ describe('Learn page sections', () => {
         <LearnHero />
         <LearnThreePaths />
         <LearnVaultMoment />
-        <LearnCoursesCatalog courses={fixtureCourses} locale="en" />
+        <LearnCoursesCatalog courses={fixtureCourses} locale="en" partners={[]} ownerSlug={null} />
         <LearnPrivateCohorts />
         <LearnComparisonTable />
       </>,

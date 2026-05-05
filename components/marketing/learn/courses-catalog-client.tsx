@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
-import type { Course } from '@/lib/courses/types';
+import type { CourseWithPartner } from '@/lib/courses/types';
 import {
   type CatalogFilter,
   filterCatalog,
@@ -13,8 +14,10 @@ import {
 import { cn } from '@/lib/utils';
 
 type Props = {
-  courses: Course[];
+  courses: CourseWithPartner[];
   locale: string;
+  /** Pre-rendered PartnerBadge nodes keyed by course.id (rendered server-side) */
+  badgeSlots: Record<string, ReactNode>;
 };
 
 const FILTER_KEYS: { value: CatalogFilter; key: 'filter_all' | 'filter_beginner' | 'filter_intermediate' | 'filter_advanced' | 'filter_track' }[] = [
@@ -25,7 +28,7 @@ const FILTER_KEYS: { value: CatalogFilter; key: 'filter_all' | 'filter_beginner'
   { value: 'builder-track', key: 'filter_track' },
 ];
 
-export function LearnCoursesCatalogClient({ courses, locale }: Props) {
+export function LearnCoursesCatalogClient({ courses, locale, badgeSlots }: Props) {
   const t = useTranslations('learn.courses_catalog');
   const [active, setActive] = useState<CatalogFilter>('all');
 
@@ -68,7 +71,12 @@ export function LearnCoursesCatalogClient({ courses, locale }: Props) {
       ) : (
         <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((course) => (
-            <CatalogCourseCard key={course.id} course={course} locale={locale} />
+            <CatalogCourseCard
+              key={course.id}
+              course={course}
+              locale={locale}
+              badgeSlot={badgeSlots[course.id] ?? null}
+            />
           ))}
         </div>
       )}
@@ -86,7 +94,15 @@ export function LearnCoursesCatalogClient({ courses, locale }: Props) {
   );
 }
 
-function CatalogCourseCard({ course, locale }: { course: Course; locale: string }) {
+function CatalogCourseCard({
+  course,
+  locale,
+  badgeSlot,
+}: {
+  course: CourseWithPartner;
+  locale: string;
+  badgeSlot: ReactNode;
+}) {
   const t = useTranslations('learn.courses_catalog');
   const isJa = locale === 'ja';
   const title = (isJa && course.title_jp) || course.title_en;
@@ -152,6 +168,8 @@ function CatalogCourseCard({ course, locale }: { course: Course; locale: string 
           {description}
         </p>
       )}
+
+      {badgeSlot}
 
       <div className="mb-4 flex items-end justify-between border-t border-[var(--m-border-soft)] pt-4">
         <p className="text-[11.5px] text-[var(--m-ink-tertiary)]">{startsDisplay}</p>

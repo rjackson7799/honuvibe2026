@@ -11,10 +11,14 @@ import {
   LearnPrivateCohorts,
   LearnComparisonTable,
 } from '@/components/marketing/learn';
-import { getPublishedCourses } from '@/lib/courses/queries';
+import {
+  getPublishedCoursesWithPartners,
+  getActivePublicPartners,
+} from '@/lib/courses/queries';
 
 type Props = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -27,11 +31,18 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function LearnPage({ params }: Props) {
+export default async function LearnPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const courses = await getPublishedCourses();
+  const sp = await searchParams;
+  const ownerParam = sp.owner;
+  const ownerSlug = typeof ownerParam === 'string' ? ownerParam : null;
+
+  const [courses, partners] = await Promise.all([
+    getPublishedCoursesWithPartners(ownerSlug),
+    getActivePublicPartners(),
+  ]);
 
   return (
     <MarketingShell>
@@ -40,7 +51,12 @@ export default async function LearnPage({ params }: Props) {
         <LearnHero />
         <LearnThreePaths />
         <LearnVaultMoment />
-        <LearnCoursesCatalog courses={courses} locale={locale} />
+        <LearnCoursesCatalog
+          courses={courses}
+          locale={locale}
+          partners={partners}
+          ownerSlug={ownerSlug}
+        />
         <LearnPrivateCohorts />
         <LearnComparisonTable />
       </main>
