@@ -381,6 +381,18 @@
   margin-top: 36px;
   flex-wrap: wrap;
 }
+@media (max-width: 560px) {
+  /* Two stacked-label CTAs sit side-by-side in the design but collide on
+   * narrow screens — full-width each so the JP/EN labels stay readable. */
+  .vertice-scope .vertice-hero-cta-primary,
+  .vertice-scope .vertice-hero-cta-secondary {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+  .vertice-scope .vertice-hero-cta-stack {
+    align-items: center;
+  }
+}
 .vertice-scope .vertice-hero-stat {
   display: flex;
   align-items: center;
@@ -681,6 +693,26 @@
   border-radius: 50%;
   background: var(--vertice-seafoam);
   animation: vertice-pulseDot 1.6s ease-in-out infinite;
+}
+@media (max-width: 560px) {
+  /* Pull mockup chips inside the visible area; the 140px rail crowds the player
+   * at this width, so narrow it. */
+  .vertice-scope .vertice-chip-lifetime {
+    right: 4px;
+  }
+  .vertice-scope .vertice-chip-cohort {
+    left: 4px;
+    bottom: 8px;
+  }
+  .vertice-scope .vertice-vault-grid {
+    grid-template-columns: 112px 1fr;
+  }
+  .vertice-scope .vertice-vault-rail {
+    padding: 12px 8px;
+  }
+  .vertice-scope .vertice-vault-player {
+    padding: 14px 14px 14px;
+  }
 }
 
 /* ——— Contrast (BEFORE / 3 MONTHS / AFTER) ——————————————————————— */
@@ -1703,6 +1735,10 @@
 @media (max-width: 960px) {
   .vertice-scope .vertice-pr-card-highlighted {
     transform: none;
+    /* Match sibling card padding when cards stack — the design's larger
+     * highlighted padding is meant to compensate for the -12px lift, which we
+     * disable on mobile. */
+    padding: 32px 28px 30px;
   }
 }
 
@@ -2416,6 +2452,49 @@
 .vertice-scope .vertice-cta-fineprint-en {
   margin-left: 8px;
   font-style: italic;
+}
+@media (max-width: 768px) {
+  /* The 380×380 rings + scale(4) HonuMark dominate the panel once padding
+   * shrinks. Scale them down to stay decorative, not overpowering. */
+  .vertice-scope .vertice-cta-rings {
+    width: 240px;
+    height: 240px;
+    top: 12px;
+    right: -40px;
+    opacity: 0.18;
+  }
+  .vertice-scope .vertice-cta-watermark {
+    bottom: 16px;
+    right: 18px;
+    opacity: 0.12;
+  }
+  .vertice-scope .vertice-cta-watermark svg {
+    width: 110px;
+    height: 110px;
+  }
+  .vertice-scope .vertice-cta-sub {
+    font-size: 18px;
+    margin-bottom: 22px;
+  }
+  .vertice-scope .vertice-cta-body-jp {
+    font-size: 14.5px;
+  }
+  .vertice-scope .vertice-cta-form {
+    flex-direction: column;
+  }
+  .vertice-scope .vertice-cta-input {
+    min-width: 0;
+    width: 100%;
+  }
+  .vertice-scope .vertice-cta-submit {
+    width: 100%;
+    padding: 14px 20px;
+  }
+  .vertice-scope .vertice-cta-fineprint-en {
+    margin-left: 0;
+    display: block;
+    margin-top: 4px;
+  }
 }
 
 /* ——— Footer (dark, co-brand, JP+EN link grid) ——————————————————— */
