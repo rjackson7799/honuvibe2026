@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { VerticePageContent } from '@/components/partners/vertice-page-content';
+import { VerticeLanding } from '@/components/partners/vertice/VerticeLanding';
+import { inter, instrumentSerif, notoJP } from './fonts';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -10,18 +11,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const isJP = locale === 'ja';
 
+  const title = 'AI Essentials — Vertice Society × HonuVibe.AI';
+  const description = isJP
+    ? 'Vertice Society限定の30時間以上のAI実践プログラム。Vault・ライブコホート・コミュニティの3つのプランから選べます。'
+    : 'A 30+ hour practical AI program exclusively for Vertice Society members. Three tiers: Community, Vault, and Live Cohort.';
+
   return {
-    title: 'AI Essentials — Vertice Society × HonuVibe.AI',
-    description: isJP
-      ? 'Vertice Societyメンバー限定の5週間AI教育プログラム。未来へのはじめの一歩。'
-      : 'A 5-week AI education program exclusively for Vertice Society members. Your first steps into the future.',
-    robots: {
-      index: false,
-      follow: false,
-    },
+    title,
+    description,
+    robots: { index: true, follow: true },
     openGraph: {
-      title: 'AI Essentials — Vertice Society × HonuVibe.AI',
-      description: 'A 5-week beginner AI program for Vertice Society members. Powered by HonuVibe.AI.',
+      title,
+      description,
     },
   };
 }
@@ -31,8 +32,8 @@ export default async function VerticeSocietyPage({ params }: Props) {
   setRequestLocale(locale);
 
   return (
-    <div className="light-zone">
-      <VerticePageContent />
+    <div className={`${inter.variable} ${notoJP.variable} ${instrumentSerif.variable}`}>
+      <VerticeLanding locale={locale} />
     </div>
   );
 }

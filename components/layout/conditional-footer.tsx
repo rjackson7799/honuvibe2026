@@ -14,10 +14,10 @@ const DARK_FOOTER_PATTERNS: readonly RegExp[] = [
   /^\/(ja\/)?terms\/?$/,
   /^\/(ja\/)?cookies\/?$/,
   /^\/(ja\/)?honuhub\/?$/,
-  /^\/(ja\/)?partners\/vertice-society\/?$/,
   // Catches partner landing pages keyed by slug (e.g. /partners/foo) but not
-  // /partners/smashhaus, which has its own bespoke chrome.
-  /^\/(ja\/)?partners\/(?!smashhaus(\/|$))[^/]+\/?$/,
+  // /partners/smashhaus or /partners/vertice-society, both of which have
+  // their own bespoke chrome.
+  /^\/(ja\/)?partners\/(?!smashhaus(\/|$)|vertice-society(\/|$))[^/]+\/?$/,
 ];
 
 export function ConditionalFooter() {

@@ -1,3 +1,8 @@
+// DEPRECATED — backed the old access-code submission flow on /partners/vertice-society.
+// The bespoke landing component (VerticeEnrollPanel) was removed on 2026-05-09 when
+// the page became a public marketing landing. This endpoint stays live so any in-flight
+// links from the prior flow still resolve gracefully; schedule full removal (along with
+// vertice_leads table + sendVerticeLead* helpers) after 30 days of zero traffic.
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import {
