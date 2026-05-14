@@ -48,3 +48,6 @@ docs/superpowers/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local image-generation drafts (script output, not source-of-truth)
+public/images/courses/_drafts/

@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     // Generate via OpenAI gpt-image-1 (1536x1024 landscape, high quality)
     const openai = new OpenAI({ apiKey });
     const result = await openai.images.generate({
-      model: 'gpt-image-1',
+      model: 'gpt-image-2',
       prompt,
       size: '1536x1024',
       quality: 'high',
