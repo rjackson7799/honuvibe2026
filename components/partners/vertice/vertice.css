@@ -1606,6 +1606,10 @@
 .vertice-scope .vertice-vaultp-card-art {
   height: 140px;
   position: relative;
+  overflow: hidden;
+}
+.vertice-scope .vertice-vaultp-card-img {
+  object-fit: cover;
 }
 .vertice-scope .vertice-vaultp-card-tag {
   position: absolute;

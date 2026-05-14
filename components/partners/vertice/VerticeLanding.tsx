@@ -761,6 +761,7 @@ type VaultItem = {
   jp: string;
   en: string;
   g: string;
+  img: string;
 };
 
 const VAULT_ITEMS: VaultItem[] = [
@@ -769,36 +770,42 @@ const VAULT_ITEMS: VaultItem[] = [
     jp: 'ビジネスメールAIテンプレート',
     en: 'Business email templates',
     g: 'linear-gradient(135deg, #d4c8f0, #9b8fcf)',
+    img: '/images/vault-preview/business-email-templates.webp',
   },
   {
     tag: 'PROMPT',
     jp: 'Claude プロンプト集 50選',
     en: '50 Claude prompts',
     g: 'linear-gradient(135deg, #c8e8df, #6ec3b3)',
+    img: '/images/vault-preview/claude-prompts-50.webp',
   },
   {
     tag: 'WORKFLOW',
     jp: 'リサーチ自動化フロー',
     en: 'Research automation',
     g: 'linear-gradient(135deg, #f0d8c8, #d8a182)',
+    img: '/images/vault-preview/research-automation.webp',
   },
   {
     tag: 'WALKTHROUGH',
     jp: 'ChatGPTツアー（90分）',
     en: 'ChatGPT walkthrough',
     g: 'linear-gradient(135deg, #d0deef, #8fa8c8)',
+    img: '/images/vault-preview/chatgpt-walkthrough.webp',
   },
   {
     tag: 'PROMPT',
     jp: '会議要約プロンプト',
     en: 'Meeting summary prompts',
     g: 'linear-gradient(135deg, #f5d6df, #db9aae)',
+    img: '/images/vault-preview/meeting-summary-prompts.webp',
   },
   {
     tag: 'GUIDE',
     jp: 'AI業務委任ガイド',
     en: 'Delegating to AI guide',
     g: 'linear-gradient(135deg, #f5ebd0, #d8b878)',
+    img: '/images/vault-preview/ai-delegation-guide.webp',
   },
 ];
 
@@ -832,6 +839,13 @@ function VaultPreview() {
           {VAULT_ITEMS.map((item, i) => (
             <article key={`${item.tag}-${i}`} className="vertice-vaultp-card">
               <div className="vertice-vaultp-card-art" style={{ background: item.g }}>
+                <Image
+                  src={item.img}
+                  alt=""
+                  fill
+                  sizes="(max-width: 560px) 100vw, (max-width: 960px) 50vw, 33vw"
+                  className="vertice-vaultp-card-img"
+                />
                 <span className="vertice-vaultp-card-tag">{item.tag}</span>
               </div>
               <div className="vertice-vaultp-card-body">
