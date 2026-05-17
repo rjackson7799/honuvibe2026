@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent, type ReactElement } from 'react';
 import Image from 'next/image';
 import { trackEvent } from '@/lib/analytics';
 
@@ -28,6 +28,12 @@ const COHORT = {
   seatsLeft: 15,
 };
 
+const HERO_OUTCOMES: Array<{ jp: string; en: string }> = [
+  { jp: '自分専用のAIワークフローを構築', en: 'Build your own AI workflow stack' },
+  { jp: '業務時間を週10時間以上削減', en: 'Reclaim 10+ hours per week' },
+  { jp: 'ポートフォリオに残るAIプロジェクト1本', en: 'Ship one portfolio-ready AI project' },
+];
+
 function setPartnerCookie(slug: string) {
   const thirtyDays = 60 * 60 * 24 * 30;
   document.cookie = `hv_partner=${encodeURIComponent(slug)}; Max-Age=${thirtyDays}; Path=/; SameSite=Lax`;
@@ -42,16 +48,21 @@ export function VerticeLanding({ locale }: Props) {
   return (
     <div className="vertice-scope">
       <Hero />
+      <TaughtBy />
       <Contrast />
+      <QualifierStrip />
       <Capabilities />
       <Curriculum />
+      <LearningFormats />
       <VaultPreview />
+      <Testimonials />
       <Pricing />
       <Instructors />
       <FAQ />
       <OperatingCompany />
       <FinalCTA />
       <VerticeFooter />
+      <MobileStickyCTA />
     </div>
   );
 }
@@ -128,6 +139,26 @@ function Hero() {
             </p>
           </div>
 
+          <div className="vertice-hero-outcomes" aria-label="What you'll ship in 5 weeks">
+            <p className="vertice-hero-outcomes-label">
+              <span className="vertice-hero-outcomes-label-jp">5週間で身につくこと</span>
+              <span className="vertice-hero-outcomes-label-en">What you&apos;ll ship in 5 weeks</span>
+            </p>
+            <ul className="vertice-hero-outcomes-list">
+              {HERO_OUTCOMES.map((o) => (
+                <li key={o.en} className="vertice-hero-outcomes-item">
+                  <span className="vertice-hero-outcomes-icon" aria-hidden="true">
+                    <IconCheck size={11} />
+                  </span>
+                  <span className="vertice-hero-outcomes-text">
+                    <span className="vertice-hero-outcomes-jp">{o.jp}</span>
+                    <span className="vertice-hero-outcomes-en">{o.en}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="vertice-hero-ctas">
             <a href="#pricing" onClick={onPrimaryClick} className="vertice-hero-cta-primary">
               <span className="vertice-hero-cta-stack">
@@ -138,9 +169,11 @@ function Hero() {
             <a href="#pricing" onClick={onSecondaryClick} className="vertice-hero-cta-secondary">
               <span className="vertice-hero-cta-stack">
                 <span className="vertice-hero-cta-jp">
-                  {COHORT.startDateLabel.jp}のライブコホートを見る
+                  Vault + ライブ指導 · {COHORT.startDateLabel.jp}コホート
                 </span>
-                <span className="vertice-hero-cta-en">See {COHORT.startDateLabel.en} Live Cohort</span>
+                <span className="vertice-hero-cta-en">
+                  Vault + Live Coaching · {COHORT.startDateLabel.en} Cohort
+                </span>
               </span>
             </a>
           </div>
@@ -168,18 +201,50 @@ function Hero() {
   );
 }
 
-function HeroMockup() {
-  const weeks: Array<{ w: string; t: string; done?: boolean; active?: boolean }> = [
-    { w: '第1週', t: 'AIの基礎', done: true },
-    { w: '第2週', t: 'AIに仕事を', done: true },
-    { w: '第3週', t: 'チームで活用', active: true },
-    { w: '第4週', t: 'AIツール作成' },
-    { w: '第5週', t: 'アクションプラン' },
-  ];
+const VAULT_WEEKS: Array<{ w: string; t: string; done?: boolean; active?: boolean }> = [
+  { w: '第1週', t: 'AIの基礎', done: true },
+  { w: '第2週', t: 'AIに仕事を', done: true },
+  { w: '第3週', t: 'チームで活用', active: true },
+  { w: '第4週', t: 'AIツール作成' },
+  { w: '第5週', t: 'アクションプラン' },
+];
 
+const VAULT_TAKEAWAYS: string[] = [
+  'AIへのタスク委任パターン',
+  '会議準備の自動化',
+  'チーム導入の3ステップ',
+];
+
+function HeroMockup() {
   return (
     <div className="vertice-mockup" aria-hidden="true">
       <div className="vertice-mockup-halo" />
+
+      <svg
+        className="vertice-mockup-elevation"
+        viewBox="0 0 520 760"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M -20 700 Q 220 320 560 100"
+          stroke="rgba(155, 135, 224, 0.18)"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <path
+          d="M -20 740 Q 240 420 560 180"
+          stroke="rgba(155, 135, 224, 0.12)"
+          strokeWidth="1.25"
+          fill="none"
+        />
+        <path
+          d="M -20 780 Q 260 520 560 260"
+          stroke="rgba(45, 191, 176, 0.10)"
+          strokeWidth="1"
+          fill="none"
+        />
+      </svg>
 
       <div className="vertice-vault">
         <div className="vertice-vault-bar">
@@ -194,7 +259,7 @@ function HeroMockup() {
         <div className="vertice-vault-grid">
           <div className="vertice-vault-rail">
             <p className="vertice-vault-rail-eyebrow">カリキュラム</p>
-            {weeks.map((m) => (
+            {VAULT_WEEKS.map((m) => (
               <div
                 key={m.w}
                 className={`vertice-vault-week${m.active ? ' vertice-vault-week-active' : ''}`}
@@ -213,28 +278,43 @@ function HeroMockup() {
           </div>
 
           <div className="vertice-vault-player">
-            <p className="vertice-vault-player-eyebrow">第3週 · Lesson 04</p>
+            <p className="vertice-vault-player-eyebrow">第3週 · LESSON 04</p>
             <p className="vertice-vault-player-title">
               チームでAIを<br />使いこなす
             </p>
             <div className="vertice-vault-player-frame">
+              <Image
+                src="/images/vault-preview/ai-delegation-guide.webp"
+                alt=""
+                fill
+                sizes="(max-width: 960px) 360px, 320px"
+                className="vertice-vault-player-img"
+              />
+              <div className="vertice-vault-player-scrim" aria-hidden="true" />
               <span className="vertice-vault-player-play">
-                <IconPlay size={14} />
+                <IconPlay size={16} />
               </span>
+              <span className="vertice-vault-player-duration">37:50</span>
             </div>
-            <div className="vertice-vault-player-progress">
-              <div className="vertice-vault-player-progress-fill" />
-            </div>
-            <div className="vertice-vault-player-meta">
-              <span>14:22</span>
-              <span>37:50</span>
-            </div>
+            <ul className="vertice-vault-takeaways">
+              {VAULT_TAKEAWAYS.map((t) => (
+                <li key={t} className="vertice-vault-takeaway">
+                  <span className="vertice-vault-takeaway-check" aria-hidden="true">
+                    <IconCheck size={9} />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
         <div className="vertice-vault-foot">
           <span className="vertice-vault-foot-eyebrow">PROGRESS</span>
-          <span className="vertice-vault-foot-amt">38% complete</span>
+          <div className="vertice-vault-foot-bar">
+            <div className="vertice-vault-foot-bar-fill" />
+          </div>
+          <span className="vertice-vault-foot-amt">38%</span>
         </div>
       </div>
 
@@ -246,21 +326,59 @@ function HeroMockup() {
         </span>
       </div>
 
-      <div className="vertice-chip vertice-chip-cohort">
-        <span className="vertice-chip-pulse" aria-hidden="true" />
-        <span className="vertice-chip-text">
-          <span className="vertice-chip-eyebrow">{COHORT.startDateLabel.en.toUpperCase()}</span>
-          <span className="vertice-chip-title">
-            {COHORT.startDateLabel.jp} · 残り{COHORT.seatsLeft}席
-          </span>
-        </span>
-      </div>
+      <figure className="vertice-mockup-testimonial">
+        <div className="vertice-mockup-testimonial-head">
+          <span className="vertice-mockup-testimonial-avatar" aria-hidden="true">M</span>
+          <div className="vertice-mockup-testimonial-id">
+            <span className="vertice-mockup-testimonial-name">M. Tanaka</span>
+            <span className="vertice-mockup-testimonial-role">マーケティングマネージャー · 東京</span>
+          </div>
+          <span className="vertice-mockup-testimonial-result">週10時間削減</span>
+        </div>
+        <blockquote className="vertice-mockup-testimonial-quote">
+          「3週目で自分のメール対応が1日30分以下に。テンプレートがそのまま実務で使えました。」
+        </blockquote>
+      </figure>
     </div>
+  );
+}
+
+// ——— TaughtBy strip (slim trust strip directly under hero) ——————————
+function TaughtBy() {
+  return (
+    <section className="vertice-taughtby" aria-label="Taught by">
+      <div className="vertice-taughtby-inner">
+        <p className="vertice-taughtby-eyebrow">TAUGHT BY · 講師陣</p>
+        <a href="#instructors" className="vertice-taughtby-row">
+          {INSTRUCTORS.map((p) => (
+            <span key={p.name} className="vertice-taughtby-person">
+              <span className="vertice-taughtby-photo-frame">
+                <Image
+                  src={p.photo}
+                  alt=""
+                  width={36}
+                  height={36}
+                  className="vertice-taughtby-photo"
+                />
+              </span>
+              <span className="vertice-taughtby-text">
+                <span className="vertice-taughtby-name">{p.name}</span>
+                <span className="vertice-taughtby-role">{p.enRole}</span>
+              </span>
+            </span>
+          ))}
+          <span className="vertice-taughtby-link">
+            プロフィールを見る <IconArrow size={12} />
+          </span>
+        </a>
+      </div>
+    </section>
   );
 }
 
 // ——— Contrast (BEFORE / 3 MONTHS / AFTER) ————————————————————————
 type ContrastItem = { jp: string; en: string };
+type ContrastFutureItem = ContrastItem & { stage: string };
 
 const CONTRAST_NOW: ContrastItem[] = [
   {
@@ -281,20 +399,24 @@ const CONTRAST_NOW: ContrastItem[] = [
   },
 ];
 
-const CONTRAST_FUTURE: ContrastItem[] = [
+const CONTRAST_FUTURE: ContrastFutureItem[] = [
   {
+    stage: '効率化',
     jp: '毎日4つのAIツールを使い分け、業務時間を半減',
     en: 'Switch between 4 AI tools daily, cut work time in half',
   },
   {
+    stage: '構築',
     jp: '自分専用のAIアシスタントとワークフローを構築',
     en: 'Build a personal AI assistant and workflow stack',
   },
   {
+    stage: '定着',
     jp: 'チームにAI活用法を教えられるレベルに到達',
     en: 'Lead AI adoption inside your team — confidently',
   },
   {
+    stage: '成果創出',
     jp: 'AIで新しい収益機会を見つけ、行動できる',
     en: 'Spot new AI-driven opportunities and act on them',
   },
@@ -319,16 +441,16 @@ function Contrast() {
   );
 }
 
-function ContrastColumn({
-  variant,
-  items,
-}: {
-  variant: 'before' | 'after';
-  items: ContrastItem[];
-}) {
-  const isAfter = variant === 'after';
+function ContrastColumn(
+  props:
+    | { variant: 'before'; items: ContrastItem[] }
+    | { variant: 'after'; items: ContrastFutureItem[] }
+) {
+  const isAfter = props.variant === 'after';
   return (
-    <div className="vertice-contrast-col">
+    <div
+      className={`vertice-contrast-col${isAfter ? ' vertice-contrast-col-after' : ' vertice-contrast-col-before'}`}
+    >
       <p
         className={`vertice-contrast-eyebrow${isAfter ? ' vertice-contrast-eyebrow-after' : ''}`}
       >
@@ -341,19 +463,27 @@ function ContrastColumn({
         {isAfter ? "Where you'll be in 3 months" : 'Where you are now'}
       </p>
       <div className="vertice-contrast-list">
-        {items.map((item, i) => (
-          <div key={i} className="vertice-contrast-item">
-            <div className="vertice-contrast-item-icon">
-              {isAfter ? (
-                <IconCheck
-                  size={14}
-                  style={{ color: 'var(--vertice-seafoam)' }}
-                />
-              ) : (
-                <IconX size={14} />
+        {props.items.map((item, i) => (
+          <div
+            key={i}
+            className={`vertice-contrast-item ${isAfter ? 'vertice-contrast-item-future' : 'vertice-contrast-item-now'}`}
+          >
+            {isAfter ? (
+              <div className="vertice-contrast-timeline-marker" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </div>
+            ) : (
+              <div
+                className="vertice-contrast-item-badge vertice-contrast-item-badge-now"
+                aria-hidden="true"
+              >
+                <IconX size={11} />
+              </div>
+            )}
+            <div className="vertice-contrast-item-body">
+              {isAfter && 'stage' in item && (
+                <span className="vertice-contrast-timeline-eyebrow">{item.stage}</span>
               )}
-            </div>
-            <div>
               <p className="vertice-contrast-item-jp">{item.jp}</p>
               <p className="vertice-contrast-item-en">{item.en}</p>
             </div>
@@ -387,6 +517,94 @@ function ContrastDivider() {
     </div>
   );
 }
+// ——— Qualifier strip (Who this is for / not for) ————————————————————
+type QualifierItem = { jp: string; en: string };
+
+const QUALIFIER_FOR: QualifierItem[] = [
+  {
+    jp: '毎日スプレッドシートや文書を扱う社会人',
+    en: 'Working pros using docs and spreadsheets daily',
+  },
+  {
+    jp: '断片的なYouTubeではなく、体系立てて学びたい方',
+    en: 'Want a structured curriculum, not random tutorials',
+  },
+  {
+    jp: '5週間、1日30分の学習時間を確保できる方',
+    en: 'Can commit 30 min/day for 5 weeks',
+  },
+];
+
+const QUALIFIER_NOT_FOR: QualifierItem[] = [
+  {
+    jp: 'ChatGPTをまだ一度も触ったことがない方',
+    en: "Haven't opened ChatGPT once yet",
+  },
+  {
+    jp: '実践せず、動画を眺めるだけで満足したい方',
+    en: 'Want passive watching only, not application',
+  },
+  {
+    jp: '何も作らずに資格証だけ欲しい方',
+    en: 'Looking for a certificate without building anything',
+  },
+];
+
+function QualifierStrip() {
+  return (
+    <section id="who" className="vertice-qual" aria-labelledby="vertice-qual-heading">
+      <div className="vertice-qual-inner">
+        <h2 id="vertice-qual-heading" className="sr-only">
+          Who this program is for
+        </h2>
+        <div className="vertice-qual-grid">
+          <div className="vertice-qual-col vertice-qual-col-for">
+            <p className="vertice-qual-eyebrow vertice-qual-eyebrow-for">FOR YOU IF</p>
+            <p className="vertice-qual-title">こんな方におすすめ</p>
+            <ul className="vertice-qual-list">
+              {QUALIFIER_FOR.map((q) => (
+                <li key={q.en} className="vertice-qual-item">
+                  <span
+                    className="vertice-qual-icon vertice-qual-icon-for"
+                    aria-hidden="true"
+                  >
+                    <IconCheck size={14} />
+                  </span>
+                  <span className="vertice-qual-text">
+                    <span className="vertice-qual-jp">{q.jp}</span>
+                    <span className="vertice-qual-en">{q.en}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="vertice-qual-divider" aria-hidden="true" />
+          <div className="vertice-qual-col vertice-qual-col-not">
+            <p className="vertice-qual-eyebrow vertice-qual-eyebrow-not">NOT FOR YOU IF</p>
+            <p className="vertice-qual-title">向いていない方</p>
+            <ul className="vertice-qual-list">
+              {QUALIFIER_NOT_FOR.map((q) => (
+                <li key={q.en} className="vertice-qual-item">
+                  <span
+                    className="vertice-qual-icon vertice-qual-icon-not"
+                    aria-hidden="true"
+                  >
+                    <IconX size={14} />
+                  </span>
+                  <span className="vertice-qual-text">
+                    <span className="vertice-qual-jp">{q.jp}</span>
+                    <span className="vertice-qual-en">{q.en}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ——— Capabilities (4 cards: TOOLS / AUTOMATE / TEAM / BUILD) ———————————
 type CapabilityCardData = {
   tag: string;
@@ -395,6 +613,8 @@ type CapabilityCardData = {
   enTitle: string;
   jpBody: string;
   enBody: string;
+  outcomeJp: string;
+  outcomeEn: string;
   illus: React.ReactNode;
 };
 
@@ -406,9 +626,11 @@ function Capabilities() {
       jpTitle: 'AIツールの使い分け',
       enTitle: 'Tool fluency',
       jpBody:
-        'ChatGPT、Claude、Perplexity、NotebookLMの実践的な使い分け。それぞれの強みを業務シーンで使いこなす。',
+        'ChatGPT、Claude、Claude Cowork、Gemini、Perplexity、NotebookLMの実践的な使い分け。それぞれの強みを業務シーンで使いこなす。',
       enBody:
-        'Master ChatGPT, Claude, Perplexity, and NotebookLM — and know when to use each.',
+        'Master ChatGPT, Claude, Claude Cowork, Gemini, Perplexity, and NotebookLM — and know when to use each.',
+      outcomeJp: '業務ごとに最適なAIを5秒で選べる',
+      outcomeEn: 'Pick the right AI in 5 seconds',
       illus: <IllusTools />,
     },
     {
@@ -420,6 +642,8 @@ function Capabilities() {
         'メール、リサーチ、要約、翻訳をAIに任せる。1日2時間の業務時間を取り戻すワークフロー設計。',
       enBody:
         'Hand email, research, summaries, and translation to AI. Get 2 hours back per day.',
+      outcomeJp: '1日2時間以上を取り戻す',
+      outcomeEn: 'Reclaim 2+ hours every day',
       illus: <IllusAutomate />,
     },
     {
@@ -431,6 +655,8 @@ function Capabilities() {
         '会議準備、フォローアップ、タスク委任のテンプレート。チーム全体の生産性を引き上げる。',
       enBody:
         'Templates for meeting prep, follow-ups, delegation — lift the whole team.',
+      outcomeJp: '会議準備を80%短縮',
+      outcomeEn: '80% less meeting prep',
       illus: <IllusTeam />,
     },
     {
@@ -442,6 +668,8 @@ function Capabilities() {
         'パーソナルAIアシスタントとワークフローの設計。自分の業務に最適化された、自分だけのAI環境。',
       enBody:
         'Design a personal AI assistant and workflow tuned to how you actually work.',
+      outcomeJp: 'コードなしで自分専用AIを構築',
+      outcomeEn: 'Build your own AI — no code',
       illus: <IllusBuild />,
     },
   ];
@@ -484,6 +712,15 @@ function CapabilityCard({ card }: { card: CapabilityCardData }) {
         <p className="vertice-cap-card-en-title">{card.enTitle}</p>
         <p className="vertice-cap-card-jp-body">{card.jpBody}</p>
         <p className="vertice-cap-card-en-body">{card.enBody}</p>
+        <div className="vertice-cap-card-outcome">
+          <span className="vertice-cap-card-outcome-icon" aria-hidden="true">
+            <IconCheck size={11} />
+          </span>
+          <span className="vertice-cap-card-outcome-text">
+            <span className="vertice-cap-card-outcome-jp">{card.outcomeJp}</span>
+            <span className="vertice-cap-card-outcome-en">{card.outcomeEn}</span>
+          </span>
+        </div>
       </div>
     </article>
   );
@@ -491,201 +728,696 @@ function CapabilityCard({ card }: { card: CapabilityCardData }) {
 
 // ——— Capability illustrations ———————————————————————————————————
 
+type ToolGlyph = (props: { size?: number }) => ReactElement;
+
+const GlyphChatGPT: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#fff"
+      d="M21.5 10.4a5.4 5.4 0 0 0-.5-4.4 5.5 5.5 0 0 0-5.9-2.6 5.5 5.5 0 0 0-9.3 2 5.5 5.5 0 0 0-3.6 2.6 5.4 5.4 0 0 0 .7 6.4 5.4 5.4 0 0 0 .5 4.4 5.5 5.5 0 0 0 5.9 2.6 5.5 5.5 0 0 0 4.1 1.9 5.5 5.5 0 0 0 5.2-3.8 5.5 5.5 0 0 0 3.6-2.6 5.4 5.4 0 0 0-.7-6.5Zm-8.2 11.4a4 4 0 0 1-2.6-1l.1-.1 4.4-2.6a.7.7 0 0 0 .4-.6V11l1.8 1.1v5.2a4 4 0 0 1-4 4Zm-8.7-3.7a4 4 0 0 1-.5-2.7V10l4.4 2.6a.7.7 0 0 0 .7 0l5.4-3.1v2.1L11 14.1a.7.7 0 0 0-.4.6v5L8.8 18.7Z"
+    />
+  </svg>
+);
+
+const GlyphClaude: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <g fill="#fff">
+      <path d="M11.4 5.6 9 12l2.4 6.4h1.7L15.4 12 13 5.6h-1.6Z" />
+      <path d="M3.5 12 6 5.6h2.1L5.7 12l2.4 6.4H6L3.5 12Z" />
+      <path d="M20.5 12 18 5.6h-2.1L18.3 12l-2.4 6.4H18l2.5-6.4Z" />
+    </g>
+  </svg>
+);
+
+const GlyphGemini: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#fff"
+      d="M12 2c.4 4.6 2.4 6.6 7 7-4.6.4-6.6 2.4-7 7-.4-4.6-2.4-6.6-7-7 4.6-.4 6.6-2.4 7-7Z"
+    />
+  </svg>
+);
+
+const GlyphCowork: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <text
+      x="12"
+      y="16"
+      textAnchor="middle"
+      fontFamily="ui-sans-serif, system-ui"
+      fontSize="11"
+      fontWeight="800"
+      fill="#fff"
+      letterSpacing="-0.5"
+    >
+      CC
+    </text>
+  </svg>
+);
+
+const GlyphPerplexity: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#fff"
+      d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"
+      stroke="#fff"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const GlyphNotebookLM: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <g fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round">
+      <path d="M6 18A12 12 0 0 1 18 6" />
+      <path d="M6 13a7 7 0 0 1 7-7" />
+    </g>
+    <circle cx="6.5" cy="17.5" r="1.6" fill="#fff" />
+  </svg>
+);
+
+type ToolDef = {
+  id: string;
+  name: string;
+  jp: string;
+  en: string;
+  color: string;
+  Glyph: ToolGlyph;
+};
+
 function IllusTools() {
-  const tools: Array<{ n: string; c: string; x: number; y: number; r: number }> = [
-    { n: 'ChatGPT', c: '#10A37F', x: 14, y: 22, r: -3 },
-    { n: 'Claude', c: '#C77B58', x: 130, y: 14, r: 4 },
-    { n: 'Perplexity', c: '#1FA095', x: 32, y: 78, r: 2 },
-    { n: 'NotebookLM', c: '#4285F4', x: 152, y: 86, r: -3 },
+  const left: ToolDef[] = [
+    { id: 'chatgpt', name: 'ChatGPT', jp: 'アイデア創出', en: 'Ideation', color: '#10A37F', Glyph: GlyphChatGPT },
+    { id: 'claude', name: 'Claude', jp: '分析・要約', en: 'Analysis', color: '#D97757', Glyph: GlyphClaude },
+    { id: 'perplexity', name: 'Perplexity', jp: 'リサーチ', en: 'Research', color: '#1FA095', Glyph: GlyphPerplexity },
   ];
+  const right: ToolDef[] = [
+    { id: 'gemini', name: 'Gemini', jp: 'マルチモーダル', en: 'Multimodal', color: '#4285F4', Glyph: GlyphGemini },
+    { id: 'cowork', name: 'Claude Cowork', jp: 'チーム協働', en: 'Team', color: '#B45A1F', Glyph: GlyphCowork },
+    { id: 'notebooklm', name: 'NotebookLM', jp: 'ナレッジ整理', en: 'Knowledge', color: '#1A2B33', Glyph: GlyphNotebookLM },
+  ];
+
   return (
-    <div className="vertice-illus vertice-illus-tools">
-      {tools.map((t) => (
-        <div
-          key={t.n}
-          className="vertice-illus-tools-chip"
-          style={{ left: t.x, top: t.y, transform: `rotate(${t.r}deg)` }}
-        >
-          <div className="vertice-illus-tools-chip-bullet" style={{ background: t.c }}>
-            {t.n[0]}
-          </div>
-          <span className="vertice-illus-tools-chip-name">{t.n}</span>
+    <div className="vertice-illus vertice-illus-tools" role="presentation">
+      <svg
+        className="vertice-illus-tools-lines"
+        viewBox="0 0 400 320"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="vt-line-l" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#2DBFB0" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#2DBFB0" stopOpacity="0.15" />
+          </linearGradient>
+          <linearGradient id="vt-line-r" x1="1" x2="0" y1="0" y2="0">
+            <stop offset="0%" stopColor="#E6B450" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#E6B450" stopOpacity="0.15" />
+          </linearGradient>
+        </defs>
+        {[60, 160, 260].map((y) => (
+          <path
+            key={`l-${y}`}
+            d={`M 130 ${y} C 165 ${y}, 175 160, 200 160`}
+            fill="none"
+            stroke="url(#vt-line-l)"
+            strokeWidth="1.5"
+            strokeDasharray="3 4"
+          />
+        ))}
+        {[60, 160, 260].map((y) => (
+          <path
+            key={`r-${y}`}
+            d={`M 270 ${y} C 235 ${y}, 225 160, 200 160`}
+            fill="none"
+            stroke="url(#vt-line-r)"
+            strokeWidth="1.5"
+            strokeDasharray="3 4"
+          />
+        ))}
+        <circle cx="130" cy="60" r="2.5" fill="#2DBFB0" opacity="0.7" />
+        <circle cx="130" cy="160" r="2.5" fill="#2DBFB0" opacity="0.7" />
+        <circle cx="130" cy="260" r="2.5" fill="#2DBFB0" opacity="0.7" />
+        <circle cx="270" cy="60" r="2.5" fill="#E6B450" opacity="0.7" />
+        <circle cx="270" cy="160" r="2.5" fill="#E6B450" opacity="0.7" />
+        <circle cx="270" cy="260" r="2.5" fill="#E6B450" opacity="0.7" />
+      </svg>
+
+      <div className="vertice-illus-tools-col vertice-illus-tools-col-l">
+        {left.map((t) => (
+          <ToolNode key={t.id} tool={t} side="l" />
+        ))}
+      </div>
+
+      <div className="vertice-illus-tools-hub" aria-hidden="true">
+        <div className="vertice-illus-tools-hub-ring" />
+        <div className="vertice-illus-tools-hub-inner">
+          <IconSpark size={18} style={{ color: 'var(--vertice-seafoam-dark)' }} />
+          <span className="vertice-illus-tools-hub-jp">最適なAIを選ぶ</span>
+          <span className="vertice-illus-tools-hub-en">Pick the right AI</span>
         </div>
-      ))}
-      <div className="vertice-illus-pill">
-        <IconSpark size={14} style={{ color: 'var(--vertice-seafoam-dark)' }} />
-        <span>4ツール使い分け</span>
+      </div>
+
+      <div className="vertice-illus-tools-col vertice-illus-tools-col-r">
+        {right.map((t) => (
+          <ToolNode key={t.id} tool={t} side="r" />
+        ))}
       </div>
     </div>
   );
 }
 
-function IllusAutomate() {
-  const nodes = ['📧 メール', '📊 要約', '🌐 翻訳', '📤 送信'];
-  const bars = [20, 35, 28, 45, 52, 68, 75];
+function ToolNode({ tool, side }: { tool: ToolDef; side: 'l' | 'r' }) {
+  const { Glyph } = tool;
   return (
-    <div className="vertice-illus vertice-illus-automate">
-      <div className="vertice-illus-automate-flow">
-        {nodes.map((n, i) => (
-          <Fragment key={n}>
-            <div className="vertice-illus-automate-node">{n}</div>
-            {i < nodes.length - 1 && (
-              <div className="vertice-illus-automate-arrow" aria-hidden="true">
-                <span className="vertice-illus-automate-arrow-head" />
-              </div>
-            )}
-          </Fragment>
-        ))}
+    <div className={`vertice-illus-tools-node vertice-illus-tools-node-${side}`}>
+      <div className="vertice-illus-tools-node-logo" style={{ background: tool.color }}>
+        <Glyph size={20} />
       </div>
-      <div className="vertice-illus-automate-saved">
-        <div className="vertice-illus-automate-saved-row">
-          <div>
-            <p className="vertice-illus-automate-saved-eyebrow">TIME SAVED · 1日</p>
-            <p className="vertice-illus-automate-saved-amt">2h 18min</p>
-          </div>
-          <div className="vertice-illus-automate-saved-delta">
-            ↓54% <span>vs. 先月</span>
-          </div>
-        </div>
-        <div className="vertice-illus-automate-bars">
-          {bars.map((h, i) => (
-            <div key={i} className="vertice-illus-automate-bar-cell">
-              <div style={{ height: `${h}%` }} />
-            </div>
-          ))}
-        </div>
+      <div className="vertice-illus-tools-node-text">
+        <span className="vertice-illus-tools-node-name">{tool.name}</span>
+        <span className="vertice-illus-tools-node-jp">{tool.jp}</span>
       </div>
     </div>
   );
 }
+
+const GlyphMail: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="3" y="6" width="18" height="13" rx="2" fill="none" stroke="#fff" strokeWidth="1.8" />
+    <path d="M4 7l8 6 8-6" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+const GlyphSearch: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="11" cy="11" r="6" fill="none" stroke="#fff" strokeWidth="1.8" />
+    <path d="m20 20-4.3-4.3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+const GlyphDoc: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M6 3h9l4 4v14H6z"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <path d="M9 11h7M9 15h7M9 7h3" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+const GlyphGlobe: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="8" fill="none" stroke="#fff" strokeWidth="1.8" />
+    <path
+      d="M4 12h16M12 4c2.5 2.5 3.8 5.3 3.8 8s-1.3 5.5-3.8 8c-2.5-2.5-3.8-5.3-3.8-8S9.5 6.5 12 4Z"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.5"
+    />
+  </svg>
+);
+
+type AutomateTask = {
+  id: string;
+  jp: string;
+  en: string;
+  color: string;
+  Glyph: ToolGlyph;
+};
+
+function IllusAutomate() {
+  const tasks: AutomateTask[] = [
+    { id: 'mail', jp: 'メール', en: 'Email', color: '#9B87E0', Glyph: GlyphMail },
+    { id: 'research', jp: 'リサーチ', en: 'Research', color: '#4285F4', Glyph: GlyphSearch },
+    { id: 'summary', jp: '要約', en: 'Summary', color: '#D97757', Glyph: GlyphDoc },
+    { id: 'translate', jp: '翻訳', en: 'Translate', color: '#1FA095', Glyph: GlyphGlobe },
+  ];
+
+  return (
+    <div className="vertice-illus vertice-illus-automate" role="presentation">
+      <svg
+        className="vertice-illus-automate-lines"
+        viewBox="0 0 400 320"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="va-line" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#2DBFB0" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#2DBFB0" stopOpacity="0.2" />
+          </linearGradient>
+          <linearGradient id="va-arrow" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#2DBFB0" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#1FA496" stopOpacity="0.9" />
+          </linearGradient>
+        </defs>
+        {[60, 130, 200, 270].map((y) => (
+          <path
+            key={`task-${y}`}
+            d={`M 120 ${y} C 155 ${y}, 165 160, 195 160`}
+            fill="none"
+            stroke="url(#va-line)"
+            strokeWidth="1.5"
+            strokeDasharray="3 4"
+          />
+        ))}
+        {[60, 130, 200, 270].map((y) => (
+          <circle key={`dot-${y}`} cx="120" cy={y} r="2.5" fill="#2DBFB0" opacity="0.7" />
+        ))}
+        <path
+          d="M 235 160 L 275 160"
+          stroke="url(#va-arrow)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 270 154 L 278 160 L 270 166"
+          fill="none"
+          stroke="#1FA496"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.9"
+        />
+      </svg>
+
+      <div className="vertice-illus-automate-col vertice-illus-automate-tasks">
+        {tasks.map((t) => {
+          const { Glyph } = t;
+          return (
+            <div key={t.id} className="vertice-illus-automate-task">
+              <div className="vertice-illus-automate-task-logo" style={{ background: t.color }}>
+                <Glyph size={16} />
+              </div>
+              <span className="vertice-illus-automate-task-label">{t.jp}</span>
+              <span className="vertice-illus-automate-task-check" aria-hidden="true">
+                <IconCheck size={8} />
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="vertice-illus-automate-hub" aria-hidden="true">
+        <div className="vertice-illus-automate-hub-ring" />
+        <div className="vertice-illus-automate-hub-inner">
+          <IconSpark size={18} style={{ color: 'var(--vertice-seafoam-dark)' }} />
+          <span className="vertice-illus-automate-hub-label">AI</span>
+          <span className="vertice-illus-automate-hub-sub">AUTOMATE</span>
+        </div>
+      </div>
+
+      <div className="vertice-illus-automate-col vertice-illus-automate-outcome">
+        <p className="vertice-illus-automate-outcome-eyebrow">
+          <span>RECLAIMED</span>
+          <span className="vertice-illus-automate-outcome-eyebrow-jp">毎日取り戻す</span>
+        </p>
+        <p className="vertice-illus-automate-outcome-amt">
+          2h <span className="vertice-illus-automate-outcome-amt-min">18min</span>
+        </p>
+        <span className="vertice-illus-automate-outcome-delta">↓ 54% vs. 先月</span>
+      </div>
+    </div>
+  );
+}
+
+const GlyphPeople: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="9" cy="9" r="3.2" fill="none" stroke="#fff" strokeWidth="1.7" />
+    <circle cx="16" cy="10" r="2.4" fill="none" stroke="#fff" strokeWidth="1.7" />
+    <path
+      d="M3 19c0-3 2.7-5 6-5s6 2 6 5"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+    <path
+      d="M15 18c.4-2 2-3.3 4-3.3s3.6 1.3 4 3.3"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const GlyphTask: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="4" y="4" width="16" height="16" rx="3.5" fill="none" stroke="#fff" strokeWidth="1.8" />
+    <path
+      d="M8 12.5l3 3 5-6"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const GlyphSend: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M3.5 12 21 4l-7 17-3-8-7.5-1z"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+type TeamStep = {
+  n: string;
+  jp: string;
+  color: string;
+  Glyph: ToolGlyph;
+};
 
 function IllusTeam() {
   const agenda = ['1. Q2業績レビュー', '2. 新規案件の状況', '3. リソース配分'];
+  const steps: TeamStep[] = [
+    { n: '01', jp: '資料を準備', color: '#9B87E0', Glyph: GlyphDoc },
+    { n: '02', jp: 'チームで確認', color: '#2DBFB0', Glyph: GlyphPeople },
+    { n: '03', jp: 'タスクを割当', color: '#E6B450', Glyph: GlyphTask },
+    { n: '04', jp: 'フォローアップ', color: '#5A6B73', Glyph: GlyphSend },
+  ];
   const avatars: Array<{ c: string; l: string }> = [
     { c: '#9B87E0', l: 'M' },
     { c: '#2DBFB0', l: 'K' },
-    { c: '#E8B86F', l: 'S' },
+    { c: '#E6B450', l: 'S' },
     { c: '#5A6B73', l: 'T' },
   ];
+
   return (
-    <div className="vertice-illus vertice-illus-team">
-      <div className="vertice-illus-team-card">
-        <div className="vertice-illus-team-card-head">
-          <div className="vertice-illus-team-card-date">
-            <span className="vertice-illus-team-card-date-month">5月</span>
-            <span className="vertice-illus-team-card-date-day">15</span>
+    <div className="vertice-illus vertice-illus-team" role="presentation">
+      <svg
+        className="vertice-illus-team-lines"
+        viewBox="0 0 400 320"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="vt-team-in" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#9B87E0" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#9B87E0" stopOpacity="0.2" />
+          </linearGradient>
+          <linearGradient id="vt-team-out" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#2DBFB0" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#1FA496" stopOpacity="0.7" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M 160 160 C 190 160, 200 160, 220 160"
+          fill="none"
+          stroke="url(#vt-team-in)"
+          strokeWidth="1.5"
+          strokeDasharray="3 4"
+        />
+        <path
+          d="M 290 160 C 310 160, 320 160, 340 160"
+          fill="none"
+          stroke="url(#vt-team-out)"
+          strokeWidth="1.5"
+          strokeDasharray="3 4"
+        />
+        <circle cx="160" cy="160" r="2.5" fill="#9B87E0" opacity="0.7" />
+        <circle cx="340" cy="160" r="2.5" fill="#2DBFB0" opacity="0.7" />
+      </svg>
+
+      <div className="vertice-illus-team-col vertice-illus-team-meeting-col">
+        <div className="vertice-illus-team-card">
+          <div className="vertice-illus-team-card-head">
+            <div className="vertice-illus-team-card-date">
+              <span className="vertice-illus-team-card-date-month">5月</span>
+              <span className="vertice-illus-team-card-date-day">15</span>
+            </div>
+            <div>
+              <p className="vertice-illus-team-card-title">四半期会議の準備</p>
+              <p className="vertice-illus-team-card-time">10:00 — 11:00</p>
+            </div>
           </div>
-          <div>
-            <p className="vertice-illus-team-card-title">四半期会議の準備</p>
-            <p className="vertice-illus-team-card-time">10:00 — 11:00</p>
-          </div>
+          <p className="vertice-illus-team-card-eyebrow">AI生成 · 議題</p>
+          {agenda.map((line) => (
+            <p key={line} className="vertice-illus-team-card-line">
+              {line}
+            </p>
+          ))}
         </div>
-        <p className="vertice-illus-team-card-eyebrow">AI生成 · 議題</p>
-        {agenda.map((line) => (
-          <p key={line} className="vertice-illus-team-card-line">
-            {line}
-          </p>
-        ))}
       </div>
-      <div className="vertice-illus-team-avatars">
-        {avatars.map((a) => (
-          <div
-            key={a.l}
-            className="vertice-illus-team-avatar"
-            style={{ background: a.c }}
-          >
-            {a.l}
-          </div>
-        ))}
+
+      <div className="vertice-illus-team-col vertice-illus-team-steps">
+        {steps.map((s) => {
+          const { Glyph } = s;
+          return (
+            <div key={s.n} className="vertice-illus-team-step">
+              <span className="vertice-illus-team-step-num">{s.n}</span>
+              <div className="vertice-illus-team-step-icon" style={{ background: s.color }}>
+                <Glyph size={14} />
+              </div>
+              <span className="vertice-illus-team-step-label">{s.jp}</span>
+              <span className="vertice-illus-team-step-check" aria-hidden="true">
+                <IconCheck size={8} />
+              </span>
+            </div>
+          );
+        })}
       </div>
-      <div className="vertice-illus-pill vertice-illus-pill-tr">
-        <IconSpark size={14} style={{ color: 'var(--vertice-lavender-dark)' }} />
+
+      <div className="vertice-illus-team-col vertice-illus-team-people">
+        <div className="vertice-illus-team-avatars">
+          {avatars.map((a) => (
+            <div
+              key={a.l}
+              className="vertice-illus-team-avatar"
+              style={{ background: a.c }}
+              aria-hidden="true"
+            >
+              {a.l}
+            </div>
+          ))}
+        </div>
+        <div className="vertice-illus-team-status">
+          <span className="vertice-illus-team-status-dot" aria-hidden="true" />
+          <span>チームで連携中</span>
+        </div>
+      </div>
+
+      <div className="vertice-illus-pill vertice-illus-team-pill">
+        <IconSpark size={12} style={{ color: 'var(--vertice-lavender-dark)' }} />
         <span>準備時間 -80%</span>
       </div>
     </div>
   );
 }
 
+const GlyphPerson: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="8" r="3.5" fill="none" stroke="#fff" strokeWidth="1.8" />
+    <path
+      d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const GlyphChat: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-4 3v-3H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+    <circle cx="9" cy="11" r="1" fill="#fff" />
+    <circle cx="13" cy="11" r="1" fill="#fff" />
+    <circle cx="17" cy="11" r="1" fill="#fff" />
+  </svg>
+);
+
+const GlyphWrench: ToolGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M14.7 6.3a4 4 0 0 1 5 5L17 14l3 3-3 3-3-3-2.7 2.7a4 4 0 0 1-5-5L9 12 6 9l3-3 3 3 2.7-2.7Z"
+      fill="none"
+      stroke="#fff"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const GlyphRobot: ToolGlyph = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="5" y="8" width="14" height="10" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <circle cx="9.5" cy="13" r="1.2" fill="currentColor" />
+    <circle cx="14.5" cy="13" r="1.2" fill="currentColor" />
+    <path d="M12 8V5M10 5h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M3 13v2M21 13v2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+type BuildLayer = {
+  id: string;
+  name: string;
+  jp: string;
+  color: string;
+  Glyph: ToolGlyph;
+  pos: 'tl' | 'tr' | 'bl' | 'br';
+};
+
 function IllusBuild() {
-  const layers: Array<{ l: string; c: string; j: string; tc: string }> = [
-    { l: 'YOUR AI', c: 'var(--vertice-navy)', j: '自分専用アシスタント', tc: '#fff' },
-    { l: 'WORKFLOWS', c: '#E8B86F', j: 'メール・要約・リサーチ', tc: 'var(--vertice-navy)' },
-    { l: 'PROMPTS', c: 'var(--vertice-seafoam)', j: '50+ プロンプトライブラリ', tc: '#fff' },
-    { l: 'TOOLS', c: 'var(--vertice-lavender)', j: 'ChatGPT · Claude · Perplexity', tc: '#fff' },
+  const layers: BuildLayer[] = [
+    { id: 'you', name: 'YOUR AI', jp: '自分専用アシスタント', color: '#1A2B33', Glyph: GlyphPerson, pos: 'tl' },
+    { id: 'flows', name: 'WORKFLOWS', jp: 'メール · 要約 · リサーチ', color: '#E6B450', Glyph: GlyphDoc, pos: 'tr' },
+    { id: 'prompts', name: 'PROMPTS', jp: '50+ プロンプト', color: '#2DBFB0', Glyph: GlyphChat, pos: 'bl' },
+    { id: 'tools', name: 'TOOLS', jp: 'ChatGPT · Claude +3', color: '#9B87E0', Glyph: GlyphWrench, pos: 'br' },
   ];
+  const left = layers.filter((l) => l.pos === 'tl' || l.pos === 'bl');
+  const right = layers.filter((l) => l.pos === 'tr' || l.pos === 'br');
+
   return (
-    <div className="vertice-illus vertice-illus-build">
-      <div className="vertice-illus-build-stack">
-        {layers.map((b) => (
-          <div
-            key={b.l}
-            className="vertice-illus-build-layer"
-            style={{ background: b.c, color: b.tc }}
-          >
-            <span className="vertice-illus-build-layer-l">{b.l}</span>
-            <span className="vertice-illus-build-layer-j">{b.j}</span>
-          </div>
+    <div className="vertice-illus vertice-illus-build" role="presentation">
+      <svg
+        className="vertice-illus-build-lines"
+        viewBox="0 0 400 320"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="vb-line-l" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#2DBFB0" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#2DBFB0" stopOpacity="0.15" />
+          </linearGradient>
+          <linearGradient id="vb-line-r" x1="1" x2="0" y1="0" y2="0">
+            <stop offset="0%" stopColor="#9B87E0" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#9B87E0" stopOpacity="0.15" />
+          </linearGradient>
+        </defs>
+        {[100, 220].map((y) => (
+          <path
+            key={`l-${y}`}
+            d={`M 130 ${y} C 165 ${y}, 175 160, 200 160`}
+            fill="none"
+            stroke="url(#vb-line-l)"
+            strokeWidth="1.5"
+            strokeDasharray="3 4"
+          />
+        ))}
+        {[100, 220].map((y) => (
+          <path
+            key={`r-${y}`}
+            d={`M 270 ${y} C 235 ${y}, 225 160, 200 160`}
+            fill="none"
+            stroke="url(#vb-line-r)"
+            strokeWidth="1.5"
+            strokeDasharray="3 4"
+          />
+        ))}
+        <circle cx="130" cy="100" r="2.5" fill="#1A2B33" opacity="0.7" />
+        <circle cx="130" cy="220" r="2.5" fill="#2DBFB0" opacity="0.7" />
+        <circle cx="270" cy="100" r="2.5" fill="#E6B450" opacity="0.85" />
+        <circle cx="270" cy="220" r="2.5" fill="#9B87E0" opacity="0.7" />
+      </svg>
+
+      <div className="vertice-illus-build-col vertice-illus-build-col-l">
+        {left.map((l) => (
+          <BuildNode key={l.id} layer={l} />
         ))}
       </div>
-      <div className="vertice-illus-pill">
-        <span aria-hidden="true">🛠️</span>
+
+      <div className="vertice-illus-build-hub" aria-hidden="true">
+        <div className="vertice-illus-build-hub-ring" />
+        <div className="vertice-illus-build-hub-inner">
+          <span className="vertice-illus-build-hub-icon" style={{ color: 'var(--vertice-seafoam-dark)' }}>
+            <GlyphRobot size={22} />
+          </span>
+          <span className="vertice-illus-build-hub-label">MY AI</span>
+          <span className="vertice-illus-build-hub-status">
+            <span className="vertice-illus-build-hub-dot" />
+            Online
+          </span>
+        </div>
+      </div>
+
+      <div className="vertice-illus-build-col vertice-illus-build-col-r">
+        {right.map((l) => (
+          <BuildNode key={l.id} layer={l} />
+        ))}
+      </div>
+
+      <div className="vertice-illus-pill vertice-illus-build-pill">
+        <IconSpark size={12} style={{ color: 'var(--vertice-seafoam-dark)' }} />
         <span>4層スタック</span>
       </div>
     </div>
   );
 }
-// ——— Curriculum (5-week dark sticky-rail) ————————————————————————
-type CurriculumWeek = {
+
+function BuildNode({ layer }: { layer: BuildLayer }) {
+  const { Glyph } = layer;
+  return (
+    <div className="vertice-illus-build-node">
+      <div className="vertice-illus-build-node-logo" style={{ background: layer.color }}>
+        <Glyph size={16} />
+      </div>
+      <div className="vertice-illus-build-node-text">
+        <span className="vertice-illus-build-node-name">{layer.name}</span>
+        <span className="vertice-illus-build-node-jp">{layer.jp}</span>
+      </div>
+    </div>
+  );
+}
+// ——— Curriculum (5-module sticky-rail) ————————————————————————
+type CurriculumModule = {
   n: number;
   jp: string;
   en: string;
   d: string;
-  dur: string;
 };
 
-const CURRICULUM_WEEKS: CurriculumWeek[] = [
+const CURRICULUM_MODULES: CurriculumModule[] = [
   {
     n: 1,
     jp: 'AIの基礎を知る',
     en: 'AI Foundations',
-    d: 'なぜ今AIが重要なのか、プロが使うトップ10ツールをハンズオンで体験。基礎概念から始めて、実務に直結する全体像を掴む。',
-    dur: '約6時間 / ~6 hrs',
+    d: 'なぜ今AIが重要なのか、プロが日常で使う6つのAI（ChatGPT、Claude、Claude Cowork、Gemini、Perplexity、NotebookLM）をハンズオンで体験。基礎概念から始めて、実務に直結する全体像を掴む。',
   },
   {
     n: 2,
     jp: 'AIに仕事をさせる',
     en: 'Put AI to Work',
     d: '文書要約、リサーチ、翻訳のテクニック。AIの限界とハルシネーション対策を学び、業務に安心して導入できる状態に。',
-    dur: '約6時間 / ~6 hrs',
   },
   {
     n: 3,
     jp: 'チームでAIを活用する',
     en: 'AI for Teams',
     d: '2人以上のチーム向けAIコミュニケーション、会議準備、AIへのタスク委任。チーム全体の生産性を引き上げるパターン集。',
-    dur: '約6時間 / ~6 hrs',
   },
   {
     n: 4,
     jp: 'はじめてのAIツールを作る',
     en: 'Build Your First AI Tool',
     d: 'パーソナルAIワークフロー設計、AIアシスタントのカスタマイズ。コードなしで自分専用のAIを構築。',
-    dur: '約6時間 / ~6 hrs',
   },
   {
     n: 5,
     jp: '自分のAIアクションプラン',
     en: 'Your AI Action Plan',
     d: 'パーソナルAIロードマップ、3ツール×3ワークフロー×3目標。修了後3ヶ月の行動計画を持ち帰る。',
-    dur: '約6時間 / ~6 hrs · 修了証',
   },
-];
-
-const CURRICULUM_CHIPS: Array<{ jp: string; en: string }> = [
-  { jp: '自分のペース', en: 'Self-paced' },
-  { jp: '日本語サポート', en: 'JP support' },
-  { jp: '永久アクセス', en: 'Lifetime' },
-  { jp: '修了証', en: 'Certificate' },
 ];
 
 function Curriculum() {
@@ -701,32 +1433,24 @@ function Curriculum() {
       <div className="vertice-curr-inner">
         <div className="vertice-curr-grid">
           <div className="vertice-curr-rail">
-            <p className="vertice-curr-eyebrow">The curriculum</p>
+            <p className="vertice-curr-eyebrow">What you&apos;ll learn</p>
             <h2 id="vertice-curr-heading" className="vertice-curr-title">
-              5週間。
+              <span className="vertice-curr-title-accent">5モジュール。</span>
               <br />
-              <span className="vertice-curr-title-accent">プロのためのカリキュラム。</span>
+              プロのためのカリキュラム。
             </h2>
-            <p className="vertice-curr-sub">5 weeks. Built for professionals.</p>
+            <p className="vertice-curr-sub">30 hours. Built for professionals.</p>
             <p className="vertice-curr-body-jp">
-              自分のペースで学べる。コホートで学べば、さらに深く。
+              プロが毎日使うツールとワークフローを、ハンズオンで身につける。
             </p>
             <p className="vertice-curr-body-en">
-              Self-paced. Or go deeper with a live cohort.
+              Hands-on training in the tools and workflows professionals use every day.
             </p>
-            <div className="vertice-curr-chips">
-              {CURRICULUM_CHIPS.map((c) => (
-                <span key={c.en} className="vertice-curr-chip">
-                  <span className="vertice-curr-chip-jp">{c.jp}</span>
-                  <span className="vertice-curr-chip-en">{c.en}</span>
-                </span>
-              ))}
-            </div>
           </div>
 
           <div className="vertice-curr-list">
-            {CURRICULUM_WEEKS.map((w) => (
-              <WeekRow key={w.n} w={w} />
+            {CURRICULUM_MODULES.map((m) => (
+              <ModuleRow key={m.n} m={m} />
             ))}
           </div>
         </div>
@@ -735,19 +1459,16 @@ function Curriculum() {
   );
 }
 
-function WeekRow({ w }: { w: CurriculumWeek }) {
+function ModuleRow({ m }: { m: CurriculumModule }) {
   return (
     <div className="vertice-week">
-      <div className="vertice-week-num">{w.n}</div>
+      <div className="vertice-week-num">{m.n}</div>
       <div className="vertice-week-body">
         <div className="vertice-week-headline">
-          <h3 className="vertice-week-title">{w.jp}</h3>
-          <span className="vertice-week-en">{w.en}</span>
+          <h3 className="vertice-week-title">{m.jp}</h3>
+          <span className="vertice-week-en">{m.en}</span>
         </div>
-        <p className="vertice-week-desc">{w.d}</p>
-        <span className="vertice-week-dur">
-          <IconPlay size={9} /> {w.dur}
-        </span>
+        <p className="vertice-week-desc">{m.d}</p>
       </div>
       <span className="vertice-week-arrow" aria-hidden="true">
         <IconArrow size={16} />
@@ -755,6 +1476,298 @@ function WeekRow({ w }: { w: CurriculumWeek }) {
     </div>
   );
 }
+
+// ——— LearningFormats (Vault self-paced vs Cohort 5-week live) ————————
+type FormatGlyph = (props: { size?: number }) => ReactElement;
+
+const FGLibrary: FormatGlyph = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="4" y="4" width="6" height="16" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <rect x="11" y="4" width="5" height="16" rx="1.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path
+      d="M17.2 6.4l3.2.8-3 12-3.2-.8z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const FGPeople: FormatGlyph = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <circle cx="16" cy="10" r="2.4" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path
+      d="M3 19c0-3 2.7-5 6-5s6 2 6 5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+    <path
+      d="M15 18c.4-2 2-3.3 4-3.3s3.6 1.3 4 3.3"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const FGInfinity: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M7.5 8.5c-2 0-3.5 1.6-3.5 3.5s1.5 3.5 3.5 3.5c2.8 0 4-4 6.5-4 1.7 0 3 1.3 3 3s-1.3 3-3 3-3.5-2-5-4-2-3.5-2-4.5z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M16.5 8.5c-1.7 0-2.8 1.5-3.7 3"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const FGClock: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path
+      d="M12 7.5V12l3 2.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const FGPlay: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M10 8.5v7l6-3.5z" fill="currentColor" />
+  </svg>
+);
+
+const FGGlobeOutline: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path
+      d="M3.5 12h17M12 3.5c2.5 2.5 3.8 5.3 3.8 8.5s-1.3 6-3.8 8.5c-2.5-2.5-3.8-5.3-3.8-8.5s1.3-6 3.8-8.5z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+  </svg>
+);
+
+const FGCalendar: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="3.5" y="6" width="17" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M3.5 10h17" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M8 3.5v4M16 3.5v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+  </svg>
+);
+
+const FGVideo: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="3" y="7" width="13" height="10" rx="2" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <path
+      d="M16 10.5l5-2v7l-5-2z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const FGRocket: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M14 4c4 1 6 3 7 7l-7 7-3-3-3-3 6-8z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+    <circle cx="15" cy="9" r="1.6" fill="currentColor" />
+    <path
+      d="M7 14l-3 3 3 1 1 3 3-3"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const FGCertificate: FormatGlyph = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="10" r="5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+    <circle cx="12" cy="10" r="2" fill="currentColor" />
+    <path
+      d="M9 14.5l-1.5 6 4.5-2.5 4.5 2.5-1.5-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+type FormatBullet = { jp: string; en: string; Glyph: FormatGlyph };
+
+type FormatCardProps = {
+  mode: 'vault' | 'cohort';
+  badgeJp: string;
+  badgeEn: string;
+  HeaderGlyph: FormatGlyph;
+  titleJp: string;
+  titleEn: string;
+  bullets: FormatBullet[];
+  ctaHref: string;
+  ctaJp: string;
+  ctaEn: string;
+};
+
+function LearningFormats() {
+  return (
+    <section
+      id="how-you-learn"
+      className="vertice-formats"
+      aria-labelledby="vertice-formats-heading"
+    >
+      <div className="vertice-formats-inner">
+        <p className="vertice-formats-eyebrow">How you learn it</p>
+        <h2 id="vertice-formats-heading" className="vertice-formats-title">
+          同じ内容、
+          <span className="vertice-formats-title-accent">2つの学び方。</span>
+        </h2>
+        <p className="vertice-formats-sub">Same curriculum. Two ways to learn.</p>
+
+        <div className="vertice-formats-grid">
+          <FormatCard
+            mode="vault"
+            badgeJp="自分のペース"
+            badgeEn="Self-paced"
+            HeaderGlyph={FGLibrary}
+            titleJp="Vault"
+            titleEn="Self-paced library"
+            bullets={[
+              { jp: '永久アクセス・あなたのスケジュールで', en: 'Lifetime access · your schedule', Glyph: FGInfinity },
+              { jp: '合計30時間・週2〜10時間で柔軟に', en: '~30 hours total · 2–10 hrs/week', Glyph: FGClock },
+              { jp: '40本以上の動画・テンプレート・プロンプト', en: '40+ videos · templates · prompts', Glyph: FGPlay },
+              { jp: 'いつでもどこでも、何度でも見返せる', en: 'Watch anywhere, anytime, as many times as you want', Glyph: FGGlobeOutline },
+            ]}
+            ctaHref="#pricing"
+            ctaJp="Vaultの詳細を見る"
+            ctaEn="See Vault pricing"
+          />
+          <FormatCard
+            mode="cohort"
+            badgeJp="ライブコホート"
+            badgeEn="Live Cohort"
+            HeaderGlyph={FGPeople}
+            titleJp="Live Cohort"
+            titleEn="5-week live program"
+            bullets={[
+              { jp: '5週間・週6時間（ライブ + 自習）', en: '5 weeks · 6 hrs/week (live + self-study)', Glyph: FGCalendar },
+              { jp: '週1回のライブZoom・少人数指導', en: 'Weekly live Zoom · small-group coaching', Glyph: FGVideo },
+              { jp: '同期メンバーとプロジェクトを完走', en: 'Ship a project alongside cohort peers', Glyph: FGRocket },
+              { jp: '修了証・Vaultの全コンテンツを含む', en: 'Verified certificate · includes full Vault library', Glyph: FGCertificate },
+            ]}
+            ctaHref="#pricing"
+            ctaJp="コホートの詳細を見る"
+            ctaEn="See Cohort pricing"
+          />
+        </div>
+
+        <p className="vertice-formats-foot">
+          <span className="vertice-formats-foot-jp">
+            どちらも同じ5モジュールのカリキュラム。学び方だけが違います。
+          </span>
+          <span className="vertice-formats-foot-en">
+            Both modes deliver the same 5-module curriculum. Only the format differs.
+          </span>
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function FormatCard({
+  mode,
+  badgeJp,
+  badgeEn,
+  HeaderGlyph,
+  titleJp,
+  titleEn,
+  bullets,
+  ctaHref,
+  ctaJp,
+  ctaEn,
+}: FormatCardProps) {
+  const onClick = () =>
+    trackEvent('partner_format_click', {
+      partner: PARTNER_SLUG,
+      mode,
+    });
+
+  return (
+    <div className={`vertice-formats-card vertice-formats-card-${mode}`}>
+      <div className="vertice-formats-card-header">
+        <div className="vertice-formats-card-header-icon" aria-hidden="true">
+          <HeaderGlyph size={22} />
+        </div>
+        <div className="vertice-formats-card-badge">
+          <span className="vertice-formats-card-badge-jp">{badgeJp}</span>
+          <span className="vertice-formats-card-badge-en">{badgeEn}</span>
+        </div>
+      </div>
+      <h3 className="vertice-formats-card-title">{titleJp}</h3>
+      <p className="vertice-formats-card-title-en">{titleEn}</p>
+      <div className="vertice-formats-card-divider" aria-hidden="true" />
+      <ul className="vertice-formats-card-bullets">
+        {bullets.map((b) => {
+          const { Glyph } = b;
+          return (
+            <li key={b.en} className="vertice-formats-card-bullet">
+              <span className="vertice-formats-card-bullet-icon" aria-hidden="true">
+                <Glyph size={18} />
+              </span>
+              <span className="vertice-formats-card-bullet-text">
+                <span className="vertice-formats-card-bullet-jp">{b.jp}</span>
+                <span className="vertice-formats-card-bullet-en">{b.en}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <a
+        href={ctaHref}
+        onClick={onClick}
+        className="vertice-formats-card-cta"
+      >
+        <span className="vertice-formats-card-cta-label">
+          <span className="vertice-formats-card-cta-jp">{ctaJp}</span>
+          <span className="vertice-formats-card-cta-en">{ctaEn}</span>
+        </span>
+        <IconArrow size={14} className="vertice-formats-card-cta-arrow" />
+      </a>
+    </div>
+  );
+}
+
 // ——— Vault preview (6 gradient cards) ——————————————————————————
 type VaultItem = {
   tag: 'TEMPLATE' | 'PROMPT' | 'WORKFLOW' | 'WALKTHROUGH' | 'GUIDE';
@@ -859,6 +1872,117 @@ function VaultPreview() {
     </section>
   );
 }
+// ——— Testimonials (3 placeholder cards above Pricing) ————————————————
+// NOTE: Placeholder content — replace with real member quotes before launch.
+// The "PLACEHOLDER" banner above the section is intentional and must stay until
+// real quotes are dropped in.
+type Testimonial = {
+  initial: string;
+  bg: string;
+  quoteJp: string;
+  quoteEn: string;
+  name: string;
+  roleJp: string;
+  roleEn: string;
+  resultJp: string;
+  resultEn: string;
+};
+
+const TESTIMONIALS: Testimonial[] = [
+  {
+    initial: 'M',
+    bg: '#9B87E0',
+    quoteJp:
+      '半信半疑で始めましたが、3週目で自分のメール対応が1日30分以下に。テンプレートがそのまま実務で使えました。',
+    quoteEn:
+      'Skeptical at first — by week 3, my email work was under 30 minutes a day. The templates worked as-is.',
+    name: 'M. Tanaka',
+    roleJp: 'マーケティングマネージャー · 東京',
+    roleEn: 'Marketing Manager · Tokyo',
+    resultJp: '週10時間削減',
+    resultEn: '10 hrs/week saved',
+  },
+  {
+    initial: 'K',
+    bg: '#2DBFB0',
+    quoteJp:
+      '英語が苦手でしたが、日本語字幕とESLガイドのおかげで完走できました。プロンプト集だけで元が取れたと感じます。',
+    quoteEn:
+      'My English is limited, but the JP subtitles and ESL guide carried me through. The prompt library alone paid for itself.',
+    name: 'K. Sato',
+    roleJp: 'プロダクトリード · 大阪',
+    roleEn: 'Product Lead · Osaka',
+    resultJp: 'プロンプト50本を実務に統合',
+    resultEn: '50 prompts shipped',
+  },
+  {
+    initial: 'S',
+    bg: '#E8B86F',
+    quoteJp:
+      'チーム全員でVaultを使い始めて、会議準備の時間が80%短くなりました。ROIは1週間で達成できました。',
+    quoteEn:
+      'My whole team adopted the Vault — meeting prep dropped 80%. ROI hit in week one.',
+    name: 'S. Watanabe',
+    roleJp: '事業責任者 · 福岡',
+    roleEn: 'Business Lead · Fukuoka',
+    resultJp: '会議準備 -80%',
+    resultEn: '80% less prep time',
+  },
+];
+
+function Testimonials() {
+  return (
+    <section
+      id="testimonials"
+      className="vertice-test"
+      aria-labelledby="vertice-test-heading"
+    >
+      <FloatingHonu top={50} opacity={0.05} />
+      <div className="vertice-test-inner">
+        <div className="vertice-test-head">
+          <p className="vertice-test-eyebrow">受講者の声 / Member stories</p>
+          <h2 id="vertice-test-heading" className="vertice-test-title">
+            実際に、
+            <span className="vertice-test-title-accent">使いこなしている人たち。</span>
+          </h2>
+          <p className="vertice-test-sub">Real people. Real outcomes.</p>
+        </div>
+        <div className="vertice-test-grid">
+          {TESTIMONIALS.map((t) => (
+            <article key={t.name} className="vertice-test-card">
+              <span className="vertice-test-quote-mark" aria-hidden="true">
+                &ldquo;
+              </span>
+              <p className="vertice-test-quote-jp">{t.quoteJp}</p>
+              <p className="vertice-test-quote-en">{t.quoteEn}</p>
+              <div className="vertice-test-footer">
+                <div className="vertice-test-person">
+                  <span
+                    className="vertice-test-avatar"
+                    style={{ background: t.bg }}
+                    aria-hidden="true"
+                  >
+                    {t.initial}
+                  </span>
+                  <div className="vertice-test-meta">
+                    <p className="vertice-test-name">{t.name}</p>
+                    <p className="vertice-test-role-jp">{t.roleJp}</p>
+                    <p className="vertice-test-role-en">{t.roleEn}</p>
+                  </div>
+                </div>
+                <div className="vertice-test-result">
+                  <p className="vertice-test-result-jp">{t.resultJp}</p>
+                  <p className="vertice-test-result-en">{t.resultEn}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ——— Pricing (3 tiers: Community / Vault highlighted / Live Cohort) ———
 type PriceFeature = { jp: string; en: string; bold?: boolean };
 
@@ -867,6 +1991,9 @@ type PriceCardProps = {
   highlighted?: boolean;
   badge?: React.ReactNode;
   badgeVariant?: 'default' | 'cohort';
+  includes?: React.ReactNode;
+  delta?: React.ReactNode;
+  accessChip?: React.ReactNode;
   jpName: string;
   enName: string;
   jpTagline: string;
@@ -898,15 +2025,45 @@ function Pricing() {
           <p className="vertice-pr-eyebrow">Pricing</p>
           <h2 id="vertice-pr-heading" className="vertice-pr-title">
             あなたに合う、
-            <span className="vertice-pr-title-accent">学び方を選ぶ。</span>
+            <span className="vertice-pr-title-accent">プランを選ぶ。</span>
           </h2>
-          <p className="vertice-pr-sub">Choose how you learn.</p>
+          <p className="vertice-pr-sub">Choose your plan.</p>
           <p className="vertice-pr-body">
             自分のペースで学ぶ。コミュニティで深める。ライブで仕上げる。
             <span className="vertice-pr-body-en">
               Learn at your pace. Go deeper in community. Master it live.
             </span>
           </p>
+        </div>
+
+        <div className="vertice-pr-ladder" aria-label="How the tiers stack">
+          <div className="vertice-pr-ladder-step">
+            <span className="vertice-pr-ladder-num">1</span>
+            <span className="vertice-pr-ladder-text">
+              <span className="vertice-pr-ladder-jp">Community でつながる</span>
+              <span className="vertice-pr-ladder-en">Connect</span>
+            </span>
+          </div>
+          <span className="vertice-pr-ladder-arrow" aria-hidden="true">
+            <IconArrow size={14} />
+          </span>
+          <div className="vertice-pr-ladder-step">
+            <span className="vertice-pr-ladder-num">2</span>
+            <span className="vertice-pr-ladder-text">
+              <span className="vertice-pr-ladder-jp">Vault で身につける</span>
+              <span className="vertice-pr-ladder-en">Learn</span>
+            </span>
+          </div>
+          <span className="vertice-pr-ladder-arrow" aria-hidden="true">
+            <IconArrow size={14} />
+          </span>
+          <div className="vertice-pr-ladder-step">
+            <span className="vertice-pr-ladder-num">3</span>
+            <span className="vertice-pr-ladder-text">
+              <span className="vertice-pr-ladder-jp">Live Cohort で仕上げる</span>
+              <span className="vertice-pr-ladder-en">Master</span>
+            </span>
+          </div>
         </div>
 
         <div className="vertice-pr-grid">
@@ -918,17 +2075,29 @@ function Pricing() {
             enTagline="The place to keep learning"
             price={
               <>
-                <span className="vertice-pr-price-amt">¥2,800</span>
-                <span className="vertice-pr-price-suffix">/月</span>
+                <span className="vertice-pr-price-amt">$20</span>
+                <span className="vertice-pr-price-suffix">/month</span>
               </>
             }
-            sub="≈ $19/mo · 年額 ¥19,000"
+            sub="≈ ¥2,800/月 · 年額 ¥19,000"
             features={[
-              { jp: '月次ライブQ&A', en: 'Monthly live Q&A' },
-              { jp: '新しいプロンプト・ツール紹介', en: 'New prompts & tools weekly' },
-              { jp: 'ESLコンパニオン（バイリンガル）', en: 'ESL companion (bilingual)' },
-              { jp: 'メンバー限定リソース', en: 'Member-only resources' },
-              { jp: 'キャンセルいつでも可', en: 'Cancel anytime' },
+              {
+                jp: '困った時は月次Q&Aでプロから直接答えがもらえる',
+                en: 'Get answers direct from pros every month',
+              },
+              {
+                jp: '毎週、業務で使える新プロンプト・ツールが届く',
+                en: 'New ready-to-use prompts and tools every week',
+              },
+              {
+                jp: '英語も日本語も、自分のペースで強化',
+                en: 'Build English + Japanese AI fluency at your pace',
+              },
+              {
+                jp: 'メンバー限定リソースで最新動向に置いていかれない',
+                en: 'Member-only resources keep you current',
+              },
+              { jp: 'キャンセルいつでも可・契約縛りなし', en: 'Cancel anytime · no lock-in' },
             ]}
             ctaJp="コミュニティに参加する"
             ctaEn="Join the Community"
@@ -958,17 +2127,39 @@ function Pricing() {
                 <span>最初の100名限定 · 残り37名</span>
               </>
             }
+            accessChip={
+              <>
+                <span className="vertice-pr-access-icon" aria-hidden="true">
+                  ♾️
+                </span>
+                <span className="vertice-pr-access-text">
+                  <span className="vertice-pr-access-jp">永久アクセス · 一度払えば終わり</span>
+                  <span className="vertice-pr-access-en">Lifetime access · pay once</span>
+                </span>
+              </>
+            }
             features={[
-              { jp: '30時間以上の実践トレーニング', en: '30+ hours practical training' },
-              { jp: '40本以上のビデオレッスン', en: '40+ video lessons' },
-              { jp: '全テンプレート・プロンプト集', en: 'All templates & prompts' },
               {
-                jp: '永久アクセス（買い切り）',
-                en: 'Lifetime access · one-time payment',
+                jp: '1日30分×5週間で実務スキルが身につく',
+                en: '30 min/day × 5 weeks → practical AI fluency',
                 bold: true,
               },
-              { jp: 'Honu Community 1ヶ月無料', en: '1 month Community free' },
-              { jp: '修了証', en: 'Certificate of completion' },
+              {
+                jp: '隙間時間に1本ずつ完結する短尺レッスン40本以上',
+                en: '40+ bite-sized lessons, one per coffee break',
+              },
+              {
+                jp: 'コピペで初日から使える業務テンプレート＆プロンプト',
+                en: 'Copy-paste templates and prompts you use day one',
+              },
+              {
+                jp: 'Honu Community 1ヶ月無料アクセス付き',
+                en: '1 month Honu Community membership free',
+              },
+              {
+                jp: 'LinkedInに載せられる修了証',
+                en: 'Certificate you can list on LinkedIn',
+              },
             ]}
             ctaJp="Vaultにアクセスする"
             ctaEn="Get Vault Access"
@@ -983,10 +2174,32 @@ function Pricing() {
                 {COHORT.startDateLabel.jp} · 残り{COHORT.seatsLeft}席
               </>
             }
+            includes={
+              <>
+                <span className="vertice-pr-includes-check" aria-hidden="true">
+                  <IconCheck size={11} />
+                </span>
+                <span className="vertice-pr-includes-text">
+                  <span className="vertice-pr-includes-jp">Vaultの全コンテンツ込み</span>
+                  <span className="vertice-pr-includes-en">Includes everything in Vault</span>
+                </span>
+              </>
+            }
+            delta={
+              <>
+                <p className="vertice-pr-delta-label">Vaultに加えて · On top of Vault</p>
+                <p className="vertice-pr-delta-jp">
+                  週1ライブ · プロジェクト指導 · 同期仲間 · 認定証
+                </p>
+                <p className="vertice-pr-delta-en">
+                  Live weekly · Project feedback · Cohort peers · Verified cert
+                </p>
+              </>
+            }
             jpName="ライブコホート"
             enName="Live Cohort"
-            jpTagline="講師と一緒に、深く学ぶ"
-            enTagline="Go deeper with live instructors"
+            jpTagline="Vault + 講師による直接指導"
+            enTagline="Vault + direct live coaching"
             price={
               <>
                 <span className="vertice-pr-price-amt">$1,250</span>
@@ -995,18 +2208,31 @@ function Pricing() {
             }
             sub={`${COHORT.startDateLabel.jp} · ${COHORT.startDateLabel.en}`}
             features={[
-              { jp: 'Vault の全コンテンツ込み', en: 'Includes everything in Vault' },
               {
-                jp: '5回のライブZoomセッション（各60分）',
-                en: '5 live Zoom sessions (60min each)',
+                jp: 'Vaultの全コンテンツ＋ライブ指導が付く',
+                en: 'Everything in Vault + live instruction',
               },
-              { jp: '少人数制（最大15名）', en: 'Small group (max 15)' },
               {
-                jp: 'インストラクターからの直接フィードバック',
-                en: 'Direct instructor feedback',
+                jp: '週1回のライブZoomでプロから直接答えがもらえる',
+                en: 'Weekly live Zoom — direct answers from pros',
               },
-              { jp: '30日間のコホート専用コミュニティ', en: '30-day cohort community' },
-              { jp: '認定修了証', en: 'Verified certificate' },
+              {
+                jp: '少人数制（最大15名）で確実に発言・質問できる',
+                en: 'Small group (max 15) — you get airtime',
+                bold: true,
+              },
+              {
+                jp: '自分のプロジェクトに対して、その場で改善案がもらえる',
+                en: 'Bring your project — get feedback in real time',
+              },
+              {
+                jp: '30日間、同期受講者と一緒にプロジェクトを進める',
+                en: '30 days shipping projects with your cohort',
+              },
+              {
+                jp: 'LinkedIn・履歴書に書ける認定修了証',
+                en: 'Verified certificate for LinkedIn and resume',
+              },
             ]}
             ctaJp="ライブコホートに申し込む"
             ctaEn="Apply for Live Cohort"
@@ -1029,6 +2255,9 @@ function Pricing() {
       highlighted,
       badge,
       badgeVariant = 'default',
+      includes,
+      delta,
+      accessChip,
       jpName,
       enName,
       jpTagline,
@@ -1045,9 +2274,7 @@ function Pricing() {
         className={`vertice-pr-card${highlighted ? ' vertice-pr-card-highlighted' : ''}`}
       >
         {badge && (
-          <div
-            className={`vertice-pr-badge-wrap${highlighted ? ' vertice-pr-badge-wrap-floating' : ''}`}
-          >
+          <div className="vertice-pr-badge-wrap vertice-pr-badge-wrap-floating">
             <span
               className={`vertice-pr-badge vertice-pr-badge-${highlighted ? 'highlighted' : badgeVariant}`}
             >
@@ -1070,6 +2297,12 @@ function Pricing() {
           <div className="vertice-pr-card-price">{price}</div>
           <p className="vertice-pr-card-price-sub">{sub}</p>
         </div>
+
+        {accessChip && <div className="vertice-pr-access">{accessChip}</div>}
+
+        {includes && <div className="vertice-pr-includes">{includes}</div>}
+
+        {delta && <div className="vertice-pr-delta">{delta}</div>}
 
         <div className="vertice-pr-card-features">
           {features.map((f, i) => (
@@ -1196,6 +2429,11 @@ type FAQItem = { q: string; qen: string; a: string };
 
 const FAQ_ITEMS: FAQItem[] = [
   {
+    q: '受講後、実際に何ができるようになりますか？',
+    qen: 'What can I actually do after completing the course?',
+    a: '修了後は、(1) ChatGPT・Claude・Perplexity・NotebookLMを業務シーンに合わせて使い分けられる、(2) メール・リサーチ・要約・翻訳をAIに任せて1日2時間以上の業務時間を取り戻せる、(3) 自分専用のAIワークフローを1本構築し、ポートフォリオとしてLinkedInや社内で共有できる、この3点が確実に身につきます。',
+  },
+  {
     q: 'Vaultとライブコホートの違いは？',
     qen: "What's the difference between the Vault and the Live Cohort?",
     a: 'Vaultは自分のペースで学ぶ買い切り型のオンライン教材です。ライブコホートはVaultの全コンテンツに加え、5回のライブセッション、少人数制の指導、インストラクターからの直接フィードバックを含みます。ライブコホートは年に4回のみ開講します。',
@@ -1223,7 +2461,7 @@ const FAQ_ITEMS: FAQItem[] = [
   {
     q: 'AIツールの料金は別途必要ですか？',
     qen: 'Do I need to pay for AI tools separately?',
-    a: '無料プランで学習可能ですが、ChatGPT Plus（月$20）またはClaude Pro（月$20）の導入を推奨します。コース内で無料／有料プランの選び方も解説します。',
+    a: '無料プランで学習を開始できます。本格活用にはChatGPT Plus（月$20）またはClaude Pro（月$20）を推奨。Geminiは無料のAdvancedプランが利用可能、PerplexityとNotebookLMも無料枠で十分学習できます。Claude CoworkはClaude Pro / Teamプランに含まれます。コース内で各プランの選び方を解説します。',
   },
   {
     q: '法人での申込は可能ですか？',
@@ -1459,6 +2697,66 @@ function FinalCTA() {
     </section>
   );
 }
+// ——— MobileStickyCTA (fixed bottom bar, mobile only) —————————————————
+function MobileStickyCTA() {
+  const [pastHero, setPastHero] = useState(false);
+  const [atPricing, setAtPricing] = useState(false);
+
+  useEffect(() => {
+    const heroEl = document.querySelector('.vertice-hero');
+    const pricingEl = document.getElementById('pricing');
+    if (!heroEl || !pricingEl) return;
+
+    const heroObs = new IntersectionObserver(
+      ([entry]) => setPastHero(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '0px 0px -40% 0px' }
+    );
+    const priceObs = new IntersectionObserver(
+      ([entry]) => setAtPricing(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+
+    heroObs.observe(heroEl);
+    priceObs.observe(pricingEl);
+    return () => {
+      heroObs.disconnect();
+      priceObs.disconnect();
+    };
+  }, []);
+
+  const visible = pastHero && !atPricing;
+
+  return (
+    <div
+      className={`vertice-stickycta${visible ? ' vertice-stickycta-visible' : ''}`}
+      aria-hidden={!visible}
+    >
+      <div className="vertice-stickycta-meta">
+        <p className="vertice-stickycta-name">AI Essentials Vault</p>
+        <p className="vertice-stickycta-price">
+          <span className="vertice-stickycta-strike">$299</span>
+          <span className="vertice-stickycta-amt">$199</span>
+          <span className="vertice-stickycta-life">永久アクセス</span>
+        </p>
+      </div>
+      <a
+        href="#pricing"
+        className="vertice-stickycta-btn"
+        onClick={() =>
+          trackEvent('partner_cta_click', {
+            partner: PARTNER_SLUG,
+            location: 'sticky_mobile',
+            tier: 'vault',
+          })
+        }
+        tabIndex={visible ? 0 : -1}
+      >
+        今すぐ参加 →
+      </a>
+    </div>
+  );
+}
+
 // ——— Footer (dark co-brand, JP+EN paired link grid) ———————————————
 const FOOTER_LINKS: Array<{ jp: string; en: string; href: string }> = [
   { jp: '探検する', en: 'Explore', href: '/explore' },
