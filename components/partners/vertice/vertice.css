@@ -436,6 +436,55 @@
     max-width: 520px;
   }
 }
+/* Mobile: drop the Vault browser chrome — too narrow to render legibly —
+ * and present just the lesson body as a clean sample card. */
+@media (max-width: 768px) {
+  .vertice-scope .vertice-mockup {
+    height: auto;
+    min-height: 0;
+    max-width: 100%;
+  }
+  .vertice-scope .vertice-mockup-halo,
+  .vertice-scope .vertice-mockup-elevation,
+  .vertice-scope .vertice-chip-lifetime {
+    display: none;
+  }
+  .vertice-scope .vertice-vault {
+    position: static;
+    transform: none;
+    width: 100%;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 14px 32px rgba(26, 43, 51, 0.10);
+    border: 1px solid rgba(26, 43, 51, 0.08);
+  }
+  .vertice-scope .vertice-vault-bar,
+  .vertice-scope .vertice-vault-rail,
+  .vertice-scope .vertice-vault-foot {
+    display: none;
+  }
+  .vertice-scope .vertice-vault-grid {
+    display: block;
+    min-height: 0;
+  }
+  .vertice-scope .vertice-vault-player {
+    padding: 22px 22px 26px;
+  }
+  /* Add a small "Lesson Sample" eyebrow at the very top to signal this is a preview */
+  .vertice-scope .vertice-vault-player::before {
+    content: 'レッスンサンプル · LESSON SAMPLE';
+    display: block;
+    font-family: var(--vertice-ff-jp);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--vertice-lavender);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(155, 135, 224, 0.18);
+  }
+}
 
 .vertice-scope .vertice-mockup-halo {
   position: absolute;
@@ -2283,15 +2332,20 @@
   .vertice-scope .vertice-illus-build-hub-label { font-size: 12px; }
 }
 
-/* Narrow phones */
-@media (max-width: 380px) {
+/* Narrow phones — let columns shrink so chips fit inside the card */
+@media (max-width: 480px) {
   .vertice-scope .vertice-illus-build {
     padding: 18px 10px;
     min-height: 280px;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .vertice-scope .vertice-illus-build-col {
+    min-width: 0;
   }
   .vertice-scope .vertice-illus-build-node {
     padding: 6px 8px 6px 6px;
     gap: 6px;
+    width: 100%;
   }
   .vertice-scope .vertice-illus-build-node-logo { width: 28px; height: 28px; }
   .vertice-scope .vertice-illus-build-node-name { font-size: 10px; }
@@ -2301,6 +2355,10 @@
   }
   .vertice-scope .vertice-illus-build-hub-label { font-size: 10px; }
   .vertice-scope .vertice-illus-build-hub-status { display: none; }
+  .vertice-scope .vertice-illus-build-pill {
+    top: 8px;
+    right: 8px;
+  }
 }
 
 /* ——— Curriculum (dark, sticky-rail) ——————————————————————————— */
