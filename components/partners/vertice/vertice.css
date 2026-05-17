@@ -423,66 +423,49 @@
   letter-spacing: 0.02em;
 }
 
-/* ——— Hero Mockup (Vault product preview) ——————————————————————— */
-.vertice-scope .vertice-mockup {
+/* ——— Hero Mockup (Vault product preview) ———————————————————————
+ * Desktop: 520×880 stage holds the mockup at full size.
+ * Tablet/mobile: --mockup-scale shrinks the inner mockup via transform:scale,
+ * and the stage's own width/height track the scaled dimensions so document
+ * flow reserves exactly the visible space. The full Vault chrome (browser
+ * bar, 5-week sidebar, lesson body, footer, chips, testimonial) all scale
+ * together so the mobile reader sees a true "mini-screen" of the desktop. */
+.vertice-scope .vertice-mockup-stage {
+  --mockup-scale: 1;
   position: relative;
+  width: calc(520px * var(--mockup-scale));
+  height: calc(880px * var(--mockup-scale));
+  max-width: 100%;
+  margin: 0 auto;
+}
+.vertice-scope .vertice-mockup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 520px;
   height: 880px;
+  transform: scale(var(--mockup-scale));
+  transform-origin: top left;
   user-select: none;
 }
-@media (max-width: 960px) {
-  .vertice-scope .vertice-mockup {
-    height: 720px;
-    margin: 0 auto;
-    max-width: 520px;
+@media (max-width: 1024px) {
+  .vertice-scope .vertice-mockup-stage {
+    --mockup-scale: 0.88;
   }
 }
-/* Mobile: drop the Vault browser chrome — too narrow to render legibly —
- * and present just the lesson body as a clean sample card. */
 @media (max-width: 768px) {
-  .vertice-scope .vertice-mockup {
-    height: auto;
-    min-height: 0;
-    max-width: 100%;
+  .vertice-scope .vertice-mockup-stage {
+    --mockup-scale: 0.72;
   }
-  .vertice-scope .vertice-mockup-halo,
-  .vertice-scope .vertice-mockup-elevation,
-  .vertice-scope .vertice-chip-lifetime {
-    display: none;
+}
+@media (max-width: 540px) {
+  .vertice-scope .vertice-mockup-stage {
+    --mockup-scale: 0.6;
   }
-  .vertice-scope .vertice-vault {
-    position: static;
-    transform: none;
-    width: 100%;
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 14px 32px rgba(26, 43, 51, 0.10);
-    border: 1px solid rgba(26, 43, 51, 0.08);
-  }
-  .vertice-scope .vertice-vault-bar,
-  .vertice-scope .vertice-vault-rail,
-  .vertice-scope .vertice-vault-foot {
-    display: none;
-  }
-  .vertice-scope .vertice-vault-grid {
-    display: block;
-    min-height: 0;
-  }
-  .vertice-scope .vertice-vault-player {
-    padding: 22px 22px 26px;
-  }
-  /* Add a small "Lesson Sample" eyebrow at the very top to signal this is a preview */
-  .vertice-scope .vertice-vault-player::before {
-    content: 'レッスンサンプル · LESSON SAMPLE';
-    display: block;
-    font-family: var(--vertice-ff-jp);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    color: var(--vertice-lavender);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(155, 135, 224, 0.18);
+}
+@media (max-width: 400px) {
+  .vertice-scope .vertice-mockup-stage {
+    --mockup-scale: 0.52;
   }
 }
 
@@ -928,14 +911,6 @@
   .vertice-scope .vertice-mockup-testimonial {
     right: 0;
     width: min(360px, 100%);
-  }
-}
-/* On narrow phones the testimonial card squeezes into a thin column and the
- * JP role text wraps character-by-character. The same quote appears later in
- * the Testimonials section, so just hide it here. */
-@media (max-width: 640px) {
-  .vertice-scope .vertice-mockup-testimonial {
-    display: none;
   }
 }
 .vertice-scope .vertice-mockup-testimonial-head {

@@ -23,8 +23,8 @@ interface Props {
 const PARTNER_SLUG = 'vertice-society';
 
 const COHORT = {
-  startDate: '2026-05-15',
-  startDateLabel: { jp: '5/15開講', en: 'Starts May 15' },
+  startDate: '2026-05-23',
+  startDateLabel: { jp: '5/23開講', en: 'Starts May 23' },
   seatsLeft: 15,
 };
 
@@ -245,7 +245,8 @@ const VAULT_CHECKLIST: string[] = [
 
 function HeroMockup() {
   return (
-    <div className="vertice-mockup" aria-hidden="true">
+    <div className="vertice-mockup-stage" aria-hidden="true">
+      <div className="vertice-mockup">
       <div className="vertice-mockup-halo" />
 
       <svg
@@ -401,6 +402,7 @@ function HeroMockup() {
           「3週目で自分のメール対応が1日30分以下に。テンプレートがそのまま実務で使えました。」
         </blockquote>
       </figure>
+    </div>
     </div>
   );
 }
@@ -2425,20 +2427,20 @@ const INSTRUCTORS: Instructor[] = [
     bio: 'バイリンガルのAI実践者として、米国のAI最前線と日本のビジネス現場をつなぐ。プロが本当に使うAIワークフローを、誰でも理解できる形で伝える。',
   },
   {
-    name: 'Mizuho H.',
-    photo: '/images/partners/instructors/mizuho.webp',
-    jpRole: 'リードAIトレーナー',
-    enRole: 'Lead AI Trainer',
-    creds: '企業ビジネス経験 · ネイティブ日本語',
-    bio: '日本企業での実務経験と、最先端のAI活用法を統合。日本のビジネス文脈に合わせて、AIの使い方を翻訳・再設計するエキスパート。',
-  },
-  {
     name: 'Chiemi M.',
     photo: '/images/partners/instructors/chimi.webp',
     jpRole: 'AIコンサルタント・トレーナー',
     enRole: 'AI Consultant & Trainer',
     creds: '認定作業療法士 · ビジネスオペレーション',
     bio: '実践的で忍耐強い指導スタイル。AIに不安を感じる初心者でも、最初の一歩を確実に踏み出せるよう寄り添う。',
+  },
+  {
+    name: 'Mizuho H.',
+    photo: '/images/partners/instructors/mizuho.webp',
+    jpRole: 'リードAIトレーナー',
+    enRole: 'Lead AI Trainer',
+    creds: '企業ビジネス経験 · ネイティブ日本語',
+    bio: '日本企業での実務経験と、最先端のAI活用法を統合。日本のビジネス文脈に合わせて、AIの使い方を翻訳・再設計するエキスパート。',
   },
 ];
 
