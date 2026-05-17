@@ -426,12 +426,12 @@
 /* ——— Hero Mockup (Vault product preview) ——————————————————————— */
 .vertice-scope .vertice-mockup {
   position: relative;
-  height: 760px;
+  height: 880px;
   user-select: none;
 }
 @media (max-width: 960px) {
   .vertice-scope .vertice-mockup {
-    height: 600px;
+    height: 720px;
     margin: 0 auto;
     max-width: 520px;
   }
@@ -508,7 +508,7 @@
 .vertice-scope .vertice-vault-grid {
   display: grid;
   grid-template-columns: 152px 1fr;
-  min-height: 520px;
+  min-height: 720px;
 }
 .vertice-scope .vertice-vault-rail {
   padding: 16px 10px;
@@ -581,89 +581,190 @@
   line-height: 1.3;
   color: var(--vertice-navy);
 }
-.vertice-scope .vertice-vault-player-frame {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  border-radius: 10px;
-  background: #1A2B33;
-  border: 1px solid rgba(26, 43, 51, 0.10);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.vertice-scope .vertice-vault-player-img {
-  object-fit: cover;
-  object-position: center;
-}
-.vertice-scope .vertice-vault-player-scrim {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at center, rgba(26, 43, 51, 0.10) 0%, rgba(26, 43, 51, 0.30) 80%),
-    linear-gradient(180deg, rgba(26, 43, 51, 0) 60%, rgba(26, 43, 51, 0.25) 100%);
-  pointer-events: none;
-}
-.vertice-scope .vertice-vault-player-play {
-  position: relative;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.96);
-  color: var(--vertice-navy);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow:
-    0 12px 28px rgba(26, 43, 51, 0.30),
-    0 0 0 6px rgba(255, 255, 255, 0.12);
-  z-index: 1;
-}
-.vertice-scope .vertice-vault-player-duration {
-  position: absolute;
-  bottom: 8px;
-  right: 10px;
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
-  background: rgba(26, 43, 51, 0.55);
-  padding: 3px 7px;
-  border-radius: 5px;
-  letter-spacing: 0.04em;
-  backdrop-filter: blur(4px);
-  z-index: 1;
-}
-
-.vertice-scope .vertice-vault-takeaways {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.vertice-scope .vertice-vault-takeaway {
+/* Lead paragraph after the lesson title — article body voice */
+.vertice-scope .vertice-vault-player-lead {
   font-family: var(--vertice-ff-jp);
   font-size: 11.5px;
-  font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.7;
   color: rgba(26, 43, 51, 0.78);
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
+  margin: 4px 0 12px;
+  font-weight: 500;
 }
-.vertice-scope .vertice-vault-takeaway-check {
-  flex-shrink: 0;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  background: rgba(45, 191, 176, 0.16);
+.vertice-scope .vertice-vault-player-lead em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--vertice-navy);
+  background: linear-gradient(180deg, transparent 65%, rgba(45, 191, 176, 0.22) 65%);
+  padding: 0 2px;
+}
+
+/* Article-style sub-heading inside the lesson */
+.vertice-scope .vertice-vault-h3 {
+  font-family: var(--vertice-ff-jp);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vertice-navy);
+  margin: 14px 0 8px;
+  padding-left: 8px;
+  border-left: 3px solid var(--vertice-seafoam);
+  line-height: 1.3;
+}
+
+/* Numbered rules list — article-style, no card chrome */
+.vertice-scope .vertice-vault-rules {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  border-top: 1px solid rgba(26, 43, 51, 0.06);
+}
+.vertice-scope .vertice-vault-rule {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  padding: 9px 0;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(26, 43, 51, 0.06);
+}
+.vertice-scope .vertice-vault-rule-num {
+  font-family: var(--vertice-ff-sans);
+  font-size: 11px;
+  font-weight: 800;
   color: var(--vertice-seafoam);
+  letter-spacing: 0.04em;
+  font-feature-settings: 'tnum';
+  line-height: 1.2;
+}
+.vertice-scope .vertice-vault-rule-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.vertice-scope .vertice-vault-rule-name {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.2;
+}
+.vertice-scope .vertice-vault-rule-jp {
+  font-family: var(--vertice-ff-jp);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--vertice-navy);
+}
+.vertice-scope .vertice-vault-rule-en {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--vertice-caption);
+  letter-spacing: 0.02em;
+}
+.vertice-scope .vertice-vault-rule-desc {
+  font-family: var(--vertice-ff-jp);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(26, 43, 51, 0.62);
+}
+
+/* Worked example — stacked prompt/output rows, monospace prompt */
+.vertice-scope .vertice-vault-example {
+  border-radius: 10px;
+  background: #FDFAF3;
+  border: 1px solid rgba(26, 43, 51, 0.06);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vertice-scope .vertice-vault-example-row {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.vertice-scope .vertice-vault-example-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.vertice-scope .vertice-vault-example-mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1px;
+  flex-shrink: 0;
+  transform: translateY(2px);
 }
+.vertice-scope .vertice-vault-example-row-bad .vertice-vault-example-mark {
+  background: rgba(199, 90, 76, 0.18);
+  color: #B05242;
+}
+.vertice-scope .vertice-vault-example-row-good .vertice-vault-example-mark {
+  background: rgba(45, 191, 176, 0.18);
+  color: var(--vertice-seafoam);
+}
+.vertice-scope .vertice-vault-example-prompt {
+  display: block;
+  font-family: var(--vertice-ff-jp), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--vertice-navy);
+  background: transparent;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+.vertice-scope .vertice-vault-example-out {
+  display: block;
+  font-family: var(--vertice-ff-jp);
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: rgba(26, 43, 51, 0.55);
+}
+.vertice-scope .vertice-vault-example-out::before {
+  content: '→ ';
+  color: rgba(26, 43, 51, 0.35);
+  font-weight: 700;
+}
+
+/* Today's checklist callout */
+.vertice-scope .vertice-vault-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(45, 191, 176, 0.06);
+  border: 1px solid rgba(45, 191, 176, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.vertice-scope .vertice-vault-checkitem {
+  font-family: var(--vertice-ff-jp);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(26, 43, 51, 0.78);
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+.vertice-scope .vertice-vault-checkitem-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(45, 191, 176, 0.55);
+  background: #fff;
+  display: inline-block;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
 
 .vertice-scope .vertice-vault-foot {
   display: flex;

@@ -11,8 +11,8 @@ import {
   IconArrow,
   IconCheck,
   IconChevron,
-  IconPlay,
   IconSpark,
+  IconWave,
   IconX,
 } from './icons';
 
@@ -209,10 +209,38 @@ const VAULT_WEEKS: Array<{ w: string; t: string; done?: boolean; active?: boolea
   { w: '第5週', t: 'アクションプラン' },
 ];
 
-const VAULT_TAKEAWAYS: string[] = [
-  'AIへのタスク委任パターン',
-  '会議準備の自動化',
-  'チーム導入の3ステップ',
+type FrameworkCard = {
+  jp: string;
+  en: string;
+  desc: string;
+  Icon: typeof IconArrow;
+};
+
+const VAULT_FRAMEWORKS: FrameworkCard[] = [
+  {
+    jp: '完全委任',
+    en: 'Full handoff',
+    desc: '低リスクな定型業務はAIに最後までやらせる。',
+    Icon: IconArrow,
+  },
+  {
+    jp: '検証付き',
+    en: 'With check',
+    desc: '重要な意思決定は出力をチームでレビューしてから使う。',
+    Icon: IconCheck,
+  },
+  {
+    jp: '反復改善',
+    en: 'Iterate',
+    desc: '一発で諦めない。プロンプトを2〜3回磨き込む。',
+    Icon: IconWave,
+  },
+];
+
+const VAULT_CHECKLIST: string[] = [
+  '依頼に「目的・参加者・論点」を含めたか',
+  'AIに前提情報を渡したか（人物・期限・制約）',
+  '出力をそのまま使わず、必ず一度レビューしたか',
 ];
 
 function HeroMockup() {
@@ -222,24 +250,24 @@ function HeroMockup() {
 
       <svg
         className="vertice-mockup-elevation"
-        viewBox="0 0 520 760"
+        viewBox="0 0 520 880"
         preserveAspectRatio="none"
         aria-hidden="true"
       >
         <path
-          d="M -20 700 Q 220 320 560 100"
+          d="M -20 820 Q 220 380 560 120"
           stroke="rgba(155, 135, 224, 0.18)"
           strokeWidth="1.5"
           fill="none"
         />
         <path
-          d="M -20 740 Q 240 420 560 180"
+          d="M -20 860 Q 240 490 560 210"
           stroke="rgba(155, 135, 224, 0.12)"
           strokeWidth="1.25"
           fill="none"
         />
         <path
-          d="M -20 780 Q 260 520 560 260"
+          d="M -20 900 Q 260 600 560 300"
           stroke="rgba(45, 191, 176, 0.10)"
           strokeWidth="1"
           fill="none"
@@ -282,26 +310,60 @@ function HeroMockup() {
             <p className="vertice-vault-player-title">
               チームでAIを<br />使いこなす
             </p>
-            <div className="vertice-vault-player-frame">
-              <Image
-                src="/images/vault-preview/ai-delegation-guide.webp"
-                alt=""
-                fill
-                sizes="(max-width: 960px) 360px, 320px"
-                className="vertice-vault-player-img"
-              />
-              <div className="vertice-vault-player-scrim" aria-hidden="true" />
-              <span className="vertice-vault-player-play">
-                <IconPlay size={16} />
-              </span>
-              <span className="vertice-vault-player-duration">37:50</span>
-            </div>
-            <ul className="vertice-vault-takeaways">
-              {VAULT_TAKEAWAYS.map((t) => (
-                <li key={t} className="vertice-vault-takeaway">
-                  <span className="vertice-vault-takeaway-check" aria-hidden="true">
-                    <IconCheck size={9} />
+            <p className="vertice-vault-player-lead">
+              AIに「やっておいて」だけでは結果は薄い。プロが日常的に使うのは、
+              <em>目的・参加者・論点</em>
+              の3つを必ず渡す依頼方法。タスクごとに「どこまでAIに任せ、どこから人がチェックするか」を決めれば、
+              チーム全員の生産性が一段上がる。
+            </p>
+
+            <p className="vertice-vault-h3">3つの委任パターン</p>
+            <ol className="vertice-vault-rules">
+              {VAULT_FRAMEWORKS.map(({ jp, en, desc }, i) => (
+                <li key={en} className="vertice-vault-rule">
+                  <span className="vertice-vault-rule-num" aria-hidden="true">
+                    {String(i + 1).padStart(2, '0')}
                   </span>
+                  <span className="vertice-vault-rule-body">
+                    <span className="vertice-vault-rule-name">
+                      <span className="vertice-vault-rule-jp">{jp}</span>
+                      <span className="vertice-vault-rule-en">{en}</span>
+                    </span>
+                    <span className="vertice-vault-rule-desc">{desc}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+
+            <p className="vertice-vault-h3">プロンプト例 — 会議準備</p>
+            <div className="vertice-vault-example">
+              <div className="vertice-vault-example-row vertice-vault-example-row-bad">
+                <span className="vertice-vault-example-mark" aria-hidden="true">
+                  <IconX size={10} />
+                </span>
+                <div className="vertice-vault-example-body">
+                  <code className="vertice-vault-example-prompt">「会議準備して」</code>
+                  <span className="vertice-vault-example-out">一般論しか出ない</span>
+                </div>
+              </div>
+              <div className="vertice-vault-example-row vertice-vault-example-row-good">
+                <span className="vertice-vault-example-mark" aria-hidden="true">
+                  <IconCheck size={10} />
+                </span>
+                <div className="vertice-vault-example-body">
+                  <code className="vertice-vault-example-prompt">
+                    「金曜のチームMTG。目的：Q3戦略合意。参加者：PM+営業+CS。論点：優先順位3つ。論点ごとに議題案を3つずつ。」
+                  </code>
+                  <span className="vertice-vault-example-out">チーム特化の議題草案 + 想定論点</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="vertice-vault-h3">今日のチェックリスト</p>
+            <ul className="vertice-vault-checklist">
+              {VAULT_CHECKLIST.map((t) => (
+                <li key={t} className="vertice-vault-checkitem">
+                  <span className="vertice-vault-checkitem-box" aria-hidden="true" />
                   {t}
                 </li>
               ))}
