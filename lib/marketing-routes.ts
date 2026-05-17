@@ -16,7 +16,7 @@
  */
 
 const MARKETING_PATHS = ['/', '/learn', '/explore', '/partnerships', '/about', '/contact'] as const;
-const MARKETING_PATH_PREFIXES = ['/glossary', '/blog'] as const;
+const MARKETING_PATH_PREFIXES = ['/glossary', '/blog', '/partners'] as const;
 
 /**
  * For pathnames produced by next-intl's usePathname() (locale already stripped).

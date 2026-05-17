@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { VerticeLanding } from '@/components/partners/vertice/VerticeLanding';
+import { MarketingShell } from '@/components/marketing/shell';
+import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
 import { inter, instrumentSerif, notoJP } from './fonts';
 
 type Props = {
@@ -33,7 +35,10 @@ export default async function VerticeSocietyPage({ params }: Props) {
 
   return (
     <div className={`${inter.variable} ${notoJP.variable} ${instrumentSerif.variable}`}>
-      <VerticeLanding locale={locale} />
+      <MarketingShell>
+        <MarketingNav showGetStarted />
+        <VerticeLanding locale={locale} />
+      </MarketingShell>
     </div>
   );
 }
