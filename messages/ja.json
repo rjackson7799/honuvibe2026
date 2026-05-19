@@ -1026,7 +1026,25 @@
     "no_account": "アカウントをお持ちでないですか？",
     "has_account": "すでにアカウントをお持ちですか？",
     "welcome_message": "コースにアクセスするにはログインしてください",
-    "signing_in": "ログイン中..."
+    "signing_in": "ログイン中...",
+    "or_use_magic_link": "ログインリンクをメールで送る",
+    "magic_link_check_email": "ログインリンクをメールでご確認ください。",
+    "magic_link_rate_limited": "リクエストが多すぎます。1時間後に再度お試しください。",
+    "magic_link_send_failed": "リンクを送信できませんでした。再度お試しください。",
+    "email_required_for_magic_link": "メールアドレスを入力してください。",
+    "change_password": "パスワードを変更",
+    "change_password_body": "アカウントの新しいパスワードを設定してください。",
+    "change_password_cta": "パスワードを変更",
+    "password_set_success": "パスワードを設定しました。次回からメールとパスワードでログインできます。",
+    "password_changed_success": "パスワードを更新しました。"
+  },
+  "welcome": {
+    "set_password_title": "次回ログインを早くするためにパスワードを設定",
+    "set_password_body": "次回はメールとパスワードでログイン、またはメールリンクでもログイン可能です。後で設定から変更できます。",
+    "set_password_cta": "パスワードを設定",
+    "skip_for_now": "今はスキップ",
+    "banner_body": "次回ログインを早くするためにパスワードを設定しましょう。",
+    "banner_cta": "パスワードを設定 →"
   },
   "learn": {
     "catalog_title": "学ぶ",
@@ -1467,6 +1485,7 @@
     "profile_avatar_wrong_type": "対応していない形式です。JPEG、PNG、WebPをご利用ください。",
     "profile_avatar_upload_failed": "アップロードに失敗しました。もう一度お試しください。",
     "settings_profile": "プロフィール",
+    "settings_password": "パスワード",
     "settings_preferences": "設定",
     "settings_name": "氏名",
     "settings_email": "メールアドレス",

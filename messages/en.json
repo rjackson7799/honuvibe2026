@@ -1026,7 +1026,25 @@
     "no_account": "Don't have an account?",
     "has_account": "Already have an account?",
     "welcome_message": "Sign in to access your courses",
-    "signing_in": "Signing in..."
+    "signing_in": "Signing in...",
+    "or_use_magic_link": "Or email me a login link",
+    "magic_link_check_email": "Check your email for a login link.",
+    "magic_link_rate_limited": "Too many attempts. Try again in an hour.",
+    "magic_link_send_failed": "Couldn't send the link. Please try again.",
+    "email_required_for_magic_link": "Enter your email to receive a login link.",
+    "change_password": "Change password",
+    "change_password_body": "Pick a new password for your account.",
+    "change_password_cta": "Change password",
+    "password_set_success": "Password set. You can sign in with email and password anytime.",
+    "password_changed_success": "Password updated."
+  },
+  "welcome": {
+    "set_password_title": "Set a password for faster sign-in",
+    "set_password_body": "Use email and password next time, or keep using the email link. You can change this later in settings.",
+    "set_password_cta": "Set password",
+    "skip_for_now": "Skip for now",
+    "banner_body": "Set a password so you can sign in faster next time.",
+    "banner_cta": "Set password →"
   },
   "learn": {
     "catalog_title": "Learn",
@@ -1467,6 +1485,7 @@
     "profile_avatar_wrong_type": "Unsupported format. Use JPEG, PNG, or WebP.",
     "profile_avatar_upload_failed": "Upload failed. Please try again.",
     "settings_profile": "Profile",
+    "settings_password": "Password",
     "settings_preferences": "Preferences",
     "settings_name": "Full Name",
     "settings_email": "Email",
