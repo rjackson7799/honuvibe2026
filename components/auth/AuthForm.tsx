@@ -72,17 +72,47 @@ export function AuthForm() {
 
   const supabase = createClient();
 
-  // Fallback: if recovery hash tokens land on the login page, redirect to reset page
+  // Supabase magic links (admin.generateLink with type='magiclink') use the
+  // implicit flow — tokens land in the URL hash, NOT as a ?code= query param,
+  // so /api/auth/callback can't read them server-side and falls through to
+  // /learn/auth#access_token=... Handle both magic-link and recovery hashes
+  // here:
+  //   - recovery → forward hash to /learn/auth/reset (existing behavior)
+  //   - magiclink (or any other non-recovery access_token) → setSession from
+  //     the hash and route to dashboard with ?welcome=true so WelcomeScreen
+  //     renders its set-password step for users with password_set=false.
   useEffect(() => {
     const hash = window.location.hash.substring(1);
+    if (!hash) return;
     const params = new URLSearchParams(hash);
     const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
     const type = params.get('type');
 
-    if (accessToken && type === 'recovery') {
-      const prefix = locale === 'ja' ? '/ja' : '';
-      // Preserve the hash so the reset page can process the tokens
+    if (!accessToken) return;
+
+    const prefix = locale === 'ja' ? '/ja' : '';
+
+    if (type === 'recovery') {
       router.push(`${prefix}/learn/auth/reset${window.location.hash}`);
+      return;
+    }
+
+    if (refreshToken) {
+      (async () => {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (sessionError) {
+          setError(sessionError.message);
+          return;
+        }
+        // Clean the hash so refreshes don't re-process the (now-consumed) tokens.
+        window.history.replaceState(null, '', window.location.pathname);
+        router.push(`${prefix}/learn/dashboard?welcome=true`);
+        router.refresh();
+      })();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
