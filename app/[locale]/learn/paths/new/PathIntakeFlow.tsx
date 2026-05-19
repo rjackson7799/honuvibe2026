@@ -12,7 +12,7 @@ type FlowState = 'intake' | 'generating' | 'preview' | 'error';
 
 type PathIntakeFlowProps = {
   tags: { slug: string; name_en: string; name_jp?: string | null }[];
-  userTier: 'free' | 'premium';
+  userTier: 'free' | 'vault';
 };
 
 export function PathIntakeFlow({ tags, userTier }: PathIntakeFlowProps) {

@@ -3,7 +3,7 @@ import type { CatalogItem } from './types';
 
 export async function buildCatalog(
   language: string,
-  userTier: 'free' | 'premium',
+  userTier: 'free' | 'vault',
 ): Promise<CatalogItem[]> {
   const supabase = createAdminClient();
 

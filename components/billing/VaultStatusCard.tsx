@@ -11,7 +11,7 @@ import { SubscribeButton } from './SubscribeButton';
 type VaultStatusCardProps = {
   subscriptionStatus: string;
   subscriptionExpiresAt: string | null;
-  vaultSource: 'subscription' | 'enrollment' | null;
+  vaultSource: 'subscription' | 'cohort' | 'enrollment' | null;
   activeCourseName: string | null;
   hasAccess: boolean;
 };
@@ -58,7 +58,7 @@ export function VaultStatusCard({
     <Card variant="learn" padding="lg">
       <SectionHeading title={t('vault_status')} bordered />
 
-      {vaultSource === 'subscription' && (
+      {(vaultSource === 'subscription' || vaultSource === 'cohort') && (
         <div className="space-y-3 pt-1">
           <BadgePill variant="teal" size="sm">{t('vault_active')}</BadgePill>
           {nextBillingFormatted && (

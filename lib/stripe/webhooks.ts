@@ -346,7 +346,7 @@ export async function handleSubscriptionCreated(
   await supabase
     .from('users')
     .update({
-      subscription_tier: 'premium',
+      subscription_tier: 'vault',
       subscription_stripe_id: subscription.id,
       subscription_status: subscription.status,
       subscription_expires_at: periodEnd

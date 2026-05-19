@@ -16,7 +16,7 @@ type PathIntakeFormProps = {
   tags: { slug: string; name_en: string; name_jp?: string | null }[];
   onSubmit: (input: PathIntakeInput) => void;
   isSubmitting: boolean;
-  userTier?: 'free' | 'premium';
+  userTier?: 'free' | 'vault';
 };
 
 export function PathIntakeForm({

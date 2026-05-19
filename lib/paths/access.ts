@@ -7,7 +7,7 @@ export interface PremiumCheckUser {
 
 export function hasPremiumAccess(user: PremiumCheckUser): boolean {
   if (user.role === 'admin') return true;
-  if (user.subscription_tier !== 'premium') return false;
+  if (user.subscription_tier !== 'vault') return false;
 
   if (
     user.subscription_status === 'active' ||

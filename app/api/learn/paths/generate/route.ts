@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    const userTier =
-      (profile?.subscription_tier as 'free' | 'premium') ?? 'free';
+    const userTier: 'free' | 'vault' =
+      profile?.subscription_tier === 'vault' ? 'vault' : 'free';
 
     // Generate path via Claude
     const input: PathIntakeInput = {

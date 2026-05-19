@@ -63,7 +63,7 @@ export default async function NewStudyPathPage({ params }: Props) {
 
       <PathIntakeFlow
         tags={tags ?? []}
-        userTier={(profile?.subscription_tier as 'free' | 'premium') ?? 'free'}
+        userTier={profile?.subscription_tier === 'vault' ? 'vault' : 'free'}
       />
     </div>
   );

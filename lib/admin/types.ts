@@ -1,7 +1,7 @@
 // Admin-specific types
 
 export type UserRole = 'student' | 'admin' | 'instructor';
-export type SubscriptionTier = 'free' | 'premium';
+export type SubscriptionTier = 'free' | 'community' | 'vault';
 export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'cancelled' | 'trialing';
 export type ApplicationStatus = 'received' | 'reviewing' | 'responded' | 'archived';
 export type PartnershipInquiryStatus = ApplicationStatus;

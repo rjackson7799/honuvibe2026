@@ -26,7 +26,7 @@ export class PathGenerationError extends Error {
 export async function generateStudyPath(
   input: PathIntakeInput,
   userId: string,
-  userTier: 'free' | 'premium',
+  userTier: 'free' | 'vault',
 ): Promise<PathGenerationResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
