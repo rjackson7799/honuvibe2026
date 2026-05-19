@@ -64,7 +64,7 @@ const COPY: Record<Tier, { en: TierCopy; ja: TierCopy }> = {
       body: "Your cohort seat is reserved. We've sent a login link plus the cohort orientation packet to your email.",
       nextSteps: [
         'Check your email for the orientation packet (Zoom link, calendar invite, prep materials).',
-        'Vault + Community access is unlocked through August 25, 2026.',
+        'Vault + Community access is unlocked through September 25, 2026.',
         'First live session: May 23, 2026 at 9am HST.',
       ],
     },
@@ -74,7 +74,7 @@ const COPY: Record<Tier, { en: TierCopy; ja: TierCopy }> = {
       body: 'コホートの席が確保されました。ログインリンクとオリエンテーション資料をメールでお送りしました。',
       nextSteps: [
         'メールでオリエンテーション資料（Zoomリンク、カレンダー招待、事前資料）をご確認ください。',
-        '2026年8月25日までVault + コミュニティアクセスが有効です。',
+        '2026年9月25日までVault + コミュニティアクセスが有効です。',
         '初回ライブセッション: 2026年5月23日 9:00 HST。',
       ],
     },

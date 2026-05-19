@@ -270,6 +270,23 @@ export async function handleChargeRefunded(
   }
 
   const supabase = getServiceClient();
+
+  // Mark any matching payments rows as refunded (covers subscriptions, cohort,
+  // course enrollments — anything with a stripe_payment_intent_id).
+  // We update first so the billing-history view reflects the refund even if
+  // the downstream enrollment/cohort cleanup misses a path.
+  const { error: paymentUpdateError } = await supabase
+    .from('payments')
+    .update({ status: 'refunded' })
+    .eq('stripe_payment_intent_id', paymentIntentId)
+    .eq('status', 'succeeded');
+
+  if (paymentUpdateError) {
+    console.error('[Stripe Webhook] Failed to mark payments refunded:', paymentUpdateError);
+  }
+
+  // Course-enrollment branch — unchanged from prior behavior, including the
+  // instructor revenue clawback and course capacity decrement.
   const { data: enrollment, error: enrollmentError } = await supabase
     .from('enrollments')
     .select('id, user_id, course_id, status')
@@ -282,9 +299,9 @@ export async function handleChargeRefunded(
   }
 
   if (!enrollment) {
-    console.warn(
-      `[Stripe Webhook] No enrollment found for refunded payment intent ${paymentIntentId}`,
-    );
+    // Not a course enrollment — could be a partner subscription invoice or a
+    // cohort purchase. The payments-row update above already handled the
+    // billing-history side. Nothing else to claw back for partner tiers.
     return;
   }
 
@@ -520,8 +537,11 @@ export async function handleInvoicePaid(
   if (!user) return;
 
   // Determine payment type and tier-aware description from invoice lines.
+  // In Stripe API 2026-04-22+, the subscription field moved to
+  // line.parent.subscription_item_details.subscription. The pre-2025 path
+  // `line.subscription` no longer exists.
   const isSubscription = invoice.lines?.data?.some(
-    (line) => line.subscription != null,
+    (line) => line.parent?.subscription_item_details?.subscription != null,
   );
 
   let paymentType: string;
