@@ -2069,18 +2069,75 @@ type PriceCardProps = {
   ctaEn: string;
 };
 
-// All 3 CTAs route to the placeholder until Stripe products exist (Vault $199 +
-// Community ¥2,800/mo are not yet created; Live Cohort wiring waits on the same
-// follow-up). Master plan, "Stripe products to create" section.
-const PRICING_CTA_HREF = '/partners/vertice-society/coming-soon';
+// CTAs post to /api/stripe/partner-checkout via a tiny email interstitial.
+// The interstitial lets us look up an existing Stripe Customer server-side
+// before creating a Session, avoiding duplicate subscriptions for repeat
+// buyers. See lib/partner-checkout/fulfill.ts findReusableStripeCustomerByEmail.
 
 function Pricing() {
-  const onCardCta = (tier: PriceCardProps['tier']) =>
+  const [pendingTier, setPendingTier] = useState<PriceCardProps['tier'] | null>(null);
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const openCheckout = (tier: PriceCardProps['tier']) => {
     trackEvent('partner_cta_click', {
       partner: PARTNER_SLUG,
       location: 'pricing',
       tier,
     });
+    setPendingTier(tier);
+    setError(null);
+  };
+
+  const closeModal = () => {
+    if (submitting) return;
+    setPendingTier(null);
+    setEmail('');
+    setError(null);
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!pendingTier || submitting) return;
+
+    setSubmitting(true);
+    setError(null);
+
+    const locale =
+      typeof document !== 'undefined' && document.documentElement.lang === 'ja'
+        ? 'ja'
+        : 'en';
+
+    try {
+      const res = await fetch('/api/stripe/partner-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tier: pendingTier,
+          cohortId: pendingTier === 'cohort' ? 'may2026' : undefined,
+          email: email.trim().toLowerCase(),
+          locale,
+          partnerSlug: PARTNER_SLUG,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        setError(
+          data.error ??
+            (locale === 'ja' ? '処理に失敗しました。' : 'Something went wrong. Please try again.'),
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch {
+      setError(locale === 'ja' ? 'ネットワークエラー。' : 'Network error. Please try again.');
+      setSubmitting(false);
+    }
+  };
 
   return (
     <section id="pricing" className="vertice-pr" aria-labelledby="vertice-pr-heading">
@@ -2139,11 +2196,11 @@ function Pricing() {
             enTagline="The place to keep learning"
             price={
               <>
-                <span className="vertice-pr-price-amt">$20</span>
+                <span className="vertice-pr-price-amt">$29</span>
                 <span className="vertice-pr-price-suffix">/month</span>
               </>
             }
-            sub="≈ ¥2,800/月 · 年額 ¥19,000"
+            sub="14-day free trial · cancel anytime"
             features={[
               {
                 jp: '困った時は月次Q&Aでプロから直接答えがもらえる',
@@ -2177,28 +2234,19 @@ function Pricing() {
             enTagline="Master AI at your own pace"
             price={
               <>
-                <span className="vertice-pr-price-strike">$299</span>
-                <span className="vertice-pr-price-amt vertice-pr-price-amt-lg">$199</span>
-                <span className="vertice-pr-price-suffix">(¥29,800)</span>
+                <span className="vertice-pr-price-amt vertice-pr-price-amt-lg">$49</span>
+                <span className="vertice-pr-price-suffix">/month</span>
               </>
             }
-            sub={
-              <>
-                <span className="vertice-pr-sub-highlight">
-                  創立メンバー価格 / Founding Member Price
-                </span>
-                <br />
-                <span>最初の100名限定 · 残り37名</span>
-              </>
-            }
+            sub="Cancel anytime · all future Vault content included"
             accessChip={
               <>
                 <span className="vertice-pr-access-icon" aria-hidden="true">
-                  ♾️
+                  ✓
                 </span>
                 <span className="vertice-pr-access-text">
-                  <span className="vertice-pr-access-jp">永久アクセス · 一度払えば終わり</span>
-                  <span className="vertice-pr-access-en">Lifetime access · pay once</span>
+                  <span className="vertice-pr-access-jp">Honu Community 込み</span>
+                  <span className="vertice-pr-access-en">Honu Community included</span>
                 </span>
               </>
             }
@@ -2217,8 +2265,8 @@ function Pricing() {
                 en: 'Copy-paste templates and prompts you use day one',
               },
               {
-                jp: 'Honu Community 1ヶ月無料アクセス付き',
-                en: '1 month Honu Community membership free',
+                jp: 'Honu Community への継続アクセス込み',
+                en: 'Honu Community access included',
               },
               {
                 jp: 'LinkedInに載せられる修了証',
@@ -2267,7 +2315,7 @@ function Pricing() {
             price={
               <>
                 <span className="vertice-pr-price-amt">$1,250</span>
-                <span className="vertice-pr-price-suffix">(¥187,500)</span>
+                <span className="vertice-pr-price-suffix">one-time</span>
               </>
             }
             sub={`${COHORT.startDateLabel.jp} · ${COHORT.startDateLabel.en}`}
@@ -2303,6 +2351,10 @@ function Pricing() {
           />
         </div>
 
+        <p className="vertice-pr-billed-usd">
+          すべて米ドル建てで請求 <span className="vertice-pr-billed-usd-en">· billed in USD</span>
+        </p>
+
         <p className="vertice-pr-guarantee">
           すべてのプランに30日間返金保証
           <span className="vertice-pr-guarantee-en">
@@ -2310,6 +2362,65 @@ function Pricing() {
           </span>
         </p>
       </div>
+
+      {pendingTier && (
+        <div
+          className="vertice-pr-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="vertice-pr-modal-heading"
+          onClick={closeModal}
+        >
+          <div
+            className="vertice-pr-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={closeModal}
+              className="vertice-pr-modal-close"
+              aria-label="Close"
+              disabled={submitting}
+            >
+              ×
+            </button>
+            <h3 id="vertice-pr-modal-heading" className="vertice-pr-modal-title">
+              続けるにはメールアドレスを入力 ·{' '}
+              <span className="vertice-pr-modal-title-en">Continue with email</span>
+            </h3>
+            <p className="vertice-pr-modal-sub">
+              次のステップでカード情報を入力します。{' '}
+              <span className="vertice-pr-modal-sub-en">
+                You'll enter card details on the next step.
+              </span>
+            </p>
+            <form onSubmit={handleSubmit} className="vertice-pr-modal-form">
+              <label htmlFor="vertice-pr-modal-email" className="sr-only">
+                Email
+              </label>
+              <input
+                id="vertice-pr-modal-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                autoFocus
+                disabled={submitting}
+                className="vertice-pr-modal-input"
+              />
+              {error && <p className="vertice-pr-modal-error">{error}</p>}
+              <button
+                type="submit"
+                disabled={submitting || !email.trim()}
+                className="vertice-pr-modal-submit"
+              >
+                {submitting ? '...' : '続ける · Continue →'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 
@@ -2395,14 +2506,14 @@ function Pricing() {
           ))}
         </div>
 
-        <a
-          href={PRICING_CTA_HREF}
-          onClick={() => onCardCta(tier)}
+        <button
+          type="button"
+          onClick={() => openCheckout(tier)}
           className={`vertice-pr-cta${highlighted ? ' vertice-pr-cta-highlighted' : ''}`}
         >
           <span className="vertice-pr-cta-jp">{ctaJp} →</span>
           <span className="vertice-pr-cta-en">{ctaEn}</span>
-        </a>
+        </button>
       </div>
     );
   }

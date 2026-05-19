@@ -3295,6 +3295,129 @@
   font-style: italic;
 }
 
+/* ——— USD billing disclaimer ——— */
+.vertice-scope .vertice-pr-billed-usd {
+  font-family: var(--vertice-ff-jp);
+  text-align: center;
+  margin-top: 32px;
+  font-size: 12px;
+  color: var(--vertice-caption);
+  opacity: 0.85;
+}
+.vertice-scope .vertice-pr-billed-usd-en {
+  margin-left: 4px;
+  font-style: italic;
+}
+
+/* ——— Email interstitial modal ——— */
+.vertice-scope .vertice-pr-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 15, 24, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: vertice-pr-modal-fade 160ms ease-out;
+}
+@keyframes vertice-pr-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.vertice-scope .vertice-pr-modal {
+  background: var(--vertice-bg-card, #fff);
+  color: var(--vertice-fg, #0b1320);
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
+}
+.vertice-scope .vertice-pr-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: transparent;
+  border: 0;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--vertice-caption, #6b7588);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.vertice-scope .vertice-pr-modal-close:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.vertice-scope .vertice-pr-modal-title {
+  font-family: var(--vertice-ff-jp);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+.vertice-scope .vertice-pr-modal-title-en {
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.85;
+}
+.vertice-scope .vertice-pr-modal-sub {
+  font-size: 13px;
+  color: var(--vertice-caption);
+  margin: 0 0 18px 0;
+  line-height: 1.5;
+}
+.vertice-scope .vertice-pr-modal-sub-en {
+  font-style: italic;
+  opacity: 0.85;
+}
+.vertice-scope .vertice-pr-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.vertice-scope .vertice-pr-modal-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid var(--vertice-border, #e2e6ee);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--vertice-fg);
+  outline: none;
+  transition: border-color 120ms;
+}
+.vertice-scope .vertice-pr-modal-input:focus {
+  border-color: var(--vertice-seafoam, #2dd4bf);
+}
+.vertice-scope .vertice-pr-modal-input:disabled {
+  opacity: 0.6;
+}
+.vertice-scope .vertice-pr-modal-submit {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  background: var(--vertice-seafoam, #2dd4bf);
+  color: #07121b;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 120ms;
+}
+.vertice-scope .vertice-pr-modal-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.vertice-scope .vertice-pr-modal-error {
+  font-size: 13px;
+  color: #dc2626;
+  margin: 0;
+}
+
 /* ——— Instructors (3 cards w/ photo + seafoam ring) ——————————————— */
 .vertice-scope .vertice-inst {
   background: #fff;
