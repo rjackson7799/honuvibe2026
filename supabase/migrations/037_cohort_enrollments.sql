@@ -24,9 +24,10 @@ CREATE TABLE cohort_enrollments (
 
 CREATE INDEX idx_cohort_enrollments_user ON cohort_enrollments(user_id);
 CREATE INDEX idx_cohort_enrollments_cohort ON cohort_enrollments(cohort_id);
-CREATE INDEX idx_cohort_enrollments_active_window
-  ON cohort_enrollments(user_id, bundle_access_ends_at)
-  WHERE bundle_access_ends_at > now();
+-- Composite index for the common "is this user currently in any active cohort window?" query.
+-- Avoids the IMMUTABLE-function-required restriction on partial indexes using now().
+CREATE INDEX idx_cohort_enrollments_user_window
+  ON cohort_enrollments(user_id, bundle_access_ends_at);
 
 -- RLS: users see their own rows; service role writes (webhook only).
 ALTER TABLE cohort_enrollments ENABLE ROW LEVEL SECURITY;
