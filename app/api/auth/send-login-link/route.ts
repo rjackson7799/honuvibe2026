@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
+import { sendMagicLoginEmail } from '@/lib/email/send';
 
 const BodySchema = z.object({
   email: z.string().email(),
@@ -82,19 +83,45 @@ export async function POST(request: NextRequest) {
 
   try {
     const supabase = getServiceClient();
-    // generateLink returns 422 with "User not found" if the email isn't
-    // registered — we swallow that to avoid enumeration.
-    await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
-      options: {
-        redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(`${localePrefix}/learn/dashboard`)}`,
-      },
-    });
+
+    // admin.generateLink generates the link but does NOT send the email
+    // (despite the API's "send via custom provider" framing). We send via
+    // Resend ourselves using sendMagicLoginEmail.
+    const { data: linkData, error: linkError } =
+      await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email,
+        options: {
+          redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(`${localePrefix}/learn/dashboard`)}`,
+        },
+      });
+
+    // Swallow "User not found" and any other generateLink errors to prevent
+    // email enumeration — caller sees 200 either way.
+    if (linkError || !linkData?.properties?.action_link) {
+      console.error('[send-login-link] generateLink failed (swallowed):', linkError?.message);
+      return NextResponse.json({ ok: true });
+    }
+
+    // Look up full_name for the email greeting (best-effort).
+    const { data: profile } = await supabase
+      .from('users')
+      .select('full_name')
+      .eq('email', email)
+      .maybeSingle();
+
+    try {
+      await sendMagicLoginEmail({
+        email,
+        fullName: profile?.full_name ?? null,
+        loginLink: linkData.properties.action_link,
+        locale,
+      });
+    } catch (emailError) {
+      console.error('[send-login-link] email send failed (swallowed):', emailError);
+    }
   } catch (error) {
-    // Log but still return success — we don't want to leak account existence
-    // via timing or error responses.
-    console.error('[send-login-link] generateLink failed (swallowed):', error);
+    console.error('[send-login-link] unexpected error (swallowed):', error);
   }
 
   return NextResponse.json({ ok: true });

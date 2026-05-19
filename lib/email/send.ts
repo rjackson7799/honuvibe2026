@@ -1357,6 +1357,48 @@ export async function sendInstructorApplicationAdminNotification(
 
 // ─── Password Reset (branded, light theme) ──────────────────
 
+export async function sendMagicLoginEmail(data: {
+  email: string;
+  fullName: string | null;
+  loginLink: string;
+  locale?: 'en' | 'ja';
+}): Promise<void> {
+  const { email, fullName, loginLink, locale = 'en' } = data;
+  const isJP = locale === 'ja';
+  const name = fullName ?? (isJP ? 'お客様' : 'there');
+
+  const body = [
+    heading(isJP ? `${name}さん、こんにちは` : `Hi ${name},`),
+    paragraph(
+      isJP
+        ? 'HonuVibe.AIへのログインリンクをお送りします。以下のボタンをクリックしてダッシュボードにアクセスしてください。'
+        : 'Here\'s your login link for HonuVibe.AI. Click the button below to access your dashboard.',
+    ),
+    ctaButton({
+      href: loginLink,
+      label: isJP ? 'ダッシュボードへ →' : 'Open Dashboard →',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'このリクエストに心当たりがない場合は、このメールを無視していただいて結構です。リンクは24時間で期限切れになります。'
+        : 'If you didn\'t request this, you can safely ignore this email. This link expires in 24 hours.',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? '【HonuVibe.AI】ログインリンク'
+      : 'Your login link — HonuVibe.AI',
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'ログインリンク' : 'Your login link',
+      body,
+    }),
+  });
+}
+
 export async function sendPasswordResetEmail(data: {
   email: string;
   fullName: string | null;
