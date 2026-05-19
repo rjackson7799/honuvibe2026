@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslations, useLocale } from 'next-intl';
+import { markPasswordSet } from '@/lib/students/actions';
 
 export function ResetPasswordForm() {
   const t = useTranslations('auth');
@@ -91,6 +92,16 @@ export function ResetPasswordForm() {
       setError(updateError.message);
       setLoading(false);
       return;
+    }
+
+    // Mark the user as having a password so the dashboard banner and
+    // settings UI hide the "set password" nudge going forward.
+    try {
+      await markPasswordSet();
+    } catch (markError) {
+      // Non-critical — log but don't block navigation. The flag will get
+      // set next time they touch the password flow.
+      console.error('[ResetPasswordForm] markPasswordSet failed:', markError);
     }
 
     router.push(`${prefix}/learn/dashboard`);
