@@ -3,6 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 import { resolvePartnerIdBySlug } from '@/lib/partner-attribution';
 import { resolveEnrollmentPartnerId } from '@/lib/partner-attribution/resolve';
 import { persistEnrollmentSplit } from '@/lib/revenue-split/persist';
+import {
+  fulfillCohortCheckout,
+  fulfillSubscriptionCheckout,
+} from '@/lib/partner-checkout/fulfill';
+import { findOrCreateUserByEmail } from '@/lib/auth/find-or-create';
+import { stripe } from '@/lib/stripe/client';
+import { resolveSubscriptionTier, paymentTypeForRenewal } from '@/lib/stripe/tiers';
 
 /** Service role client for webhook handlers — bypasses RLS, no user session */
 function getServiceClient() {
@@ -19,23 +26,43 @@ function getServiceClient() {
 export async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
 ): Promise<void> {
+  const supabase = getServiceClient();
+
+  // STEP 1: Partner-checkout branch. Partner sessions have no user_id /
+  // course_id metadata — they identify themselves via checkout_kind='partner'.
+  // MUST run before the course-enrollment guard below.
+  if (session.metadata?.checkout_kind === 'partner') {
+    const tier = session.metadata?.tier;
+    if (tier === 'cohort') {
+      await fulfillCohortCheckout(supabase, session);
+    } else if (tier === 'community' || tier === 'vault') {
+      await fulfillSubscriptionCheckout(supabase, session);
+    } else {
+      console.error('[Stripe Webhook] Unknown partner tier:', tier);
+    }
+    return;
+  }
+
   const userId = session.metadata?.user_id;
   const courseId = session.metadata?.course_id;
   const currency = session.metadata?.currency ?? 'usd';
   const locale = session.metadata?.locale ?? 'en';
 
-  if (!userId || !courseId) {
-    console.error('[Stripe Webhook] Missing user_id or course_id in metadata');
-    return;
-  }
-
-  // Route ESL add-on purchases to separate handler
+  // STEP 2: ESL add-on branch.
   if (session.metadata?.type === 'esl_addon') {
+    if (!userId || !courseId) {
+      console.error('[Stripe Webhook] ESL session missing user_id/course_id');
+      return;
+    }
     await handleESLPurchaseCompleted(session, userId, courseId, currency);
     return;
   }
 
-  const supabase = getServiceClient();
+  // STEP 3: Course enrollment (existing flow).
+  if (!userId || !courseId) {
+    console.error('[Stripe Webhook] Missing user_id or course_id in metadata');
+    return;
+  }
 
   // Idempotency: skip if enrollment already exists (handles Stripe retries)
   const { data: existing } = await supabase
@@ -321,6 +348,50 @@ export async function handleChargeRefunded(
   }
 }
 
+/**
+ * Resolve a subscription event's user with out-of-order resilience.
+ *
+ * If the user already has stripe_customer_id set, use that. Otherwise, fetch
+ * the Stripe Customer and find-or-create by email — this handles the case
+ * where customer.subscription.created fires before checkout.session.completed.
+ */
+async function resolveSubscriptionUser(
+  supabase: ReturnType<typeof getServiceClient>,
+  customerId: string,
+): Promise<{ id: string; subscription_stripe_id: string | null } | null> {
+  const { data: existing } = await supabase
+    .from('users')
+    .select('id, subscription_stripe_id')
+    .eq('stripe_customer_id', customerId)
+    .maybeSingle();
+
+  if (existing) return existing;
+
+  // Out-of-order fallback: fetch Stripe Customer for email.
+  try {
+    const customer = await stripe.customers.retrieve(customerId);
+    if (customer.deleted) {
+      console.error('[Stripe Webhook] Customer is deleted:', customerId);
+      return null;
+    }
+    if (!customer.email) {
+      console.error('[Stripe Webhook] Customer has no email:', customerId);
+      return null;
+    }
+
+    const user = await findOrCreateUserByEmail(supabase, customer.email, customer.name ?? null);
+    await supabase
+      .from('users')
+      .update({ stripe_customer_id: customerId })
+      .eq('id', user.id);
+
+    return { id: user.id, subscription_stripe_id: user.subscription_stripe_id };
+  } catch (error) {
+    console.error('[Stripe Webhook] resolveSubscriptionUser failed:', error);
+    return null;
+  }
+}
+
 export async function handleSubscriptionCreated(
   subscription: Stripe.Subscription,
 ): Promise<void> {
@@ -330,14 +401,33 @@ export async function handleSubscriptionCreated(
 
   const supabase = getServiceClient();
 
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single();
+  const user = await resolveSubscriptionUser(supabase, customerId);
+  if (!user) return;
 
-  if (!user) {
-    console.error('[Stripe Webhook] No user found for customer:', customerId);
+  // Derive tier from the price ID on the subscription. Unknown price ID = data
+  // drift; log and skip rather than guess.
+  const priceId = subscription.items.data[0]?.price?.id;
+  const tier = priceId ? resolveSubscriptionTier(priceId) : undefined;
+  if (!tier) {
+    console.error(
+      '[Stripe Webhook] Unknown price ID on subscription, skipping tier update:',
+      priceId,
+    );
+    return;
+  }
+
+  // Duplicate-subscription guard: if the user already has a different active
+  // subscription, log loudly and skip rather than silently downgrade them.
+  if (
+    user.subscription_stripe_id &&
+    user.subscription_stripe_id !== subscription.id
+  ) {
+    console.error(
+      '[Stripe Webhook] User already has subscription_stripe_id',
+      user.subscription_stripe_id,
+      '— refusing to overwrite with',
+      subscription.id,
+    );
     return;
   }
 
@@ -346,7 +436,7 @@ export async function handleSubscriptionCreated(
   await supabase
     .from('users')
     .update({
-      subscription_tier: 'vault',
+      subscription_tier: tier,
       subscription_stripe_id: subscription.id,
       subscription_status: subscription.status,
       subscription_expires_at: periodEnd
@@ -365,26 +455,25 @@ export async function handleSubscriptionUpdated(
 
   const supabase = getServiceClient();
 
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single();
-
+  const user = await resolveSubscriptionUser(supabase, customerId);
   if (!user) return;
+
+  const priceId = subscription.items.data[0]?.price?.id;
+  const tier = priceId ? resolveSubscriptionTier(priceId) : undefined;
 
   const status = subscription.cancel_at_period_end ? 'cancelled' : subscription.status;
   const periodEnd = subscription.items.data[0]?.current_period_end;
 
-  await supabase
-    .from('users')
-    .update({
-      subscription_status: status,
-      subscription_expires_at: periodEnd
-        ? new Date(periodEnd * 1000).toISOString()
-        : null,
-    })
-    .eq('id', user.id);
+  // Update tier only if we can resolve it; preserve old value on data drift.
+  const updates: Record<string, unknown> = {
+    subscription_status: status,
+    subscription_expires_at: periodEnd
+      ? new Date(periodEnd * 1000).toISOString()
+      : null,
+  };
+  if (tier) updates.subscription_tier = tier;
+
+  await supabase.from('users').update(updates).eq('id', user.id);
 }
 
 export async function handleSubscriptionDeleted(
@@ -425,20 +514,35 @@ export async function handleInvoicePaid(
 
   const supabase = getServiceClient();
 
-  const { data: user } = await supabase
-    .from('users')
-    .select('id')
-    .eq('stripe_customer_id', customerId)
-    .single();
-
+  // Out-of-order resilience: invoice.paid may fire before checkout completes
+  // for the very first subscription invoice. Find or create by Stripe email.
+  const user = await resolveSubscriptionUser(supabase, customerId);
   if (!user) return;
 
-  // Determine payment type from invoice lines
+  // Determine payment type and tier-aware description from invoice lines.
   const isSubscription = invoice.lines?.data?.some(
     (line) => line.subscription != null,
   );
 
-  // Check idempotency
+  let paymentType: string;
+  let description: string | null;
+
+  if (isSubscription) {
+    const priceField = invoice.lines?.data?.[0]?.pricing?.price_details?.price;
+    const priceId =
+      typeof priceField === 'string' ? priceField : (priceField?.id ?? undefined);
+    const tier = priceId ? resolveSubscriptionTier(priceId) : undefined;
+    paymentType = tier ? paymentTypeForRenewal(tier) : 'vault_renewal';
+    description =
+      tier === 'community'
+        ? 'HonuVibe Community — Monthly'
+        : 'HonuVibe Vault — Monthly';
+  } else {
+    paymentType = 'course_purchase';
+    description = invoice.lines?.data?.[0]?.description ?? null;
+  }
+
+  // Check idempotency.
   const { data: existing } = await supabase
     .from('payments')
     .select('id')
@@ -449,14 +553,14 @@ export async function handleInvoicePaid(
 
   await supabase.from('payments').insert({
     user_id: user.id,
-    type: isSubscription ? 'vault_renewal' : 'course_purchase',
+    type: paymentType,
     stripe_invoice_id: invoice.id,
     stripe_payment_intent_id: null,
     amount: invoice.amount_paid,
     currency: invoice.currency,
     status: 'succeeded',
     receipt_url: invoice.hosted_invoice_url ?? null,
-    description: isSubscription ? 'The Vault — Monthly Subscription' : (invoice.lines?.data?.[0]?.description ?? null),
+    description,
   });
 }
 
