@@ -21,7 +21,7 @@ const COPY: Record<Tier, { en: TierCopy; ja: TierCopy }> = {
       nextSteps: [
         'Check your email for a login link from HonuVibe.AI.',
         'Join the member-only Q&A, weekly Zoom, and project channels.',
-        'Cancel anytime before day 14 if it\'s not for you.',
+        "Cancel anytime before day 14 if it's not for you.",
       ],
     },
     ja: {
@@ -38,7 +38,7 @@ const COPY: Record<Tier, { en: TierCopy; ja: TierCopy }> = {
   vault: {
     en: {
       badge: 'HonuVibe Vault',
-      title: "Welcome to the Vault.",
+      title: 'Welcome to the Vault.',
       body: "Your subscription is active. We've sent a login link to your email — click it to start watching.",
       nextSteps: [
         'Check your email for a login link from HonuVibe.AI.',
@@ -60,7 +60,7 @@ const COPY: Record<Tier, { en: TierCopy; ja: TierCopy }> = {
   cohort: {
     en: {
       badge: 'Vertice Cohort — May 2026',
-      title: "See you May 23.",
+      title: 'See you May 23.',
       body: "Your cohort seat is reserved. We've sent a login link plus the cohort orientation packet to your email.",
       nextSteps: [
         'Check your email for the orientation packet (Zoom link, calendar invite, prep materials).',
@@ -81,6 +81,13 @@ const COPY: Record<Tier, { en: TierCopy; ja: TierCopy }> = {
   },
 };
 
+const INK_PRIMARY = 'var(--m-ink-primary, #1A2B33)';
+const INK_SECONDARY = 'var(--m-ink-secondary, #5A6B73)';
+const INK_TERTIARY = 'var(--m-ink-tertiary, #8B9499)';
+const ACCENT_TEAL = 'var(--m-accent-teal, #0FA9A0)';
+const ACCENT_TEAL_SOFT = 'var(--m-accent-teal-soft, rgba(15, 169, 160, 0.08))';
+const BORDER = 'var(--m-border, #E5DFD3)';
+
 export function ThanksContent({
   tier,
   sessionId,
@@ -96,15 +103,19 @@ export function ThanksContent({
   if (!tier) {
     return (
       <main className="mx-auto max-w-[640px] px-6 py-24 text-center">
-        <h1 className="text-3xl font-semibold text-fg-primary">
+        <h1 className="text-3xl font-semibold" style={{ color: INK_PRIMARY }}>
           {isJP ? '注文の確認' : 'Order confirmation'}
         </h1>
-        <p className="mt-4 text-fg-secondary">
+        <p className="mt-4" style={{ color: INK_SECONDARY }}>
           {isJP
             ? 'リンクが無効です。問題が続く場合はお問い合わせください。'
             : 'Link is invalid. Please contact support if the problem persists.'}
         </p>
-        <Link href={isJP ? '/ja' : '/'} className="mt-8 inline-block underline">
+        <Link
+          href={isJP ? '/ja' : '/'}
+          className="mt-8 inline-block underline"
+          style={{ color: INK_SECONDARY }}
+        >
           {isJP ? 'ホームに戻る' : 'Back home'}
         </Link>
       </main>
@@ -152,16 +163,27 @@ export function ThanksContent({
     <main className="mx-auto max-w-[720px] px-6 py-24">
       <div className="space-y-8">
         <div>
-          <span className="inline-block rounded-full bg-accent-teal/10 px-3 py-1 text-xs font-medium uppercase tracking-wider text-accent-teal">
+          <span
+            className="inline-block rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider"
+            style={{ background: ACCENT_TEAL_SOFT, color: ACCENT_TEAL }}
+          >
             {copy.badge}
           </span>
-          <h1 className="mt-6 text-4xl font-semibold leading-tight text-fg-primary md:text-5xl">
+          <h1
+            className="mt-6 text-4xl font-semibold leading-tight md:text-5xl"
+            style={{ color: INK_PRIMARY }}
+          >
             {copy.title}
           </h1>
-          <p className="mt-4 text-lg text-fg-secondary">{copy.body}</p>
+          <p className="mt-4 text-lg" style={{ color: INK_SECONDARY }}>
+            {copy.body}
+          </p>
         </div>
 
-        <ul className="space-y-3 border-l border-border-primary pl-5 text-fg-secondary">
+        <ul
+          className="space-y-3 border-l pl-5"
+          style={{ borderColor: BORDER, color: INK_SECONDARY }}
+        >
           {copy.nextSteps.map((step, i) => (
             <li key={i} className="leading-relaxed">
               {step}
@@ -169,15 +191,18 @@ export function ThanksContent({
           ))}
         </ul>
 
-        <div className="space-y-3 rounded-lg border border-border-primary p-6">
-          <p className="text-sm text-fg-tertiary">
+        <div
+          className="space-y-3 rounded-lg p-6"
+          style={{ border: `1px solid ${BORDER}`, background: 'rgba(255,255,255,0.6)' }}
+        >
+          <p className="text-sm" style={{ color: INK_TERTIARY }}>
             {isJP
               ? 'メールが届かない場合は、新しいログインリンクを送信できます。'
               : "Didn't get the email? We can send a fresh login link."}
           </p>
 
           {magicState === 'sent' ? (
-            <p className="text-sm font-medium text-accent-teal">
+            <p className="text-sm font-medium" style={{ color: ACCENT_TEAL }}>
               {isJP
                 ? '✓ 新しいログインリンクをメールでお送りしました。'
                 : '✓ Fresh login link sent. Check your email.'}
@@ -187,7 +212,8 @@ export function ThanksContent({
               type="button"
               onClick={handleSendMagicLink}
               disabled={magicState === 'loading'}
-              className="rounded-md bg-accent-teal px-5 py-2.5 text-sm font-medium text-bg-primary transition hover:bg-accent-teal/90 disabled:opacity-50"
+              className="rounded-md px-5 py-2.5 text-sm font-medium transition hover:opacity-90 disabled:opacity-50"
+              style={{ background: ACCENT_TEAL, color: '#fff' }}
             >
               {magicState === 'loading'
                 ? isJP
@@ -200,16 +226,17 @@ export function ThanksContent({
           )}
 
           {magicState === 'error' && magicError && (
-            <p className="text-sm text-red-500">{magicError}</p>
+            <p className="text-sm text-red-600">{magicError}</p>
           )}
         </div>
 
-        <div className="border-t border-border-primary pt-6 text-sm text-fg-tertiary">
+        <div className="border-t pt-6 text-sm" style={{ borderColor: BORDER, color: INK_TERTIARY }}>
           <p>
             {isJP ? 'お問い合わせ: ' : 'Questions? '}
             <a
               href="mailto:hello@honuvibe.ai"
-              className="text-fg-secondary underline hover:text-fg-primary"
+              className="underline hover:opacity-80"
+              style={{ color: INK_SECONDARY }}
             >
               hello@honuvibe.ai
             </a>
