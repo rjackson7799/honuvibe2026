@@ -5,17 +5,21 @@ import { useRouter } from 'next/navigation';
 import { GraduationCap, Lock, Users, ArrowRight } from 'lucide-react';
 import { markOnboarded } from '@/lib/students/actions';
 import { CourseCard } from '@/components/learn/CourseCard';
+import { SetPasswordCard } from '@/components/auth/SetPasswordCard';
 import type { Course } from '@/lib/courses/types';
 
 type Props = {
   displayName: string;
   locale: string;
   featuredCourse?: Course | null;
+  passwordSet?: boolean;
 };
 
-export function WelcomeScreen({ displayName, locale, featuredCourse }: Props) {
+export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet = true }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  // Step 1: password set (only if !passwordSet). Step 2: tile chooser.
+  const [step, setStep] = useState<'password' | 'chooser'>(passwordSet ? 'chooser' : 'password');
   const isJP = locale === 'ja';
   const prefix = isJP ? '/ja' : '';
 
@@ -24,6 +28,14 @@ export function WelcomeScreen({ displayName, locale, featuredCourse }: Props) {
     setLoading(true);
     await markOnboarded();
     router.push(href);
+  }
+
+  function handlePasswordDone() {
+    setStep('chooser');
+  }
+
+  async function handleSkipPassword() {
+    setStep('chooser');
   }
 
   const cards = [
@@ -58,6 +70,23 @@ export function WelcomeScreen({ displayName, locale, featuredCourse }: Props) {
       accent: 'var(--accent-teal)',
     },
   ];
+
+  if (step === 'password') {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-center mb-10 max-w-xl">
+          <h1 className="text-3xl font-serif text-fg-primary mb-3">
+            {isJP ? `${displayName}さん、ようこそ！` : `Welcome to HonuVibe, ${displayName}`}
+          </h1>
+        </div>
+        <SetPasswordCard
+          mode="set"
+          onSuccess={handlePasswordDone}
+          onSkip={handleSkipPassword}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">

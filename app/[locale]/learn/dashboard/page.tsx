@@ -13,6 +13,7 @@ import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecomm
 import { getInstructorByUserId } from '@/lib/instructors/queries';
 import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingBanner';
 import { WelcomeScreen } from '@/components/learn/WelcomeScreen';
+import { SetPasswordBanner } from '@/components/learn/SetPasswordBanner';
 import { Card } from '@/components/ui/card';
 import { BadgePill } from '@/components/ui/badge-pill';
 import { SectionHeading } from '@/components/learn/SectionHeading';
@@ -49,7 +50,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('full_name, onboarded')
+    .select('full_name, onboarded, password_set')
     .eq('id', user.id)
     .single();
 
@@ -74,8 +75,17 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const initial = displayName.trim().charAt(0).toUpperCase() || '?';
 
   if (!profile?.onboarded || sp.welcome === 'true') {
-    return <WelcomeScreen displayName={displayName} locale={locale} featuredCourse={featuredCourse} />;
+    return (
+      <WelcomeScreen
+        displayName={displayName}
+        locale={locale}
+        featuredCourse={featuredCourse}
+        passwordSet={profile?.password_set ?? true}
+      />
+    );
   }
+
+  const showPasswordBanner = profile && profile.password_set === false;
 
   const now = new Date();
   const overlineDate = now
@@ -104,6 +114,8 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           </p>
         </div>
       )}
+
+      {showPasswordBanner && <SetPasswordBanner />}
 
       {instructorClassCount > 0 && (
         <InstructorTeachingBanner classCount={instructorClassCount} />

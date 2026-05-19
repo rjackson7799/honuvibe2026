@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { SetPasswordCard } from '@/components/auth/SetPasswordCard';
 
 function getInitials(name: string, email: string): string {
   const source = name.trim() || email.trim();
@@ -27,6 +28,7 @@ export default function SettingsPage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [langPref, setLangPref] = useState<'en' | 'ja'>(locale as 'en' | 'ja');
+  const [passwordSet, setPasswordSet] = useState<boolean>(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export default function SettingsPage() {
 
       const { data: profile } = await supabase
         .from('users')
-        .select('full_name, locale_preference, avatar_url')
+        .select('full_name, locale_preference, avatar_url, password_set')
         .eq('id', user.id)
         .single();
 
@@ -49,6 +51,7 @@ export default function SettingsPage() {
         setFullName(profile.full_name ?? '');
         setLangPref(profile.locale_preference ?? locale);
         setAvatarUrl(profile.avatar_url ?? null);
+        setPasswordSet(profile.password_set ?? true);
       }
       setLoading(false);
     }
@@ -226,6 +229,16 @@ export default function SettingsPage() {
             className="w-full px-3.5 py-2.5 rounded-[10px] bg-[rgba(26,43,51,0.04)] border border-border-secondary text-fg-tertiary text-sm cursor-not-allowed"
           />
         </div>
+      </Card>
+
+      {/* Password section */}
+      <Card variant="learn" padding="lg" className="space-y-3">
+        <h2 className={sectionLabel}>{t('settings_password')}</h2>
+        <SetPasswordCard
+          mode={passwordSet ? 'change' : 'set'}
+          framed={false}
+          onSuccess={() => setPasswordSet(true)}
+        />
       </Card>
 
       {/* Preferences section */}
