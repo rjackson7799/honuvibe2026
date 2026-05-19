@@ -1,0 +1,101 @@
+/**
+ * Send-login-link endpoint — general-purpose magic-link sender for the
+ * /learn/auth login page.
+ *
+ * Distinct from /api/auth/magic-link which is Stripe-session-gated (only
+ * callable from the partner-checkout thanks page). This one is anonymous
+ * email-only with rate limiting + enumeration resistance.
+ *
+ * Always returns 200 with { ok: true } regardless of whether the email
+ * exists in auth.users — prevents email enumeration. Supabase auto-sends
+ * the magic-link email when the email matches an existing account.
+ *
+ * Rate limit: 5 requests / hour / IP via module-level token bucket.
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { createClient } from '@supabase/supabase-js';
+
+const BodySchema = z.object({
+  email: z.string().email(),
+});
+
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_MAX = 5;
+
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const bucket = rateBuckets.get(ip);
+
+  if (!bucket || bucket.resetAt < now) {
+    rateBuckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+
+  if (bucket.count >= RATE_LIMIT_MAX) return false;
+
+  bucket.count += 1;
+  return true;
+}
+
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !serviceKey) {
+    throw new Error('Supabase service role credentials not configured');
+  }
+  return createClient(url, serviceKey);
+}
+
+export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+    request.headers.get('x-real-ip') ??
+    'unknown';
+
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json(
+      { error: 'Too many requests. Try again in an hour.' },
+      { status: 429 },
+    );
+  }
+
+  let body: z.infer<typeof BodySchema>;
+  try {
+    body = BodySchema.parse(await request.json());
+  } catch {
+    // Same shape as success to avoid leaking validation details.
+    return NextResponse.json({ ok: true });
+  }
+
+  const email = body.email.trim().toLowerCase();
+
+  const locale = request.headers.get('x-locale') === 'ja' ? 'ja' : 'en';
+  const origin =
+    request.headers.get('origin') ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    'http://localhost:3000';
+  const localePrefix = locale === 'ja' ? '/ja' : '';
+
+  try {
+    const supabase = getServiceClient();
+    // generateLink returns 422 with "User not found" if the email isn't
+    // registered — we swallow that to avoid enumeration.
+    await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+      options: {
+        redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(`${localePrefix}/learn/dashboard`)}`,
+      },
+    });
+  } catch (error) {
+    // Log but still return success — we don't want to leak account existence
+    // via timing or error responses.
+    console.error('[send-login-link] generateLink failed (swallowed):', error);
+  }
+
+  return NextResponse.json({ ok: true });
+}

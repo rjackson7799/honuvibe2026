@@ -41,6 +41,34 @@ export function AuthForm() {
   const [confirmationPending, setConfirmationPending] = useState(false);
   const [confirmationFailed, setConfirmationFailed] = useState(false);
   const [resending, setResending] = useState(false);
+  const [magicLinkSending, setMagicLinkSending] = useState(false);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
+
+  async function handleSendMagicLink() {
+    if (!email) {
+      setError(t('email_required_for_magic_link'));
+      return;
+    }
+    setMagicLinkSending(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/auth/send-login-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-locale': locale },
+        body: JSON.stringify({ email }),
+      });
+      if (res.status === 429) {
+        setError(t('magic_link_rate_limited'));
+        return;
+      }
+      // Always treat 200 as success — server swallows account-not-found.
+      setMagicLinkSent(true);
+    } catch {
+      setError(t('magic_link_send_failed'));
+    } finally {
+      setMagicLinkSending(false);
+    }
+  }
 
   const supabase = createClient();
 
@@ -367,6 +395,26 @@ export function AuthForm() {
                     : t('sign_up')}
               </Button>
             </form>
+
+            {/* Magic-link alternative (sign-in only) */}
+            {mode === 'sign-in' && (
+              <div className="mt-4">
+                {magicLinkSent ? (
+                  <p className="text-sm text-accent-teal text-center">
+                    ✓ {t('magic_link_check_email')}
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSendMagicLink}
+                    disabled={magicLinkSending}
+                    className="w-full text-sm text-fg-tertiary hover:text-accent-teal transition-colors py-2"
+                  >
+                    {magicLinkSending ? '...' : t('or_use_magic_link')}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Toggle prompt */}
             <p className="mt-6 text-sm text-fg-tertiary text-center">
