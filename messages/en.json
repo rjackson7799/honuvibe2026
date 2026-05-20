@@ -1274,7 +1274,7 @@
         "price": "$49",
         "price_unit": "/ month",
         "price_note": "Cancel anytime · all future Vault content included",
-        "bullet_1": "100+ lessons across 6 libraries",
+        "bullet_1": "{count} lessons — videos, articles, guides, templates, tools, recordings",
         "bullet_2": "Bilingual EN / 日本語 toggle",
         "bullet_3": "New content drops every month",
         "bullet_4": "Searchable & bookmark-able",
@@ -1283,7 +1283,14 @@
       "sample_heading": "Try a Vault lesson, free.",
       "sample_caption": "A 60-second taste of a real Vault lesson — no signup required.",
       "sample_link": "See all lessons",
-      "sample_coming_soon": "Sample lesson coming soon"
+      "sample_coming_soon": "Sample lesson coming soon",
+      "preview": {
+        "heading": "What's inside the Vault",
+        "total_count": "{count} lessons",
+        "growing_monthly": "growing monthly",
+        "hot_topics_label": "Hot topics",
+        "browse_all": "Browse all {count} lessons"
+      }
     },
     "chapter_courses": {
       "number": "02",
@@ -2414,77 +2421,143 @@
       "title": "Explore — Real projects, real outcomes | HonuVibe",
       "description": "See what happens when AI education meets real-world application. Featured client work, community builds, and our pro-bono partnerships."
     },
-    "hero": {
-      "overline": "Our Work",
-      "headline_line_1": "Real projects.",
-      "headline_line_2": "Real outcomes.",
-      "subhead": "See what happens when AI education meets real-world application. These are projects built by HonuVibe and the HonuVibe community."
+    "reel_hero": {
+      "now_playing_label": "Now Playing",
+      "scene_label": "Scene {n} · Take 1",
+      "frame_label": "Frame {current} / {total}",
+      "status_live": "Live",
+      "status_in_progress": "In Progress",
+      "status_confidential": "Confidential",
+      "industry_label": "Industry",
+      "stack_label": "Stack",
+      "visit_label": "Visit site",
+      "no_link_label": "Under wraps",
+      "prev_label": "Previous project",
+      "next_label": "Next project",
+      "projects": {
+        "kwame": {
+          "name": "KwameBrathwaite.com",
+          "subhead": "A photography archive gets a modern makeover.",
+          "quote": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
+          "stat_1_value": "3×",
+          "stat_1_label": "Faster load time",
+          "stat_1_caption": "vs. legacy site",
+          "stat_2_value": "Mobile",
+          "stat_2_label": "First responsive",
+          "stat_2_caption": "Print, licensing, bookings",
+          "stat_3_value": "AI",
+          "stat_3_label": "Native workflow",
+          "stat_3_caption": "Claude + Cursor"
+        },
+        "hci": {
+          "name": "HCI Medical Group",
+          "subhead": "A healthcare website paired with an internal project management tool.",
+          "quote": "A polished, conversion-ready healthcare site paired with powerful internal tools that streamline daily operations.",
+          "stat_1_value": "Live",
+          "stat_1_label": "In production",
+          "stat_1_caption": "Patient-facing",
+          "stat_2_value": "Custom",
+          "stat_2_label": "PM backend",
+          "stat_2_caption": "Built for their team",
+          "stat_3_value": "Full",
+          "stat_3_label": "Stack delivery",
+          "stat_3_caption": "End-to-end"
+        }
+      }
     },
-    "stats_strip": {
-      "stat_1_label": "Projects Shipped",
-      "stat_2_label": "Countries Served",
-      "stat_3_label": "Avg. Workflow Time Saved",
-      "stat_4_label": "Languages Supported"
+    "index": {
+      "headline": "Index",
+      "headline_caption": "A catalog of work shipped by HonuVibe and the HonuVibe community.",
+      "meta_strip_left": "HonuVibe · Atlas of Work",
+      "meta_strip_center": "Vol. {vol} · MMXXVI",
+      "meta_strip_right": "{entries} entries · {industries} industries",
+      "filter_label": "Filter by industry",
+      "filter_all": "All work",
+      "filter_cultural": "Cultural",
+      "filter_healthcare": "Healthcare",
+      "filter_community": "Community",
+      "filter_commerce": "Commerce",
+      "filter_enterprise": "Enterprise",
+      "showing_label": "Showing {shown} of {total}",
+      "col_year": "Year",
+      "col_project": "Project · Brief",
+      "col_industry": "Industry · Stack",
+      "col_status": "Status",
+      "status_live": "Live",
+      "status_in_progress": "In Progress",
+      "status_confidential": "Confidential",
+      "end_of_index": "— End of index —",
+      "confidential_name": "Under NDA",
+      "confidential_brief": "Active engagement. Details available on request.",
+      "projects": {
+        "kwame": {
+          "name": "KwameBrathwaite.com",
+          "brief": "A photography archive gets a modern makeover."
+        },
+        "hci": {
+          "name": "HCI Medical Group",
+          "brief": "A healthcare website + internal project management tool."
+        },
+        "vertice": {
+          "name": "Vertice Society",
+          "brief": "Bilingual member portal for a Tokyo professional network."
+        }
+      }
     },
-    "featured_projects": {
-      "overline": "Featured Projects",
-      "challenge_label": "The Challenge",
-      "outcome_label": "The Outcome",
-      "kwame_eyebrow": "Featured Project",
-      "kwame_status": "LIVE",
-      "kwame_name": "KwameBrathwaite.com",
-      "kwame_desc": "A photography archive gets a modern makeover.",
-      "kwame_challenge": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
-      "kwame_outcome": "Rebuilding from the ground up with Claude, Cursor, and a modern AI-powered workflow. The new site preserves the archive's cultural significance while driving real business outcomes.",
-      "kwame_highlight": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
-      "kwame_stat_1_value": "3×",
-      "kwame_stat_1_label": "Faster Load Time",
-      "kwame_stat_2_value": "Mobile-First",
-      "kwame_stat_2_label": "Responsive Design",
-      "kwame_stat_3_value": "AI-Powered",
-      "kwame_stat_3_label": "Modern Workflow",
-      "hci_eyebrow": "Featured Project",
-      "hci_status": "LIVE",
-      "hci_name": "HCI Medical Group",
-      "hci_desc": "A healthcare website and internal project management tool.",
-      "hci_challenge": "HCI Medical Group needed a modern, professional web presence and an internal project management tool to streamline operations across their medical practice.",
-      "hci_outcome": "A complete front-end redesign that elevated the brand's digital presence, plus a custom-built project management module for internal team coordination and workflow tracking.",
-      "hci_highlight": "A polished, conversion-ready healthcare website paired with powerful internal tools that streamline daily operations.",
-      "hci_stat_1_value": "Live",
-      "hci_stat_1_label": "In Production",
-      "hci_stat_2_value": "Custom",
-      "hci_stat_2_label": "PM Backend Module",
-      "hci_stat_3_value": "Full-Stack",
-      "hci_stat_3_label": "End-to-End",
-      "placeholder_overline": "Community Project",
-      "placeholder_title": "Your Project Could Be Here",
-      "placeholder_body": "We partner with nonprofits, community organizations, and passionate builders to bring AI-powered projects to life. Some of our best work starts with a conversation.",
-      "placeholder_cta": "Tell us about your project"
-    },
-    "how_we_build": {
-      "overline": "Our Process",
-      "headline": "How we build.",
-      "subhead": "Every project follows the same disciplined process — whether it's a client engagement, a community build, or a pro-bono partnership.",
+    "method": {
+      "chapter_label": "Ch. III · How we build",
+      "headline": "Method",
       "discovery_title": "Discovery",
       "discovery_body": "We start by understanding your goals, your audience, and what success looks like. No assumptions.",
+      "discovery_artifact": "Discovery brief · 30-page competitive audit",
+      "discovery_duration": "1–2 weeks",
       "design_build_title": "Design & Build",
       "design_build_body": "AI-native development using Claude, Cursor, and modern tools. Fast iteration, transparent progress, real results.",
+      "design_build_artifact": "Working prototype → production · weekly demos",
+      "design_build_duration": "4–10 weeks",
       "launch_support_title": "Launch & Support",
-      "launch_support_body": "We ship, we measure, we refine. Every project includes post-launch support and documentation."
+      "launch_support_body": "We ship, we measure, we refine. Every project includes post-launch support and documentation.",
+      "launch_support_artifact": "Analytics dashboard + handoff handbook",
+      "launch_support_duration": "90 days included",
+      "artifact_label": "Artifact"
     },
-    "aloha_standard": {
-      "overline": "Giving Back",
-      "headline": "Built with Aloha.",
-      "body": "Giving back is core to how HonuVibe operates. We dedicate capacity to nonprofit and community projects — delivering the same quality and care as any commercial engagement.",
-      "caption_title": "Pro-bono & nonprofit capacity",
-      "caption_body": "Part of every quarter, by design",
-      "cta": "Interested in a community or nonprofit collaboration? Get in touch"
+    "aloha": {
+      "chapter_label": "Ch. V · Colophon",
+      "headline_1": "Built with",
+      "headline_2": "Aloha.",
+      "body": "Giving back is core to how HonuVibe operates. We dedicate capacity each quarter to nonprofit and community projects — delivering the same quality and care as any commercial engagement.",
+      "stat_capacity_value": "25%",
+      "stat_capacity_label": "of quarterly capacity",
+      "stat_partners_value": "4+",
+      "stat_partners_label": "pro-bono partners / yr",
+      "stat_ratio_value": "1:1",
+      "stat_ratio_label": "commercial ↔ community",
+      "link": "Interested in a community or nonprofit collaboration? Get in touch"
     },
-    "two_path_cta": {
-      "headline": "Inspired by what you see?",
-      "subhead": "Whether you want to learn AI yourself or bring AI training to your organization — there's a path for you.",
-      "primary_cta": "Start Learning",
-      "secondary_cta": "Explore Partnerships"
+    "questions": {
+      "chapter_label": "Ch. VI · Notes for the reader",
+      "headline": "Questions",
+      "note_label": "Note {n}",
+      "q_1_q": "What's the smallest project you take?",
+      "q_1_a": "Most engagements start at 4 weeks / ~$20K USD. We occasionally take 2-week sprints for existing clients or pro-bono work.",
+      "q_2_q": "Are you locked into a specific stack?",
+      "q_2_a": "We default to Next.js + Tailwind + Supabase + Vercel because it ships fast and stays maintainable. We'll happily work in your stack if you have one.",
+      "q_3_q": "What does \"AI-native development\" actually mean?",
+      "q_3_a": "Claude and Cursor are first-class tools in our build process — not bolt-ons. We design prompts, libraries, and review loops the way a senior engineer designs functions. The result: more shipped, less typed.",
+      "q_4_q": "Do we own the code?",
+      "q_4_a": "Yes — fully. Code, designs, content, and accounts transfer to you at handoff. We retain no exclusive rights.",
+      "q_5_q": "How do you handle Japanese localization?",
+      "q_5_a": "Bilingual EN/JP is core to how HonuVibe operates. Every project can ship with JP-native typography, layout, and copy reviewed by a native speaker — not machine translation."
+    },
+    "next_issue": {
+      "meta_left": "End of issue",
+      "meta_center": "— Fin —",
+      "meta_right": "Next issue · Spring MMXXVII",
+      "headline_1": "Want to be in the",
+      "headline_2": "next issue?",
+      "subhead": "Whether you want to learn AI yourself or bring AI work to your organization — there's a path.",
+      "primary_cta": "Tell us about your project",
+      "secondary_cta": "Start learning"
     }
   },
   "about": {

@@ -1274,7 +1274,7 @@
         "price": "$49",
         "price_unit": "/月",
         "price_note": "いつでもキャンセル可 · 今後のVaultコンテンツもすべて含む",
-        "bullet_1": "6つのライブラリに100以上のレッスン",
+        "bullet_1": "{count}本のレッスン — 動画・記事・ガイド・テンプレート・ツール・録画",
         "bullet_2": "EN / 日本語の切り替え対応",
         "bullet_3": "毎月、新しいコンテンツが追加",
         "bullet_4": "検索・ブックマーク対応",
@@ -1283,7 +1283,14 @@
       "sample_heading": "レッスンを体験してみる。",
       "sample_caption": "60秒で味わうリアルなヴォルトのレッスン — 登録不要。",
       "sample_link": "すべてのレッスンを見る",
-      "sample_coming_soon": "サンプルレッスン準備中"
+      "sample_coming_soon": "サンプルレッスン準備中",
+      "preview": {
+        "heading": "ヴォルトの中身",
+        "total_count": "{count}本のレッスン",
+        "growing_monthly": "毎月追加",
+        "hot_topics_label": "注目トピック",
+        "browse_all": "すべての{count}本を見る"
+      }
     },
     "chapter_courses": {
       "number": "02",
@@ -2414,77 +2421,143 @@
       "title": "探検 — 本物のプロジェクト、本物の成果 | HonuVibe",
       "description": "AI教育が実践と出会うとき、何が生まれるのか。クライアントワーク、コミュニティビルド、プロボノ・パートナーシップの事例をご紹介します。"
     },
-    "hero": {
-      "overline": "私たちの仕事",
-      "headline_line_1": "本物のプロジェクト。",
-      "headline_line_2": "本物の成果。",
-      "subhead": "AI教育が実践と出会うとき、何が生まれるのか。これはHonuVibeとHonuVibeコミュニティが手がけたプロジェクトです。"
+    "reel_hero": {
+      "now_playing_label": "再生中",
+      "scene_label": "シーン {n} · テイク 1",
+      "frame_label": "フレーム {current} / {total}",
+      "status_live": "公開中",
+      "status_in_progress": "進行中",
+      "status_confidential": "非公開",
+      "industry_label": "領域",
+      "stack_label": "技術",
+      "visit_label": "サイトを見る",
+      "no_link_label": "非公開",
+      "prev_label": "前のプロジェクト",
+      "next_label": "次のプロジェクト",
+      "projects": {
+        "kwame": {
+          "name": "KwameBrathwaite.com",
+          "subhead": "写真アーカイブを、現代的にリデザイン。",
+          "quote": "伝説のアーティストのレガシーを尊重しつつ、ビジネスを成長させる。モバイルファーストでコンバージョン最適化された写真アーカイブ。",
+          "stat_1_value": "3×",
+          "stat_1_label": "表示速度",
+          "stat_1_caption": "旧サイト比",
+          "stat_2_value": "Mobile",
+          "stat_2_label": "ファースト設計",
+          "stat_2_caption": "販売・ライセンス・予約",
+          "stat_3_value": "AI",
+          "stat_3_label": "ネイティブ開発",
+          "stat_3_caption": "Claude + Cursor"
+        },
+        "hci": {
+          "name": "HCI Medical Group",
+          "subhead": "医療機関のウェブサイトと、社内プロジェクト管理ツール。",
+          "quote": "コンバージョンに直結する洗練された医療サイトと、日々のオペレーションを効率化する強力な社内ツールの組み合わせ。",
+          "stat_1_value": "Live",
+          "stat_1_label": "本番稼働中",
+          "stat_1_caption": "患者向け",
+          "stat_2_value": "Custom",
+          "stat_2_label": "PMバックエンド",
+          "stat_2_caption": "チーム専用設計",
+          "stat_3_value": "Full",
+          "stat_3_label": "フルスタック",
+          "stat_3_caption": "エンドツーエンド"
+        }
+      }
     },
-    "stats_strip": {
-      "stat_1_label": "公開済みプロジェクト",
-      "stat_2_label": "対応国",
-      "stat_3_label": "平均ワークフロー短縮率",
-      "stat_4_label": "対応言語数"
+    "index": {
+      "headline": "Index",
+      "headline_caption": "HonuVibeとコミュニティが手がけた仕事のカタログ。",
+      "meta_strip_left": "HonuVibe · 作品アトラス",
+      "meta_strip_center": "第{vol}巻 · MMXXVI",
+      "meta_strip_right": "{entries} 件 · {industries} 領域",
+      "filter_label": "領域で絞り込む",
+      "filter_all": "すべて",
+      "filter_cultural": "カルチャー",
+      "filter_healthcare": "ヘルスケア",
+      "filter_community": "コミュニティ",
+      "filter_commerce": "コマース",
+      "filter_enterprise": "エンタープライズ",
+      "showing_label": "{shown} / {total} 件を表示",
+      "col_year": "年",
+      "col_project": "プロジェクト · 概要",
+      "col_industry": "領域 · 技術",
+      "col_status": "ステータス",
+      "status_live": "公開中",
+      "status_in_progress": "進行中",
+      "status_confidential": "非公開",
+      "end_of_index": "— 索引ここまで —",
+      "confidential_name": "NDA案件",
+      "confidential_brief": "進行中のエンゲージメント。詳細はお問い合わせください。",
+      "projects": {
+        "kwame": {
+          "name": "KwameBrathwaite.com",
+          "brief": "写真アーカイブを、現代的にリデザイン。"
+        },
+        "hci": {
+          "name": "HCI Medical Group",
+          "brief": "医療機関のウェブサイトと、社内プロジェクト管理ツール。"
+        },
+        "vertice": {
+          "name": "Vertice Society",
+          "brief": "東京のプロフェッショナル向け、バイリンガル・メンバーポータル。"
+        }
+      }
     },
-    "featured_projects": {
-      "overline": "注目のプロジェクト",
-      "challenge_label": "課題",
-      "outcome_label": "成果",
-      "kwame_eyebrow": "注目のプロジェクト",
-      "kwame_status": "公開中",
-      "kwame_name": "KwameBrathwaite.com",
-      "kwame_desc": "写真アーカイブを現代的にリデザイン。",
-      "kwame_challenge": "伝説的写真家Kwame Brathwaiteのレガシーサイトは、全面刷新が必要な状態でした。モバイル非対応、表示が遅く、プリント販売・ライセンス・展示予約への導線も欠けていました。",
-      "kwame_outcome": "Claude、Cursor、そしてAIネイティブなモダンワークフローで、ゼロから再構築。アーカイブの文化的価値を守りながら、確かなビジネス成果を生み出すサイトへ。",
-      "kwame_highlight": "伝説のアーティストのレガシーを尊重しつつ、ビジネスを成長させる、モバイルファーストでコンバージョン最適化された写真アーカイブ。",
-      "kwame_stat_1_value": "3×",
-      "kwame_stat_1_label": "表示速度",
-      "kwame_stat_2_value": "Mobile-First",
-      "kwame_stat_2_label": "レスポンシブデザイン",
-      "kwame_stat_3_value": "AI-Powered",
-      "kwame_stat_3_label": "モダンなワークフロー",
-      "hci_eyebrow": "注目のプロジェクト",
-      "hci_status": "公開中",
-      "hci_name": "HCI Medical Group",
-      "hci_desc": "医療機関のウェブサイトと社内プロジェクト管理ツール。",
-      "hci_challenge": "HCI Medical Groupは、モダンでプロフェッショナルなウェブ・プレゼンスと、医療現場のオペレーションを効率化する社内プロジェクト管理ツールを必要としていました。",
-      "hci_outcome": "ブランドのデジタル・プレゼンスを引き上げるフロントエンドの全面リデザインと、社内のチーム連携・進捗管理を担うカスタムのプロジェクト管理モジュールを構築。",
-      "hci_highlight": "コンバージョンに直結する洗練された医療ウェブサイトと、日々のオペレーションを効率化する強力な社内ツールの組み合わせ。",
-      "hci_stat_1_value": "Live",
-      "hci_stat_1_label": "本番稼働中",
-      "hci_stat_2_value": "Custom",
-      "hci_stat_2_label": "プロジェクト管理モジュール",
-      "hci_stat_3_value": "Full-Stack",
-      "hci_stat_3_label": "エンドツーエンド構築",
-      "placeholder_overline": "コミュニティプロジェクト",
-      "placeholder_title": "次はあなたのプロジェクトかもしれません",
-      "placeholder_body": "私たちはNPO、地域団体、情熱を持つビルダーの方々と協働し、AIを活用したプロジェクトを形にしています。私たちの最高の仕事の多くは、一度の会話から始まりました。",
-      "placeholder_cta": "プロジェクトについて相談する"
-    },
-    "how_we_build": {
-      "overline": "私たちの進め方",
-      "headline": "つくり方。",
-      "subhead": "クライアントワークでも、コミュニティビルドでも、プロボノでも、私たちはすべてのプロジェクトを同じ規律あるプロセスで進めます。",
+    "method": {
+      "chapter_label": "第III章 · つくり方",
+      "headline": "Method",
       "discovery_title": "ディスカバリー",
       "discovery_body": "まずはゴール、対象、成功の定義を理解することから。前提を置かずにスタートします。",
+      "discovery_artifact": "ディスカバリーブリーフ · 30ページの競合監査",
+      "discovery_duration": "1〜2週間",
       "design_build_title": "設計と構築",
-      "design_build_body": "Claude、Cursor、そして最新のツールを使った、AIネイティブな開発。素早い反復、透明な進捗、確かな成果。",
+      "design_build_body": "Claude、Cursor、最新ツールを使ったAIネイティブな開発。素早い反復、透明な進捗、確かな成果。",
+      "design_build_artifact": "プロトタイプ → 本番 · 毎週デモ",
+      "design_build_duration": "4〜10週間",
       "launch_support_title": "ローンチと支援",
-      "launch_support_body": "リリースし、計測し、磨き込む。すべてのプロジェクトに、ローンチ後のサポートとドキュメントが付属します。"
+      "launch_support_body": "リリースし、計測し、磨き込む。すべてのプロジェクトに、ローンチ後のサポートとドキュメントが付属します。",
+      "launch_support_artifact": "アナリティクスダッシュボード + 引き継ぎハンドブック",
+      "launch_support_duration": "90日間サポート込み",
+      "artifact_label": "アーティファクト"
     },
-    "aloha_standard": {
-      "overline": "Giving Back",
-      "headline": "Alohaの心で、つくる。",
-      "body": "社会への還元は、HonuVibeの根幹にあります。私たちはNPOや地域プロジェクトに継続的にリソースを割き、商業案件と同じ品質と心配りでお届けしています。",
-      "caption_title": "プロボノ・NPO向け枠",
-      "caption_body": "毎四半期、あらかじめ確保しています",
-      "cta": "コミュニティやNPOとの協働にご興味のある方はお気軽にどうぞ"
+    "aloha": {
+      "chapter_label": "第V章 · コロフォン",
+      "headline_1": "Alohaの心で、",
+      "headline_2": "つくる。",
+      "body": "社会への還元は、HonuVibeの根幹にあります。毎四半期、NPOや地域プロジェクトに枠を確保し、商業案件と同じ品質と心配りでお届けしています。",
+      "stat_capacity_value": "25%",
+      "stat_capacity_label": "四半期キャパシティ",
+      "stat_partners_value": "4+",
+      "stat_partners_label": "年間プロボノ・パートナー",
+      "stat_ratio_value": "1:1",
+      "stat_ratio_label": "商業 ↔ コミュニティ",
+      "link": "コミュニティやNPOとの協働にご興味のある方はお気軽にどうぞ"
     },
-    "two_path_cta": {
-      "headline": "心に響くものがありましたか？",
-      "subhead": "ご自身でAIを学ぶ方も、組織にAIトレーニングを届けたい方も、それぞれに合った道があります。",
-      "primary_cta": "学びを始める",
-      "secondary_cta": "パートナーシップを見る"
+    "questions": {
+      "chapter_label": "第VI章 · 読者への注釈",
+      "headline": "Questions",
+      "note_label": "ノート {n}",
+      "q_1_q": "最小規模の案件は？",
+      "q_1_a": "多くの案件は4週間・約2万USドルから始まります。既存クライアントやプロボノ案件では2週間スプリントもお受けします。",
+      "q_2_q": "使うツールは固定？",
+      "q_2_a": "デフォルトはNext.js + Tailwind + Supabase + Vercel。素早く出荷でき、保守しやすい組み合わせです。既存スタックがある場合はそれに合わせます。",
+      "q_3_q": "「AIネイティブ開発」って何が違うの？",
+      "q_3_a": "ClaudeとCursorをビルドプロセスの一級品として扱います。後付けではなく、プロンプト・ライブラリ・レビューループを、シニアエンジニアが関数を設計するように設計します。結果、書く量は減り、出荷量は増えます。",
+      "q_4_q": "コードは渡してもらえる？",
+      "q_4_a": "もちろんです。コード、デザイン、コンテンツ、アカウントすべて引き渡します。私たちが独占的な権利を保持することはありません。",
+      "q_5_q": "日本語対応はどう？",
+      "q_5_a": "バイリンガルEN/JPはHonuVibeの根幹です。すべてのプロジェクトで、ネイティブによるレビュー前提のJPタイポグラフィ・レイアウト・コピーで出荷可能です。機械翻訳ではありません。"
+    },
+    "next_issue": {
+      "meta_left": "号末",
+      "meta_center": "— Fin —",
+      "meta_right": "次号 · 2027年春",
+      "headline_1": "次号に",
+      "headline_2": "載りませんか？",
+      "subhead": "ご自身でAIを学ぶ方も、組織にAI活用を届けたい方も、それぞれに合った道があります。",
+      "primary_cta": "プロジェクトについて相談する",
+      "secondary_cta": "学びを始める"
     }
   },
   "about": {

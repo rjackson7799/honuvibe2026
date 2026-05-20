@@ -17,6 +17,10 @@ import {
   getPublishedCoursesWithPartners,
   getActivePublicPartners,
 } from '@/lib/courses/queries';
+import {
+  getVaultRandomSample,
+  getVaultContentTypeCounts,
+} from '@/lib/vault/queries';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -41,9 +45,11 @@ export default async function LearnPage({ params, searchParams }: Props) {
   const ownerParam = sp.owner;
   const ownerSlug = typeof ownerParam === 'string' ? ownerParam : null;
 
-  const [courses, partners] = await Promise.all([
+  const [courses, partners, vaultSample, vaultCounts] = await Promise.all([
     getPublishedCoursesWithPartners(ownerSlug),
     getActivePublicPartners(),
+    getVaultRandomSample(4),
+    getVaultContentTypeCounts(),
   ]);
 
   return (
@@ -52,7 +58,11 @@ export default async function LearnPage({ params, searchParams }: Props) {
       <main>
         <LearnHero locale={locale} />
         <LearnPartnerStrip />
-        <LearnChapterVault />
+        <LearnChapterVault
+          locale={locale}
+          vaultSample={vaultSample}
+          vaultTotalCount={vaultCounts.total}
+        />
         <LearnChapterCourses
           courses={courses}
           locale={locale}

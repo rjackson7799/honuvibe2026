@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import type {
   VaultContentItem,
   VaultContentItemWithPartner,
+  VaultContentType,
   VaultBrowseFilters,
   VaultBrowseResult,
   VaultDownload,
@@ -154,6 +155,85 @@ export async function getVaultTrending(
   } catch (error) {
     console.error('getVaultTrending error:', error);
     return [];
+  }
+}
+
+/**
+ * App-side random sample of published Vault items. Fetches a pool ~3× the
+ * requested limit (min 12), Fisher–Yates shuffles, returns first N. Cheap
+ * at current catalog scale; revisit if items > ~1k.
+ */
+export async function getVaultRandomSample(
+  limit = 4,
+): Promise<VaultContentItem[]> {
+  try {
+    const supabase = await createClient();
+    const pool = Math.max(limit * 3, 12);
+
+    const { data, error } = await supabase
+      .from('content_items')
+      .select('*')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false })
+      .limit(pool);
+
+    if (error) {
+      console.error('getVaultRandomSample error:', error);
+      return [];
+    }
+
+    const items = ((data as VaultContentItem[]) ?? []).slice();
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items.slice(0, limit);
+  } catch (error) {
+    console.error('getVaultRandomSample error:', error);
+    return [];
+  }
+}
+
+/**
+ * Total + per-content-type counts across all published Vault items.
+ * Single grouped lookup; counts `video_custom + video_youtube` separately so
+ * the consumer can merge them into a "Videos" bucket if desired.
+ */
+export async function getVaultContentTypeCounts(): Promise<{
+  total: number;
+  byType: Record<VaultContentType, number>;
+}> {
+  const emptyByType: Record<VaultContentType, number> = {
+    video_custom: 0,
+    video_youtube: 0,
+    article: 0,
+    tool: 0,
+    template: 0,
+    guide: 0,
+    course_recording: 0,
+  };
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('content_items')
+      .select('content_type')
+      .eq('is_published', true);
+
+    if (error) {
+      console.error('getVaultContentTypeCounts error:', error);
+      return { total: 0, byType: emptyByType };
+    }
+
+    const byType = { ...emptyByType };
+    for (const row of data ?? []) {
+      const ct = (row as { content_type: VaultContentType }).content_type;
+      if (ct in byType) byType[ct]++;
+    }
+    return { total: data?.length ?? 0, byType };
+  } catch (error) {
+    console.error('getVaultContentTypeCounts error:', error);
+    return { total: 0, byType: emptyByType };
   }
 }
 

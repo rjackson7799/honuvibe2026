@@ -2,9 +2,21 @@ import { useTranslations } from 'next-intl';
 import { Check } from 'lucide-react';
 import { Button, Container, Section } from '@/components/marketing/primitives';
 import { cn } from '@/lib/utils';
+import type { VaultContentItem } from '@/lib/vault/types';
 import { LearnVaultSample } from './learn-vault-sample';
+import { LearnVaultPreview } from './learn-vault-preview';
 
-export function LearnChapterVault() {
+type LearnChapterVaultProps = {
+  locale: string;
+  vaultSample?: VaultContentItem[];
+  vaultTotalCount?: number;
+};
+
+export function LearnChapterVault({
+  locale,
+  vaultSample = [],
+  vaultTotalCount = 0,
+}: LearnChapterVaultProps) {
   const t = useTranslations('learn.chapter_vault');
 
   return (
@@ -47,7 +59,7 @@ export function LearnChapterVault() {
             priceUnit={t('vault.price_unit')}
             priceNote={t('vault.price_note')}
             bullets={[
-              t('vault.bullet_1'),
+              t('vault.bullet_1', { count: vaultTotalCount }),
               t('vault.bullet_2'),
               t('vault.bullet_3'),
               t('vault.bullet_4'),
@@ -56,6 +68,12 @@ export function LearnChapterVault() {
             ctaHref="/learn/auth?intent=vault"
           />
         </div>
+
+        <LearnVaultPreview
+          items={vaultSample}
+          totalCount={vaultTotalCount}
+          locale={locale}
+        />
 
         <LearnVaultSample />
       </Container>
