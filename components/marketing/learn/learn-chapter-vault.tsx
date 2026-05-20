@@ -10,7 +10,7 @@ export function LearnChapterVault() {
   return (
     <Section variant="canvas" id="vault" className="learn-chapter scroll-mt-24">
       <Container>
-        <ChapterHeader number={t('number')} title={t('title')} titleJp={t('title_jp')} />
+        <ChapterHeader number={t('number')} title={t('title')} />
 
         <p
           className="mt-6 max-w-[640px] font-serif italic leading-[1.3] tracking-[-0.01em] text-[var(--m-ink-primary)]"
@@ -176,11 +176,9 @@ function PricingCard({
 function ChapterHeader({
   number,
   title,
-  titleJp,
 }: {
   number: string;
   title: string;
-  titleJp: string;
 }) {
   return (
     <div className="flex flex-wrap items-end gap-6">
@@ -201,7 +199,6 @@ function ChapterHeader({
         >
           {title}
         </h2>
-        <p className="mt-1 text-[15px] text-[var(--m-ink-secondary)]">{titleJp}</p>
       </div>
     </div>
   );

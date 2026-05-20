@@ -14,7 +14,7 @@ export function LearnChapterCohorts() {
       <Container>
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-6">
-            <ChapterHeader number={t('number')} title={t('title')} titleJp={t('title_jp')} />
+            <ChapterHeader number={t('number')} title={t('title')} />
             <p
               className="mt-6 max-w-[520px] font-serif italic leading-[1.3] tracking-[-0.01em] text-[var(--m-ink-primary)]"
               style={{ fontSize: 'clamp(20px, 2.2vw, 28px)' }}
@@ -84,7 +84,7 @@ export function LearnChapterCohorts() {
   );
 }
 
-function ChapterHeader({ number, title, titleJp }: { number: string; title: string; titleJp: string }) {
+function ChapterHeader({ number, title }: { number: string; title: string }) {
   return (
     <div className="flex flex-wrap items-end gap-6">
       <span
@@ -104,7 +104,6 @@ function ChapterHeader({ number, title, titleJp }: { number: string; title: stri
         >
           {title}
         </h2>
-        <p className="mt-1 text-[15px] text-[var(--m-ink-secondary)]">{titleJp}</p>
       </div>
     </div>
   );

@@ -65,7 +65,6 @@ export function LearnComparisonDark() {
           >
             {t('heading')}
           </h2>
-          <p className="mt-2 text-[16px] text-white/80">{t('heading_jp')}</p>
         </div>
 
         {/* Desktop table */}

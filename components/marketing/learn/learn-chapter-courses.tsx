@@ -58,9 +58,6 @@ export function LearnChapterCourses({ courses, locale, partners, ownerSlug }: Pr
             >
               {t('title')}
             </h2>
-            <p className="mt-1 text-[15px] text-[var(--m-ink-secondary)]">
-              {t('title_jp')}
-            </p>
             <p
               className="mt-5 max-w-[600px] font-serif italic leading-[1.3] tracking-[-0.01em] text-[var(--m-ink-primary)]"
               style={{ fontSize: 'clamp(20px, 2.2vw, 28px)' }}

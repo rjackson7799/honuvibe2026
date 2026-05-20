@@ -14,9 +14,6 @@ export function LearnVaultSample() {
         >
           {t('sample_heading')}
         </h3>
-        <p className="mt-2 text-[16px] text-[var(--m-ink-secondary)]">
-          {t('sample_subheading')}
-        </p>
       </div>
 
       <BrowserFrame url="vault.honuvibe.ai/sample-lesson" height="auto">

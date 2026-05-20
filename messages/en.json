@@ -1251,7 +1251,6 @@
     "chapter_vault": {
       "number": "01",
       "title": "The Vault",
-      "title_jp": "ヴォルト",
       "intro": "An always-on AI library you keep coming back to.",
       "recommended_label": "RECOMMENDED",
       "includes_label": "Honu Community included",
@@ -1282,7 +1281,6 @@
         "cta": "Join the Vault"
       },
       "sample_heading": "Try a Vault lesson, free.",
-      "sample_subheading": "レッスンを体験してみる。",
       "sample_caption": "A 60-second taste of a real Vault lesson — no signup required.",
       "sample_link": "See all lessons",
       "sample_coming_soon": "Sample lesson coming soon"
@@ -1290,7 +1288,6 @@
     "chapter_courses": {
       "number": "02",
       "title": "Public Courses",
-      "title_jp": "公開コース",
       "intro": "Live cohorts with real instructors, real classmates. Per-course enrollment.",
       "see_all": "See all courses",
       "placeholder_title": "More courses coming soon",
@@ -1301,7 +1298,6 @@
     "chapter_cohorts": {
       "number": "03",
       "title": "Private Cohorts",
-      "title_jp": "プライベートコホート",
       "intro": "Custom AI programs for communities and organizations.",
       "bullet_1": "Custom curriculum to your audience",
       "bullet_2": "Bilingual EN / 日本語 delivery",
@@ -1336,7 +1332,6 @@
     "comparison": {
       "eyebrow": "WHICH PATH FITS YOU BEST?",
       "heading": "Compare learning paths.",
-      "heading_jp": "自分に合う学び方は？",
       "col_1_label": "SOLO",
       "col_1_sub": "The Vault",
       "col_2_label": "TOGETHER",
@@ -1370,32 +1365,23 @@
     },
     "faq": {
       "heading": "Read this before you decide.",
-      "heading_jp": "決める前に読んでください。",
       "contact_line": "Still got questions? hello@honuvibe.ai — we get back within a day.",
-      "contact_line_jp": "24時間以内にお返事します。",
       "q_1": "Are lessons in English or Japanese?",
-      "q_1_jp": "レッスンは日本語？それとも英語？",
       "a_1": "Both. Every Vault lesson + every Public Course has fully bilingual content. Switch any time. Private cohorts can run in either language or fully bilingual.",
       "q_2": "How long does the Vault membership last?",
-      "q_2_jp": "ヴォルトの会員期間はどのくらい？",
       "a_2": "It's monthly. Cancel any time. The first 14 days are refundable if it's not for you.",
       "q_3": "Can I switch from the Vault to a cohort later?",
-      "q_3_jp": "あとからヴォルトからコホートに切り替えられますか？",
       "a_3": "Yes. The Vault library counts as foundational prep — many cohort students join the Vault first.",
       "q_4": "Do you offer scholarships or partner pricing?",
-      "q_4_jp": "スカラシップやパートナー価格はありますか？",
       "a_4": "Yes — apply on the partnerships page if you represent a community, school, or nonprofit.",
       "q_5": "I'm not in Hawaii or Japan. Can I still join?",
-      "q_5_jp": "ハワイや日本以外からも参加できますか？",
       "a_5": "Yes. Public Courses run on Pacific time; the Vault is async; Private Cohorts schedule around your community.",
       "q_6": "What if I'm new to AI?",
-      "q_6_jp": "AI初心者でも大丈夫ですか？",
       "a_6": "Start with the Vault's AI Foundations library. Three lessons in and you'll know what to do next."
     },
     "start_tonight": {
       "eyebrow": "ready to start?",
       "headline": "Start tonight.",
-      "headline_jp": "今夜から。",
       "body": "Start solo with the Vault, join a cohort, or bring HonuVibe to your community. The Vault is open 24/7 — even if it's 11:48 pm where you are.",
       "refund_line": "14-day refund if the Vault isn't right for you.",
       "card_vault_label": "THE VAULT",

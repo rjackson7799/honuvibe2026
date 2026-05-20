@@ -44,9 +44,6 @@ export function LearnStartTonight() {
           >
             {t('headline')}
           </h2>
-          <p className="mt-2 text-[20px] font-serif italic text-[var(--m-accent-teal)]">
-            {t('headline_jp')}
-          </p>
           <p className="mx-auto mt-7 max-w-[580px] text-[16px] leading-[1.7] text-white/90">
             {t('body')}
           </p>
