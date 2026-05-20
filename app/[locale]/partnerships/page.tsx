@@ -4,13 +4,12 @@ import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
 import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
-  PartnershipsHero,
-  PartnershipsWhatYouGet,
-  PartnershipsHowItWorks,
-  PartnershipsCurrentPartners,
-  PartnershipsMetrics,
-  PartnershipsWhoIsItFor,
-  PartnershipsApplicationForm,
+  PartnershipsEditorialHero,
+  PartnershipsCohortChapter,
+  PartnershipsProjectChapter,
+  PartnershipsConsultingChapter,
+  PartnershipsMethodTable,
+  PartnershipsNextChapter,
 } from '@/components/marketing/partnerships';
 
 type Props = {
@@ -34,13 +33,12 @@ export default async function PartnershipsPage({ params }: Props) {
     <MarketingShell>
       <MarketingNav />
       <main>
-        <PartnershipsHero />
-        <PartnershipsWhatYouGet />
-        <PartnershipsHowItWorks />
-        <PartnershipsCurrentPartners />
-        <PartnershipsMetrics />
-        <PartnershipsWhoIsItFor />
-        <PartnershipsApplicationForm />
+        <PartnershipsEditorialHero />
+        <PartnershipsCohortChapter />
+        <PartnershipsProjectChapter />
+        <PartnershipsConsultingChapter />
+        <PartnershipsMethodTable />
+        <PartnershipsNextChapter />
       </main>
       <MarketingNewsletter />
       <MarketingFooter />

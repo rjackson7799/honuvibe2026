@@ -9,3 +9,4 @@ export { Badge } from './badge';
 export { BrowserFrame } from './browser-frame';
 export { PhotoPlaceholder } from './photo-placeholder';
 export { NumberedStep } from './numbered-step';
+export { LogoLockup } from './logo-lockup';

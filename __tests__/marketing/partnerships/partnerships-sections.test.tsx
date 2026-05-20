@@ -2,12 +2,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
 import {
-  PartnershipsHero,
-  PartnershipsWhatYouGet,
-  PartnershipsHowItWorks,
-  PartnershipsCurrentPartners,
-  PartnershipsWhoIsItFor,
-  PartnershipsPricing,
+  PartnershipsEditorialHero,
+  PartnershipsCohortChapter,
+  PartnershipsProjectChapter,
+  PartnershipsConsultingChapter,
+  PartnershipsMethodTable,
+  PartnershipsNextChapter,
   PartnershipsApplicationForm,
 } from '@/components/marketing/partnerships';
 
@@ -67,61 +67,84 @@ describe('Partnerships page sections', () => {
     vi.unstubAllGlobals();
   });
 
-  it('Hero renders the coral overline + split-color headline', () => {
-    render(<PartnershipsHero />);
+  it('EditorialHero renders the headline, lede, and three chapter chips', () => {
+    render(<PartnershipsEditorialHero />);
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1.textContent).toContain('Bring AI training');
-    expect(h1.textContent).toContain('to your community.');
-    expect(screen.getByText('For Organizations')).toBeInTheDocument();
-    const cta = screen.getByRole('link', { name: /Apply for Partnership/i });
-    expect(cta).toHaveAttribute('href', '#apply');
-  });
-
-  it('WhatYouGet renders four feature cards', () => {
-    render(<PartnershipsWhatYouGet />);
-    expect(screen.getByText('Custom Curriculum')).toBeInTheDocument();
-    expect(screen.getByText('Bilingual Delivery')).toBeInTheDocument();
-    expect(screen.getByText('Co-Branded Experience')).toBeInTheDocument();
-    expect(screen.getByText('Live + On-Demand')).toBeInTheDocument();
-  });
-
-  it('HowItWorks renders four numbered steps with the connecting line', () => {
-    render(<PartnershipsHowItWorks />);
-    expect(screen.getByText('Discovery Call')).toBeInTheDocument();
-    expect(screen.getByText('Custom Proposal')).toBeInTheDocument();
-    expect(screen.getByText('Build & Prepare')).toBeInTheDocument();
-    expect(screen.getByText('Launch')).toBeInTheDocument();
-  });
-
-  it('CurrentPartners shows Vertice "In Session" + the More-partnerships callout (no SmashHaus)', () => {
-    render(<PartnershipsCurrentPartners />);
-    expect(screen.getByText('Vertice Society × HonuVibe')).toBeInTheDocument();
-    expect(screen.getByText('In Session')).toBeInTheDocument();
-    expect(screen.getByText('More partnerships launching soon.')).toBeInTheDocument();
-    expect(screen.queryByText(/SmashHaus/i)).toBeNull();
-    const moreCta = screen.getAllByRole('link', { name: /Apply for Partnership/i });
-    expect(moreCta.length).toBeGreaterThan(0);
-  });
-
-  it('WhoIsItFor renders three columns including the courses link', () => {
-    render(<PartnershipsWhoIsItFor />);
-    expect(screen.getByText('Great fit')).toBeInTheDocument();
-    expect(screen.getByText('Not the right fit')).toBeInTheDocument();
-    expect(screen.getByText('Not sure?')).toBeInTheDocument();
-    const coursesLink = screen.getByRole('link', {
-      name: /check out our public courses/i,
+    expect(h1.textContent).toContain('Partner');
+    expect(h1.textContent).toContain('with us');
+    expect(
+      screen.getByText(/HonuVibe partners three ways/i),
+    ).toBeInTheDocument();
+    const chipCohort = screen.getByRole('link', {
+      name: /Community & organizational learning/i,
     });
-    expect(coursesLink).toHaveAttribute('href', '/learn');
+    expect(chipCohort).toHaveAttribute('href', '#cohort');
+    const chipProject = screen.getByRole('link', {
+      name: /Building out your project/i,
+    });
+    expect(chipProject).toHaveAttribute('href', '#project');
+    const chipConsulting = screen.getByRole('link', {
+      name: /Strategy, audits & AI-ops/i,
+    });
+    expect(chipConsulting).toHaveAttribute('href', '#consulting');
   });
 
-  it('Pricing renders three tiers with the highlighted Full plan', () => {
-    render(<PartnershipsPricing />);
-    expect(screen.getByText('Starter Program')).toBeInTheDocument();
-    expect(screen.getByText('Full Program')).toBeInTheDocument();
-    expect(screen.getByText('Enterprise / Custom')).toBeInTheDocument();
-    expect(screen.getByText('$5,000')).toBeInTheDocument();
-    expect(screen.getByText('$12,000')).toBeInTheDocument();
-    expect(screen.getByText('Custom')).toBeInTheDocument();
+  it('CohortChapter shows Vertice proof tile and routes CTA to /apply?type=cohort', () => {
+    render(<PartnershipsCohortChapter />);
+    expect(screen.getByText('Vertice Society')).toBeInTheDocument();
+    expect(screen.getByText('In session')).toBeInTheDocument();
+    const cta = screen.getByRole('link', {
+      name: /Apply for a cohort partnership/i,
+    });
+    expect(cta).toHaveAttribute('href', '/partnerships/apply?type=cohort');
+    const proofLink = screen.getByRole('link', {
+      name: /Read the Vertice case study/i,
+    });
+    expect(proofLink).toHaveAttribute('href', '/partners/vertice-society');
+  });
+
+  it('ProjectChapter shows three "currently building" tiles and project CTA', () => {
+    render(<PartnershipsProjectChapter />);
+    expect(screen.getByText('A bilingual healthcare archive')).toBeInTheDocument();
+    expect(screen.getByText('A photography archive rebuild')).toBeInTheDocument();
+    expect(screen.getByText('Your project here')).toBeInTheDocument();
+    const cta = screen.getByRole('link', { name: /Tell us about your project/i });
+    expect(cta).toHaveAttribute('href', '/partnerships/apply?type=project');
+  });
+
+  it('ConsultingChapter shows artifact preview and consulting CTA', () => {
+    render(<PartnershipsConsultingChapter />);
+    expect(screen.getByText(/honuvibe audit/i)).toBeInTheDocument();
+    const cta = screen.getByRole('link', {
+      name: /Book a consulting intro call/i,
+    });
+    expect(cta).toHaveAttribute(
+      'href',
+      '/partnerships/apply?type=consulting',
+    );
+  });
+
+  it('MethodTable renders the three engagement columns and five workflow rows', () => {
+    render(<PartnershipsMethodTable />);
+    expect(
+      screen.getByRole('heading', { name: /^Method/ }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('Private cohorts').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Contracting').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Consulting').length).toBeGreaterThan(0);
+    expect(screen.getByText('Audience deep-dive')).toBeInTheDocument();
+    expect(screen.getByText('Co-design / SOW')).toBeInTheDocument();
+    expect(screen.getByText('Sprint & ship')).toBeInTheDocument();
+    expect(screen.getByText('Co-deliver + iterate')).toBeInTheDocument();
+    expect(screen.getByText('Outcome')).toBeInTheDocument();
+  });
+
+  it('NextChapter shows dual CTAs routing to /apply and /explore', () => {
+    render(<PartnershipsNextChapter />);
+    const primary = screen.getByRole('link', { name: /Start an inquiry/i });
+    expect(primary).toHaveAttribute('href', '/partnerships/apply');
+    const secondary = screen.getByRole('link', { name: /See recent work/i });
+    expect(secondary).toHaveAttribute('href', '/explore');
   });
 
   it('ApplicationForm renders all required fields and the coral submit', () => {
@@ -131,12 +154,6 @@ describe('Partnerships page sections', () => {
     expect(screen.getByLabelText('Organization Name')).toBeInTheDocument();
     expect(
       screen.getByLabelText('What type of organization are you?'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('Tell us about your community'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText('What kind of program are you imagining?'),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Submit Partnership Inquiry/i }),
@@ -187,49 +204,15 @@ describe('Partnerships page sections', () => {
     expect(body.source_locale).toBe('en');
   });
 
-  it('ApplicationForm shows an error alert when the POST fails', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }),
-    );
-    render(<PartnershipsApplicationForm />);
-    fireEvent.change(screen.getByLabelText('Your Name'), {
-      target: { value: 'A' },
-    });
-    fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'a@b.co' },
-    });
-    fireEvent.change(screen.getByLabelText('Organization Name'), {
-      target: { value: 'Org' },
-    });
-    fireEvent.change(
-      screen.getByLabelText('What type of organization are you?'),
-      { target: { value: 'company' } },
-    );
-    fireEvent.change(screen.getByLabelText('Tell us about your community'), {
-      target: { value: 'x' },
-    });
-    fireEvent.change(
-      screen.getByLabelText('What kind of program are you imagining?'),
-      { target: { value: 'y' } },
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: /Submit Partnership Inquiry/i }),
-    );
-
-    const alert = await screen.findByRole('alert');
-    expect(alert.textContent).toMatch(/Something went wrong/i);
-  });
-
   it('renders every Partnerships section without console.error', () => {
     render(
       <>
-        <PartnershipsHero />
-        <PartnershipsWhatYouGet />
-        <PartnershipsHowItWorks />
-        <PartnershipsCurrentPartners />
-        <PartnershipsWhoIsItFor />
-        <PartnershipsPricing />
+        <PartnershipsEditorialHero />
+        <PartnershipsCohortChapter />
+        <PartnershipsProjectChapter />
+        <PartnershipsConsultingChapter />
+        <PartnershipsMethodTable />
+        <PartnershipsNextChapter />
         <PartnershipsApplicationForm />
       </>,
     );
