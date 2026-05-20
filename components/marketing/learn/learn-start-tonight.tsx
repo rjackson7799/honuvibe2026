@@ -47,10 +47,10 @@ export function LearnStartTonight() {
           <p className="mt-2 text-[20px] font-serif italic text-[var(--m-accent-teal)]">
             {t('headline_jp')}
           </p>
-          <p className="mx-auto mt-7 max-w-[580px] text-[16px] leading-[1.7] text-white/75">
+          <p className="mx-auto mt-7 max-w-[580px] text-[16px] leading-[1.7] text-white/90">
             {t('body')}
           </p>
-          <p className="mt-4 text-[13.5px] font-semibold uppercase tracking-[0.06em] text-white/55">
+          <p className="mt-4 text-[13.5px] font-semibold uppercase tracking-[0.06em] text-white/80">
             {t('refund_line')}
           </p>
         </div>

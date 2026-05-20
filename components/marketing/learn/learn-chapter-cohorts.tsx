@@ -104,7 +104,7 @@ function ChapterHeader({ number, title, titleJp }: { number: string; title: stri
         >
           {title}
         </h2>
-        <p className="mt-1 text-[15px] text-[var(--m-ink-tertiary)]">{titleJp}</p>
+        <p className="mt-1 text-[15px] text-[var(--m-ink-secondary)]">{titleJp}</p>
       </div>
     </div>
   );
@@ -155,13 +155,13 @@ function VerticeCard({
         <h3 className="mb-3 text-[17px] font-bold tracking-[-0.01em] text-[var(--m-ink-primary)]">
           {program}
         </h3>
-        <p className="mb-1.5 text-[13px] text-[var(--m-ink-tertiary)]">
+        <p className="mb-1.5 text-[13px] text-[var(--m-ink-secondary)]">
           <strong className="font-semibold text-[var(--m-ink-secondary)]">
             {builtForLabel}{' '}
           </strong>
           {builtFor}
         </p>
-        <p className="mb-4 text-[13px] text-[var(--m-ink-tertiary)]">
+        <p className="mb-4 text-[13px] text-[var(--m-ink-secondary)]">
           <strong className="font-semibold text-[var(--m-ink-secondary)]">
             {formatLabel}{' '}
           </strong>
@@ -171,7 +171,7 @@ function VerticeCard({
           <p className="mb-2 text-[13px] italic leading-[1.65] text-[var(--m-ink-secondary)]">
             &ldquo;{quote}&rdquo;
           </p>
-          <footer className="text-[11.5px] font-medium text-[var(--m-ink-tertiary)]">
+          <footer className="text-[11.5px] font-medium text-[var(--m-ink-secondary)]">
             {quoteCredit}
           </footer>
         </blockquote>

@@ -15,7 +15,7 @@ export function LearnPartnerStrip() {
   return (
     <Section variant="sand" spacing="tight">
       <Container>
-        <p className="mb-8 text-center text-[11.5px] font-bold uppercase tracking-[0.18em] text-[var(--m-ink-tertiary)]">
+        <p className="mb-8 text-center text-[11.5px] font-bold uppercase tracking-[0.18em] text-[var(--m-ink-secondary)]">
           {t('label')}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 md:gap-x-14">
@@ -61,7 +61,7 @@ function Monogram({
         className={cn(
           'inline-flex h-10 w-10 items-center justify-center rounded-full border text-[12px] font-bold tracking-[0.04em]',
           muted
-            ? 'border-dashed border-[var(--m-border-strong)] text-[var(--m-ink-tertiary)]'
+            ? 'border-dashed border-[var(--m-border-strong)] text-[var(--m-ink-secondary)]'
             : 'border-[var(--m-border-default)] bg-[var(--m-white)] text-[var(--m-ink-primary)]',
         )}
         aria-hidden
@@ -72,13 +72,13 @@ function Monogram({
         <span
           className={cn(
             'text-[15px] font-semibold tracking-[-0.01em]',
-            muted ? 'text-[var(--m-ink-tertiary)]' : 'text-[var(--m-ink-primary)]',
+            muted ? 'text-[var(--m-ink-secondary)]' : 'text-[var(--m-ink-primary)]',
           )}
         >
           {name}
         </span>
         {muted && comingSoon && (
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--m-ink-tertiary)]">
+          <span className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--m-ink-secondary)]">
             {comingSoon}
           </span>
         )}

@@ -68,7 +68,7 @@ export function LearnComparisonDark() {
           >
             {t('heading')}
           </h2>
-          <p className="mt-2 text-[16px] text-white/60">{t('heading_jp')}</p>
+          <p className="mt-2 text-[16px] text-white/80">{t('heading_jp')}</p>
         </div>
 
         {/* Desktop table */}
@@ -103,14 +103,14 @@ export function LearnComparisonDark() {
                 <tr key={row.label} className="border-t border-white/[0.06]">
                   <th
                     scope="row"
-                    className="px-6 py-4 text-left text-[12.5px] font-bold uppercase tracking-[0.08em] text-white/50"
+                    className="px-6 py-4 text-left text-[12.5px] font-bold uppercase tracking-[0.08em] text-white/75"
                   >
                     {row.label}
                   </th>
                   {row.cells.map((cell, i) => (
                     <td
                       key={`${row.label}-${i}`}
-                      className="px-5 py-4 text-[14px] leading-[1.55] text-white/90"
+                      className="px-5 py-4 text-[14px] leading-[1.55] text-white"
                     >
                       {cell}
                     </td>
@@ -164,10 +164,10 @@ export function LearnComparisonDark() {
               <dl className="mt-5 space-y-3.5">
                 {rows.map((row) => (
                   <div key={`${col.sub}-${row.label}`}>
-                    <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-white/50">
+                    <dt className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-white/75">
                       {row.label}
                     </dt>
-                    <dd className="mt-0.5 text-[14px] text-white/90">
+                    <dd className="mt-0.5 text-[14px] text-white">
                       {row.cells[ci]}
                     </dd>
                   </div>

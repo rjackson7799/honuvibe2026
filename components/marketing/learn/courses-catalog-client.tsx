@@ -65,7 +65,7 @@ export function LearnCoursesCatalogClient({ courses, locale, badgeSlots }: Props
       </div>
 
       {filtered.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[var(--m-border-default)] bg-[var(--m-white)] px-6 py-16 text-center text-[15px] text-[var(--m-ink-tertiary)]">
+        <p className="rounded-2xl border border-dashed border-[var(--m-border-default)] bg-[var(--m-white)] px-6 py-16 text-center text-[15px] text-[var(--m-ink-secondary)]">
           {t('empty_state')}
         </p>
       ) : (
@@ -172,7 +172,7 @@ function CatalogCourseCard({
       {badgeSlot}
 
       <div className="mb-4 flex items-end justify-between border-t border-[var(--m-border-soft)] pt-4">
-        <p className="text-[11.5px] text-[var(--m-ink-tertiary)]">{startsDisplay}</p>
+        <p className="text-[11.5px] text-[var(--m-ink-secondary)]">{startsDisplay}</p>
         <p className="text-[17px] font-bold text-[var(--m-ink-primary)]">{priceDisplay}</p>
       </div>
 

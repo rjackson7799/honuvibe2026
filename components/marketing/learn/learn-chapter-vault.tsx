@@ -110,7 +110,7 @@ function ChapterHeader({
             </span>
           )}
         </div>
-        <p className="mt-1 text-[15px] text-[var(--m-ink-tertiary)]">{titleJp}</p>
+        <p className="mt-1 text-[15px] text-[var(--m-ink-secondary)]">{titleJp}</p>
       </div>
     </div>
   );

@@ -19,11 +19,11 @@ export function LearnHero({ locale }: { locale: string }) {
                 className="h-2 w-2 rounded-full bg-[var(--m-accent-coral)]"
                 aria-hidden
               />
-              <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-[var(--m-ink-tertiary)]">
+              <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-[var(--m-ink-secondary)]">
                 {t('eyebrow_label')}
               </span>
-              <span className="text-[var(--m-ink-tertiary)]/40" aria-hidden>·</span>
-              <span className="text-[11.5px] font-bold tracking-[0.08em] text-[var(--m-ink-tertiary)]">
+              <span className="text-[var(--m-ink-secondary)]/40" aria-hidden>·</span>
+              <span className="text-[11.5px] font-bold tracking-[0.08em] text-[var(--m-ink-secondary)]">
                 {t('eyebrow_lang')}
               </span>
             </div>

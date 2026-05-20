@@ -58,7 +58,7 @@ export function LearnChapterCourses({ courses, locale, partners, ownerSlug }: Pr
             >
               {t('title')}
             </h2>
-            <p className="mt-1 text-[15px] text-[var(--m-ink-tertiary)]">
+            <p className="mt-1 text-[15px] text-[var(--m-ink-secondary)]">
               {t('title_jp')}
             </p>
             <p

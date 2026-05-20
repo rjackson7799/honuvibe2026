@@ -14,7 +14,7 @@ export function LearnVaultSample() {
         >
           {t('sample_heading')}
         </h3>
-        <p className="mt-2 text-[16px] text-[var(--m-ink-tertiary)]">
+        <p className="mt-2 text-[16px] text-[var(--m-ink-secondary)]">
           {t('sample_subheading')}
         </p>
       </div>
@@ -24,7 +24,7 @@ export function LearnVaultSample() {
       </BrowserFrame>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[13.5px] text-[var(--m-ink-tertiary)]">
+        <p className="text-[13.5px] text-[var(--m-ink-secondary)]">
           {t('sample_caption')}
         </p>
         <a

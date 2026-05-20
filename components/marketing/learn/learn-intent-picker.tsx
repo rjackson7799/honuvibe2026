@@ -99,7 +99,7 @@ export function LearnIntentPicker() {
                 <span className="block text-[16px] font-semibold leading-tight text-[var(--m-ink-primary)]">
                   {t(option.labelKey)}
                 </span>
-                <span className="mt-1 block text-[13px] leading-snug text-[var(--m-ink-tertiary)]">
+                <span className="mt-1 block text-[13px] leading-snug text-[var(--m-ink-secondary)]">
                   {t(option.captionKey)}
                 </span>
               </span>
@@ -111,7 +111,7 @@ export function LearnIntentPicker() {
                 'shrink-0 transition-all duration-200',
                 isActive
                   ? 'translate-x-0.5 text-[var(--m-accent-teal)]'
-                  : 'text-[var(--m-ink-tertiary)] group-hover:translate-x-0.5 group-hover:text-[var(--m-accent-teal)]',
+                  : 'text-[var(--m-ink-secondary)] group-hover:translate-x-0.5 group-hover:text-[var(--m-accent-teal)]',
               )}
             />
           </button>

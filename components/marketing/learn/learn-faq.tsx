@@ -24,14 +24,14 @@ export function LearnFAQ() {
             >
               {t('heading')}
             </h2>
-            <p className="mt-3 text-[18px] text-[var(--m-ink-tertiary)]">
+            <p className="mt-3 text-[18px] text-[var(--m-ink-secondary)]">
               {t('heading_jp')}
             </p>
             <div className="mt-7 border-t border-[var(--m-border-default)] pt-6">
               <p className="text-[14.5px] leading-[1.7] text-[var(--m-ink-secondary)]">
                 {t('contact_line')}
               </p>
-              <p className="mt-1.5 text-[14px] leading-[1.7] text-[var(--m-ink-tertiary)]">
+              <p className="mt-1.5 text-[14px] leading-[1.7] text-[var(--m-ink-secondary)]">
                 {t('contact_line_jp')}
               </p>
             </div>
@@ -45,7 +45,7 @@ export function LearnFAQ() {
                     <p className="text-[16.5px] font-bold tracking-[-0.005em] text-[var(--m-ink-primary)]">
                       {t(q)}
                     </p>
-                    <p className="mt-1 text-[14px] text-[var(--m-ink-tertiary)]">
+                    <p className="mt-1 text-[14px] text-[var(--m-ink-secondary)]">
                       {t(qJp)}
                     </p>
                   </dt>
