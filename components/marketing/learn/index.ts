@@ -1,6 +1,8 @@
-export { LearnHero } from './hero';
-export { LearnThreePaths } from './three-paths';
-export { LearnVaultMoment } from './vault-moment';
-export { LearnCoursesCatalog } from './courses-catalog';
-export { LearnPrivateCohorts } from './private-cohorts';
-export { LearnComparisonTable } from './comparison-table';
+export { LearnHero } from './learn-hero';
+export { LearnPartnerStrip } from './learn-partner-strip';
+export { LearnChapterVault } from './learn-chapter-vault';
+export { LearnChapterCourses } from './learn-chapter-courses';
+export { LearnChapterCohorts } from './learn-chapter-cohorts';
+export { LearnComparisonDark } from './learn-comparison-dark';
+export { LearnFAQ } from './learn-faq';
+export { LearnStartTonight } from './learn-start-tonight';

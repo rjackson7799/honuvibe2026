@@ -479,6 +479,38 @@
   background: rgba(15, 169, 160, 0.12);
 }
 
+/* Soft-highlight for the Learn page intent picker → chapter scroll target.
+   `data-active` is toggled by learn-intent-picker.tsx and auto-clears. */
+[data-shell="marketing"] .learn-chapter {
+  position: relative;
+  transition: opacity 220ms ease-out, box-shadow 220ms ease-out;
+}
+[data-shell="marketing"] .learn-chapter[data-active="true"] {
+  animation: learn-chapter-glow 1500ms ease-out forwards;
+}
+[data-shell="marketing"] .learn-chapter[data-active="false"] {
+  opacity: 0.7;
+  transition: opacity 220ms ease-out;
+}
+@keyframes learn-chapter-glow {
+  0% {
+    box-shadow: inset 6px 0 0 0 var(--m-accent-teal), 0 0 0 0 rgba(15, 169, 160, 0);
+  }
+  40% {
+    box-shadow: inset 6px 0 0 0 var(--m-accent-teal), 0 0 80px 0 rgba(15, 169, 160, 0.18);
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 var(--m-accent-teal), 0 0 0 0 rgba(15, 169, 160, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-shell="marketing"] .learn-chapter[data-active="true"],
+  [data-shell="marketing"] .learn-chapter[data-active="false"] {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */

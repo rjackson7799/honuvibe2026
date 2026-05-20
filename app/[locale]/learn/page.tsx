@@ -5,11 +5,13 @@ import { MarketingFooter } from '@/components/marketing/footer/marketing-footer'
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
   LearnHero,
-  LearnThreePaths,
-  LearnVaultMoment,
-  LearnCoursesCatalog,
-  LearnPrivateCohorts,
-  LearnComparisonTable,
+  LearnPartnerStrip,
+  LearnChapterVault,
+  LearnChapterCourses,
+  LearnChapterCohorts,
+  LearnComparisonDark,
+  LearnFAQ,
+  LearnStartTonight,
 } from '@/components/marketing/learn';
 import {
   getPublishedCoursesWithPartners,
@@ -48,17 +50,19 @@ export default async function LearnPage({ params, searchParams }: Props) {
     <MarketingShell>
       <MarketingNav />
       <main>
-        <LearnHero />
-        <LearnThreePaths />
-        <LearnVaultMoment />
-        <LearnCoursesCatalog
+        <LearnHero locale={locale} />
+        <LearnPartnerStrip />
+        <LearnChapterVault />
+        <LearnChapterCourses
           courses={courses}
           locale={locale}
           partners={partners}
           ownerSlug={ownerSlug}
         />
-        <LearnPrivateCohorts />
-        <LearnComparisonTable />
+        <LearnChapterCohorts />
+        <LearnComparisonDark />
+        <LearnFAQ />
+        <LearnStartTonight />
       </main>
       <MarketingNewsletter />
       <MarketingFooter />
