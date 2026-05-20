@@ -49,6 +49,10 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const ownerParam = sp.owner;
   const ownerSlug = typeof ownerParam === 'string' ? ownerParam : null;
+  const tagParam = sp.tag;
+  const activeTag = typeof tagParam === 'string' && tagParam.trim().length > 0
+    ? tagParam.trim()
+    : null;
 
   const t = await getTranslations('vault');
   const supabase = await createClient();
@@ -90,7 +94,10 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
 
   // Fetch items with partner data + active partners for chips
   const [result, partners, recentItems] = await Promise.all([
-    getVaultBrowseWithPartners({ pageSize: 20 }, ownerSlug),
+    getVaultBrowseWithPartners(
+      { pageSize: 20, tags: activeTag ? [activeTag] : undefined },
+      ownerSlug,
+    ),
     getActivePublicPartners(),
     user && hasAccess ? getVaultRecentlyViewed(user.id, 6) : Promise.resolve([]),
   ]);
@@ -120,17 +127,43 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
     />
   ) : null;
 
+  const clearTagHref = ownerSlug
+    ? `/${locale === 'ja' ? 'ja/' : ''}learn/vault?owner=${encodeURIComponent(ownerSlug)}`
+    : `/${locale === 'ja' ? 'ja/' : ''}learn/vault`;
+
+  const activeTagPill = activeTag ? (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-[11.5px] font-bold uppercase tracking-[0.12em] text-fg-tertiary">
+        {locale === 'ja' ? 'タグで絞り込み' : 'Filtered by tag'}
+      </span>
+      <span className="inline-flex items-center gap-2 rounded-full bg-accent-teal-subtle px-3 py-1 text-[13px] font-semibold text-accent-teal">
+        #{activeTag}
+        <a
+          href={clearTagHref}
+          aria-label={locale === 'ja' ? 'タグをクリア' : 'Clear tag filter'}
+          className="inline-flex h-4 w-4 items-center justify-center rounded-full text-accent-teal/70 transition-colors hover:bg-accent-teal/15 hover:text-accent-teal"
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+            <path d="M2 2l6 6M8 2l-6 6" />
+          </svg>
+        </a>
+      </span>
+    </div>
+  ) : null;
+
   if (!hasAccess) {
     return (
       <div className="space-y-6 max-w-[1100px] mx-auto">
         <VaultHeader count={result.totalCount} />
         <VaultSubNav isAuthenticated={!!user} />
         {filterChips}
+        {activeTagPill}
         <VaultBrowseGrid
           initialItems={result.items}
           initialTotalCount={result.totalCount}
           hasAccess={false}
           badgeSlots={badgeSlots}
+          initialTag={activeTag}
         />
       </div>
     );
@@ -141,12 +174,14 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
       <VaultHeader count={result.totalCount} />
       <VaultSubNav isAuthenticated={!!user} />
       {filterChips}
+      {activeTagPill}
       <VaultRecentlyViewed items={recentItems} />
       <VaultBrowseGrid
         initialItems={result.items}
         initialTotalCount={result.totalCount}
         hasAccess={true}
         badgeSlots={badgeSlots}
+        initialTag={activeTag}
       />
       {user && <VaultContentRequest />}
     </div>

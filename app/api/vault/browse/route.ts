@@ -22,6 +22,9 @@ export async function GET(request: NextRequest) {
   const accessTier = searchParams.get('accessTier');
   if (accessTier) filters.accessTier = accessTier as VaultBrowseFilters['accessTier'];
 
+  const tag = searchParams.get('tag');
+  if (tag) filters.tags = [tag];
+
   const page = searchParams.get('page');
   if (page) filters.page = parseInt(page, 10);
 

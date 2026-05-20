@@ -17,9 +17,11 @@ type VaultBrowseGridProps = {
   hasAccess?: boolean;
   /** Pre-rendered PartnerBadge nodes keyed by item id (from Server Component parent). */
   badgeSlots?: Record<string, ReactNode>;
+  /** Initial tag filter (from `?tag=` searchParam). Persists across in-grid refilters. */
+  initialTag?: string | null;
 };
 
-export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true, badgeSlots = {} }: VaultBrowseGridProps) {
+export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true, badgeSlots = {}, initialTag = null }: VaultBrowseGridProps) {
   const t = useTranslations('vault');
   const [items, setItems] = useState(initialItems);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
@@ -54,6 +56,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
       if (params.difficulty) searchParams.set('difficulty', params.difficulty);
       if (params.sort) searchParams.set('sort', params.sort);
       if (params.page) searchParams.set('page', String(params.page));
+      if (initialTag) searchParams.set('tag', initialTag);
 
       const res = await fetch(`/api/vault/browse?${searchParams.toString()}`);
       const data = await res.json();
@@ -70,7 +73,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [initialTag]);
 
   const handleFilterChange = useCallback((updates: {
     search?: string;
