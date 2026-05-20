@@ -108,10 +108,13 @@ export function AuthForm() {
           setError(sessionError.message);
           return;
         }
-        // Clean the hash so refreshes don't re-process the (now-consumed) tokens.
-        window.history.replaceState(null, '', window.location.pathname);
-        router.push(`${prefix}/learn/dashboard?welcome=true`);
-        router.refresh();
+        // Use window.location.assign for a hard navigation: router.push +
+        // router.refresh after an async setSession was firing intermittently
+        // on Turbopack/Windows, leaving the user stuck on /learn/auth even
+        // though the session was active. A full navigation also forces the
+        // server to re-read auth cookies on the dashboard request, ensuring
+        // the WelcomeScreen renders consistently for new users.
+        window.location.assign(`${prefix}/learn/dashboard?welcome=true`);
       })();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

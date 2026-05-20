@@ -1365,7 +1365,12 @@ export async function sendMagicLoginEmail(data: {
 }): Promise<void> {
   const { email, fullName, loginLink, locale = 'en' } = data;
   const isJP = locale === 'ja';
-  const name = fullName ?? (isJP ? 'お客様' : 'there');
+  // Use || (not ??) so empty-string full_name falls through to the friendly
+  // fallback instead of rendering "さん、こんにちは" with no name.
+  const trimmed = fullName?.trim();
+  const name = (trimmed && trimmed.length > 0)
+    ? trimmed
+    : (isJP ? 'お客様' : 'there');
 
   const body = [
     heading(isJP ? `${name}さん、こんにちは` : `Hi ${name},`),

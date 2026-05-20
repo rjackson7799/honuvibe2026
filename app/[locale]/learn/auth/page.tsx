@@ -34,15 +34,25 @@ export default async function AuthPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'auth' });
 
   return (
-    <div data-theme="light" className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-5 py-16 bg-[var(--bg-primary)]">
+    <div
+      data-shell="marketing"
+      className="min-h-screen flex items-center justify-center px-5 py-16"
+      style={{ background: 'var(--m-canvas, #FDFBF7)' }}
+    >
       <div className="w-full max-w-md">
         {/* Branding */}
         <div className="flex flex-col items-center mb-8">
           <HonuMark size={48} />
-          <h1 className="mt-4 text-2xl font-serif text-fg-primary">
+          <h1
+            className="mt-4 text-2xl font-serif"
+            style={{ color: 'var(--m-ink-primary, #1A2B33)' }}
+          >
             HonuVibe.AI
           </h1>
-          <p className="mt-1 text-sm text-fg-secondary">
+          <p
+            className="mt-1 text-sm"
+            style={{ color: 'var(--m-ink-secondary, #5A6B73)' }}
+          >
             {t('welcome_message')}
           </p>
         </div>

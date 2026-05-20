@@ -14,6 +14,7 @@ import { getInstructorByUserId } from '@/lib/instructors/queries';
 import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingBanner';
 import { WelcomeScreen } from '@/components/learn/WelcomeScreen';
 import { SetPasswordBanner } from '@/components/learn/SetPasswordBanner';
+import { DashboardBackdrop } from '@/components/learn/DashboardBackdrop';
 import { Card } from '@/components/ui/card';
 import { BadgePill } from '@/components/ui/badge-pill';
 import { SectionHeading } from '@/components/learn/SectionHeading';
@@ -71,7 +72,13 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   }
   const { enrollments, upcomingSessions, pendingAssignments, stats } = dashboardData;
 
-  const displayName = profile?.full_name ?? user.email?.split('@')[0] ?? '';
+  // Use || (not ??) so empty-string full_name (from webhook-created users
+  // who didn't pass a name through Stripe) falls through to the email-prefix
+  // fallback instead of rendering "さん、ようこそ！" with no name.
+  const displayName =
+    (profile?.full_name && profile.full_name.trim()) ||
+    user.email?.split('@')[0] ||
+    '';
   const initial = displayName.trim().charAt(0).toUpperCase() || '?';
 
   if (!profile?.onboarded || sp.welcome === 'true') {
@@ -98,7 +105,8 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     .toUpperCase();
 
   return (
-    <div className="space-y-7 max-w-[1100px]">
+    <div className="relative space-y-7 max-w-[1100px]">
+      <DashboardBackdrop />
       <DashboardWelcomeHeader
         overlineDate={overlineDate}
         welcomeLabel={t('welcome_back', { name: displayName })}
