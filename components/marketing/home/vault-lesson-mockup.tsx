@@ -235,7 +235,7 @@ export function VaultLessonMockup() {
       {/* Footer */}
       <footer className="flex flex-wrap items-center justify-between gap-6 border-t border-[var(--m-border-soft)] pt-7">
         <div className="flex flex-wrap gap-2">
-          {(['tag_research', 'tag_claude', 'tag_workflow', 'tag_real'] as const).map((key) => (
+          {(['tag_research', 'tag_agents', 'tag_workflow', 'tag_real'] as const).map((key) => (
             <span
               key={key}
               className="rounded-[6px] border border-[var(--m-border-soft)] bg-[var(--m-sand)] px-3 py-1.5 text-[12px] font-medium text-[var(--m-ink-secondary)]"
@@ -260,8 +260,7 @@ export function VaultLessonMockup() {
             tabIndex={-1}
             className="inline-flex cursor-default items-center gap-2 rounded-[8px] bg-[var(--m-teal-dark-2)] px-5 py-[11px] text-[14px] font-semibold text-[var(--m-white)]"
           >
-            {t('footer_open_in_claude')}
-            <span aria-hidden>→</span>
+            {t('footer_try_prompt')}
           </button>
         </div>
       </footer>

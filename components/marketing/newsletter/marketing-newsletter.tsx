@@ -71,7 +71,7 @@ export function MarketingNewsletter() {
           </div>
         ) : (
           <>
-            <form onSubmit={handleSubmit} className="mb-5 flex flex-col gap-2.5 sm:flex-row">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 sm:flex-row">
               <input
                 type="email"
                 required
@@ -103,14 +103,6 @@ export function MarketingNewsletter() {
             {status === 'error' && errorMsg && (
               <p className="mb-3 text-[13px] text-[var(--m-accent-coral)]">{errorMsg}</p>
             )}
-            <a
-              href="https://www.skool.com/honuvibe"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border-b border-[rgba(90,107,115,0.3)] pb-0.5 text-[14px] text-[var(--m-ink-secondary)] transition-colors hover:text-[var(--m-ink-primary)]"
-            >
-              {t('marketing_skool_cta')}
-            </a>
           </>
         )}
       </div>
