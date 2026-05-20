@@ -30,7 +30,7 @@ export function LearnStartTonight() {
   ];
 
   return (
-    <Section variant="canvas" className="bg-[#0A2929] text-white">
+    <Section variant="navy">
       <Container>
         <div className="mx-auto max-w-[760px] text-center">
           <p className="mb-4 inline-flex items-center gap-3 text-[11.5px] font-bold uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">

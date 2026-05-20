@@ -53,10 +53,7 @@ export function LearnComparisonDark() {
   ];
 
   return (
-    <Section
-      variant="canvas"
-      className="bg-[#0A2929] text-white"
-    >
+    <Section variant="navy">
       <Container>
         <div className="mx-auto mb-12 max-w-[720px] text-center">
           <p className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">
