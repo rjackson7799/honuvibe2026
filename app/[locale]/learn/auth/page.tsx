@@ -36,8 +36,7 @@ export default async function AuthPage({ params }: Props) {
   return (
     <div
       data-shell="marketing"
-      className="min-h-screen flex items-center justify-center px-5 py-16"
-      style={{ background: 'var(--m-canvas, #FDFBF7)' }}
+      className="learn-zone min-h-screen flex items-center justify-center px-5 py-16"
     >
       <div className="w-full max-w-md">
         {/* Branding */}
