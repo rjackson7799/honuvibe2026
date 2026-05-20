@@ -1,6 +1,6 @@
-export { ExploreHero } from './hero';
-export { ExploreStatsStrip } from './stats-strip';
-export { ExploreFeaturedProjects } from './featured-projects';
-export { ExploreHowWeBuild } from './how-we-build';
-export { ExploreAlohaStandard } from './aloha-standard';
-export { ExploreTwoPathCta } from './two-path-cta';
+export { ExploreReelHero } from './reel-hero';
+export { ExploreIndex } from './index-table';
+export { ExploreMethod } from './method-chapter';
+export { ExploreAlohaStandard } from './aloha-chapter';
+export { ExploreQuestions } from './questions-chapter';
+export { ExploreNextIssue } from './next-issue';

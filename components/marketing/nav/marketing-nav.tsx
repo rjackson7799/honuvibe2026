@@ -10,11 +10,11 @@ const navLinks = [
 ] as const;
 
 type MarketingNavProps = {
-  /** Show the "Get Started" CTA — homepage only per design. Defaults to false. */
+  /** Show the "Get Started" CTA. Defaults to true; pass false to opt out (e.g. checkout flows). */
   showGetStarted?: boolean;
 };
 
-export async function MarketingNav({ showGetStarted = false }: MarketingNavProps = {}) {
+export async function MarketingNav({ showGetStarted = true }: MarketingNavProps = {}) {
   const t = await getTranslations('nav');
   const links = navLinks.map((l) => ({ href: l.href, label: t(l.key) }));
 

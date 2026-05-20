@@ -4,12 +4,12 @@ import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
 import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
-  ExploreHero,
-  ExploreStatsStrip,
-  ExploreFeaturedProjects,
-  ExploreHowWeBuild,
+  ExploreReelHero,
+  ExploreIndex,
+  ExploreMethod,
   ExploreAlohaStandard,
-  ExploreTwoPathCta,
+  ExploreQuestions,
+  ExploreNextIssue,
 } from '@/components/marketing/explore';
 
 type Props = {
@@ -34,12 +34,12 @@ export default async function ExplorationPage({ params }: Props) {
     <MarketingShell>
       <MarketingNav />
       <main>
-        <ExploreHero />
-        <ExploreStatsStrip />
-        <ExploreFeaturedProjects />
-        <ExploreHowWeBuild />
+        <ExploreReelHero />
+        <ExploreIndex />
+        <ExploreMethod />
         <ExploreAlohaStandard />
-        <ExploreTwoPathCta />
+        <ExploreQuestions />
+        <ExploreNextIssue />
       </main>
       <MarketingNewsletter />
       <MarketingFooter />

@@ -2,12 +2,12 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
 import {
-  ExploreHero,
-  ExploreStatsStrip,
-  ExploreFeaturedProjects,
-  ExploreHowWeBuild,
+  ExploreReelHero,
+  ExploreIndex,
+  ExploreMethod,
   ExploreAlohaStandard,
-  ExploreTwoPathCta,
+  ExploreQuestions,
+  ExploreNextIssue,
 } from '@/components/marketing/explore';
 
 vi.mock('next-intl', () => {
@@ -23,12 +23,18 @@ vi.mock('next-intl', () => {
   function tFor(ns: string) {
     const base = getNs(ns) ?? {};
     function t(key: string, vars?: Record<string, unknown>): string {
-      const raw = (base as Record<string, unknown>)[key];
-      if (typeof raw !== 'string') return key;
-      const flattened = raw.replace(/<\/?[^>]+>/g, '');
+      // Support dotted keys (e.g. 'projects.kwame.name')
+      const value = key.split('.').reduce<unknown>((o, k) => {
+        if (o && typeof o === 'object' && k in (o as Record<string, unknown>)) {
+          return (o as Record<string, unknown>)[k];
+        }
+        return undefined;
+      }, base);
+      if (typeof value !== 'string') return key;
+      const flattened = value.replace(/<\/?[^>]+>/g, '');
       if (!vars) return flattened;
       return Object.entries(vars).reduce<string>(
-        (acc, [k, v]) => acc.replace(`{${k}}`, String(v)),
+        (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
         flattened,
       );
     }
@@ -67,47 +73,30 @@ describe('Explore page sections', () => {
     errorSpy.mockRestore();
   });
 
-  it('Hero renders the two-line headline + Our Work overline', () => {
-    render(<ExploreHero />);
-    const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1.textContent).toContain('Real projects.');
-    expect(h1.textContent).toContain('Real outcomes.');
-    expect(screen.getByText(/Our Work/i)).toBeInTheDocument();
-  });
-
-  it('StatsStrip shows all four stat numbers and labels', () => {
-    render(<ExploreStatsStrip />);
-    expect(screen.getByText('20+')).toBeInTheDocument();
-    expect(screen.getByText('3')).toBeInTheDocument();
-    expect(screen.getByText('60%')).toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('Projects Shipped')).toBeInTheDocument();
-    expect(screen.getByText('Languages Supported')).toBeInTheDocument();
-  });
-
-  it('FeaturedProjects renders both project headings, status pills, and the placeholder card with /contact link', () => {
-    render(<ExploreFeaturedProjects />);
+  it('ReelHero shows Now Playing, the first project heading, and frame counter', () => {
+    render(<ExploreReelHero />);
+    expect(screen.getByText(/Now Playing/i)).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'KwameBrathwaite.com' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: 'HCI Medical Group' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('IN DEVELOPMENT')).toBeInTheDocument();
-    expect(screen.getByText('LIVE')).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: 'Your Project Could Be Here' }),
-    ).toBeInTheDocument();
-    const placeholderCta = screen.getByRole('link', {
-      name: /Tell us about your project/i,
-    });
-    expect(placeholderCta).toHaveAttribute('href', '/contact');
+    expect(screen.getByText(/Frame 01 \/ 02/)).toBeInTheDocument();
+    expect(screen.getByLabelText('Next project')).toBeInTheDocument();
   });
 
-  it('HowWeBuild renders three numbered steps with their titles', () => {
-    render(<ExploreHowWeBuild />);
+  it('Index renders the editorial headline, both live projects, and the end-of-index rule', () => {
+    render(<ExploreIndex />);
     expect(
-      screen.getByRole('heading', { name: 'How we build.' }),
+      screen.getByRole('heading', { name: /^Index/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('KwameBrathwaite.com')).toBeInTheDocument();
+    expect(screen.getByText('HCI Medical Group')).toBeInTheDocument();
+    expect(screen.getByText(/End of index/i)).toBeInTheDocument();
+  });
+
+  it('Method renders the chapter label and three numbered step titles', () => {
+    render(<ExploreMethod />);
+    expect(
+      screen.getByRole('heading', { name: /^Method/ }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'Discovery' }),
@@ -118,41 +107,49 @@ describe('Explore page sections', () => {
     expect(
       screen.getByRole('heading', { name: 'Launch & Support' }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/How we build/i)).toBeInTheDocument();
   });
 
-  it('AlohaStandard renders the Built with Aloha headline and a /contact CTA', () => {
+  it('AlohaStandard renders the two-line Aloha headline and a /partnerships link', () => {
     render(<ExploreAlohaStandard />);
-    expect(
-      screen.getByRole('heading', { name: 'Built with Aloha.' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Built with')).toBeInTheDocument();
+    expect(screen.getByText('Aloha.')).toBeInTheDocument();
     const cta = screen.getByRole('link', {
       name: /Interested in a community or nonprofit collaboration/i,
     });
-    expect(cta).toHaveAttribute('href', '/contact');
+    expect(cta).toHaveAttribute('href', '/partnerships#community');
   });
 
-  it('TwoPathCta renders both CTAs routing to /learn and /partnerships', () => {
-    render(<ExploreTwoPathCta />);
+  it('Questions renders the chapter heading and all five question prompts', () => {
+    render(<ExploreQuestions />);
     expect(
-      screen.getByRole('heading', { name: 'Inspired by what you see?' }),
+      screen.getByRole('heading', { name: /^Questions/ }),
     ).toBeInTheDocument();
+    expect(screen.getByText(/smallest project/i)).toBeInTheDocument();
+    expect(screen.getByText(/locked into a specific stack/i)).toBeInTheDocument();
+    expect(screen.getByText(/Do we own the code/i)).toBeInTheDocument();
+    expect(screen.getByText(/Japanese localization/i)).toBeInTheDocument();
+  });
+
+  it('NextIssue renders the dual CTAs routing to /partnerships and /learn', () => {
+    render(<ExploreNextIssue />);
     expect(
-      screen.getByRole('link', { name: /Start Learning/i }),
-    ).toHaveAttribute('href', '/learn');
-    expect(
-      screen.getByRole('link', { name: /Explore Partnerships/i }),
+      screen.getByRole('link', { name: /Tell us about your project/i }),
     ).toHaveAttribute('href', '/partnerships');
+    expect(
+      screen.getByRole('link', { name: /Start learning/i }),
+    ).toHaveAttribute('href', '/learn');
   });
 
   it('renders every Explore section without console.error', () => {
     render(
       <>
-        <ExploreHero />
-        <ExploreStatsStrip />
-        <ExploreFeaturedProjects />
-        <ExploreHowWeBuild />
+        <ExploreReelHero />
+        <ExploreIndex />
+        <ExploreMethod />
         <ExploreAlohaStandard />
-        <ExploreTwoPathCta />
+        <ExploreQuestions />
+        <ExploreNextIssue />
       </>,
     );
     expect(errorSpy).not.toHaveBeenCalled();
