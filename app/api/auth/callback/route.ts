@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { sendStudentOnboardingEmail } from '@/lib/email/send';
+import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const explicitRedirect = searchParams.get('redirect');
-  let redirectTo = explicitRedirect || '/learn/dashboard';
+  let redirectTo = sanitizeRedirect(explicitRedirect, '/learn/dashboard');
 
   if (code) {
     const cookieStore = await cookies();
