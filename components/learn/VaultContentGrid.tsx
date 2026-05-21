@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Video, FileText, BookOpen, Wrench, LayoutTemplate, ExternalLink } from 'lucide-react';
+import { Video, FileText, Wrench, LayoutTemplate, GraduationCap, Sparkles, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ContentItemForStudent } from '@/lib/dashboard/types';
 
@@ -10,13 +10,12 @@ type ContentFilter = 'all' | 'video' | 'walkthrough' | 'build_along' | 'guide';
 type DifficultyFilter = 'all' | 'beginner' | 'intermediate' | 'advanced';
 
 const typeIcons: Record<string, typeof Video> = {
-  video_custom: Video,
-  video_youtube: Video,
+  video: Video,
+  workshop: GraduationCap,
   article: FileText,
-  tool: Wrench,
   template: LayoutTemplate,
-  guide: BookOpen,
-  course_recording: Video,
+  tool: Wrench,
+  prompt_pack: Sparkles,
 };
 
 function VaultCard({ item, locale }: { item: ContentItemForStudent; locale: string }) {
@@ -26,9 +25,10 @@ function VaultCard({ item, locale }: { item: ContentItemForStudent; locale: stri
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
   const Icon = typeIcons[item.content_type] ?? FileText;
 
-  const typeLabel = item.content_type.includes('video')
+  const hasGuideTag = (item.tags ?? []).includes('format:guide');
+  const typeLabel = item.content_type === 'video' || item.content_type === 'workshop'
     ? t('vault_filter_video')
-    : item.content_type === 'guide'
+    : item.content_type === 'article' && hasGuideTag
       ? t('vault_filter_guide')
       : item.content_type === 'template'
         ? t('vault_filter_build_along')
@@ -108,10 +108,12 @@ export function VaultContentGrid({ items }: VaultContentGridProps) {
 
   const filteredItems = items.filter((item) => {
     if (contentFilter !== 'all') {
-      if (contentFilter === 'video' && !item.content_type.includes('video')) return false;
+      const isVideoish = item.content_type === 'video' || item.content_type === 'workshop';
+      const hasGuideTag = (item.tags ?? []).includes('format:guide');
+      if (contentFilter === 'video' && !isVideoish) return false;
       if (contentFilter === 'walkthrough' && item.content_type !== 'article') return false;
       if (contentFilter === 'build_along' && item.content_type !== 'template') return false;
-      if (contentFilter === 'guide' && item.content_type !== 'guide') return false;
+      if (contentFilter === 'guide' && !(item.content_type === 'article' && hasGuideTag)) return false;
     }
     if (difficultyFilter !== 'all' && item.difficulty_level !== difficultyFilter) return false;
     return true;

@@ -5,28 +5,26 @@ import type { ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Video, FileText, BookOpen, Wrench, LayoutTemplate, Lock, Eye, ThumbsUp, Clock, CheckCircle2 } from 'lucide-react';
+import { Video, FileText, Wrench, LayoutTemplate, GraduationCap, Sparkles, Lock, Eye, ThumbsUp, Clock, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { VaultContentItem } from '@/lib/vault/types';
 
 const typeIcons: Record<string, typeof Video> = {
-  video_custom: Video,
-  video_youtube: Video,
+  video: Video,
+  workshop: GraduationCap,
   article: FileText,
-  tool: Wrench,
   template: LayoutTemplate,
-  guide: BookOpen,
-  course_recording: Video,
+  tool: Wrench,
+  prompt_pack: Sparkles,
 };
 
 const typeLabels: Record<string, string> = {
-  video_custom: 'Video',
-  video_youtube: 'Video',
+  video: 'Video',
+  workshop: 'Workshop',
   article: 'Article',
-  tool: 'Tool',
   template: 'Template',
-  guide: 'Guide',
-  course_recording: 'Recording',
+  tool: 'Tool',
+  prompt_pack: 'Prompt Pack',
 };
 
 const difficultyColors: Record<string, string> = {

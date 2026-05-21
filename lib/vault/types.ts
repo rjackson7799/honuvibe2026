@@ -6,13 +6,14 @@
 // ---------------------------------------------------------------------------
 
 export type VaultContentType =
-  | 'video_custom'
-  | 'video_youtube'
+  | 'video'
+  | 'workshop'
   | 'article'
-  | 'tool'
   | 'template'
-  | 'guide'
-  | 'course_recording';
+  | 'tool'
+  | 'prompt_pack';
+
+export type VaultRecommendedModel = 'gpt-4' | 'claude' | 'gemini' | 'any';
 
 export type VaultDifficulty = 'beginner' | 'intermediate' | 'advanced';
 export type VaultAccessTier = 'free' | 'premium';
@@ -61,7 +62,24 @@ export interface VaultContentItem {
   series_id: string | null;
   series_order: number | null;
   related_item_ids: string[] | null;
+  event_date: string | null;
+  event_signup_url: string | null;
+  presenter_name: string | null;
+  tool_widget_key: string | null;
+  tool_widget_config: Record<string, unknown> | null;
   created_at: string;
+  updated_at: string;
+}
+
+// ---------------------------------------------------------------------------
+// Article body (protected child table — see migration 041)
+// ---------------------------------------------------------------------------
+
+export interface VaultArticleBody {
+  content_item_id: string;
+  body_en: string | null;
+  body_jp: string | null;
+  reading_time_minutes: number | null;
   updated_at: string;
 }
 
@@ -96,11 +114,13 @@ export interface VaultSeriesWithItems extends VaultSeries {
 // Downloads
 // ---------------------------------------------------------------------------
 
+// Browse-safe shape from `vault_downloads_browse` (omits file_url so premium
+// files can't leak via PostgREST). Frontend uses this; signed URLs come from
+// POST /api/vault/downloads/[id].
 export interface VaultDownload {
   id: string;
   content_item_id: string;
   file_name: string;
-  file_url: string;
   file_size_bytes: number | null;
   file_type: string;
   description_en: string | null;
@@ -108,6 +128,29 @@ export interface VaultDownload {
   access_tier: VaultAccessTier;
   download_count: number;
   display_order: number;
+  created_at: string;
+}
+
+// Server/admin-only shape with file_url. Never returned to clients.
+export interface VaultDownloadWithUrl extends VaultDownload {
+  file_url: string;
+}
+
+// ---------------------------------------------------------------------------
+// Prompts (Prompt Pack child rows)
+// ---------------------------------------------------------------------------
+
+export interface VaultPrompt {
+  id: string;
+  content_item_id: string;
+  display_order: number;
+  title_en: string;
+  title_jp: string | null;
+  prompt_text_en: string;
+  prompt_text_jp: string | null;
+  use_case_en: string | null;
+  use_case_jp: string | null;
+  recommended_model: VaultRecommendedModel | null;
   created_at: string;
 }
 
@@ -238,7 +281,9 @@ export interface VaultUserState {
 
 export interface VaultContentDetail {
   item: VaultContentItem;
+  articleBody: VaultArticleBody | null;
   downloads: VaultDownload[];
+  prompts: VaultPrompt[];
   relatedItems: VaultContentItem[];
   series: VaultSeries | null;
   seriesItems: VaultContentItem[];
@@ -273,6 +318,11 @@ export interface VaultItemCreateInput {
   series_id?: string;
   series_order?: number;
   related_item_ids?: string[];
+  event_date?: string;
+  event_signup_url?: string;
+  presenter_name?: string;
+  tool_widget_key?: string;
+  tool_widget_config?: Record<string, unknown>;
 }
 
 export interface VaultItemUpdateInput extends Partial<VaultItemCreateInput> {

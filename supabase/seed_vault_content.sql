@@ -1,8 +1,8 @@
--- ============================================================
--- HonuVibe Vault — Seed Content
+﻿-- ============================================================
+-- HonuVibe Vault â€” Seed Content
 -- Run:    psql $DATABASE_URL < supabase/seed_vault_content.sql
 -- Safe to re-run: slugs use ON CONFLICT DO NOTHING
--- All items flagged: admin_notes = 'SEED DATA — replace with real content'
+-- All items flagged: admin_notes = 'SEED DATA â€” replace with real content'
 -- ============================================================
 
 BEGIN;
@@ -12,15 +12,15 @@ BEGIN;
 -- ============================================================
 INSERT INTO tags (slug, name_en, name_jp, category) VALUES
   -- Topic tags
-  ('ai-fundamentals',    'AI Fundamentals',    'AI基礎',                     'topic'),
-  ('prompt-engineering', 'Prompt Engineering', 'プロンプトエンジニアリング',   'topic'),
-  ('business-ai',        'Business AI',        'ビジネスAI',                 'topic'),
-  ('productivity',       'Productivity',       '生産性',                     'topic'),
-  ('content-creation',   'Content Creation',   'コンテンツ制作',              'topic'),
-  ('research',           'Research',           'リサーチ',                   'topic'),
-  ('automation',         'Automation',         '自動化',                     'topic'),
-  ('ethics',             'Ethics',             'AIの倫理',                   'topic'),
-  ('career',             'Career',             'キャリア',                   'topic'),
+  ('ai-fundamentals',    'AI Fundamentals',    'AIåŸºç¤Ž',                     'topic'),
+  ('prompt-engineering', 'Prompt Engineering', 'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¨ãƒ³ã‚¸ãƒ‹ã‚¢ãƒªãƒ³ã‚°',   'topic'),
+  ('business-ai',        'Business AI',        'ãƒ“ã‚¸ãƒã‚¹AI',                 'topic'),
+  ('productivity',       'Productivity',       'ç”Ÿç”£æ€§',                     'topic'),
+  ('content-creation',   'Content Creation',   'ã‚³ãƒ³ãƒ†ãƒ³ãƒ„åˆ¶ä½œ',              'topic'),
+  ('research',           'Research',           'ãƒªã‚µãƒ¼ãƒ',                   'topic'),
+  ('automation',         'Automation',         'è‡ªå‹•åŒ–',                     'topic'),
+  ('ethics',             'Ethics',             'AIã®å€«ç†',                   'topic'),
+  ('career',             'Career',             'ã‚­ãƒ£ãƒªã‚¢',                   'topic'),
   -- Tool tags
   ('chatgpt',            'ChatGPT',            'ChatGPT',                    'tool'),
   ('claude',             'Claude',             'Claude',                     'tool'),
@@ -43,9 +43,9 @@ INSERT INTO vault_series (
 (
   'prompt-engineering-101',
   'Prompt Engineering 101',
-  'プロンプトエンジニアリング基礎',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¨ãƒ³ã‚¸ãƒ‹ã‚¢ãƒªãƒ³ã‚°åŸºç¤Ž',
   'Master the fundamentals of writing effective AI prompts. Covers core concepts, chain-of-thought techniques, and advanced system prompts with Claude.',
-  'AIプロンプトを効果的に書くための基礎を習得しましょう。基本概念、Chain-of-Thoughtテクニック、Claudeを使った上級システムプロンプトをカバーします。',
+  'AIãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’åŠ¹æžœçš„ã«æ›¸ããŸã‚ã®åŸºç¤Žã‚’ç¿’å¾—ã—ã¾ã—ã‚‡ã†ã€‚åŸºæœ¬æ¦‚å¿µã€Chain-of-Thoughtãƒ†ã‚¯ãƒ‹ãƒƒã‚¯ã€Claudeã‚’ä½¿ã£ãŸä¸Šç´šã‚·ã‚¹ãƒ†ãƒ ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’ã‚«ãƒãƒ¼ã—ã¾ã™ã€‚',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Prompt+Engineering+101',
   'beginner',
   '["prompt-engineering","ai-fundamentals","claude","chatgpt"]',
@@ -54,9 +54,9 @@ INSERT INTO vault_series (
 (
   'ai-tools-japanese-business',
   'AI Tools for Japanese Business',
-  '日本のビジネスのためのAIツール',
+  'æ—¥æœ¬ã®ãƒ“ã‚¸ãƒã‚¹ã®ãŸã‚ã®AIãƒ„ãƒ¼ãƒ«',
   'A practical guide to integrating AI into Japanese professional workflows. From business email to meeting notes to full workflow automation.',
-  '日本のビジネス現場にAIを取り入れるための実践ガイド。ビジネスメールから会議メモ、業務自動化まで幅広くカバーします。',
+  'æ—¥æœ¬ã®ãƒ“ã‚¸ãƒã‚¹ç¾å ´ã«AIã‚’å–ã‚Šå…¥ã‚Œã‚‹ãŸã‚ã®å®Ÿè·µã‚¬ã‚¤ãƒ‰ã€‚ãƒ“ã‚¸ãƒã‚¹ãƒ¡ãƒ¼ãƒ«ã‹ã‚‰ä¼šè­°ãƒ¡ãƒ¢ã€æ¥­å‹™è‡ªå‹•åŒ–ã¾ã§å¹…åºƒãã‚«ãƒãƒ¼ã—ã¾ã™ã€‚',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=AI+Tools+for+Japanese+Business',
   'intermediate',
   '["business-ai","productivity","automation","chatgpt"]',
@@ -65,7 +65,7 @@ INSERT INTO vault_series (
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
--- 3. SERIES 1 ITEMS — Prompt Engineering 101
+-- 3. SERIES 1 ITEMS â€” Prompt Engineering 101
 -- ============================================================
 
 -- Item 1 of 4: Free intro video (YouTube)
@@ -80,10 +80,10 @@ INSERT INTO content_items (
 SELECT
   'what-is-prompt-engineering',
   'What Is Prompt Engineering?',
-  'プロンプトエンジニアリングとは？',
-  'A beginner-friendly introduction to prompt engineering — what it is, why it matters, and how to start applying it today with ChatGPT or Claude.',
-  'プロンプトエンジニアリングの入門動画。ChatGPTやClaudeを使って、今日から実践できる基礎を丁寧に解説します。',
-  'video_youtube', 'youtube',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¨ãƒ³ã‚¸ãƒ‹ã‚¢ãƒªãƒ³ã‚°ã¨ã¯ï¼Ÿ',
+  'A beginner-friendly introduction to prompt engineering â€” what it is, why it matters, and how to start applying it today with ChatGPT or Claude.',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¨ãƒ³ã‚¸ãƒ‹ã‚¢ãƒªãƒ³ã‚°ã®å…¥é–€å‹•ç”»ã€‚ChatGPTã‚„Claudeã‚’ä½¿ã£ã¦ã€ä»Šæ—¥ã‹ã‚‰å®Ÿè·µã§ãã‚‹åŸºç¤Žã‚’ä¸å¯§ã«è§£èª¬ã—ã¾ã™ã€‚',
+  'video', 'youtube',
   'https://www.youtube.com/watch?v=placeholder',
   'https://www.youtube.com/embed/placeholder',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=What+Is+Prompt+Engineering',
@@ -92,7 +92,7 @@ SELECT
   '["prompt-engineering","ai-fundamentals","chatgpt","claude"]',
   'free',
   true, true, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 1
 FROM vault_series vs WHERE vs.slug = 'prompt-engineering-101'
 ON CONFLICT (slug) DO NOTHING;
@@ -109,10 +109,10 @@ INSERT INTO content_items (
 SELECT
   'chain-of-thought-prompting-guide',
   'Chain-of-Thought Prompting: Step-by-Step',
-  'Chain-of-Thoughtプロンプティング：ステップバイステップ',
+  'Chain-of-Thoughtãƒ—ãƒ­ãƒ³ãƒ—ãƒ†ã‚£ãƒ³ã‚°ï¼šã‚¹ãƒ†ãƒƒãƒ—ãƒã‚¤ã‚¹ãƒ†ãƒƒãƒ—',
   'Learn how to use chain-of-thought prompting to dramatically improve AI reasoning quality. Includes real before/after examples across business and creative tasks.',
-  'Chain-of-Thoughtプロンプティングを使ってAIの推論品質を大幅に向上させる方法を学びます。ビジネスとクリエイティブタスクの実例も豊富に掲載。',
-  'guide', 'honuvibe',
+  'Chain-of-Thoughtãƒ—ãƒ­ãƒ³ãƒ—ãƒ†ã‚£ãƒ³ã‚°ã‚’ä½¿ã£ã¦AIã®æŽ¨è«–å“è³ªã‚’å¤§å¹…ã«å‘ä¸Šã•ã›ã‚‹æ–¹æ³•ã‚’å­¦ã³ã¾ã™ã€‚ãƒ“ã‚¸ãƒã‚¹ã¨ã‚¯ãƒªã‚¨ã‚¤ãƒ†ã‚£ãƒ–ã‚¿ã‚¹ã‚¯ã®å®Ÿä¾‹ã‚‚è±Šå¯Œã«æŽ²è¼‰ã€‚',
+  'article', 'honuvibe',
   'https://honuvibe.ai/vault/guides/chain-of-thought-prompting-guide',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Chain+of+Thought+Prompting',
   'Ryan Jackson', '2026-01-22',
@@ -120,7 +120,7 @@ SELECT
   '["prompt-engineering","ai-fundamentals","claude","chatgpt"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 2
 FROM vault_series vs WHERE vs.slug = 'prompt-engineering-101'
 ON CONFLICT (slug) DO NOTHING;
@@ -137,9 +137,9 @@ INSERT INTO content_items (
 SELECT
   'prompt-starter-kit',
   'My Prompt Starter Kit',
-  'プロンプトスターターキット',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¹ã‚¿ãƒ¼ã‚¿ãƒ¼ã‚­ãƒƒãƒˆ',
   'A ready-to-use collection of 20 proven prompt templates covering email, research, summarization, ideation, and more. Download the PDF and XLSX versions.',
-  'メール、リサーチ、要約、アイデア出しなど、すぐに使える20のプロンプトテンプレートコレクション。PDFとXLSX形式でダウンロードできます。',
+  'ãƒ¡ãƒ¼ãƒ«ã€ãƒªã‚µãƒ¼ãƒã€è¦ç´„ã€ã‚¢ã‚¤ãƒ‡ã‚¢å‡ºã—ãªã©ã€ã™ãã«ä½¿ãˆã‚‹20ã®ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚³ãƒ¬ã‚¯ã‚·ãƒ§ãƒ³ã€‚PDFã¨XLSXå½¢å¼ã§ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã§ãã¾ã™ã€‚',
   'template', 'honuvibe',
   'https://honuvibe.ai/vault/templates/prompt-starter-kit',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Prompt+Starter+Kit',
@@ -148,7 +148,7 @@ SELECT
   '["prompt-engineering","productivity","chatgpt","claude"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 3
 FROM vault_series vs WHERE vs.slug = 'prompt-engineering-101'
 ON CONFLICT (slug) DO NOTHING;
@@ -165,10 +165,10 @@ INSERT INTO content_items (
 SELECT
   'advanced-system-prompts-claude',
   'Advanced System Prompts with Claude',
-  'Claudeで学ぶ上級システムプロンプト',
+  'Claudeã§å­¦ã¶ä¸Šç´šã‚·ã‚¹ãƒ†ãƒ ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆ',
   'Go deep on system prompts: persona design, constraint setting, context injection, and multi-turn conversation architecture. Recorded exclusively for HonuVibe members.',
-  'システムプロンプトを深掘り：ペルソナ設計、制約設定、コンテキスト注入、マルチターン会話アーキテクチャ。HonuVibeメンバー向け限定収録。',
-  'video_custom', 'honuvibe',
+  'ã‚·ã‚¹ãƒ†ãƒ ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’æ·±æŽ˜ã‚Šï¼šãƒšãƒ«ã‚½ãƒŠè¨­è¨ˆã€åˆ¶ç´„è¨­å®šã€ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆæ³¨å…¥ã€ãƒžãƒ«ãƒã‚¿ãƒ¼ãƒ³ä¼šè©±ã‚¢ãƒ¼ã‚­ãƒ†ã‚¯ãƒãƒ£ã€‚HonuVibeãƒ¡ãƒ³ãƒãƒ¼å‘ã‘é™å®šåŽéŒ²ã€‚',
+  'video', 'honuvibe',
   'https://honuvibe.ai/vault/videos/advanced-system-prompts-claude',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Advanced+System+Prompts',
   22, 'Ryan Jackson', '2026-02-05',
@@ -176,13 +176,13 @@ SELECT
   '["prompt-engineering","claude","ai-fundamentals"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 4
 FROM vault_series vs WHERE vs.slug = 'prompt-engineering-101'
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
--- 4. SERIES 2 ITEMS — AI Tools for Japanese Business
+-- 4. SERIES 2 ITEMS â€” AI Tools for Japanese Business
 -- ============================================================
 
 -- Item 1 of 4: Free intro article (both languages)
@@ -197,9 +197,9 @@ INSERT INTO content_items (
 SELECT
   'why-japanese-professionals-adopting-ai',
   'Why Japanese Professionals Are Adopting AI Now',
-  '日本のプロがAIを採用し始めた理由',
+  'æ—¥æœ¬ã®ãƒ—ãƒ­ãŒAIã‚’æŽ¡ç”¨ã—å§‹ã‚ãŸç†ç”±',
   'An honest look at what is driving AI adoption in Japanese workplaces, the unique challenges professionals face, and why 2026 is the tipping point.',
-  '日本の職場でAI導入が進む背景、プロフェッショナルが直面する課題、そして2026年がターニングポイントである理由を解説します。',
+  'æ—¥æœ¬ã®è·å ´ã§AIå°Žå…¥ãŒé€²ã‚€èƒŒæ™¯ã€ãƒ—ãƒ­ãƒ•ã‚§ãƒƒã‚·ãƒ§ãƒŠãƒ«ãŒç›´é¢ã™ã‚‹èª²é¡Œã€ãã—ã¦2026å¹´ãŒã‚¿ãƒ¼ãƒ‹ãƒ³ã‚°ãƒã‚¤ãƒ³ãƒˆã§ã‚ã‚‹ç†ç”±ã‚’è§£èª¬ã—ã¾ã™ã€‚',
   'article', 'honuvibe',
   'https://honuvibe.ai/vault/articles/why-japanese-professionals-adopting-ai',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Japanese+Professionals+%26+AI',
@@ -208,7 +208,7 @@ SELECT
   '["business-ai","career","ai-fundamentals"]',
   'free',
   true, true, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 1
 FROM vault_series vs WHERE vs.slug = 'ai-tools-japanese-business'
 ON CONFLICT (slug) DO NOTHING;
@@ -225,10 +225,10 @@ INSERT INTO content_items (
 SELECT
   'chatgpt-business-email-japanese',
   'Writing Japanese Business Email with ChatGPT',
-  'ChatGPTでビジネスメールを書く',
+  'ChatGPTã§ãƒ“ã‚¸ãƒã‚¹ãƒ¡ãƒ¼ãƒ«ã‚’æ›¸ã',
   'A step-by-step guide to drafting professional Japanese business emails using ChatGPT. Includes prompts for formal requests, follow-ups, and apology emails.',
-  'ChatGPTを使って日本語のビジネスメールを作成するステップバイステップガイド。正式な依頼、フォローアップ、お詫びメールのプロンプトも収録。',
-  'guide', 'honuvibe',
+  'ChatGPTã‚’ä½¿ã£ã¦æ—¥æœ¬èªžã®ãƒ“ã‚¸ãƒã‚¹ãƒ¡ãƒ¼ãƒ«ã‚’ä½œæˆã™ã‚‹ã‚¹ãƒ†ãƒƒãƒ—ãƒã‚¤ã‚¹ãƒ†ãƒƒãƒ—ã‚¬ã‚¤ãƒ‰ã€‚æ­£å¼ãªä¾é ¼ã€ãƒ•ã‚©ãƒ­ãƒ¼ã‚¢ãƒƒãƒ—ã€ãŠè©«ã³ãƒ¡ãƒ¼ãƒ«ã®ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚‚åŽéŒ²ã€‚',
+  'article', 'honuvibe',
   'https://honuvibe.ai/vault/guides/chatgpt-business-email-japanese',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=ChatGPT%E3%83%93%E3%82%B8%E3%83%8D%E3%82%B9%E3%83%A1%E3%83%BC%E3%83%AB',
   'Ryan Jackson', '2026-02-17',
@@ -236,7 +236,7 @@ SELECT
   '["business-ai","productivity","chatgpt"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 2
 FROM vault_series vs WHERE vs.slug = 'ai-tools-japanese-business'
 ON CONFLICT (slug) DO NOTHING;
@@ -253,9 +253,9 @@ INSERT INTO content_items (
 SELECT
   'ai-meeting-notes-template-japanese',
   'AI Meeting Notes Template (Japanese)',
-  'AI会議メモテンプレート',
+  'AIä¼šè­°ãƒ¡ãƒ¢ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ',
   'A downloadable template for capturing and summarizing Japanese business meetings with AI assistance. Includes pre-meeting agenda, live notes, and action items sections.',
-  '日本語の会議をAIでキャプチャ・要約するためのダウンロード可能なテンプレート。会議前アジェンダ、ライブメモ、アクションアイテムのセクションを収録。',
+  'æ—¥æœ¬èªžã®ä¼šè­°ã‚’AIã§ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ»è¦ç´„ã™ã‚‹ãŸã‚ã®ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰å¯èƒ½ãªãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã€‚ä¼šè­°å‰ã‚¢ã‚¸ã‚§ãƒ³ãƒ€ã€ãƒ©ã‚¤ãƒ–ãƒ¡ãƒ¢ã€ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚¢ã‚¤ãƒ†ãƒ ã®ã‚»ã‚¯ã‚·ãƒ§ãƒ³ã‚’åŽéŒ²ã€‚',
   'template', 'honuvibe',
   'https://honuvibe.ai/vault/templates/ai-meeting-notes-template-japanese',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=AI%E4%BC%9A%E8%AD%B0%E3%83%A1%E3%83%A2',
@@ -264,7 +264,7 @@ SELECT
   '["business-ai","productivity","automation"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 3
 FROM vault_series vs WHERE vs.slug = 'ai-tools-japanese-business'
 ON CONFLICT (slug) DO NOTHING;
@@ -281,10 +281,10 @@ INSERT INTO content_items (
 SELECT
   'zapier-automation-japanese-business',
   'Workflow Automation for Japanese Business with Zapier',
-  'Zapierで業務自動化：実践ガイド',
+  'Zapierã§æ¥­å‹™è‡ªå‹•åŒ–ï¼šå®Ÿè·µã‚¬ã‚¤ãƒ‰',
   'A practical video guide to automating repetitive Japanese business workflows with Zapier AI Actions. Covers email routing, report generation, and Slack notifications.',
-  'ZapierのAIアクションを使って繰り返し業務を自動化する実践動画。メールルーティング、レポート生成、Slack通知のウォークスルーを収録。',
-  'video_youtube', 'youtube',
+  'Zapierã®AIã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’ä½¿ã£ã¦ç¹°ã‚Šè¿”ã—æ¥­å‹™ã‚’è‡ªå‹•åŒ–ã™ã‚‹å®Ÿè·µå‹•ç”»ã€‚ãƒ¡ãƒ¼ãƒ«ãƒ«ãƒ¼ãƒ†ã‚£ãƒ³ã‚°ã€ãƒ¬ãƒãƒ¼ãƒˆç”Ÿæˆã€Slacké€šçŸ¥ã®ã‚¦ã‚©ãƒ¼ã‚¯ã‚¹ãƒ«ãƒ¼ã‚’åŽéŒ²ã€‚',
+  'video', 'youtube',
   'https://www.youtube.com/watch?v=placeholder',
   'https://www.youtube.com/embed/placeholder',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Zapier%E6%A5%AD%E5%8B%99%E8%87%AA%E5%8B%95%E5%8C%96',
@@ -293,7 +293,7 @@ SELECT
   '["automation","zapier","business-ai","productivity"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content',
+  'SEED DATA â€” replace with real content',
   vs.id, 4
 FROM vault_series vs WHERE vs.slug = 'ai-tools-japanese-business'
 ON CONFLICT (slug) DO NOTHING;
@@ -313,10 +313,10 @@ INSERT INTO content_items (
 (
   'chatgpt-claude-gemini-comparison',
   'ChatGPT vs Claude vs Gemini: Which AI Tool Is Right for You?',
-  'ChatGPT vs Claude vs Gemini：どれを選ぶ？',
-  'A clear-headed comparison of the three leading AI assistants — capabilities, pricing, use cases, and which one to reach for in different situations.',
-  '三大AIアシスタントを冷静に比較。機能、価格、ユースケース、使い分けのポイントを解説します。',
-  'video_youtube', 'youtube',
+  'ChatGPT vs Claude vs Geminiï¼šã©ã‚Œã‚’é¸ã¶ï¼Ÿ',
+  'A clear-headed comparison of the three leading AI assistants â€” capabilities, pricing, use cases, and which one to reach for in different situations.',
+  'ä¸‰å¤§AIã‚¢ã‚·ã‚¹ã‚¿ãƒ³ãƒˆã‚’å†·é™ã«æ¯”è¼ƒã€‚æ©Ÿèƒ½ã€ä¾¡æ ¼ã€ãƒ¦ãƒ¼ã‚¹ã‚±ãƒ¼ã‚¹ã€ä½¿ã„åˆ†ã‘ã®ãƒã‚¤ãƒ³ãƒˆã‚’è§£èª¬ã—ã¾ã™ã€‚',
+  'video', 'youtube',
   'https://www.youtube.com/watch?v=placeholder',
   'https://www.youtube.com/embed/placeholder',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=ChatGPT+vs+Claude+vs+Gemini',
@@ -325,15 +325,15 @@ INSERT INTO content_items (
   '["ai-fundamentals","chatgpt","claude","gemini"]',
   'premium',
   true, true, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'perplexity-deep-research',
   'Using Perplexity AI for Deep Research',
-  'PerplexityでAI深掘りリサーチ',
-  'How to use Perplexity AI to run comprehensive research on any topic — from sourcing to synthesis to citation. Ideal for consultants, writers, and analysts.',
-  'PerplexityのAIを使ってあらゆるトピックを深く調査する方法。ソース収集から統合、引用まで。コンサルタント、ライター、アナリストに最適。',
-  'video_youtube', 'youtube',
+  'Perplexityã§AIæ·±æŽ˜ã‚Šãƒªã‚µãƒ¼ãƒ',
+  'How to use Perplexity AI to run comprehensive research on any topic â€” from sourcing to synthesis to citation. Ideal for consultants, writers, and analysts.',
+  'Perplexityã®AIã‚’ä½¿ã£ã¦ã‚ã‚‰ã‚†ã‚‹ãƒˆãƒ”ãƒƒã‚¯ã‚’æ·±ãèª¿æŸ»ã™ã‚‹æ–¹æ³•ã€‚ã‚½ãƒ¼ã‚¹åŽé›†ã‹ã‚‰çµ±åˆã€å¼•ç”¨ã¾ã§ã€‚ã‚³ãƒ³ã‚µãƒ«ã‚¿ãƒ³ãƒˆã€ãƒ©ã‚¤ã‚¿ãƒ¼ã€ã‚¢ãƒŠãƒªã‚¹ãƒˆã«æœ€é©ã€‚',
+  'video', 'youtube',
   'https://www.youtube.com/watch?v=placeholder',
   'https://www.youtube.com/embed/placeholder',
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Perplexity+Deep+Research',
@@ -342,17 +342,17 @@ INSERT INTO content_items (
   '["research","perplexity"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 
 -- video_custom (2 items)
 (
   'ai-ethics-every-professional',
   'AI Ethics: What Every Professional Should Know',
-  'AIの倫理：プロが知っておくべきこと',
-  'An honest, practical look at AI ethics — bias, hallucination, privacy, and accountability. Includes a framework for making responsible AI decisions at work.',
-  'AIの倫理を正直かつ実践的に解説。バイアス、ハルシネーション、プライバシー、説明責任を扱い、職場での責任あるAI利用フレームワークも紹介。',
-  'video_custom', 'honuvibe',
+  'AIã®å€«ç†ï¼šãƒ—ãƒ­ãŒçŸ¥ã£ã¦ãŠãã¹ãã“ã¨',
+  'An honest, practical look at AI ethics â€” bias, hallucination, privacy, and accountability. Includes a framework for making responsible AI decisions at work.',
+  'AIã®å€«ç†ã‚’æ­£ç›´ã‹ã¤å®Ÿè·µçš„ã«è§£èª¬ã€‚ãƒã‚¤ã‚¢ã‚¹ã€ãƒãƒ«ã‚·ãƒãƒ¼ã‚·ãƒ§ãƒ³ã€ãƒ—ãƒ©ã‚¤ãƒã‚·ãƒ¼ã€èª¬æ˜Žè²¬ä»»ã‚’æ‰±ã„ã€è·å ´ã§ã®è²¬ä»»ã‚ã‚‹AIåˆ©ç”¨ãƒ•ãƒ¬ãƒ¼ãƒ ãƒ¯ãƒ¼ã‚¯ã‚‚ç´¹ä»‹ã€‚',
+  'video', 'honuvibe',
   'https://honuvibe.ai/vault/videos/ai-ethics-every-professional',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=AI+Ethics',
@@ -361,15 +361,15 @@ INSERT INTO content_items (
   '["ethics","ai-fundamentals"]',
   'free',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'building-personal-ai-workflow',
   'Building a Personal AI Workflow',
-  'パーソナルAIワークフローの構築',
+  'ãƒ‘ãƒ¼ã‚½ãƒŠãƒ«AIãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼ã®æ§‹ç¯‰',
   'Design an AI workflow that actually sticks. Covers tool selection, habit integration, and how to layer multiple AI tools for maximum output with minimum friction.',
-  '実際に続くAIワークフローの設計。ツール選定、習慣への統合、複数のAIツールを組み合わせて最大の成果を最小の摩擦で実現する方法を解説。',
-  'video_custom', 'honuvibe',
+  'å®Ÿéš›ã«ç¶šãAIãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼ã®è¨­è¨ˆã€‚ãƒ„ãƒ¼ãƒ«é¸å®šã€ç¿’æ…£ã¸ã®çµ±åˆã€è¤‡æ•°ã®AIãƒ„ãƒ¼ãƒ«ã‚’çµ„ã¿åˆã‚ã›ã¦æœ€å¤§ã®æˆæžœã‚’æœ€å°ã®æ‘©æ“¦ã§å®Ÿç¾ã™ã‚‹æ–¹æ³•ã‚’è§£èª¬ã€‚',
+  'video', 'honuvibe',
   'https://honuvibe.ai/vault/videos/building-personal-ai-workflow',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Personal+AI+Workflow',
@@ -378,16 +378,16 @@ INSERT INTO content_items (
   '["productivity","automation","chatgpt","claude"]',
   'premium',
   true, true, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 
 -- article (3 items)
 (
   'prompt-engineering-mindset',
   'The Prompt Engineering Mindset',
-  'プロンプトエンジニアリングのマインドセット',
-  'Prompting is not about magic words — it is about clear thinking. This article breaks down the mental model behind effective prompting that nobody else is teaching.',
-  'プロンプトは魔法の言葉ではなく、明確な思考の産物です。効果的なプロンプトの背後にあるメンタルモデルを解説します。',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¨ãƒ³ã‚¸ãƒ‹ã‚¢ãƒªãƒ³ã‚°ã®ãƒžã‚¤ãƒ³ãƒ‰ã‚»ãƒƒãƒˆ',
+  'Prompting is not about magic words â€” it is about clear thinking. This article breaks down the mental model behind effective prompting that nobody else is teaching.',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã¯é­”æ³•ã®è¨€è‘‰ã§ã¯ãªãã€æ˜Žç¢ºãªæ€è€ƒã®ç”£ç‰©ã§ã™ã€‚åŠ¹æžœçš„ãªãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã®èƒŒå¾Œã«ã‚ã‚‹ãƒ¡ãƒ³ã‚¿ãƒ«ãƒ¢ãƒ‡ãƒ«ã‚’è§£èª¬ã—ã¾ã™ã€‚',
   'article', 'honuvibe',
   'https://honuvibe.ai/vault/articles/prompt-engineering-mindset',
   NULL,
@@ -397,14 +397,14 @@ INSERT INTO content_items (
   '["prompt-engineering","ai-fundamentals"]',
   'free',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'ai-japanese-workplace-trends-2026',
   'AI in the Japanese Workplace: Trends for 2026',
-  '日本の職場におけるAI：2026年のトレンド',
-  'An analysis of how AI is being adopted across Japanese industries in 2026 — sector breakdowns, real adoption blockers, and what comes next.',
-  '2026年、日本の職場でAIがどのように使われているかを業種別に分析。導入の課題と今後の展望をデータとともに紹介。',
+  'æ—¥æœ¬ã®è·å ´ã«ãŠã‘ã‚‹AIï¼š2026å¹´ã®ãƒˆãƒ¬ãƒ³ãƒ‰',
+  'An analysis of how AI is being adopted across Japanese industries in 2026 â€” sector breakdowns, real adoption blockers, and what comes next.',
+  '2026å¹´ã€æ—¥æœ¬ã®è·å ´ã§AIãŒã©ã®ã‚ˆã†ã«ä½¿ã‚ã‚Œã¦ã„ã‚‹ã‹ã‚’æ¥­ç¨®åˆ¥ã«åˆ†æžã€‚å°Žå…¥ã®èª²é¡Œã¨ä»Šå¾Œã®å±•æœ›ã‚’ãƒ‡ãƒ¼ã‚¿ã¨ã¨ã‚‚ã«ç´¹ä»‹ã€‚',
   'article', 'honuvibe',
   'https://honuvibe.ai/vault/articles/ai-japanese-workplace-trends-2026',
   NULL,
@@ -414,14 +414,14 @@ INSERT INTO content_items (
   '["business-ai","career"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'ai-content-creation-social-media',
   'AI Content Creation for Social Media',
-  'SNSのためのAIコンテンツ制作',
+  'SNSã®ãŸã‚ã®AIã‚³ãƒ³ãƒ†ãƒ³ãƒ„åˆ¶ä½œ',
   'How to use AI to plan, draft, and repurpose social media content across platforms. Includes specific prompt templates for LinkedIn, X, and Instagram.',
-  'AIを使ってSNSコンテンツを計画・下書き・リパーパスする方法。LinkedIn、X、Instagram向けのプロンプトテンプレートを収録。',
+  'AIã‚’ä½¿ã£ã¦SNSã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã‚’è¨ˆç”»ãƒ»ä¸‹æ›¸ããƒ»ãƒªãƒ‘ãƒ¼ãƒ‘ã‚¹ã™ã‚‹æ–¹æ³•ã€‚LinkedInã€Xã€Instagramå‘ã‘ã®ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚’åŽéŒ²ã€‚',
   'article', 'honuvibe',
   'https://honuvibe.ai/vault/articles/ai-content-creation-social-media',
   NULL,
@@ -431,17 +431,17 @@ INSERT INTO content_items (
   '["content-creation","chatgpt","productivity"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 
 -- guide (2 items)
 (
   'notebooklm-research-guide',
   'Getting Started with NotebookLM for Research',
-  'リサーチのためのNotebookLM入門',
+  'ãƒªã‚µãƒ¼ãƒã®ãŸã‚ã®NotebookLMå…¥é–€',
   'A step-by-step guide to using NotebookLM for deep research projects. Upload sources, generate summaries, ask questions, and build a research knowledge base.',
-  'リサーチプロジェクトへのNotebookLM活用ガイド。ソースのアップロード、要約生成、Q&A、ナレッジベース構築方法を解説。',
-  'guide', 'honuvibe',
+  'ãƒªã‚µãƒ¼ãƒãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã¸ã®NotebookLMæ´»ç”¨ã‚¬ã‚¤ãƒ‰ã€‚ã‚½ãƒ¼ã‚¹ã®ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã€è¦ç´„ç”Ÿæˆã€Q&Aã€ãƒŠãƒ¬ãƒƒã‚¸ãƒ™ãƒ¼ã‚¹æ§‹ç¯‰æ–¹æ³•ã‚’è§£èª¬ã€‚',
+  'article', 'honuvibe',
   'https://honuvibe.ai/vault/guides/notebooklm-research-guide',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=NotebookLM+Research',
@@ -450,15 +450,15 @@ INSERT INTO content_items (
   '["research","notebooklm","ai-fundamentals"]',
   'free',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'automate-content-calendar-ai',
   'Automating Your Content Calendar with AI',
-  'AIでコンテンツカレンダーを自動化する',
+  'AIã§ã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã‚«ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚’è‡ªå‹•åŒ–ã™ã‚‹',
   'An advanced guide to building a fully automated content calendar using AI and Zapier. Covers ideation, drafting, scheduling, and performance review loops.',
-  'AIとZapierを使って完全自動化されたコンテンツカレンダーを構築する上級ガイド。アイデア出し、下書き、スケジューリング、パフォーマンスレビューを網羅。',
-  'guide', 'honuvibe',
+  'AIã¨Zapierã‚’ä½¿ã£ã¦å®Œå…¨è‡ªå‹•åŒ–ã•ã‚ŒãŸã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã‚«ãƒ¬ãƒ³ãƒ€ãƒ¼ã‚’æ§‹ç¯‰ã™ã‚‹ä¸Šç´šã‚¬ã‚¤ãƒ‰ã€‚ã‚¢ã‚¤ãƒ‡ã‚¢å‡ºã—ã€ä¸‹æ›¸ãã€ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒªãƒ³ã‚°ã€ãƒ‘ãƒ•ã‚©ãƒ¼ãƒžãƒ³ã‚¹ãƒ¬ãƒ“ãƒ¥ãƒ¼ã‚’ç¶²ç¾…ã€‚',
+  'article', 'honuvibe',
   'https://honuvibe.ai/vault/guides/automate-content-calendar-ai',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Content+Calendar+Automation',
@@ -467,16 +467,16 @@ INSERT INTO content_items (
   '["content-creation","automation","zapier","productivity"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 
 -- template (2 items)
 (
   'ai-project-brief-template',
   'AI Project Brief Template',
-  'AIプロジェクトブリーフテンプレート',
-  'A structured template for scoping any AI project — from client briefing to output definition. Downloadable in PDF and DOCX. Works for solo projects and teams.',
-  'クライアントブリーフから成果物定義まで、あらゆるAIプロジェクトをスコープするための構造化テンプレート。PDFとDOCXでダウンロード可能。',
+  'AIãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆãƒ–ãƒªãƒ¼ãƒ•ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆ',
+  'A structured template for scoping any AI project â€” from client briefing to output definition. Downloadable in PDF and DOCX. Works for solo projects and teams.',
+  'ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãƒ–ãƒªãƒ¼ãƒ•ã‹ã‚‰æˆæžœç‰©å®šç¾©ã¾ã§ã€ã‚ã‚‰ã‚†ã‚‹AIãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆã‚’ã‚¹ã‚³ãƒ¼ãƒ—ã™ã‚‹ãŸã‚ã®æ§‹é€ åŒ–ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã€‚PDFã¨DOCXã§ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰å¯èƒ½ã€‚',
   'template', 'honuvibe',
   'https://honuvibe.ai/vault/templates/ai-project-brief-template',
   NULL,
@@ -486,14 +486,14 @@ INSERT INTO content_items (
   '["productivity","business-ai"]',
   'free',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'weekly-ai-experiment-log',
   'Weekly AI Experiment Log',
-  '週次AIエクスペリメントログ',
+  'é€±æ¬¡AIã‚¨ã‚¯ã‚¹ãƒšãƒªãƒ¡ãƒ³ãƒˆãƒ­ã‚°',
   'Track your AI experiments systematically with this weekly log template. Record prompts, outputs, ratings, and insights to build a personal AI learning library over time.',
-  'このウィークリーログテンプレートでAI実験を体系的に記録。プロンプト、出力、評価、洞察を蓄積して個人のAI学習ライブラリを構築しましょう。',
+  'ã“ã®ã‚¦ã‚£ãƒ¼ã‚¯ãƒªãƒ¼ãƒ­ã‚°ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã§AIå®Ÿé¨“ã‚’ä½“ç³»çš„ã«è¨˜éŒ²ã€‚ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã€å‡ºåŠ›ã€è©•ä¾¡ã€æ´žå¯Ÿã‚’è“„ç©ã—ã¦å€‹äººã®AIå­¦ç¿’ãƒ©ã‚¤ãƒ–ãƒ©ãƒªã‚’æ§‹ç¯‰ã—ã¾ã—ã‚‡ã†ã€‚',
   'template', 'honuvibe',
   'https://honuvibe.ai/vault/templates/weekly-ai-experiment-log',
   NULL,
@@ -503,16 +503,16 @@ INSERT INTO content_items (
   '["productivity","prompt-engineering"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 
 -- tool (4 items)
 (
   'claude-ai-complete-overview',
-  'Claude.ai — Complete Overview',
-  'Claude.ai 完全ガイド',
-  'Everything you need to know to get started with Claude.ai — interface walkthrough, key features, strengths vs ChatGPT, and the best use cases to start with.',
-  'Claude.aiを始めるために必要なすべてを網羅。インターフェースの使い方、主要機能、ChatGPTとの比較、おすすめの活用方法を解説。',
+  'Claude.ai â€” Complete Overview',
+  'Claude.ai å®Œå…¨ã‚¬ã‚¤ãƒ‰',
+  'Everything you need to know to get started with Claude.ai â€” interface walkthrough, key features, strengths vs ChatGPT, and the best use cases to start with.',
+  'Claude.aiã‚’å§‹ã‚ã‚‹ãŸã‚ã«å¿…è¦ãªã™ã¹ã¦ã‚’ç¶²ç¾…ã€‚ã‚¤ãƒ³ã‚¿ãƒ¼ãƒ•ã‚§ãƒ¼ã‚¹ã®ä½¿ã„æ–¹ã€ä¸»è¦æ©Ÿèƒ½ã€ChatGPTã¨ã®æ¯”è¼ƒã€ãŠã™ã™ã‚ã®æ´»ç”¨æ–¹æ³•ã‚’è§£èª¬ã€‚',
   'tool', 'honuvibe',
   'https://claude.ai',
   NULL,
@@ -522,14 +522,14 @@ INSERT INTO content_items (
   '["ai-fundamentals","claude"]',
   'free',
   true, true, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'cursor-ai-code-editor-guide',
   'Cursor: AI Code Editor Guide',
-  'Cursor：AIコードエディターガイド',
+  'Cursorï¼šAIã‚³ãƒ¼ãƒ‰ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼ã‚¬ã‚¤ãƒ‰',
   'A practical guide to Cursor, the AI-native code editor. Covers setup, Tab completion, Chat, Composer, and how to use it for non-developers automating workflows.',
-  'AIネイティブコードエディターCursorの実践ガイド。セットアップ、Tabコンプリーション、チャット、Composerの使い方と、業務自動化への活用法を解説。',
+  'AIãƒã‚¤ãƒ†ã‚£ãƒ–ã‚³ãƒ¼ãƒ‰ã‚¨ãƒ‡ã‚£ã‚¿ãƒ¼Cursorã®å®Ÿè·µã‚¬ã‚¤ãƒ‰ã€‚ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã€Tabã‚³ãƒ³ãƒ—ãƒªãƒ¼ã‚·ãƒ§ãƒ³ã€ãƒãƒ£ãƒƒãƒˆã€Composerã®ä½¿ã„æ–¹ã¨ã€æ¥­å‹™è‡ªå‹•åŒ–ã¸ã®æ´»ç”¨æ³•ã‚’è§£èª¬ã€‚',
   'tool', 'external',
   'https://cursor.com',
   NULL,
@@ -539,14 +539,14 @@ INSERT INTO content_items (
   '["ai-fundamentals","cursor","automation"]',
   'free',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'zapier-ai-actions-overview',
   'Zapier AI Actions Overview',
-  'Zapier AIアクション概要',
+  'Zapier AIã‚¢ã‚¯ã‚·ãƒ§ãƒ³æ¦‚è¦',
   'How to use Zapier AI Actions to connect your favorite apps and automate tasks with natural language. Includes practical automation recipes for business workflows.',
-  'Zapier AIアクションを使ってアプリ連携をテキスト指示だけで自動化する方法。ビジネスワークフローの自動化レシピも収録。',
+  'Zapier AIã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚’ä½¿ã£ã¦ã‚¢ãƒ—ãƒªé€£æºã‚’ãƒ†ã‚­ã‚¹ãƒˆæŒ‡ç¤ºã ã‘ã§è‡ªå‹•åŒ–ã™ã‚‹æ–¹æ³•ã€‚ãƒ“ã‚¸ãƒã‚¹ãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼ã®è‡ªå‹•åŒ–ãƒ¬ã‚·ãƒ”ã‚‚åŽéŒ²ã€‚',
   'tool', 'external',
   'https://zapier.com/ai',
   NULL,
@@ -556,14 +556,14 @@ INSERT INTO content_items (
   '["automation","zapier","productivity"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'notebooklm-deep-dive',
   'NotebookLM Deep Dive',
-  'NotebookLM 徹底解説',
+  'NotebookLM å¾¹åº•è§£èª¬',
   'An advanced exploration of NotebookLM: audio overviews, multi-source synthesis, citation accuracy, and how to build a serious research workflow on top of it.',
-  'NotebookLMの高度な活用法を徹底解説。音声概要、マルチソース統合、引用精度、そして本格的なリサーチワークフローの構築方法。',
+  'NotebookLMã®é«˜åº¦ãªæ´»ç”¨æ³•ã‚’å¾¹åº•è§£èª¬ã€‚éŸ³å£°æ¦‚è¦ã€ãƒžãƒ«ãƒã‚½ãƒ¼ã‚¹çµ±åˆã€å¼•ç”¨ç²¾åº¦ã€ãã—ã¦æœ¬æ ¼çš„ãªãƒªã‚µãƒ¼ãƒãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼ã®æ§‹ç¯‰æ–¹æ³•ã€‚',
   'tool', 'external',
   'https://notebooklm.google.com',
   NULL,
@@ -573,17 +573,17 @@ INSERT INTO content_items (
   '["research","notebooklm"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 
 -- course_recording (4 items, all premium)
 (
   'cohort1-session-prompt-fundamentals',
   'Cohort 1 Session: Prompt Fundamentals',
-  'コホート1セッション：プロンプト基礎',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ1ã‚»ãƒƒã‚·ãƒ§ãƒ³ï¼šãƒ—ãƒ­ãƒ³ãƒ—ãƒˆåŸºç¤Ž',
   'The recorded session from HonuVibe Cohort 1 covering prompt fundamentals. Includes live Q&A, student examples, and instructor walkthroughs of real-world use cases.',
-  'HonuVibeコホート1のプロンプト基礎セッション録画。ライブQ&A、受講生の実例、リアルユースケースのウォークスルーを収録。',
-  'course_recording', 'honuvibe',
+  'HonuVibeã‚³ãƒ›ãƒ¼ãƒˆ1ã®ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆåŸºç¤Žã‚»ãƒƒã‚·ãƒ§ãƒ³éŒ²ç”»ã€‚ãƒ©ã‚¤ãƒ–Q&Aã€å—è¬›ç”Ÿã®å®Ÿä¾‹ã€ãƒªã‚¢ãƒ«ãƒ¦ãƒ¼ã‚¹ã‚±ãƒ¼ã‚¹ã®ã‚¦ã‚©ãƒ¼ã‚¯ã‚¹ãƒ«ãƒ¼ã‚’åŽéŒ²ã€‚',
+  'workshop', 'honuvibe',
   'https://honuvibe.ai/vault/recordings/cohort1-session-prompt-fundamentals',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Cohort+1%3A+Prompt+Fundamentals',
@@ -592,15 +592,15 @@ INSERT INTO content_items (
   '["prompt-engineering","ai-fundamentals"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'cohort1-session-ai-workflows',
   'Cohort 1 Session: Building AI Workflows',
-  'コホート1セッション：AIワークフロー構築',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ1ã‚»ãƒƒã‚·ãƒ§ãƒ³ï¼šAIãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼æ§‹ç¯‰',
   'Recorded session from Cohort 1 on designing and deploying personal AI workflows. Covers tool stacking, trigger design, and live automation builds with Zapier.',
-  'コホート1のAIワークフロー設計・実装セッション録画。ツール連携、トリガー設計、Zapierを使ったライブ自動化構築を収録。',
-  'course_recording', 'honuvibe',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ1ã®AIãƒ¯ãƒ¼ã‚¯ãƒ•ãƒ­ãƒ¼è¨­è¨ˆãƒ»å®Ÿè£…ã‚»ãƒƒã‚·ãƒ§ãƒ³éŒ²ç”»ã€‚ãƒ„ãƒ¼ãƒ«é€£æºã€ãƒˆãƒªã‚¬ãƒ¼è¨­è¨ˆã€Zapierã‚’ä½¿ã£ãŸãƒ©ã‚¤ãƒ–è‡ªå‹•åŒ–æ§‹ç¯‰ã‚’åŽéŒ²ã€‚',
+  'workshop', 'honuvibe',
   'https://honuvibe.ai/vault/recordings/cohort1-session-ai-workflows',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Cohort+1%3A+AI+Workflows',
@@ -609,15 +609,15 @@ INSERT INTO content_items (
   '["automation","productivity","zapier"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'cohort2-session-ai-content-creators',
   'Cohort 2 Session: AI for Content Creators',
-  'コホート2セッション：コンテンツクリエイターのためのAI',
-  'Cohort 2 session on using AI across the full content creation lifecycle — ideation, scripting, editing, repurposing, and distribution strategy.',
-  'コホート2のコンテンツ制作ライフサイクル全体にわたるAI活用セッション録画。アイデア出し、スクリプト、編集、リパーパス、配信戦略を網羅。',
-  'course_recording', 'honuvibe',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ2ã‚»ãƒƒã‚·ãƒ§ãƒ³ï¼šã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã‚¯ãƒªã‚¨ã‚¤ã‚¿ãƒ¼ã®ãŸã‚ã®AI',
+  'Cohort 2 session on using AI across the full content creation lifecycle â€” ideation, scripting, editing, repurposing, and distribution strategy.',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ2ã®ã‚³ãƒ³ãƒ†ãƒ³ãƒ„åˆ¶ä½œãƒ©ã‚¤ãƒ•ã‚µã‚¤ã‚¯ãƒ«å…¨ä½“ã«ã‚ãŸã‚‹AIæ´»ç”¨ã‚»ãƒƒã‚·ãƒ§ãƒ³éŒ²ç”»ã€‚ã‚¢ã‚¤ãƒ‡ã‚¢å‡ºã—ã€ã‚¹ã‚¯ãƒªãƒ—ãƒˆã€ç·¨é›†ã€ãƒªãƒ‘ãƒ¼ãƒ‘ã‚¹ã€é…ä¿¡æˆ¦ç•¥ã‚’ç¶²ç¾…ã€‚',
+  'workshop', 'honuvibe',
   'https://honuvibe.ai/vault/recordings/cohort2-session-ai-content-creators',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Cohort+2%3A+Content+Creators',
@@ -626,15 +626,15 @@ INSERT INTO content_items (
   '["content-creation","chatgpt","productivity"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 ),
 (
   'cohort2-session-advanced-claude',
   'Cohort 2 Session: Advanced Claude Techniques',
-  'コホート2セッション：Claude上級テクニック',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ2ã‚»ãƒƒã‚·ãƒ§ãƒ³ï¼šClaudeä¸Šç´šãƒ†ã‚¯ãƒ‹ãƒƒã‚¯',
   'The deep-dive Claude session from Cohort 2. Covers Projects, long-context management, artifacts, vision capabilities, and custom instruction design.',
-  'コホート2のClaude上級テクニックセッション録画。Projects、長文コンテキスト管理、アーティファクト、ビジョン機能、カスタム指示設計を徹底解説。',
-  'course_recording', 'honuvibe',
+  'ã‚³ãƒ›ãƒ¼ãƒˆ2ã®Claudeä¸Šç´šãƒ†ã‚¯ãƒ‹ãƒƒã‚¯ã‚»ãƒƒã‚·ãƒ§ãƒ³éŒ²ç”»ã€‚Projectsã€é•·æ–‡ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆç®¡ç†ã€ã‚¢ãƒ¼ãƒ†ã‚£ãƒ•ã‚¡ã‚¯ãƒˆã€ãƒ“ã‚¸ãƒ§ãƒ³æ©Ÿèƒ½ã€ã‚«ã‚¹ã‚¿ãƒ æŒ‡ç¤ºè¨­è¨ˆã‚’å¾¹åº•è§£èª¬ã€‚',
+  'workshop', 'honuvibe',
   'https://honuvibe.ai/vault/recordings/cohort2-session-advanced-claude',
   NULL,
   'https://placehold.co/800x450/1a1f2e/94a3b8?text=Cohort+2%3A+Advanced+Claude',
@@ -643,7 +643,7 @@ INSERT INTO content_items (
   '["claude","prompt-engineering","ai-fundamentals"]',
   'premium',
   true, false, 'current',
-  'SEED DATA — replace with real content'
+  'SEED DATA â€” replace with real content'
 )
 ON CONFLICT (slug) DO NOTHING;
 
@@ -651,7 +651,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- 6. VAULT DOWNLOADS
 -- ============================================================
 
--- Prompt Starter Kit — PDF
+-- Prompt Starter Kit â€” PDF
 INSERT INTO vault_downloads (
   content_item_id, file_name, file_url,
   file_size_bytes, file_type,
@@ -663,8 +663,8 @@ SELECT
   'Prompt Starter Kit.pdf',
   'https://honuvibe.ai/vault/downloads/prompt-starter-kit.pdf',
   245760, 'pdf',
-  'PDF version of the Prompt Starter Kit — 20 prompt templates ready to copy and paste.',
-  'プロンプトスターターキットのPDF版。コピー&ペーストで使える20のプロンプトテンプレート。',
+  'PDF version of the Prompt Starter Kit â€” 20 prompt templates ready to copy and paste.',
+  'ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¹ã‚¿ãƒ¼ã‚¿ãƒ¼ã‚­ãƒƒãƒˆã®PDFç‰ˆã€‚ã‚³ãƒ”ãƒ¼&ãƒšãƒ¼ã‚¹ãƒˆã§ä½¿ãˆã‚‹20ã®ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã€‚',
   'premium', 1
 FROM content_items ci
 WHERE ci.slug = 'prompt-starter-kit'
@@ -674,7 +674,7 @@ AND NOT EXISTS (
   AND vd.file_name = 'Prompt Starter Kit.pdf'
 );
 
--- Prompt Starter Kit — XLSX
+-- Prompt Starter Kit â€” XLSX
 INSERT INTO vault_downloads (
   content_item_id, file_name, file_url,
   file_size_bytes, file_type,
@@ -687,7 +687,7 @@ SELECT
   'https://honuvibe.ai/vault/downloads/prompt-starter-kit.xlsx',
   51200, 'xlsx',
   'Editable Excel/Sheets version of the Prompt Starter Kit with sortable columns and rating fields.',
-  '並び替え可能な列と評価フィールド付きの編集可能なExcel/Sheets版プロンプトスターターキット。',
+  'ä¸¦ã³æ›¿ãˆå¯èƒ½ãªåˆ—ã¨è©•ä¾¡ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ä»˜ãã®ç·¨é›†å¯èƒ½ãªExcel/Sheetsç‰ˆãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚¹ã‚¿ãƒ¼ã‚¿ãƒ¼ã‚­ãƒƒãƒˆã€‚',
   'premium', 2
 FROM content_items ci
 WHERE ci.slug = 'prompt-starter-kit'
@@ -697,7 +697,7 @@ AND NOT EXISTS (
   AND vd.file_name = 'Prompt Starter Kit.xlsx'
 );
 
--- AI Meeting Notes Template — DOCX
+-- AI Meeting Notes Template â€” DOCX
 INSERT INTO vault_downloads (
   content_item_id, file_name, file_url,
   file_size_bytes, file_type,
@@ -710,7 +710,7 @@ SELECT
   'https://honuvibe.ai/vault/downloads/ai-meeting-notes-template-japanese.docx',
   38912, 'docx',
   'Word/Docs version of the Japanese AI Meeting Notes Template. Fully editable.',
-  'AI会議メモテンプレートのWord/Docs版。自由に編集できます。',
+  'AIä¼šè­°ãƒ¡ãƒ¢ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã®Word/Docsç‰ˆã€‚è‡ªç”±ã«ç·¨é›†ã§ãã¾ã™ã€‚',
   'premium', 1
 FROM content_items ci
 WHERE ci.slug = 'ai-meeting-notes-template-japanese'
@@ -721,3 +721,5 @@ AND NOT EXISTS (
 );
 
 COMMIT;
+
+

@@ -45,13 +45,12 @@ type AdminVaultDetailProps = {
 };
 
 const CONTENT_TYPES: VaultContentType[] = [
-  'video_custom',
-  'video_youtube',
+  'video',
+  'workshop',
   'article',
-  'tool',
   'template',
-  'guide',
-  'course_recording',
+  'tool',
+  'prompt_pack',
 ];
 
 const DIFFICULTIES: VaultDifficulty[] = ['beginner', 'intermediate', 'advanced'];
@@ -108,7 +107,7 @@ export function AdminVaultDetail({
   const [authorName, setAuthorName] = useState(item?.author_name ?? '');
   const [publishDate, setPublishDate] = useState(item?.publish_date ?? '');
   const [contentType, setContentType] = useState<VaultContentType>(
-    item?.content_type ?? 'video_youtube',
+    item?.content_type ?? 'video',
   );
   const [difficulty, setDifficulty] = useState<VaultDifficulty>(
     item?.difficulty_level ?? 'beginner',

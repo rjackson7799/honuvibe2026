@@ -2,21 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Library, Video, FileText, Wrench, LayoutTemplate, BookOpen, ExternalLink } from 'lucide-react';
+import { Library, Video, FileText, Wrench, LayoutTemplate, GraduationCap, Sparkles, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Overline } from '@/components/ui/overline';
 import type { ContentItemForStudent } from '@/lib/dashboard/types';
 
-type ContentFilter = 'all' | 'video' | 'article' | 'tool' | 'template' | 'guide';
+type ContentFilter = 'all' | 'video' | 'workshop' | 'article' | 'tool' | 'template' | 'prompt_pack';
 
 const typeIcons: Record<string, typeof Video> = {
-  video_custom: Video,
-  video_youtube: Video,
+  video: Video,
+  workshop: GraduationCap,
   article: FileText,
-  tool: Wrench,
   template: LayoutTemplate,
-  guide: BookOpen,
-  course_recording: Video,
+  tool: Wrench,
+  prompt_pack: Sparkles,
 };
 
 function ContentCard({ item, locale }: { item: ContentItemForStudent; locale: string }) {
@@ -25,15 +24,18 @@ function ContentCard({ item, locale }: { item: ContentItemForStudent; locale: st
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
   const Icon = typeIcons[item.content_type] ?? FileText;
 
-  const typeLabel = item.content_type.includes('video')
-    ? t('resources_filter_video')
-    : item.content_type === 'article'
-      ? t('resources_filter_article')
-      : item.content_type === 'tool'
-        ? t('resources_filter_tool')
-        : item.content_type === 'template'
-          ? t('resources_filter_template')
-          : t('resources_filter_guide');
+  const typeLabel =
+    item.content_type === 'video'
+      ? t('resources_filter_video')
+      : item.content_type === 'workshop'
+        ? t('resources_filter_workshop')
+        : item.content_type === 'article'
+          ? t('resources_filter_article')
+          : item.content_type === 'template'
+            ? t('resources_filter_template')
+            : item.content_type === 'tool'
+              ? t('resources_filter_tool')
+              : t('resources_filter_prompt_pack');
 
   return (
     <a
@@ -99,15 +101,15 @@ export default function ResourcesPage() {
   const filters: { key: ContentFilter; label: string }[] = [
     { key: 'all', label: t('resources_filter_all') },
     { key: 'video', label: t('resources_filter_video') },
+    { key: 'workshop', label: t('resources_filter_workshop') },
     { key: 'article', label: t('resources_filter_article') },
-    { key: 'tool', label: t('resources_filter_tool') },
     { key: 'template', label: t('resources_filter_template') },
-    { key: 'guide', label: t('resources_filter_guide') },
+    { key: 'tool', label: t('resources_filter_tool') },
+    { key: 'prompt_pack', label: t('resources_filter_prompt_pack') },
   ];
 
   const filteredItems = items.filter((item) => {
     if (activeFilter === 'all') return true;
-    if (activeFilter === 'video') return item.content_type.includes('video');
     return item.content_type === activeFilter;
   });
 

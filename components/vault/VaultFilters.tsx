@@ -31,12 +31,12 @@ export function VaultFilters({
   const [localSearch, setLocalSearch] = useState(search);
 
   const contentTypes: { key: VaultContentType; label: string }[] = [
-    { key: 'video_youtube', label: t('type_video') },
+    { key: 'video', label: t('type_video') },
+    { key: 'workshop', label: t('type_workshop') },
     { key: 'article', label: t('type_article') },
-    { key: 'guide', label: t('type_guide') },
     { key: 'template', label: t('type_template') },
     { key: 'tool', label: t('type_tool') },
-    { key: 'course_recording', label: t('type_recording') },
+    { key: 'prompt_pack', label: t('type_prompt_pack') },
   ];
 
   const difficulties: { key: VaultDifficulty; label: string }[] = [

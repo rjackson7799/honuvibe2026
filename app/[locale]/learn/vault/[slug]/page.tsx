@@ -5,6 +5,8 @@ import {
   getVaultItemBySlug,
   getVaultItemBySlugWithPartner,
   getVaultDownloads,
+  getVaultArticleBody,
+  getVaultPrompts,
   getVaultUserState,
   getVaultRelatedItems,
   getVaultDifficultyPath,
@@ -84,8 +86,10 @@ export default async function VaultDetailPage({ params }: Props) {
 
   // Fetch related data in parallel
   const primaryTag = item.tags && item.tags.length > 0 ? item.tags[0] : null;
-  const [downloads, userState, relatedItems, difficultyPath] = await Promise.all([
+  const [downloads, articleBody, prompts, userState, relatedItems, difficultyPath] = await Promise.all([
     getVaultDownloads(item.id),
+    item.content_type === 'article' ? getVaultArticleBody(item.id) : Promise.resolve(null),
+    item.content_type === 'prompt_pack' ? getVaultPrompts(item.id) : Promise.resolve([]),
     user ? getVaultUserState(user.id, item.id) : Promise.resolve(null),
     getVaultRelatedItems(item.id, item.related_item_ids, item.tags, 4, item.series_id, item.difficulty_level),
     primaryTag ? getVaultDifficultyPath(primaryTag) : Promise.resolve(null),
@@ -116,7 +120,9 @@ export default async function VaultDetailPage({ params }: Props) {
 
   const detail: VaultContentDetailType = {
     item,
+    articleBody,
     downloads,
+    prompts,
     relatedItems,
     series,
     seriesItems,

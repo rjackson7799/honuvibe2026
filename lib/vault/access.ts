@@ -93,3 +93,26 @@ export async function checkVaultAccess(userId: string): Promise<VaultAccessResul
     activeCourseName: null,
   };
 }
+
+/**
+ * Resolve the current user from the request and return whether they have
+ * Vault-tier access. Convenience wrapper around checkVaultAccess for callers
+ * that only need a boolean (API routes, server actions guarding premium
+ * payloads).
+ *
+ * Returns `{ hasAccess: false, userId: null }` for unauthenticated requests.
+ */
+export async function requireVaultAccess(): Promise<{
+  hasAccess: boolean;
+  userId: string | null;
+}> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { hasAccess: false, userId: null };
+  }
+
+  const result = await checkVaultAccess(user.id);
+  return { hasAccess: result.hasAccess, userId: user.id };
+}

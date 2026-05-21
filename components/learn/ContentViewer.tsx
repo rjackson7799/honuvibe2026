@@ -18,7 +18,7 @@ function extractYouTubeId(url: string): string | null {
 
 export function ContentViewer({ url, contentType, title }: ContentViewerProps) {
   // YouTube embed
-  if (contentType === 'video_youtube' || url.includes('youtube.com') || url.includes('youtu.be')) {
+  if (contentType === 'video' || contentType === 'workshop' || url.includes('youtube.com') || url.includes('youtu.be')) {
     const videoId = extractYouTubeId(url);
     if (videoId) {
       return (

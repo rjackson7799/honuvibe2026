@@ -1,13 +1,12 @@
 // Content Library types (Phase 2B — defined now for schema alignment)
 
 export type ContentType =
-  | 'video_custom'
-  | 'video_youtube'
+  | 'video'
+  | 'workshop'
   | 'article'
-  | 'tool'
   | 'template'
-  | 'guide'
-  | 'course_recording';
+  | 'tool'
+  | 'prompt_pack';
 
 export type ContentSource = 'honuvibe' | 'youtube' | 'external';
 export type ContentDifficulty = 'beginner' | 'intermediate' | 'advanced';

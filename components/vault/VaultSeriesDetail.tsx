@@ -1,18 +1,17 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Library, Clock, Layers, Lock, Video, FileText, BookOpen, Wrench, LayoutTemplate } from 'lucide-react';
+import { Library, Clock, Layers, Lock, Video, FileText, Wrench, LayoutTemplate, GraduationCap, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { VaultSeriesWithItems } from '@/lib/vault/types';
 
 const typeIcons: Record<string, typeof Video> = {
-  video_custom: Video,
-  video_youtube: Video,
+  video: Video,
+  workshop: GraduationCap,
   article: FileText,
-  tool: Wrench,
   template: LayoutTemplate,
-  guide: BookOpen,
-  course_recording: Video,
+  tool: Wrench,
+  prompt_pack: Sparkles,
 };
 
 const difficultyColors: Record<string, string> = {

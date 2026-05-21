@@ -26,13 +26,12 @@ type PathItemCardProps = {
 };
 
 const TYPE_ICONS: Record<string, typeof Video> = {
-  video_youtube: Video,
-  video_custom: Video,
+  video: Video,
+  workshop: Video,
   article: FileText,
   tool: Wrench,
-  guide: BookOpen,
   template: Download,
-  course_recording: Video,
+  prompt_pack: BookOpen,
 };
 
 function getContentTypeIcon(type: string | null) {

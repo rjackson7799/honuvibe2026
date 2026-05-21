@@ -6,6 +6,8 @@ import type {
   VaultBrowseFilters,
   VaultBrowseResult,
   VaultDownload,
+  VaultArticleBody,
+  VaultPrompt,
   VaultUserState,
   VaultFeedbackType,
   VaultSeries,
@@ -196,21 +198,18 @@ export async function getVaultRandomSample(
 
 /**
  * Total + per-content-type counts across all published Vault items.
- * Single grouped lookup; counts `video_custom + video_youtube` separately so
- * the consumer can merge them into a "Videos" bucket if desired.
  */
 export async function getVaultContentTypeCounts(): Promise<{
   total: number;
   byType: Record<VaultContentType, number>;
 }> {
   const emptyByType: Record<VaultContentType, number> = {
-    video_custom: 0,
-    video_youtube: 0,
+    video: 0,
+    workshop: 0,
     article: 0,
-    tool: 0,
     template: 0,
-    guide: 0,
-    course_recording: 0,
+    tool: 0,
+    prompt_pack: 0,
   };
 
   try {
@@ -323,8 +322,10 @@ export async function getVaultDownloads(
   try {
     const supabase = await createClient();
 
+    // Read from the browse view (omits file_url). Signed URLs are minted by
+    // POST /api/vault/downloads/[id] after access check.
     const { data, error } = await supabase
-      .from('vault_downloads')
+      .from('vault_downloads_browse')
       .select('*')
       .eq('content_item_id', contentItemId)
       .order('display_order', { ascending: true });
@@ -337,6 +338,63 @@ export async function getVaultDownloads(
     return (data as VaultDownload[]) ?? [];
   } catch (error) {
     console.error('getVaultDownloads error:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch the protected article body for a content item. RLS gates this by
+ * access_tier — premium bodies only return when the caller has Vault access.
+ */
+export async function getVaultArticleBody(
+  contentItemId: string,
+): Promise<VaultArticleBody | null> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from('vault_article_bodies')
+      .select('*')
+      .eq('content_item_id', contentItemId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('getVaultArticleBody error:', error);
+      return null;
+    }
+
+    return (data as VaultArticleBody | null) ?? null;
+  } catch (error) {
+    console.error('getVaultArticleBody error:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch prompts for a Prompt Pack item, ordered by display_order. RLS gates
+ * by access_tier — premium prompts only return when the caller has Vault
+ * access.
+ */
+export async function getVaultPrompts(
+  contentItemId: string,
+): Promise<VaultPrompt[]> {
+  try {
+    const supabase = await createClient();
+
+    const { data, error } = await supabase
+      .from('vault_prompts')
+      .select('*')
+      .eq('content_item_id', contentItemId)
+      .order('display_order', { ascending: true });
+
+    if (error) {
+      console.error('getVaultPrompts error:', error);
+      return [];
+    }
+
+    return (data as VaultPrompt[]) ?? [];
+  } catch (error) {
+    console.error('getVaultPrompts error:', error);
     return [];
   }
 }
