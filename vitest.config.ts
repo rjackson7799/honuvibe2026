@@ -3,25 +3,50 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./vitest.setup.ts'],
-    globals: true,
-    css: false,
-    // Default vitest excludes node_modules but not git worktrees. Tests inside
-    // .worktrees/* belong to a separate working copy with its own node_modules
-    // and would resolve different react/next-intl versions.
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '**/.worktrees/**',
-    ],
-  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
     },
+  },
+  test: {
+    projects: [
+      {
+        plugins: [react()],
+        resolve: {
+          alias: {
+            '@': path.resolve(__dirname, '.'),
+          },
+        },
+        test: {
+          name: 'app',
+          environment: 'jsdom',
+          setupFiles: ['./vitest.setup.ts'],
+          globals: true,
+          css: false,
+          include: ['**/*.{test,spec}.{ts,tsx}'],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/.worktrees/**',
+            'supabase/tests/**',
+          ],
+        },
+      },
+      {
+        resolve: {
+          alias: {
+            '@': path.resolve(__dirname, '.'),
+          },
+        },
+        test: {
+          name: 'rls',
+          environment: 'node',
+          globals: true,
+          include: ['supabase/tests/**/*.test.ts'],
+          exclude: ['**/node_modules/**', '**/.worktrees/**'],
+        },
+      },
+    ],
   },
 });
