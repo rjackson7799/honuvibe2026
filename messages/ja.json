@@ -1059,7 +1059,8 @@
     "hero_line_1": "AIを学ぶ。",
     "hero_line_2": "実践する。",
     "hero_line_3": "前へ進む。",
-    "hero_sub": "実務に取り組む人のための、クラフト志向のAIトレーニング・スタジオ。Claudeと最新のLLMスタックを軸に構成されています。"
+    "hero_sub": "実務に取り組む人のための、クラフト志向のAIトレーニング・スタジオ。最新のスタックとワークフローを軸に構成されています。",
+    "legal_acknowledgment": "続行することで、<terms>利用規約</terms>と<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。"
   },
   "welcome": {
     "set_password_title": "次回ログインを早くするためにパスワードを設定",
@@ -1543,10 +1544,12 @@
     "resources_coming_soon": "コンテンツライブラリは近日公開予定です。コース固有のリソースは各コース内でご利用いただけます。",
     "resources_filter_all": "すべて",
     "resources_filter_video": "動画",
+    "resources_filter_workshop": "ワークショップ",
     "resources_filter_article": "記事",
     "resources_filter_tool": "ツール",
     "resources_filter_template": "テンプレート",
     "resources_filter_guide": "ガイド",
+    "resources_filter_prompt_pack": "プロンプトパック",
     "resources_free": "無料",
     "resources_premium": "プレミアム",
     "community_heading": "あなたのコミュニティ",
@@ -2159,10 +2162,12 @@
     "keyboard_next": "シリーズの次へ",
     "keyboard_prev": "シリーズの前へ",
     "type_video": "動画",
+    "type_workshop": "ワークショップ",
     "type_article": "記事",
     "type_guide": "ガイド",
     "type_template": "テンプレート",
     "type_tool": "ツール",
+    "type_prompt_pack": "プロンプトパック",
     "type_recording": "録画",
     "items_found": "{count}件見つかりました",
     "no_results": "条件に合うコンテンツが見つかりませんでした。"
