@@ -33,6 +33,11 @@ describe('isSafeInternalRedirect', () => {
     expect(isSafeInternalRedirect('/')).toBe(false);
   });
 
+  it('rejects prefix-similarity matches without a separator', () => {
+    expect(isSafeInternalRedirect('/learnfoo')).toBe(false);
+    expect(isSafeInternalRedirect('/api/stripe/subscribexyz')).toBe(false);
+  });
+
   it('rejects empty, null, undefined', () => {
     expect(isSafeInternalRedirect(null)).toBe(false);
     expect(isSafeInternalRedirect(undefined)).toBe(false);
