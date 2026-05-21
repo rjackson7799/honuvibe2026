@@ -1982,6 +1982,7 @@
     "vault_included": "{courseName}に含まれています",
     "vault_pitch": "プレミアム動画、ウォークスルー、ビルドアロングに無制限アクセス。",
     "subscribe_vault": "The Vaultに登録する",
+    "subscribe_community": "コミュニティに登録",
     "manage_subscription": "サブスクリプション管理",
     "update_payment": "お支払い方法を変更",
     "next_billing": "次回請求日: {date}",

@@ -1982,6 +1982,7 @@
     "vault_included": "Included with {courseName}",
     "vault_pitch": "Get unlimited access to premium self-study videos, walkthroughs, and build-alongs.",
     "subscribe_vault": "Subscribe to The Vault",
+    "subscribe_community": "Subscribe to Community",
     "manage_subscription": "Manage Subscription",
     "update_payment": "Update Payment Method",
     "next_billing": "Next billing date: {date}",

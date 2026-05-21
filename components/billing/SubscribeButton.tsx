@@ -3,8 +3,13 @@
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import type { SubscriptionTier } from '@/lib/stripe/tiers';
 
-export function SubscribeButton() {
+type Props = {
+  tier?: SubscriptionTier;
+};
+
+export function SubscribeButton({ tier = 'vault' }: Props) {
   const t = useTranslations('billing');
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
@@ -15,7 +20,7 @@ export function SubscribeButton() {
       const response = await fetch('/api/stripe/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ locale }),
+        body: JSON.stringify({ locale, tier }),
       });
       const data = await response.json();
       if (data.url) {
@@ -29,9 +34,11 @@ export function SubscribeButton() {
     }
   }
 
+  const label = tier === 'community' ? t('subscribe_community') : t('subscribe_vault');
+
   return (
     <Button variant="gold" onClick={handleSubscribe} disabled={loading}>
-      {loading ? '...' : t('subscribe_vault')}
+      {loading ? '...' : label}
     </Button>
   );
 }
