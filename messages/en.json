@@ -3198,6 +3198,19 @@
     "paywall_cta_community": "Subscribe — Community",
     "paywall_cta_vault": "Subscribe — Vault",
     "paywall_cta_courses": "Browse courses",
+    "paywall_inline": {
+      "community_bullets": [
+        "Forum + weekly office hours",
+        "New prompts & tools every week",
+        "Members-only resources"
+      ],
+      "vault_bullets": [
+        "All Vault lessons — videos, articles, templates",
+        "Bilingual EN / 日本語",
+        "Honu Community included"
+      ],
+      "browse_courses_hint": "Want to see what's free first?"
+    },
     "banned_banner": "You are banned from this community.",
     "line_join_title": "Join the LINE group",
     "line_join_subtitle": "Chat with members in real time.",

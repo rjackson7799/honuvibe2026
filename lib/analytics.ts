@@ -50,7 +50,7 @@ export function trackCommunityPaywallViewed(props: { referrer_path: string }) {
 }
 
 export function trackCommunityPaywallCtaClicked(props: {
-  cta: 'community_tier' | 'vault_tier' | 'course';
+  cta: 'community_tier' | 'vault_tier' | 'courses';
 }) {
   trackEvent('community_paywall_cta_clicked', props);
 }

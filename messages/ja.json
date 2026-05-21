@@ -3198,6 +3198,19 @@
     "paywall_cta_community": "コミュニティを購読",
     "paywall_cta_vault": "Vaultを購読",
     "paywall_cta_courses": "コースを見る",
+    "paywall_inline": {
+      "community_bullets": [
+        "フォーラム + 週次オフィスアワー",
+        "毎週新しいプロンプト・ツール",
+        "メンバー限定リソース"
+      ],
+      "vault_bullets": [
+        "全Vaultレッスン — 動画・記事・テンプレート",
+        "バイリンガル EN / 日本語",
+        "Honu Communityも含む"
+      ],
+      "browse_courses_hint": "まずは無料コンテンツから？"
+    },
     "banned_banner": "このコミュニティから制限されています。",
     "line_join_title": "LINEグループに参加",
     "line_join_subtitle": "メンバーとリアルタイムで交流しましょう。",
