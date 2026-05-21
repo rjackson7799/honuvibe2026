@@ -70,14 +70,37 @@ HonuVibe.AI is a bilingual (EN/JP) platform for AI education, consulting, and co
 - `--accent-teal` (primary), `--accent-gold` (secondary)
 - `--border-primary`, `--border-secondary`, `--border-hover`, `--border-accent`
 - Territory accents: `--territory-web`, `--territory-db`, `--territory-saas`, `--territory-auto`, `--territory-pro`
+- Nav active states: teal (`--m-accent-teal`) for all primary nav links **except Partnerships**, which uses coral (`--m-accent-coral`) per `components/marketing/nav/marketing-nav-client.tsx:50-54`
 
 ### Typography
-- **Headlines (EN):** DM Serif Display, weight 400 only — never bold
+- **Section headings (EN):** DM Serif Display, weight 400 only — never bold. Applies to h2/h3 inside pages.
+- **Hero headlines (EN):** Two-voice system — see "Hero Voice System" below.
 - **Body (EN):** DM Sans, weights 300/400/500/600/700
 - **Body (JP):** Noto Sans JP, weights 300/400/500/700
 - **Code/Tags:** JetBrains Mono, weight 400
 - **Overlines:** DM Sans 600, 11px, uppercase, 0.18em letter-spacing
 - Fluid type scale using `clamp()` for display/h1/h2/h3
+
+### Hero Voice System
+
+Hero headlines use one of two voices, chosen by page intent:
+
+- **Action voice** — bold DM Sans, tracking `-0.025em` to `-0.03em`, fluid size `clamp(40-42px, 5.5vw, 64-66px)`.
+  Used for transactional/conversion pages where the user is being asked to *do* something.
+  Current pages: Home, Contact.
+
+- **Editorial voice** — italic DM Serif Display (weight 400), tight leading (~0.92–1.05).
+  Used for narrative "chapter" pages where the user is being invited to *read*.
+  Current pages: Learn, Explore, Partnerships, About.
+
+Rules:
+- Pick the voice from page intent, not aesthetics. CTA-first → action. Story-first → editorial.
+- Section headings (h2/h3 inside a page) always stay upright DM Serif Display 400, regardless of which hero voice the page opens with. This keeps body-of-page typography stable across both hero voices.
+- Don't invent a third hero voice. If a new page truly fits neither, default to editorial and flag it for review.
+
+JP equivalents (pending visual verification on `/ja/*` routes):
+- Action voice → Noto Sans JP weight 700.
+- Editorial voice → Noto Serif JP italic if available; otherwise Noto Sans JP weight 500 (italic serif doesn't render well in JP — use a weight contrast instead).
 
 ### JP Typography Rules
 - `line-height`: 1.7–1.8 for JP body text (vs 1.6 for EN)
