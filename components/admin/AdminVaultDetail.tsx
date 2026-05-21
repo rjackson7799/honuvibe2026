@@ -19,12 +19,18 @@ import type {
   VaultContentItem,
   VaultTag,
   VaultDownload,
+  VaultArticleBody,
   VaultContentType,
   VaultDifficulty,
   VaultAccessTier,
   VaultLanguage,
   VaultFreshnessStatus,
 } from '@/lib/vault/types';
+import dynamic from 'next/dynamic';
+import '@uiw/react-md-editor/markdown-editor.css';
+
+// MDEditor pulls in CodeMirror which can't SSR. Lazy on the client only.
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 
 type PartnerOpt = {
   id: string;
@@ -40,6 +46,7 @@ type AdminVaultDetailProps = {
   seriesOptions: { id: string; title: string; partner_id: string | null }[];
   courseOptions: { id: string; title: string }[];
   downloads?: VaultDownload[];
+  articleBody?: VaultArticleBody | null;
   allItems?: { id: string; title_en: string; title_jp: string | null; content_type: string }[];
   partners?: PartnerOpt[];
 };
@@ -85,6 +92,7 @@ export function AdminVaultDetail({
   seriesOptions,
   courseOptions,
   downloads = [],
+  articleBody = null,
   allItems = [],
   partners = [],
 }: AdminVaultDetailProps) {
@@ -121,6 +129,8 @@ export function AdminVaultDetail({
   const [relatedCourseId, setRelatedCourseId] = useState(item?.source_course_id ?? '');
   const [relatedItemIds, setRelatedItemIds] = useState<string[]>(item?.related_item_ids ?? []);
   const [adminNotes, setAdminNotes] = useState(item?.admin_notes ?? '');
+  const [bodyEn, setBodyEn] = useState(articleBody?.body_en ?? '');
+  const [bodyJp, setBodyJp] = useState(articleBody?.body_jp ?? '');
   const [freshnessStatus, setFreshnessStatus] = useState<VaultFreshnessStatus>(
     item?.freshness_status ?? 'current',
   );
@@ -150,7 +160,10 @@ export function AdminVaultDetail({
   const [dlDisplayOrder, setDlDisplayOrder] = useState(0);
   const [dlSaving, setDlSaving] = useState(false);
 
-  const canSave = titleEn.trim() && contentUrl.trim();
+  // Video/Workshop need a URL; in-app types (article/tool/prompt_pack) don't.
+  // Templates also don't need a URL on content_items (they have downloads).
+  const urlRequired = contentType === 'video' || contentType === 'workshop';
+  const canSave = !!titleEn.trim() && (!urlRequired || !!contentUrl.trim());
 
   function handleTitleBlur() {
     if (!slug && titleEn.trim()) {
@@ -175,7 +188,7 @@ export function AdminVaultDetail({
         description_en: descriptionEn.trim() || undefined,
         description_jp: descriptionJp.trim() || undefined,
         content_type: contentType,
-        url: contentUrl.trim(),
+        url: contentUrl.trim() || undefined,
         embed_url: embedUrl.trim() || undefined,
         duration_minutes: durationMinutes || undefined,
         author_name: authorName.trim() || undefined,
@@ -192,6 +205,9 @@ export function AdminVaultDetail({
         series_order: seriesOrder || undefined,
         is_featured: isFeatured,
         ...(!isCreate ? { freshness_status: freshnessStatus } : {}),
+        ...(contentType === 'article'
+          ? { article_body_en: bodyEn, article_body_jp: bodyJp }
+          : {}),
       };
 
       if (isCreate) {
@@ -430,6 +446,40 @@ export function AdminVaultDetail({
           </div>
         </div>
 
+        {/* Section: Article Body (only for content_type='article') */}
+        {contentType === 'article' && (
+          <div className="space-y-4">
+            <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+              Article body
+            </h3>
+            <p className="text-xs text-fg-tertiary">
+              Markdown. Lives in the protected <code>vault_article_bodies</code> table —
+              premium bodies are gated by subscription, not exposed via PostgREST.
+              Reading time auto-computes on save.
+            </p>
+
+            <div data-color-mode="light">
+              <label className="block text-xs text-fg-tertiary mb-1">Body (EN)</label>
+              <MDEditor
+                value={bodyEn}
+                onChange={(v) => setBodyEn(v ?? '')}
+                height={400}
+                preview="edit"
+              />
+            </div>
+
+            <div data-color-mode="light">
+              <label className="block text-xs text-fg-tertiary mb-1">Body (JP)</label>
+              <MDEditor
+                value={bodyJp}
+                onChange={(v) => setBodyJp(v ?? '')}
+                height={400}
+                preview="edit"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Section 2: Content */}
         <div className="space-y-4">
           <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
@@ -438,7 +488,9 @@ export function AdminVaultDetail({
 
           {/* Content URL */}
           <div>
-            <label className="block text-xs text-fg-tertiary mb-1">Content URL *</label>
+            <label className="block text-xs text-fg-tertiary mb-1">
+              Content URL{urlRequired ? ' *' : ' (optional for in-app types)'}
+            </label>
             <input
               type="url"
               value={contentUrl}

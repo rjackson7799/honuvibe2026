@@ -56,6 +56,57 @@ function revalidateVault() {
   revalidatePath('/admin/vault');
 }
 
+/**
+ * Rough reading-time estimate in minutes. Uses character count so it works
+ * for both English (avg ~5 chars/word, ~200wpm = ~1000 chars/min) and
+ * Japanese (~500 chars/min). Picks the longer locale and divides accordingly.
+ * Minimum 1 minute.
+ */
+function computeReadingTime(bodyEn?: string | null, bodyJp?: string | null): number | null {
+  const en = (bodyEn ?? '').trim();
+  const jp = (bodyJp ?? '').trim();
+  if (!en && !jp) return null;
+  const enMinutes = en ? Math.ceil(en.length / 1000) : 0;
+  const jpMinutes = jp ? Math.ceil(jp.length / 500) : 0;
+  return Math.max(1, enMinutes, jpMinutes);
+}
+
+/**
+ * Upsert the protected article body for a content item. Service role bypasses
+ * the vault_article_bodies RLS, but we still gate this behind requireAdmin()
+ * at the call site.
+ */
+async function upsertArticleBody(
+  // Caller already passed an admin-authenticated Supabase client.
+  supabase: Awaited<ReturnType<typeof requireAdmin>>,
+  contentItemId: string,
+  bodyEn: string | null,
+  bodyJp: string | null,
+): Promise<void> {
+  const readingTime = computeReadingTime(bodyEn, bodyJp);
+
+  // If both bodies are empty, delete the row so the parent is treated as
+  // "no body yet" rather than a row with two empty strings.
+  if (!bodyEn && !bodyJp) {
+    const { error } = await supabase
+      .from('vault_article_bodies')
+      .delete()
+      .eq('content_item_id', contentItemId);
+    if (error) throw new Error(`Failed to clear article body: ${error.message}`);
+    return;
+  }
+
+  const { error } = await supabase
+    .from('vault_article_bodies')
+    .upsert({
+      content_item_id: contentItemId,
+      body_en: bodyEn,
+      body_jp: bodyJp,
+      reading_time_minutes: readingTime,
+    });
+  if (error) throw new Error(`Failed to save article body: ${error.message}`);
+}
+
 // ---------------------------------------------------------------------------
 // Admin Actions
 // ---------------------------------------------------------------------------
@@ -75,7 +126,7 @@ export async function createVaultItem(
       description_en: data.description_en ?? null,
       description_jp: data.description_jp ?? null,
       content_type: data.content_type,
-      url: data.url,
+      url: data.url ?? null,
       source: data.source ?? 'honuvibe',
       embed_url: data.embed_url ?? null,
       thumbnail_url: data.thumbnail_url ?? null,
@@ -92,6 +143,11 @@ export async function createVaultItem(
       series_id: data.series_id ?? null,
       series_order: data.series_order ?? null,
       related_item_ids: data.related_item_ids ?? null,
+      event_date: data.event_date ?? null,
+      event_signup_url: data.event_signup_url ?? null,
+      presenter_name: data.presenter_name ?? null,
+      tool_widget_key: data.tool_widget_key ?? null,
+      tool_widget_config: data.tool_widget_config ?? null,
       is_published: false,
     })
     .select('id, slug')
@@ -99,6 +155,17 @@ export async function createVaultItem(
 
   if (error) throw new Error(error.message);
   if (!row) throw new Error('Failed to create vault item');
+
+  // Article body lives in the protected child table.
+  if (data.content_type === 'article' &&
+      (data.article_body_en !== undefined || data.article_body_jp !== undefined)) {
+    await upsertArticleBody(
+      supabase,
+      row.id,
+      data.article_body_en ?? null,
+      data.article_body_jp ?? null,
+    );
+  }
 
   revalidateVault();
   return { id: row.id, slug: row.slug };
@@ -110,8 +177,12 @@ export async function updateVaultItem(
 ): Promise<void> {
   const supabase = await requireAdmin();
 
+  // Strip article-body fields — they belong to vault_article_bodies, not
+  // content_items. Persisted separately below.
+  const { article_body_en, article_body_jp, ...itemFields } = data;
+
   const updates: Record<string, unknown> = {
-    ...data,
+    ...itemFields,
     updated_at: new Date().toISOString(),
   };
 
@@ -125,11 +196,79 @@ export async function updateVaultItem(
     .eq('id', id);
 
   if (error) throw new Error(error.message);
+
+  // Article body lives in the protected child table. Only touch it if the
+  // caller explicitly provided either field — leaves existing rows alone for
+  // partial form saves.
+  if (article_body_en !== undefined || article_body_jp !== undefined) {
+    await upsertArticleBody(
+      supabase,
+      id,
+      article_body_en ?? null,
+      article_body_jp ?? null,
+    );
+  }
+
   revalidateVault();
 }
 
 export async function publishVaultItem(id: string): Promise<void> {
   const supabase = await requireAdmin();
+
+  // Per-type publish gate. Catches missing required fields before the row
+  // goes live — matches the Publish Validation section of the design.
+  const { data: item, error: fetchError } = await supabase
+    .from('content_items')
+    .select('content_type, url, title_en, slug, event_date, presenter_name, tool_widget_key')
+    .eq('id', id)
+    .maybeSingle();
+  if (fetchError) throw new Error(fetchError.message);
+  if (!item) throw new Error('Item not found');
+
+  if (!item.title_en?.trim()) throw new Error('Cannot publish: title required');
+  if (!item.slug?.trim()) throw new Error('Cannot publish: slug required');
+
+  switch (item.content_type) {
+    case 'article': {
+      const { data: body } = await supabase
+        .from('vault_article_bodies')
+        .select('body_en, body_jp')
+        .eq('content_item_id', id)
+        .maybeSingle();
+      const hasBody = !!(body?.body_en?.trim() || body?.body_jp?.trim());
+      if (!hasBody) throw new Error('Cannot publish: article body required (EN or JP)');
+      break;
+    }
+    case 'video':
+      if (!item.url?.trim()) throw new Error('Cannot publish: video URL required');
+      break;
+    case 'workshop':
+      if (!item.url?.trim()) throw new Error('Cannot publish: workshop URL required');
+      if (!item.event_date) throw new Error('Cannot publish: workshop event date required');
+      if (!item.presenter_name?.trim()) throw new Error('Cannot publish: workshop presenter required');
+      break;
+    case 'template': {
+      const { count } = await supabase
+        .from('vault_downloads')
+        .select('id', { count: 'exact', head: true })
+        .eq('content_item_id', id);
+      if (!count || count === 0) throw new Error('Cannot publish: template needs at least one download');
+      break;
+    }
+    case 'prompt_pack': {
+      const { count } = await supabase
+        .from('vault_prompts')
+        .select('id', { count: 'exact', head: true })
+        .eq('content_item_id', id);
+      if (!count || count === 0) throw new Error('Cannot publish: prompt pack needs at least one prompt');
+      break;
+    }
+    case 'tool':
+      if (!item.tool_widget_key?.trim()) {
+        throw new Error('Cannot publish: tool needs a registered widget key');
+      }
+      break;
+  }
 
   const { error } = await supabase
     .from('content_items')

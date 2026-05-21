@@ -9,6 +9,7 @@ import { VaultContentCard } from './VaultContentCard';
 import { VaultNoteEditor } from './VaultNoteEditor';
 import { VaultCompletionToggle } from './VaultCompletionToggle';
 import { VaultRelatedItems } from './VaultRelatedItems';
+import { VaultArticleRenderer } from './VaultArticleRenderer';
 import type { VaultContentDetail as VaultContentDetailType } from '@/lib/vault/types';
 
 type VaultContentDetailProps = {
@@ -18,11 +19,15 @@ type VaultContentDetailProps = {
 };
 
 export function VaultContentDetail({ detail, locale, partnerBadge }: VaultContentDetailProps) {
-  const { item, downloads, relatedItems, series, seriesItems, userState } = detail;
+  const { item, articleBody, downloads, relatedItems, series, seriesItems, userState } = detail;
   const title = locale === 'ja' && item.title_jp ? item.title_jp : item.title_en;
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
 
-  const isVideo = item.content_type.includes('video');
+  // 'video' and 'workshop' both use the video player chrome.
+  const isVideo = item.content_type === 'video' || item.content_type === 'workshop';
+  const isArticle = item.content_type === 'article';
+  // In-app types render their own body — no external "View Content" link.
+  const showExternalLink = !isVideo && !isArticle && item.url;
 
   // Compute series prev/next for keyboard shortcuts
   let seriesPrevHref: string | null = null;
@@ -91,10 +96,19 @@ export function VaultContentDetail({ detail, locale, partnerBadge }: VaultConten
         </div>
       )}
 
-      {/* Non-video content link */}
-      {!isVideo && item.url && (
+      {/* Article body */}
+      {isArticle && (
+        <VaultArticleRenderer
+          body={articleBody}
+          locale={locale}
+          isPremium={item.access_tier === 'premium'}
+        />
+      )}
+
+      {/* External content link (only for types that point at an external URL) */}
+      {showExternalLink && (
         <a
-          href={item.url}
+          href={item.url ?? '#'}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent-teal text-white text-sm font-medium hover:bg-accent-teal/90 transition-colors"

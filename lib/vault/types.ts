@@ -301,7 +301,9 @@ export interface VaultItemCreateInput {
   description_en?: string;
   description_jp?: string;
   content_type: VaultContentType;
-  url: string;
+  // Optional: in-app types (article, tool, prompt_pack, template) don't need
+  // an external URL. Server action validates required-URL types at publish.
+  url?: string;
   source?: VaultContentSource;
   embed_url?: string;
   thumbnail_url?: string;
@@ -323,6 +325,9 @@ export interface VaultItemCreateInput {
   presenter_name?: string;
   tool_widget_key?: string;
   tool_widget_config?: Record<string, unknown>;
+  // Article body (persisted to vault_article_bodies, not content_items)
+  article_body_en?: string;
+  article_body_jp?: string;
 }
 
 export interface VaultItemUpdateInput extends Partial<VaultItemCreateInput> {
