@@ -48,6 +48,17 @@ export async function handleCheckoutCompleted(
   const currency = session.metadata?.currency ?? 'usd';
   const locale = session.metadata?.locale ?? 'en';
 
+  // STEP 2.5: Direct subscription checkout (community/vault from /api/stripe/subscribe).
+  // Fulfillment runs via customer.subscription.created (price-ID → tier). This
+  // branch exists only to silence the misleading "Missing user_id or course_id"
+  // log that the course-enrollment fall-through would otherwise emit.
+  if (
+    session.metadata?.type === 'community_subscription' ||
+    session.metadata?.type === 'vault_subscription'
+  ) {
+    return;
+  }
+
   // STEP 2: ESL add-on branch.
   if (session.metadata?.type === 'esl_addon') {
     if (!userId || !courseId) {
