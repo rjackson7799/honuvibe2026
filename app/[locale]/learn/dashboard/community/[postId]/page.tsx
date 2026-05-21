@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { ArrowLeft, Heart, MessageCircle, Pin } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Pin } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getCommunityScope } from '@/lib/community/scope';
 import { getPost, listComments } from '@/lib/community/queries';
 import { CommunityMarkdown } from '@/lib/community/markdown';
 import { CommunityPaywall } from '@/components/community/CommunityPaywall';
 import { CommentItem } from '@/components/community/CommentItem';
+import { LikeButton } from '@/components/community/LikeButton';
+import { CommentComposer } from '@/components/community/CommentComposer';
 
 type Props = {
   params: Promise<{ locale: string; postId: string }>;
@@ -41,6 +43,36 @@ export default async function PostDetailPage({ params }: Props) {
 
   const comments = await listComments(supabase, postId);
   const t = await getTranslations('community');
+
+  // Did the current user like this post?
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const userId = user?.id ?? null;
+  let likedByMe = false;
+  if (userId) {
+    const { data: likeRow } = await supabase
+      .from('community_post_likes')
+      .select('user_id')
+      .eq('post_id', postId)
+      .eq('user_id', userId)
+      .maybeSingle();
+    likedByMe = !!likeRow;
+  }
+
+  // Banned in this scope? (Hide comment composer.)
+  let isBanned = false;
+  if (userId) {
+    const { data: banRow } = await supabase
+      .from('community_bans')
+      .select('user_id')
+      .eq('user_id', userId)
+      .is('partner_id', scope.partnerId)
+      .maybeSingle();
+    isBanned = !!banRow;
+  }
+
+  const partnerScope = scope.partner?.slug ?? 'main';
 
   // Group comments: top-level + their direct replies (one level deep only)
   const topLevel = comments.filter((c) => !c.parent_comment_id);
@@ -133,16 +165,24 @@ export default async function PostDetailPage({ params }: Props) {
         )}
 
         <div className="flex items-center gap-5 mt-5 pt-4 border-t border-border-default text-[13px] text-fg-tertiary">
-          <span className="inline-flex items-center gap-1.5">
-            <Heart size={14} />
-            {post.like_count}
-          </span>
+          <LikeButton
+            postId={post.id}
+            initialLiked={likedByMe}
+            initialCount={post.like_count}
+            partnerScope={partnerScope}
+          />
           <span className="inline-flex items-center gap-1.5">
             <MessageCircle size={14} />
             {post.comment_count}
           </span>
         </div>
       </article>
+
+      {!isBanned && userId && (
+        <div className="rounded-[14px] bg-bg-secondary border border-border-default p-4">
+          <CommentComposer postId={post.id} partnerScope={partnerScope} />
+        </div>
+      )}
 
       <section>
         <h2 className="text-[15px] font-bold text-fg-primary uppercase tracking-[0.1em] mb-3">

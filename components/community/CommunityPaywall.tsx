@@ -1,9 +1,23 @@
-import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
-import { Users, Sparkles, GraduationCap } from 'lucide-react';
+'use client';
 
-export async function CommunityPaywall() {
-  const t = await getTranslations('community');
+import { useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Users, Sparkles, GraduationCap } from 'lucide-react';
+import {
+  trackCommunityPaywallCtaClicked,
+  trackCommunityPaywallViewed,
+} from '@/lib/analytics';
+
+export function CommunityPaywall() {
+  const t = useTranslations('community');
+  const pathname = usePathname();
+
+  useEffect(() => {
+    trackCommunityPaywallViewed({ referrer_path: pathname ?? '' });
+  }, [pathname]);
+
   return (
     <div className="max-w-[600px] mx-auto py-12">
       <div className="text-center mb-8">
@@ -18,6 +32,7 @@ export async function CommunityPaywall() {
       <div className="space-y-3">
         <Link
           href="/learn#community-tier"
+          onClick={() => trackCommunityPaywallCtaClicked({ cta: 'community_tier' })}
           className="flex items-center gap-3 p-4 rounded-[14px] bg-[color:var(--accent-teal)] text-white hover:bg-[color:var(--accent-teal-hover)] shadow-sm hover:shadow-md transition-all"
         >
           <Users size={20} />
@@ -26,6 +41,7 @@ export async function CommunityPaywall() {
         </Link>
         <Link
           href="/learn#vault-tier"
+          onClick={() => trackCommunityPaywallCtaClicked({ cta: 'vault_tier' })}
           className="flex items-center gap-3 p-4 rounded-[14px] bg-bg-secondary border border-border-default text-fg-primary hover:border-border-hover transition-colors"
         >
           <Sparkles size={20} />
@@ -34,6 +50,7 @@ export async function CommunityPaywall() {
         </Link>
         <Link
           href="/learn"
+          onClick={() => trackCommunityPaywallCtaClicked({ cta: 'course' })}
           className="flex items-center gap-3 p-4 rounded-[14px] bg-bg-secondary border border-border-default text-fg-primary hover:border-border-hover transition-colors"
         >
           <GraduationCap size={20} />

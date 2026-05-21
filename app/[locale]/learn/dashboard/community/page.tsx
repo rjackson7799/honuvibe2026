@@ -10,6 +10,7 @@ import { CategoryChips } from '@/components/community/CategoryChips';
 import { PostCard } from '@/components/community/PostCard';
 import { EmptyFeed } from '@/components/community/EmptyFeed';
 import { BannedBanner } from '@/components/community/BannedBanner';
+import { PostComposer } from '@/components/community/PostComposer';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -67,11 +68,15 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         </h1>
       </div>
 
-      {locale === 'ja' && lineUrl && <LineJoinCard url={lineUrl} />}
+      {locale === 'ja' && lineUrl && (
+        <LineJoinCard url={lineUrl} partnerScope={scope.partner?.slug ?? 'main'} />
+      )}
 
       {isBanned && <BannedBanner />}
 
       <CourseChannelsStrip userId={userId} locale={locale} />
+
+      {!isBanned && <PostComposer partnerScope={scope.partner?.slug ?? 'main'} />}
 
       <CategoryChips />
 

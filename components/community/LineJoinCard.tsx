@@ -1,17 +1,23 @@
-import { getTranslations } from 'next-intl/server';
-import { ExternalLink, MessageCircle } from 'lucide-react';
+'use client';
 
-export async function LineJoinCard({
+import { useTranslations } from 'next-intl';
+import { ExternalLink, MessageCircle } from 'lucide-react';
+import { trackLineJoinCardClicked } from '@/lib/analytics';
+
+export function LineJoinCard({
   url,
+  partnerScope,
 }: {
   url: string;
+  partnerScope: string;
 }) {
-  const t = await getTranslations('community');
+  const t = useTranslations('community');
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackLineJoinCardClicked({ partner_scope: partnerScope })}
       className="flex items-center gap-4 p-4 rounded-[14px] bg-[#06C755]/10 border border-[#06C755]/30 hover:bg-[#06C755]/15 transition-colors"
     >
       <div className="w-12 h-12 rounded-[10px] bg-[#06C755] text-white flex items-center justify-center shrink-0">
