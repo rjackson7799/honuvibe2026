@@ -77,7 +77,7 @@ describe('About page sections', () => {
     const { container } = render(<AboutHero />);
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1.textContent).toContain('Practical AI education,');
-    expect(h1.textContent).toContain('delivered with aloha');
+    expect(h1.textContent).toContain('made personal');
     // Chapter chips link to anchors
     expect(container.querySelector('a[href="#origin"]')).toBeTruthy();
     expect(container.querySelector('a[href="#crew"]')).toBeTruthy();
@@ -87,13 +87,14 @@ describe('About page sections', () => {
     expect(screen.getByText('2024')).toBeInTheDocument();
   });
 
-  it('OriginStory renders the chapter overline, headline, and Ryan proof tile', () => {
+  it('OriginStory renders the chapter overline, headline, and CTA (no founder tile)', () => {
     render(<AboutOriginStory />);
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading.textContent).toContain('A question');
     expect(heading.textContent).toContain("that wouldn't go away");
     expect(screen.getByText(/CH\. 01 · ORIGIN/)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Ryan Jackson' })).toBeInTheDocument();
+    // Founder proof tile removed — Ryan Jackson should not appear here
+    expect(screen.queryByRole('heading', { name: 'Ryan Jackson' })).toBeNull();
     expect(screen.getByRole('link', { name: /See what we're building/ })).toHaveAttribute(
       'href',
       '/explore',
