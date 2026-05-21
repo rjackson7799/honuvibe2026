@@ -46,7 +46,10 @@ export function LearnChapterVault({
               t('community.bullet_4'),
             ]}
             cta={t('community.cta')}
-            ctaHref="/learn/auth?intent=community"
+            // Plain anchor (no next/link) — /api/stripe/subscribe is side-effectful
+            // (creates Stripe Customer + Checkout Session). next/link would prefetch
+            // and create ghost sessions on hover/viewport.
+            ctaHref={`/api/stripe/subscribe?tier=community${locale === 'ja' ? '&locale=ja' : ''}`}
           />
           <PricingCard
             recommended
@@ -65,7 +68,10 @@ export function LearnChapterVault({
               t('vault.bullet_4'),
             ]}
             cta={t('vault.cta')}
-            ctaHref="/learn/auth?intent=vault"
+            // Plain anchor (no next/link) — /api/stripe/subscribe is side-effectful
+            // (creates Stripe Customer + Checkout Session). next/link would prefetch
+            // and create ghost sessions on hover/viewport.
+            ctaHref={`/api/stripe/subscribe?tier=vault${locale === 'ja' ? '&locale=ja' : ''}`}
           />
         </div>
 
