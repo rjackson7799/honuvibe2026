@@ -13,6 +13,7 @@ import {
   HomeExploration,
   HomeTestimonials,
 } from '@/components/marketing/home';
+import { RecoveryHashRedirect } from '@/components/auth/RecoveryHashRedirect';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -24,6 +25,7 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <MarketingShell>
+      <RecoveryHashRedirect locale={locale} />
       <MarketingNav showGetStarted />
       <main>
         <HomeHero />
