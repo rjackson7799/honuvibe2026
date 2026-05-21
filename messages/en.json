@@ -1053,7 +1053,13 @@
     "change_password_body": "Pick a new password for your account.",
     "change_password_cta": "Change password",
     "password_set_success": "Password set. You can sign in with email and password anytime.",
-    "password_changed_success": "Password updated."
+    "password_changed_success": "Password updated.",
+    "overline": "Practical AI Training",
+    "overline_alt": "実践的なAIトレーニング",
+    "hero_line_1": "Learn AI.",
+    "hero_line_2": "Practice it.",
+    "hero_line_3": "Move forward.",
+    "hero_sub": "A craft-focused training studio for the people doing the actual work — built around Claude and the modern LLM stack."
   },
   "welcome": {
     "set_password_title": "Set a password for faster sign-in",

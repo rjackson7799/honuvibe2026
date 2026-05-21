@@ -1053,7 +1053,13 @@
     "change_password_body": "アカウントの新しいパスワードを設定してください。",
     "change_password_cta": "パスワードを変更",
     "password_set_success": "パスワードを設定しました。次回からメールとパスワードでログインできます。",
-    "password_changed_success": "パスワードを更新しました。"
+    "password_changed_success": "パスワードを更新しました。",
+    "overline": "実践的なAIトレーニング",
+    "overline_alt": "Practical AI Training",
+    "hero_line_1": "AIを学ぶ。",
+    "hero_line_2": "実践する。",
+    "hero_line_3": "前へ進む。",
+    "hero_sub": "実務に取り組む人のための、クラフト志向のAIトレーニング・スタジオ。Claudeと最新のLLMスタックを軸に構成されています。"
   },
   "welcome": {
     "set_password_title": "次回ログインを早くするためにパスワードを設定",

@@ -125,29 +125,41 @@ export function AuthForm() {
     setError(null);
 
     if (mode === 'sign-up') {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName },
-          emailRedirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
-        },
-      });
+      // Routed through /api/auth/signup so the confirmation email is sent via
+      // Resend with the light brand template (lib/email/templates.ts) instead
+      // of Supabase's hosted dark "Confirm signup" template.
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, fullName, locale, redirectTo }),
+        });
 
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
-      }
+        if (res.status === 429) {
+          setError('Too many signup attempts. Please try again in an hour.');
+          setLoading(false);
+          return;
+        }
 
-      if (!signUpData.session) {
+        const json = await res.json().catch(() => ({}));
+
+        if (!res.ok || json.error) {
+          setError(json.error ?? 'Could not create your account. Please try again.');
+          setLoading(false);
+          return;
+        }
+
+        // Always show the "check your email" screen — admin.createUser never
+        // returns a live session, and we want the same UI for the
+        // already-exists case (enumeration resistance).
         setConfirmationPending(true);
         setLoading(false);
         return;
+      } catch {
+        setError('Network error. Please try again.');
+        setLoading(false);
+        return;
       }
-
-      router.push(redirectTo);
-      router.refresh();
     } else {
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -211,36 +223,39 @@ export function AuthForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* Card container */}
-      <div className="bg-bg-secondary border border-border-default rounded-lg p-8">
-        {/* Tab toggle */}
-        <div className="flex mb-8 border border-border-default rounded overflow-hidden">
-          <button
-            type="button"
-            onClick={() => { setMode('sign-in'); setError(null); }}
-            className={cn(
-              'flex-1 py-2.5 text-sm font-medium transition-colors duration-[var(--duration-fast)]',
-              mode === 'sign-in'
-                ? 'bg-accent-teal text-white'
-                : 'bg-bg-tertiary text-fg-secondary hover:text-fg-primary',
-            )}
-          >
-            {t('sign_in')}
-          </button>
-          <button
-            type="button"
-            onClick={() => { setMode('sign-up'); setError(null); }}
-            className={cn(
-              'flex-1 py-2.5 text-sm font-medium transition-colors duration-[var(--duration-fast)]',
-              mode === 'sign-up'
-                ? 'bg-accent-teal text-white'
-                : 'bg-bg-tertiary text-fg-secondary hover:text-fg-primary',
-            )}
-          >
-            {t('sign_up')}
-          </button>
-        </div>
+    <div className="w-full">
+      {/* Pill tab toggle */}
+      <div
+        className="mb-4 inline-flex w-full items-center gap-1 rounded-full p-1"
+        style={{ backgroundColor: 'var(--m-accent-teal-soft)' }}
+      >
+        <button
+          type="button"
+          onClick={() => { setMode('sign-in'); setError(null); }}
+          className={cn(
+            'flex-1 rounded-full py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast)]',
+            mode === 'sign-in'
+              ? 'text-[var(--m-ink-primary)]'
+              : 'text-[var(--m-ink-tertiary)] hover:text-[var(--m-ink-secondary)]',
+          )}
+          style={mode === 'sign-in' ? { backgroundColor: '#FDFBF7' } : undefined}
+        >
+          {t('sign_in')}
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMode('sign-up'); setError(null); }}
+          className={cn(
+            'flex-1 rounded-full py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast)]',
+            mode === 'sign-up'
+              ? 'text-white'
+              : 'text-[var(--m-ink-tertiary)] hover:text-[var(--m-ink-secondary)]',
+          )}
+          style={mode === 'sign-up' ? { backgroundColor: 'var(--m-ink-primary)' } : undefined}
+        >
+          {t('sign_up')}
+        </button>
+      </div>
 
         {/* Email confirmation pending state */}
         {confirmationPending ? (
@@ -261,14 +276,16 @@ export function AuthForm() {
               onClick={async () => {
                 setResending(true);
                 setConfirmationFailed(false);
-                const { error: resendError } = await supabase.auth.resend({
-                  type: 'signup',
-                  email,
-                  options: {
-                    emailRedirectTo: `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
-                  },
-                });
-                if (resendError) setConfirmationFailed(true);
+                try {
+                  const res = await fetch('/api/auth/resend-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, locale, redirectTo }),
+                  });
+                  if (!res.ok) setConfirmationFailed(true);
+                } catch {
+                  setConfirmationFailed(true);
+                }
                 setResending(false);
               }}
               className="text-sm text-accent-teal hover:underline"
@@ -292,7 +309,7 @@ export function AuthForm() {
           fullWidth
           onClick={handleGoogleAuth}
           disabled={loading}
-          className="mb-6"
+          className="mb-4"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <path
@@ -316,7 +333,7 @@ export function AuthForm() {
         </Button>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
           <div className="flex-1 h-px bg-border-default" />
           <span className="text-sm text-fg-tertiary">{t('or')}</span>
           <div className="flex-1 h-px bg-border-default" />
@@ -368,7 +385,7 @@ export function AuthForm() {
         ) : (
           <>
             {/* Email form */}
-            <form onSubmit={handleEmailAuth} className="flex flex-col gap-4">
+            <form onSubmit={handleEmailAuth} className="flex flex-col gap-2.5">
               {mode === 'sign-up' && (
                 <Input
                   label={t('name')}
@@ -419,7 +436,7 @@ export function AuthForm() {
                 variant="primary"
                 fullWidth
                 disabled={loading}
-                className="mt-2"
+                className="mt-1"
               >
                 {loading
                   ? '...'
@@ -431,7 +448,7 @@ export function AuthForm() {
 
             {/* Magic-link alternative (sign-in only) */}
             {mode === 'sign-in' && (
-              <div className="mt-4">
+              <div className="mt-3">
                 {magicLinkSent ? (
                   <p className="text-sm text-accent-teal text-center">
                     ✓ {t('magic_link_check_email')}
@@ -450,7 +467,7 @@ export function AuthForm() {
             )}
 
             {/* Toggle prompt */}
-            <p className="mt-6 text-sm text-fg-tertiary text-center">
+            <p className="mt-3 text-sm text-fg-tertiary text-center">
               {mode === 'sign-in' ? t('no_account') : t('has_account')}{' '}
               <button
                 type="button"
@@ -464,7 +481,6 @@ export function AuthForm() {
         )}
         </>
         )}
-      </div>
     </div>
   );
 }

@@ -18,6 +18,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@supabase/supabase-js';
+import { sendMagicLoginEmail } from '@/lib/email/send';
 
 const BodySchema = z.object({
   session_id: z.string().min(10),
@@ -151,10 +152,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Note: Supabase auth.admin.generateLink with type 'magiclink' both creates
-  // the link AND triggers Supabase to send the email (per project settings).
-  // We don't need to send a custom email here — but if your Supabase email
-  // sending is disabled, swap to a Resend send via lib/email/send.ts.
+  // admin.generateLink only mints the link — it does NOT send the email.
+  // Send via Resend with the light brand template.
+  const { data: profile } = await supabase
+    .from('users')
+    .select('full_name')
+    .eq('email', email)
+    .maybeSingle();
+
+  try {
+    await sendMagicLoginEmail({
+      email,
+      fullName: profile?.full_name ?? null,
+      loginLink: data.properties.action_link,
+      locale,
+    });
+  } catch (emailError) {
+    console.error('[magic-link] sendMagicLoginEmail failed:', emailError);
+    return NextResponse.json(
+      { error: 'Failed to send magic link email' },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({ ok: true });
 }
