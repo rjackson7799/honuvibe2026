@@ -1,6 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { getVaultItemById, getVaultTags, getVaultAdminSeriesList, getVaultDownloads, getVaultItemPickerList, getVaultArticleBody } from '@/lib/vault/queries';
+import { getVaultItemById, getVaultTags, getVaultAdminSeriesList, getVaultDownloads, getVaultItemPickerList, getVaultArticleBody, getVaultPrompts } from '@/lib/vault/queries';
 import { getAdminCourses } from '@/lib/courses/queries';
 import { createAdminClient } from '@/lib/supabase/server';
 import { AdminVaultDetail } from '@/components/admin/AdminVaultDetail';
@@ -53,9 +53,10 @@ export default async function AdminVaultDetailPage({ params }: Props) {
   const item = await getVaultItemById(id);
   if (!item) notFound();
 
-  const [downloads, articleBody] = await Promise.all([
+  const [downloads, articleBody, prompts] = await Promise.all([
     getVaultDownloads(item.id),
     item.content_type === 'article' ? getVaultArticleBody(item.id) : Promise.resolve(null),
+    item.content_type === 'prompt_pack' ? getVaultPrompts(item.id) : Promise.resolve([]),
   ]);
 
   return (
@@ -66,6 +67,7 @@ export default async function AdminVaultDetailPage({ params }: Props) {
       courseOptions={courseOptions}
       downloads={downloads}
       articleBody={articleBody}
+      prompts={prompts}
       allItems={allItems}
       partners={partners ?? []}
     />

@@ -13,7 +13,7 @@ export type VaultContentType =
   | 'tool'
   | 'prompt_pack';
 
-export type VaultRecommendedModel = 'gpt-4' | 'claude' | 'gemini' | 'any';
+export type VaultRecommendedModel = 'openai' | 'anthropic' | 'google' | 'any';
 
 export type VaultDifficulty = 'beginner' | 'intermediate' | 'advanced';
 export type VaultAccessTier = 'free' | 'premium';

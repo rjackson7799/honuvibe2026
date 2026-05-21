@@ -605,6 +605,132 @@ export async function uploadVaultDownload(formData: FormData): Promise<{ id: str
 }
 
 // ---------------------------------------------------------------------------
+// Vault Prompt CRUD (Prompt Pack content)
+// ---------------------------------------------------------------------------
+
+const ALLOWED_PROMPT_MODELS = new Set(['openai', 'anthropic', 'google', 'any']);
+
+type VaultPromptInput = {
+  title_en: string;
+  title_jp?: string;
+  prompt_text_en: string;
+  prompt_text_jp?: string;
+  use_case_en?: string;
+  use_case_jp?: string;
+  recommended_model?: string | null;
+};
+
+function normalizeRecommendedModel(value: unknown): string | null {
+  if (!value || typeof value !== 'string') return null;
+  const v = value.trim();
+  if (!v) return null;
+  return ALLOWED_PROMPT_MODELS.has(v) ? v : null;
+}
+
+export async function createVaultPrompt(
+  contentItemId: string,
+  data: VaultPromptInput,
+): Promise<{ id: string }> {
+  const supabase = await requireAdmin();
+
+  // New prompts go to the end of the list — fetch current max display_order.
+  const { data: maxRow } = await supabase
+    .from('vault_prompts')
+    .select('display_order')
+    .eq('content_item_id', contentItemId)
+    .order('display_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextOrder = (maxRow?.display_order ?? -1) + 1;
+
+  const { data: row, error } = await supabase
+    .from('vault_prompts')
+    .insert({
+      content_item_id: contentItemId,
+      display_order: nextOrder,
+      title_en: data.title_en.trim(),
+      title_jp: data.title_jp?.trim() || null,
+      prompt_text_en: data.prompt_text_en,
+      prompt_text_jp: data.prompt_text_jp || null,
+      use_case_en: data.use_case_en?.trim() || null,
+      use_case_jp: data.use_case_jp?.trim() || null,
+      recommended_model: normalizeRecommendedModel(data.recommended_model),
+    })
+    .select('id')
+    .single();
+
+  if (error) throw new Error(error.message);
+  if (!row) throw new Error('Failed to create prompt');
+
+  revalidateVault();
+  return { id: row.id };
+}
+
+export async function updateVaultPrompt(
+  id: string,
+  data: Partial<VaultPromptInput>,
+): Promise<void> {
+  const supabase = await requireAdmin();
+
+  const updates: Record<string, unknown> = {};
+  if (data.title_en !== undefined) updates.title_en = data.title_en.trim();
+  if (data.title_jp !== undefined) updates.title_jp = data.title_jp?.trim() || null;
+  if (data.prompt_text_en !== undefined) updates.prompt_text_en = data.prompt_text_en;
+  if (data.prompt_text_jp !== undefined) updates.prompt_text_jp = data.prompt_text_jp || null;
+  if (data.use_case_en !== undefined) updates.use_case_en = data.use_case_en?.trim() || null;
+  if (data.use_case_jp !== undefined) updates.use_case_jp = data.use_case_jp?.trim() || null;
+  if (data.recommended_model !== undefined) {
+    updates.recommended_model = normalizeRecommendedModel(data.recommended_model);
+  }
+
+  const { error } = await supabase
+    .from('vault_prompts')
+    .update(updates)
+    .eq('id', id);
+
+  if (error) throw new Error(error.message);
+  revalidateVault();
+}
+
+export async function deleteVaultPrompt(id: string): Promise<void> {
+  const supabase = await requireAdmin();
+  const { error } = await supabase.from('vault_prompts').delete().eq('id', id);
+  if (error) throw new Error(error.message);
+  revalidateVault();
+}
+
+/**
+ * Swap two prompts' display_order values. Used by the admin reorder buttons.
+ */
+export async function swapVaultPromptOrder(
+  promptIdA: string,
+  promptIdB: string,
+): Promise<void> {
+  const supabase = await requireAdmin();
+
+  const { data: rows, error: fetchError } = await supabase
+    .from('vault_prompts')
+    .select('id, display_order')
+    .in('id', [promptIdA, promptIdB]);
+  if (fetchError) throw new Error(fetchError.message);
+  if (!rows || rows.length !== 2) throw new Error('Prompts not found');
+
+  const a = rows.find((r) => r.id === promptIdA);
+  const b = rows.find((r) => r.id === promptIdB);
+  if (!a || !b) throw new Error('Prompts not found');
+
+  // Two-step swap: park A at a sentinel value to avoid the (content_item_id,
+  // display_order) collision if a unique constraint is added later, then
+  // place each row in turn.
+  const parkValue = -1 - a.display_order;
+  await supabase.from('vault_prompts').update({ display_order: parkValue }).eq('id', promptIdA);
+  await supabase.from('vault_prompts').update({ display_order: a.display_order }).eq('id', promptIdB);
+  await supabase.from('vault_prompts').update({ display_order: b.display_order }).eq('id', promptIdA);
+
+  revalidateVault();
+}
+
+// ---------------------------------------------------------------------------
 // User Actions
 // ---------------------------------------------------------------------------
 

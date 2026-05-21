@@ -10,6 +10,7 @@ import { VaultNoteEditor } from './VaultNoteEditor';
 import { VaultCompletionToggle } from './VaultCompletionToggle';
 import { VaultRelatedItems } from './VaultRelatedItems';
 import { VaultArticleRenderer } from './VaultArticleRenderer';
+import { VaultPromptPackRenderer } from './VaultPromptPackRenderer';
 import type { VaultContentDetail as VaultContentDetailType } from '@/lib/vault/types';
 
 type VaultContentDetailProps = {
@@ -19,15 +20,16 @@ type VaultContentDetailProps = {
 };
 
 export function VaultContentDetail({ detail, locale, partnerBadge }: VaultContentDetailProps) {
-  const { item, articleBody, downloads, relatedItems, series, seriesItems, userState } = detail;
+  const { item, articleBody, downloads, prompts, relatedItems, series, seriesItems, userState } = detail;
   const title = locale === 'ja' && item.title_jp ? item.title_jp : item.title_en;
   const description = locale === 'ja' && item.description_jp ? item.description_jp : item.description_en;
 
   // 'video' and 'workshop' both use the video player chrome.
   const isVideo = item.content_type === 'video' || item.content_type === 'workshop';
   const isArticle = item.content_type === 'article';
+  const isPromptPack = item.content_type === 'prompt_pack';
   // In-app types render their own body — no external "View Content" link.
-  const showExternalLink = !isVideo && !isArticle && item.url;
+  const showExternalLink = !isVideo && !isArticle && !isPromptPack && item.url;
 
   // Compute series prev/next for keyboard shortcuts
   let seriesPrevHref: string | null = null;
@@ -100,6 +102,15 @@ export function VaultContentDetail({ detail, locale, partnerBadge }: VaultConten
       {isArticle && (
         <VaultArticleRenderer
           body={articleBody}
+          locale={locale}
+          isPremium={item.access_tier === 'premium'}
+        />
+      )}
+
+      {/* Prompt Pack */}
+      {isPromptPack && (
+        <VaultPromptPackRenderer
+          prompts={prompts}
           locale={locale}
           isPremium={item.access_tier === 'premium'}
         />

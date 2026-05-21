@@ -20,12 +20,14 @@ import type {
   VaultTag,
   VaultDownload,
   VaultArticleBody,
+  VaultPrompt,
   VaultContentType,
   VaultDifficulty,
   VaultAccessTier,
   VaultLanguage,
   VaultFreshnessStatus,
 } from '@/lib/vault/types';
+import { VaultPromptListEditor } from './VaultPromptListEditor';
 import dynamic from 'next/dynamic';
 import '@uiw/react-md-editor/markdown-editor.css';
 
@@ -47,6 +49,7 @@ type AdminVaultDetailProps = {
   courseOptions: { id: string; title: string }[];
   downloads?: VaultDownload[];
   articleBody?: VaultArticleBody | null;
+  prompts?: VaultPrompt[];
   allItems?: { id: string; title_en: string; title_jp: string | null; content_type: string }[];
   partners?: PartnerOpt[];
 };
@@ -92,6 +95,7 @@ export function AdminVaultDetail({
   courseOptions,
   downloads = [],
   articleBody = null,
+  prompts = [],
   allItems = [],
   partners = [],
 }: AdminVaultDetailProps) {
@@ -1022,6 +1026,33 @@ export function AdminVaultDetail({
                 </Button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Section 9: Prompt Pack editor (edit mode + content_type='prompt_pack') */}
+        {isCreate && contentType === 'prompt_pack' && (
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+              Prompts
+            </h3>
+            <p className="text-sm text-fg-tertiary">
+              Save the content first, then add prompts to the pack.
+            </p>
+          </div>
+        )}
+        {!isCreate && item && contentType === 'prompt_pack' && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+                Prompts
+              </h3>
+              <p className="text-xs text-fg-tertiary mt-1">
+                Each prompt becomes a copy-able card on the subscriber side.
+                Premium packs are gated by RLS via <code>vault_prompts</code> —
+                free packs are public, premium packs require Vault access.
+              </p>
+            </div>
+            <VaultPromptListEditor contentItemId={item.id} prompts={prompts} />
           </div>
         )}
 
