@@ -39,7 +39,7 @@ export function CommunityPaywall() {
       <div className="grid gap-4 md:grid-cols-2">
         <TierCard
           icon={<Users size={20} />}
-          title={t('paywall_cta_community').replace('Subscribe — ', '')}
+          title={tTiers('community.title')}
           price={tTiers('community.price')}
           priceUnit={tTiers('community.price_unit')}
           priceNote={tTiers('community.price_note')}
@@ -51,7 +51,7 @@ export function CommunityPaywall() {
         />
         <TierCard
           icon={<Sparkles size={20} />}
-          title={t('paywall_cta_vault').replace('Subscribe — ', '')}
+          title={tTiers('vault.title')}
           price={tTiers('vault.price')}
           priceUnit={tTiers('vault.price_unit')}
           priceNote={tTiers('vault.price_note')}
