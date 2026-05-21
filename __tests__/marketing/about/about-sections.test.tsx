@@ -5,10 +5,8 @@ import {
   AboutHero,
   AboutOriginStory,
   AboutTeam,
-  AboutAlohaStandard,
   AboutMissionVision,
-  AboutSocialSection,
-  AboutSoftCta,
+  AboutClosingCta,
 } from '@/components/marketing/about';
 
 vi.mock('next-intl', () => {
@@ -75,90 +73,65 @@ describe('About page sections', () => {
     errorSpy.mockRestore();
   });
 
-  it('Hero renders the People-first headline and three facts', () => {
-    render(<AboutHero />);
+  it('Hero renders the navy headline, lede, and three chapter chips', () => {
+    const { container } = render(<AboutHero />);
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1.textContent).toContain('People');
-    expect(h1.textContent).toContain('first.');
-    expect(h1.textContent).toContain('Always.');
-    expect(screen.getByText('Honolulu')).toBeInTheDocument();
-    expect(screen.getByText('EN · JP')).toBeInTheDocument();
+    expect(h1.textContent).toContain('Practical AI education,');
+    expect(h1.textContent).toContain('delivered with aloha');
+    // Chapter chips link to anchors
+    expect(container.querySelector('a[href="#origin"]')).toBeTruthy();
+    expect(container.querySelector('a[href="#crew"]')).toBeTruthy();
+    expect(container.querySelector('a[href="#mission"]')).toBeTruthy();
+    // Fact strip
+    expect(screen.getByText('EN / 日本語')).toBeInTheDocument();
     expect(screen.getByText('2024')).toBeInTheDocument();
   });
 
-  it('OriginStory renders headline + credential badge + location marker', () => {
+  it('OriginStory renders the chapter overline, headline, and Ryan proof tile', () => {
     render(<AboutOriginStory />);
     const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading.textContent).toContain('People first.');
-    expect(heading.textContent).toContain('Built for the world.');
-    expect(screen.getByText('Ryan Jackson')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Los Angeles · Honolulu/),
-    ).toBeInTheDocument();
+    expect(heading.textContent).toContain('A question');
+    expect(heading.textContent).toContain("that wouldn't go away");
+    expect(screen.getByText(/CH\. 01 · ORIGIN/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ryan Jackson' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /See what we're building/ })).toHaveAttribute(
+      'href',
+      '/explore',
+    );
   });
 
-  it('Team renders three member cards with names, titles, and language badges', () => {
+  it('Team renders Ryan + Chiemi (not Mizuho) with cadence row and CTA', () => {
     render(<AboutTeam />);
-    expect(
-      screen.getByRole('heading', { name: 'Ryan Jackson' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: 'Mizuho H.' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: 'Chiemi M.' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('Founder & Director of AI Education'),
-    ).toBeInTheDocument();
-    expect(screen.getAllByText('EN').length).toBeGreaterThanOrEqual(3);
-    expect(screen.getAllByText('日本語').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/CH\. 02 · THE CREW/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ryan Jackson' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Chiemi M.' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Mizuho H.' })).toBeNull();
+    expect(screen.getByText('Founder & Director of AI Education')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /See what we teach/ })).toHaveAttribute(
+      'href',
+      '/learn',
+    );
   });
 
-  it('AlohaStandard renders the Aloha Standard headline and four numbered values', () => {
-    render(<AboutAlohaStandard />);
-    const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading.textContent).toContain('The Aloha');
-    expect(heading.textContent).toContain('Standard.');
-    expect(screen.getByText('01')).toBeInTheDocument();
-    expect(screen.getByText('02')).toBeInTheDocument();
-    expect(screen.getByText('03')).toBeInTheDocument();
-    expect(screen.getByText('04')).toBeInTheDocument();
-    expect(screen.getByText('We give generously.')).toBeInTheDocument();
-    expect(screen.getByText('We never hard sell.')).toBeInTheDocument();
-    expect(screen.getByText('Pro-bono work is real work.')).toBeInTheDocument();
-    expect(screen.getByText('We celebrate our community.')).toBeInTheDocument();
-  });
-
-  it('MissionVision renders both labels', () => {
+  it('MissionVision renders chapter header, both labels, and cadence row', () => {
     render(<AboutMissionVision />);
-    expect(screen.getByText('Our Mission')).toBeInTheDocument();
-    expect(screen.getByText('Our Vision')).toBeInTheDocument();
+    expect(screen.getByText(/CH\. 03 · WHAT WE'RE BUILDING TOWARD/)).toBeInTheDocument();
+    expect(screen.getAllByText('Mission').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Vision').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Today')).toBeInTheDocument();
+    expect(screen.getByText('2030+')).toBeInTheDocument();
+    expect(screen.getByText('US + Japan')).toBeInTheDocument();
   });
 
-  it('SocialSection renders four social cards with external hrefs', () => {
-    render(<AboutSocialSection />);
+  it('ClosingCta renders meta strip + dual CTA (Learn primary, Partnerships secondary)', () => {
+    render(<AboutClosingCta />);
+    expect(screen.getByText(/END OF ISSUE 01/)).toBeInTheDocument();
+    expect(screen.getByText(/FIN/)).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: 'Follow the journey.' }),
-    ).toBeInTheDocument();
-    const tiktok = screen.getByRole('link', { name: /TikTok/ });
-    expect(tiktok).toHaveAttribute('href', expect.stringContaining('tiktok'));
-    expect(tiktok).toHaveAttribute('target', '_blank');
-    expect(screen.getByRole('link', { name: /Instagram/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /YouTube/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /LINE/ })).toBeInTheDocument();
-  });
-
-  it('SoftCta renders both CTAs routing to /learn and /partnerships', () => {
-    render(<AboutSoftCta />);
-    expect(
-      screen.getByRole('heading', { name: 'Ready to start?' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: /Explore Courses/i }),
+      screen.getByRole('link', { name: /Start learning/i }),
     ).toHaveAttribute('href', '/learn');
     expect(
-      screen.getByRole('link', { name: /Partner With Us/i }),
+      screen.getByRole('link', { name: /Partner with us/i }),
     ).toHaveAttribute('href', '/partnerships');
   });
 
@@ -168,10 +141,8 @@ describe('About page sections', () => {
         <AboutHero />
         <AboutOriginStory />
         <AboutTeam />
-        <AboutAlohaStandard />
         <AboutMissionVision />
-        <AboutSocialSection />
-        <AboutSoftCta />
+        <AboutClosingCta />
       </>,
     );
     expect(container).toBeTruthy();

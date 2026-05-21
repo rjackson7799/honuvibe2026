@@ -1,66 +1,83 @@
 import { useTranslations } from 'next-intl';
-import { Container, Overline, Section } from '@/components/marketing/primitives';
+import { Container, Section } from '@/components/marketing/primitives';
 
-const FACTS = ['founded', 'languages', 'year'] as const;
+const CHAPTERS = [
+  { num: '01', key: 'chip_origin_label', href: '#origin' },
+  { num: '02', key: 'chip_crew_label', href: '#crew' },
+  { num: '03', key: 'chip_mission_label', href: '#mission' },
+] as const;
+
+const FACTS = ['founded', 'languages', 'based'] as const;
 
 export function AboutHero() {
   const t = useTranslations('about.hero');
 
   return (
-    <Section variant="canvas" spacing="hero" className="pb-0">
+    <Section variant="navy" spacing="hero" className="relative overflow-hidden">
       <Container>
-        <div className="grid items-stretch border-b border-[var(--m-border-soft)] md:min-h-[420px] md:grid-cols-2">
-          {/* Left — editorial label */}
-          <div className="flex flex-col justify-end border-b border-[var(--m-border-soft)] py-12 pr-0 md:border-b-0 md:border-r md:pr-14 md:pb-14 md:pt-18">
-            <Overline tone="caption" className="mb-5">
-              {t('overline')}
-            </Overline>
+        {/* Issue meta strip */}
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/55 md:mb-14">
+          <span>{t('meta_left')}</span>
+          <span className="text-[var(--m-accent-teal)]">{t('meta_center')}</span>
+          <span>{t('meta_right')}</span>
+        </div>
+
+        <div className="grid gap-12 md:grid-cols-[1.15fr_1fr] md:gap-16 md:items-end">
+          {/* Headline */}
+          <div>
             <h1
-              className="font-bold leading-[1.0] tracking-[-0.035em] text-[var(--m-ink-primary)]"
-              style={{ fontSize: 'clamp(52px, 6vw, 80px)' }}
+              className="font-serif italic leading-[0.94] tracking-[-0.025em] text-white"
+              style={{ fontSize: 'clamp(48px, 7vw, 96px)' }}
             >
-              {t('headline_line_1')}
+              {t('headline_1')}
               <br />
-              {t('headline_line_2')}
-              <br />
-              <span className="text-[var(--m-accent-teal)]">
-                {t('headline_line_3')}
-              </span>
+              {t('headline_2')}
+              <span className="text-[var(--m-accent-teal)]">.</span>
             </h1>
           </div>
 
-          {/* Right — sub copy + decorative ring + facts */}
-          <div className="relative flex flex-col justify-end overflow-hidden py-12 pl-0 md:pb-14 md:pl-14 md:pt-18">
-            <div
-              className="pointer-events-none absolute right-[-40px] top-10 h-[280px] w-[280px] rounded-full"
-              style={{
-                background:
-                  'radial-gradient(circle, rgba(15,169,160,0.07) 0%, transparent 70%)',
-              }}
-              aria-hidden
-            />
-            <div
-              className="pointer-events-none absolute right-5 top-[60px] flex h-[180px] w-[180px] items-center justify-center rounded-full border border-[rgba(15,169,160,0.1)]"
-              aria-hidden
-            >
-              <div className="h-[120px] w-[120px] rounded-full border border-[rgba(232,118,90,0.12)]" />
-            </div>
-            <p className="relative z-[1] max-w-[460px] text-[19px] leading-[1.72] text-[var(--m-ink-secondary)]">
-              {t('subhead')}
+          {/* Overline + lede + chip nav */}
+          <div className="flex flex-col gap-8">
+            <p className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">
+              {t('overline')}
             </p>
-            <div className="relative z-[1] mt-9 flex flex-wrap gap-8">
-              {FACTS.map((key) => (
-                <div key={key}>
-                  <p className="mb-1 text-[17px] font-bold tracking-[-0.01em] text-[var(--m-ink-primary)]">
-                    {t(`fact_${key}_value`)}
-                  </p>
-                  <p className="text-[12px] font-medium text-[var(--m-ink-tertiary)]">
-                    {t(`fact_${key}_label`)}
-                  </p>
-                </div>
+            <p className="text-[17px] leading-[1.7] text-white/85 md:text-[18px]">
+              {t('lede')}
+            </p>
+
+            {/* Chapter chips */}
+            <ul className="mt-2 grid gap-2 sm:grid-cols-3">
+              {CHAPTERS.map((c) => (
+                <li key={c.num}>
+                  <a
+                    href={c.href}
+                    className="group flex h-full flex-col rounded-[10px] border border-white/15 bg-white/[0.03] px-4 py-3.5 transition-colors hover:border-[var(--m-accent-teal)] hover:bg-white/[0.06]"
+                  >
+                    <span className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">
+                      {c.num}
+                    </span>
+                    <span className="mt-1 text-[14px] font-semibold leading-snug text-white">
+                      {t(c.key)}
+                    </span>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
+        </div>
+
+        {/* Fact strip */}
+        <div className="mt-14 grid grid-cols-1 gap-5 border-t border-white/10 pt-7 sm:grid-cols-3 md:mt-16">
+          {FACTS.map((key) => (
+            <div key={key}>
+              <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-white/55">
+                {t(`fact_${key}_label`)}
+              </p>
+              <p className="mt-1.5 font-mono text-[14px] font-bold uppercase tracking-[0.04em] leading-snug text-white">
+                {t(`fact_${key}_value`)}
+              </p>
+            </div>
+          ))}
         </div>
       </Container>
     </Section>
