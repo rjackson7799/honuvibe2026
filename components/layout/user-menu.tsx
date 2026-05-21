@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { LogOut, LayoutDashboard, Shield, User } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -12,6 +12,7 @@ type UserMenuLabels = {
   studentLogin?: string;
   account?: string;
   dashboard: string;
+  studentView?: string;
   admin: string;
   signOut: string;
 };
@@ -21,6 +22,7 @@ type UserMenuProps = {
   compact?: boolean;
   direction?: 'vertical' | 'horizontal';
   variant?: 'row' | 'dropdown';
+  placement?: 'top' | 'bottom';
   onNavigate?: () => void;
   showDashboardLink?: boolean;
 };
@@ -30,6 +32,7 @@ export function UserMenu({
   compact = false,
   direction = 'vertical',
   variant = 'row',
+  placement = 'bottom',
   onNavigate,
   showDashboardLink = true,
 }: UserMenuProps) {
@@ -100,6 +103,7 @@ export function UserMenu({
         user={user}
         isAdmin={isAdmin}
         labels={labels}
+        placement={placement}
         onSignOut={handleSignOut}
         onNavigate={onNavigate}
       />
@@ -161,13 +165,17 @@ type DropdownMenuProps = {
   user: { name: string; email: string } | null;
   isAdmin: boolean;
   labels: UserMenuLabels;
+  placement?: 'top' | 'bottom';
   onSignOut: () => Promise<void>;
   onNavigate?: () => void;
 };
 
-function DropdownMenu({ user, isAdmin, labels, onSignOut, onNavigate }: DropdownMenuProps) {
+function DropdownMenu({ user, isAdmin, labels, placement = 'bottom', onSignOut, onNavigate }: DropdownMenuProps) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const inAdminContext = /^\/(en|ja)?\/?admin(\/|$)/.test(pathname ?? '');
+  const dashboardLabel = inAdminContext && labels.studentView ? labels.studentView : labels.dashboard;
 
   useEffect(() => {
     if (!open) return;
@@ -242,8 +250,10 @@ function DropdownMenu({ user, isAdmin, labels, onSignOut, onNavigate }: Dropdown
         <div
           role="menu"
           className={cn(
-            'absolute right-0 top-full mt-2',
-            'min-w-[220px] py-2 px-1.5',
+            'absolute min-w-[220px] py-2 px-1.5',
+            placement === 'top'
+              ? 'left-0 bottom-full mb-2'
+              : 'right-0 top-full mt-2',
             'rounded-lg border border-border-secondary',
             'bg-bg-glass backdrop-blur-[24px] backdrop-saturate-[180%]',
             'shadow-lg',
@@ -257,10 +267,10 @@ function DropdownMenu({ user, isAdmin, labels, onSignOut, onNavigate }: Dropdown
 
           <Link href="/learn/dashboard" onClick={handleNavigate} className={itemClass} role="menuitem">
             <LayoutDashboard size={16} />
-            {labels.dashboard}
+            {dashboardLabel}
           </Link>
 
-          {isAdmin && (
+          {isAdmin && !inAdminContext && (
             <Link href="/admin" onClick={handleNavigate} className={itemClass} role="menuitem">
               <Shield size={16} />
               {labels.admin}

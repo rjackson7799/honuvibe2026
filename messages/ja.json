@@ -18,7 +18,9 @@
     "account": "アカウント",
     "dashboard": "ダッシュボード",
     "admin": "管理画面",
-    "sign_out": "ログアウト"
+    "sign_out": "ログアウト",
+    "student_view": "学生ビュー",
+    "moderation": "モデレーション"
   },
   "hero": {
     "headline_en": "A Whole New",

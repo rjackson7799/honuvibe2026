@@ -18,7 +18,9 @@
     "account": "Account",
     "dashboard": "Dashboard",
     "admin": "Admin",
-    "sign_out": "Sign Out"
+    "sign_out": "Sign Out",
+    "student_view": "Student View",
+    "moderation": "Moderation"
   },
   "hero": {
     "headline_en": "A Whole New",
