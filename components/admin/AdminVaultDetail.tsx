@@ -11,7 +11,7 @@ import {
   publishVaultItem,
   unpublishVaultItem,
   deleteVaultItem,
-  createVaultDownload,
+  uploadVaultDownload,
   deleteVaultDownload,
 } from '@/lib/vault/actions';
 import { VaultRelatedPicker } from './VaultRelatedPicker';
@@ -84,7 +84,6 @@ function slugify(text: string): string {
     .slice(0, 80);
 }
 
-const FILE_TYPES = ['pdf', 'zip', 'xlsx', 'docx', 'csv', 'json', 'md', 'other'] as const;
 
 export function AdminVaultDetail({
   item,
@@ -148,17 +147,16 @@ export function AdminVaultDetail({
   const selectedPartner = partners.find((p) => p.id === partnerId) ?? null;
   const showRevShareWarning = selectedPartner ? selectedPartner.revenue_share_pct > 0 : false;
 
-  // Download form state
+  // Download form state — file is uploaded to vault-private; file_name and
+  // file_size derive from the selected File on submit.
   const [showDownloadForm, setShowDownloadForm] = useState(false);
-  const [dlFileName, setDlFileName] = useState('');
-  const [dlFileUrl, setDlFileUrl] = useState('');
-  const [dlFileType, setDlFileType] = useState('pdf');
-  const [dlFileSizeBytes, setDlFileSizeBytes] = useState(0);
+  const [dlFile, setDlFile] = useState<File | null>(null);
   const [dlDescriptionEn, setDlDescriptionEn] = useState('');
   const [dlDescriptionJp, setDlDescriptionJp] = useState('');
   const [dlAccessTier, setDlAccessTier] = useState<VaultAccessTier>('free');
   const [dlDisplayOrder, setDlDisplayOrder] = useState(0);
   const [dlSaving, setDlSaving] = useState(false);
+  const [dlError, setDlError] = useState('');
 
   // Video/Workshop need a URL; in-app types (article/tool/prompt_pack) don't.
   // Templates also don't need a URL on content_items (they have downloads).
@@ -259,25 +257,22 @@ export function AdminVaultDetail({
   }
 
   async function handleAddDownload() {
-    if (!item || !dlFileName.trim() || !dlFileUrl.trim()) return;
+    if (!item || !dlFile) return;
     setDlSaving(true);
+    setDlError('');
     try {
-      await createVaultDownload({
-        content_item_id: item.id,
-        file_name: dlFileName.trim(),
-        file_url: dlFileUrl.trim(),
-        file_type: dlFileType,
-        file_size_bytes: dlFileSizeBytes || undefined,
-        description_en: dlDescriptionEn.trim() || undefined,
-        description_jp: dlDescriptionJp.trim() || undefined,
-        access_tier: dlAccessTier,
-        display_order: dlDisplayOrder,
-      });
+      const fd = new FormData();
+      fd.set('content_item_id', item.id);
+      fd.set('file', dlFile);
+      if (dlDescriptionEn.trim()) fd.set('description_en', dlDescriptionEn.trim());
+      if (dlDescriptionJp.trim()) fd.set('description_jp', dlDescriptionJp.trim());
+      fd.set('access_tier', dlAccessTier);
+      fd.set('display_order', String(dlDisplayOrder));
+
+      await uploadVaultDownload(fd);
+
       // Reset form
-      setDlFileName('');
-      setDlFileUrl('');
-      setDlFileType('pdf');
-      setDlFileSizeBytes(0);
+      setDlFile(null);
       setDlDescriptionEn('');
       setDlDescriptionJp('');
       setDlAccessTier('free');
@@ -285,7 +280,7 @@ export function AdminVaultDetail({
       setShowDownloadForm(false);
       router.refresh();
     } catch (err) {
-      setSaveMessage(err instanceof Error ? err.message : 'Failed to add download');
+      setDlError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setDlSaving(false);
     }
@@ -863,7 +858,17 @@ export function AdminVaultDetail({
           </div>
         )}
 
-        {/* Section 8: Downloads (edit mode only) */}
+        {/* Section 8: Downloads (edit mode only — needs a content_item_id) */}
+        {isCreate && (
+          <div className="space-y-2">
+            <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+              Downloads
+            </h3>
+            <p className="text-sm text-fg-tertiary">
+              Save the content first, then upload downloadable files.
+            </p>
+          </div>
+        )}
         {!isCreate && item && (
           <div className="space-y-4">
             <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
@@ -935,54 +940,26 @@ export function AdminVaultDetail({
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-fg-tertiary mb-1">File Name *</label>
-                    <input
-                      type="text"
-                      value={dlFileName}
-                      onChange={(e) => setDlFileName(e.target.value)}
-                      placeholder="cheatsheet.pdf"
-                      className="w-full px-3 py-2 text-sm rounded-lg bg-bg-secondary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-fg-tertiary mb-1">File URL *</label>
-                    <input
-                      type="url"
-                      value={dlFileUrl}
-                      onChange={(e) => setDlFileUrl(e.target.value)}
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 text-sm rounded-lg bg-bg-secondary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs text-fg-tertiary mb-1">File *</label>
+                  <input
+                    type="file"
+                    accept=".pdf,.zip,.xlsx,.docx,.csv,.json,.md,.txt"
+                    onChange={(e) => setDlFile(e.target.files?.[0] ?? null)}
+                    className="block w-full text-sm text-fg-primary file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-bg-secondary file:text-fg-primary file:text-sm hover:file:bg-bg-secondary/80 file:cursor-pointer"
+                  />
+                  {dlFile && (
+                    <p className="text-xs text-fg-tertiary mt-1">
+                      {dlFile.name} · {(dlFile.size / 1024).toFixed(0)} KB
+                    </p>
+                  )}
+                  <p className="text-xs text-fg-tertiary mt-1">
+                    Uploads to <code>vault-private/downloads/{item?.id}/…</code>. Max 50&nbsp;MB.
+                    Allowed: pdf, zip, xlsx, docx, csv, json, md, txt.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div>
-                    <label className="block text-xs text-fg-tertiary mb-1">File Type</label>
-                    <select
-                      value={dlFileType}
-                      onChange={(e) => setDlFileType(e.target.value)}
-                      className="w-full px-3 py-2 text-sm rounded-lg bg-bg-secondary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
-                    >
-                      {FILE_TYPES.map((ft) => (
-                        <option key={ft} value={ft}>
-                          {ft.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-fg-tertiary mb-1">Size (bytes)</label>
-                    <input
-                      type="number"
-                      value={dlFileSizeBytes || ''}
-                      onChange={(e) => setDlFileSizeBytes(parseInt(e.target.value) || 0)}
-                      min={0}
-                      className="w-full px-3 py-2 text-sm rounded-lg bg-bg-secondary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
-                    />
-                  </div>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-fg-tertiary mb-1">Access Tier</label>
                     <select
@@ -991,9 +968,7 @@ export function AdminVaultDetail({
                       className="w-full px-3 py-2 text-sm rounded-lg bg-bg-secondary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
                     >
                       {ACCESS_TIERS.map((a) => (
-                        <option key={a} value={a}>
-                          {a}
-                        </option>
+                        <option key={a} value={a}>{a}</option>
                       ))}
                     </select>
                   </div>
@@ -1032,14 +1007,18 @@ export function AdminVaultDetail({
                   </div>
                 </div>
 
+                {dlError && (
+                  <p className="text-xs text-accent-coral">{dlError}</p>
+                )}
+
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={handleAddDownload}
-                  disabled={dlSaving || !dlFileName.trim() || !dlFileUrl.trim()}
+                  disabled={dlSaving || !dlFile}
                 >
                   <Plus size={14} className="mr-1" />
-                  {dlSaving ? 'Adding...' : 'Add Download'}
+                  {dlSaving ? 'Uploading…' : 'Upload'}
                 </Button>
               </div>
             )}

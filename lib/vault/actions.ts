@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type {
   VaultAccessTier,
@@ -468,13 +468,140 @@ export async function createVaultDownload(data: {
 export async function deleteVaultDownload(id: string): Promise<void> {
   const supabase = await requireAdmin();
 
+  // Best-effort: try to remove the underlying storage object too. We look up
+  // the row first to read file_url. If the object lives in vault-private (the
+  // expected location for new uploads), remove it. For legacy rows pointing at
+  // an external URL we just delete the metadata row.
+  const { data: row } = await supabase
+    .from('vault_downloads')
+    .select('file_url')
+    .eq('id', id)
+    .maybeSingle();
+
   const { error } = await supabase
     .from('vault_downloads')
     .delete()
     .eq('id', id);
 
   if (error) throw new Error(error.message);
+
+  if (row?.file_url) {
+    const path = extractPrivateStoragePath(row.file_url);
+    if (path) {
+      // Use service role for storage delete; admin RLS would also work but the
+      // upload path already uses service role so stay consistent.
+      const admin = createAdminClient();
+      await admin.storage.from(VAULT_PRIVATE_BUCKET).remove([path]);
+    }
+  }
+
   revalidateVault();
+}
+
+// ---------------------------------------------------------------------------
+// File upload for downloads
+// ---------------------------------------------------------------------------
+
+const VAULT_PRIVATE_BUCKET = 'vault-private';
+const MAX_DOWNLOAD_BYTES = 50 * 1024 * 1024; // 50 MB
+
+// Aligns with the vault_downloads.file_type CHECK constraint.
+const ALLOWED_FILE_TYPES = new Set([
+  'pdf', 'zip', 'xlsx', 'docx', 'csv', 'json', 'md', 'other',
+]);
+
+function fileTypeFromExtension(fileName: string): string {
+  const ext = fileName.toLowerCase().split('.').pop() ?? '';
+  return ALLOWED_FILE_TYPES.has(ext) ? ext : 'other';
+}
+
+function sanitizeStorageFileName(fileName: string): string {
+  // Replace anything not [a-z0-9._-] with -. Keep the extension intact.
+  return fileName
+    .normalize('NFKD')
+    .replace(/[^\w.\-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^[-.]+|[-.]+$/g, '')
+    .slice(0, 200) || 'file';
+}
+
+function extractPrivateStoragePath(fileUrl: string): string | null {
+  if (!fileUrl) return null;
+  if (!fileUrl.includes('://')) return fileUrl; // already bucket-relative
+  const marker = `/${VAULT_PRIVATE_BUCKET}/`;
+  const idx = fileUrl.indexOf(marker);
+  if (idx === -1) return null;
+  return fileUrl.slice(idx + marker.length).split('?')[0];
+}
+
+/**
+ * Upload a download file into vault-private and create the vault_downloads
+ * row. Server action receives a FormData payload from the admin UI.
+ *
+ * Required fields: content_item_id, file. Optional: description_en,
+ * description_jp, access_tier, display_order.
+ *
+ * file_url is stored as the bucket-relative path; the signed URL is minted
+ * by POST /api/vault/downloads/[id] after access check.
+ */
+export async function uploadVaultDownload(formData: FormData): Promise<{ id: string }> {
+  await requireAdmin();
+
+  const contentItemId = String(formData.get('content_item_id') ?? '').trim();
+  const file = formData.get('file');
+
+  if (!contentItemId) throw new Error('content_item_id is required');
+  if (!(file instanceof File)) throw new Error('A file is required');
+  if (file.size === 0) throw new Error('File is empty');
+  if (file.size > MAX_DOWNLOAD_BYTES) {
+    throw new Error(`File too large (max ${MAX_DOWNLOAD_BYTES / 1024 / 1024} MB)`);
+  }
+
+  const descriptionEn = String(formData.get('description_en') ?? '').trim() || null;
+  const descriptionJp = String(formData.get('description_jp') ?? '').trim() || null;
+  const accessTierRaw = String(formData.get('access_tier') ?? 'free').trim();
+  const accessTier: VaultAccessTier = accessTierRaw === 'premium' ? 'premium' : 'free';
+  const displayOrder = Number(formData.get('display_order') ?? 0) || 0;
+
+  const safeName = sanitizeStorageFileName(file.name);
+  const fileType = fileTypeFromExtension(safeName);
+  const path = `downloads/${contentItemId}/${Date.now()}-${safeName}`;
+
+  // Service role bypasses storage RLS — needed because vault-private has no
+  // public write policy. requireAdmin() above already gated this call.
+  const admin = createAdminClient();
+  const { error: uploadError } = await admin.storage
+    .from(VAULT_PRIVATE_BUCKET)
+    .upload(path, file, {
+      contentType: file.type || 'application/octet-stream',
+      upsert: false,
+    });
+  if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+
+  const { data: row, error: insertError } = await admin
+    .from('vault_downloads')
+    .insert({
+      content_item_id: contentItemId,
+      file_name: file.name,           // preserve original name for display
+      file_url: path,                  // bucket-relative path
+      file_size_bytes: file.size,
+      file_type: fileType,
+      description_en: descriptionEn,
+      description_jp: descriptionJp,
+      access_tier: accessTier,
+      display_order: displayOrder,
+    })
+    .select('id')
+    .single();
+
+  if (insertError || !row) {
+    // Roll back the upload if the row insert failed.
+    await admin.storage.from(VAULT_PRIVATE_BUCKET).remove([path]);
+    throw new Error(insertError?.message ?? 'Failed to create download row');
+  }
+
+  revalidateVault();
+  return { id: row.id };
 }
 
 // ---------------------------------------------------------------------------

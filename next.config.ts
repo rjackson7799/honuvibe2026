@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   devIndicators: {
     position: 'bottom-right',
   },
+  experimental: {
+    // Vault download uploader sends files up to 50 MB through a server action.
+    // Default is 1 MB.
+    serverActions: { bodySizeLimit: '52mb' },
+  },
   async redirects() {
     return [
       // Phase 6 marketing-rebuild retirements: /build, /community, /resources,
