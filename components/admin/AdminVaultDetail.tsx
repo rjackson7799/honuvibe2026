@@ -87,6 +87,18 @@ function slugify(text: string): string {
     .slice(0, 80);
 }
 
+/**
+ * Convert a Postgres timestamptz ISO string ("2026-08-15T18:30:00+00:00")
+ * into the HTML datetime-local format ("YYYY-MM-DDTHH:mm") in the user's
+ * local timezone so the admin sees the time they expect.
+ */
+function toDateTimeLocal(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 
 export function AdminVaultDetail({
   item,
@@ -134,6 +146,13 @@ export function AdminVaultDetail({
   const [adminNotes, setAdminNotes] = useState(item?.admin_notes ?? '');
   const [bodyEn, setBodyEn] = useState(articleBody?.body_en ?? '');
   const [bodyJp, setBodyJp] = useState(articleBody?.body_jp ?? '');
+  // Workshop-only fields — `event_date` is timestamptz in Postgres; we use
+  // datetime-local input here (YYYY-MM-DDTHH:mm) and ISO-string it on save.
+  const [eventDate, setEventDate] = useState(
+    item?.event_date ? toDateTimeLocal(item.event_date) : '',
+  );
+  const [presenterName, setPresenterName] = useState(item?.presenter_name ?? '');
+  const [eventSignupUrl, setEventSignupUrl] = useState(item?.event_signup_url ?? '');
   const [freshnessStatus, setFreshnessStatus] = useState<VaultFreshnessStatus>(
     item?.freshness_status ?? 'current',
   );
@@ -209,6 +228,13 @@ export function AdminVaultDetail({
         ...(!isCreate ? { freshness_status: freshnessStatus } : {}),
         ...(contentType === 'article'
           ? { article_body_en: bodyEn, article_body_jp: bodyJp }
+          : {}),
+        ...(contentType === 'workshop'
+          ? {
+              event_date: eventDate ? new Date(eventDate).toISOString() : undefined,
+              presenter_name: presenterName.trim() || undefined,
+              event_signup_url: eventSignupUrl.trim() || undefined,
+            }
           : {}),
       };
 
@@ -475,6 +501,59 @@ export function AdminVaultDetail({
                 height={400}
                 preview="edit"
               />
+            </div>
+          </div>
+        )}
+
+        {/* Section: Workshop details (only for content_type='workshop') */}
+        {contentType === 'workshop' && (
+          <div className="space-y-4">
+            <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+              Workshop details
+            </h3>
+            <p className="text-xs text-fg-tertiary">
+              The video URL below holds the recorded session. These fields
+              capture the live event metadata — required to publish.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs text-fg-tertiary mb-1">Event date & time *</label>
+                <input
+                  type="datetime-local"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
+                />
+                <p className="text-xs text-fg-tertiary mt-1">
+                  Stored as UTC; shown to viewers in their local timezone.
+                </p>
+              </div>
+              <div>
+                <label className="block text-xs text-fg-tertiary mb-1">Presenter name *</label>
+                <input
+                  type="text"
+                  value={presenterName}
+                  onChange={(e) => setPresenterName(e.target.value)}
+                  placeholder="Ryan Jackson"
+                  className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs text-fg-tertiary mb-1">Live re-run signup URL</label>
+              <input
+                type="url"
+                value={eventSignupUrl}
+                onChange={(e) => setEventSignupUrl(e.target.value)}
+                placeholder="https://cal.com/honuvibe/..."
+                className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
+              />
+              <p className="text-xs text-fg-tertiary mt-1">
+                Optional. If set and the event date is in the future, the
+                public page shows a "Register for live session" CTA.
+              </p>
             </div>
           </div>
         )}

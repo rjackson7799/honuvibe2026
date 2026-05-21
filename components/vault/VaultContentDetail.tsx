@@ -11,6 +11,7 @@ import { VaultCompletionToggle } from './VaultCompletionToggle';
 import { VaultRelatedItems } from './VaultRelatedItems';
 import { VaultArticleRenderer } from './VaultArticleRenderer';
 import { VaultPromptPackRenderer } from './VaultPromptPackRenderer';
+import { VaultWorkshopBanner } from './VaultWorkshopBanner';
 import type { VaultContentDetail as VaultContentDetailType } from '@/lib/vault/types';
 
 type VaultContentDetailProps = {
@@ -26,6 +27,7 @@ export function VaultContentDetail({ detail, locale, partnerBadge }: VaultConten
 
   // 'video' and 'workshop' both use the video player chrome.
   const isVideo = item.content_type === 'video' || item.content_type === 'workshop';
+  const isWorkshop = item.content_type === 'workshop';
   const isArticle = item.content_type === 'article';
   const isPromptPack = item.content_type === 'prompt_pack';
   // In-app types render their own body — no external "View Content" link.
@@ -46,6 +48,9 @@ export function VaultContentDetail({ detail, locale, partnerBadge }: VaultConten
 
   return (
     <div className="max-w-[1100px] mx-auto space-y-8">
+      {/* Workshop event metadata banner — above the video player */}
+      {isWorkshop && <VaultWorkshopBanner item={item} locale={locale} />}
+
       {/* Video player or header */}
       {isVideo && item.embed_url ? (
         <VaultVideoPlayer embedUrl={item.embed_url} title={title} />
