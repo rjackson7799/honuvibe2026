@@ -4,6 +4,23 @@ Tracker for deferred / parked development work. Plan docs in [docs/plans/](docs/
 
 ---
 
+## Vault content model — follow-ups (Phase 4 / polish)
+
+**Plan:** [docs/plans/2026-05-20-vault-content-model-and-admin-design.md](docs/plans/2026-05-20-vault-content-model-and-admin-design.md)
+**Status:** Phases 1–3f shipped (commits 77db68a → aab9ca0). The six type sections (Video / Workshop / Article / Template / Tool / Prompt Pack), the access boundary (migrations 040 + 041), and the publish gates are live in production.
+
+Outstanding items:
+
+- [ ] **Build the first Tool widget.** Registry [lib/vault/tools/registry.ts](lib/vault/tools/registry.ts) is empty; Tool entries are forced to draft state until one is registered. Candidates from the original brainstorm: `prompt-builder`, `jp-en-translator`, `ai-cost-calculator`. Each widget gets its own brainstorm.
+- [ ] **Decommission `library_videos`.** Migrate any still-relevant rows into `content_items` (as `video` type), then drop the old [app/[locale]/admin/library/](app/[locale]/admin/library/) admin form. The two systems have lived in parallel since Phase 1 of the original spec.
+- [ ] **Drag-to-reorder for prompt pack rows.** Currently up/down arrow buttons in [components/admin/VaultPromptListEditor.tsx](components/admin/VaultPromptListEditor.tsx). Wire a real dnd library when prompt packs routinely have >10 entries.
+- [ ] **i18n for renderer chrome.** Per-type renderer strings ("Live session:", "Recorded:", "Copy prompt", "Copy all", model chip labels, paywall empty states) are inline in components rather than `messages/*.json`. Move to i18n when JP localization gets a polish pass.
+- [ ] **Confirm Vault pricing.** Design doc says $99/mo, current marketing copy in [messages/en.json](messages/en.json) references $49. Confirm before publishing any subscriber-facing copy for the new content types.
+- [ ] **Sanity audit on uploaded markdown.** `rehype-sanitize` runs on the public renderer with default rules; we may want to expand allowed embed/iframe sources (YouTube, CodeSandbox, Figma) for embedded media in article bodies.
+- [ ] **Audio / Podcast type.** Not in the original 6. Add when Ryan starts producing audio — likely cheap (reuse video chrome with audio-only embed).
+
+---
+
 ## INS-4 — Instructor portal dashboard, earnings, tax forms
 
 **Plan:** [docs/plans/2026-04-17-instructor-marketplace.md](docs/plans/2026-04-17-instructor-marketplace.md) (lines 332–410)
