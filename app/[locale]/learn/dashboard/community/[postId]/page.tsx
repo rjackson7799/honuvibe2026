@@ -6,10 +6,13 @@ import { createClient } from '@/lib/supabase/server';
 import { getCommunityScope } from '@/lib/community/scope';
 import { getPost, listComments } from '@/lib/community/queries';
 import { CommunityMarkdown } from '@/lib/community/markdown';
+import { canModeratePartner } from '@/lib/community/moderation';
+import { EDIT_WINDOW_MS } from '@/lib/community/constants';
 import { CommunityPaywall } from '@/components/community/CommunityPaywall';
 import { CommentItem } from '@/components/community/CommentItem';
 import { LikeButton } from '@/components/community/LikeButton';
 import { CommentComposer } from '@/components/community/CommentComposer';
+import { PostMenu } from '@/components/community/PostMenu';
 
 type Props = {
   params: Promise<{ locale: string; postId: string }>;
@@ -73,6 +76,9 @@ export default async function PostDetailPage({ params }: Props) {
   }
 
   const partnerScope = scope.partner?.slug ?? 'main';
+  const isModerator = await canModeratePartner(supabase, post.partner_id);
+  const withinEditWindow =
+    Date.now() - new Date(post.created_at).getTime() < EDIT_WINDOW_MS;
 
   // Group comments: top-level + their direct replies (one level deep only)
   const topLevel = comments.filter((c) => !c.parent_comment_id);
@@ -103,7 +109,7 @@ export default async function PostDetailPage({ params }: Props) {
           </div>
         )}
 
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-start gap-3 mb-4">
           {post.author?.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -114,7 +120,7 @@ export default async function PostDetailPage({ params }: Props) {
           ) : (
             <div className="w-10 h-10 rounded-full bg-bg-tertiary" />
           )}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="font-semibold text-fg-primary text-[14.5px] truncate">
               {post.author?.full_name ?? 'Member'}
             </p>
@@ -125,6 +131,20 @@ export default async function PostDetailPage({ params }: Props) {
               )}
             </p>
           </div>
+          {userId && (
+            <PostMenu
+              postId={post.id}
+              authorId={post.author_id}
+              currentUserId={userId}
+              isModerator={isModerator}
+              partnerScope={partnerScope}
+              partnerIdForApi={post.partner_id}
+              authorIdForBan={post.author_id}
+              isPinned={!!post.pinned_at}
+              status={post.status}
+              withinEditWindow={withinEditWindow}
+            />
+          )}
         </div>
 
         <div className="prose max-w-none text-fg-primary [&_a]:text-[color:var(--accent-teal)] [&_pre]:bg-bg-tertiary [&_pre]:p-3 [&_pre]:rounded-[8px]">
