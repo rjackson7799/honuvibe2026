@@ -1,25 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getCommunityScope } from '@/lib/community/scope';
-import { getPost, listComments } from '@/lib/community/queries';
 import {
   CommunityError,
-  deletePostAsAuthor,
-  updatePostBody,
+  deleteCommentAsAuthor,
+  updateCommentBody,
 } from '@/lib/community/mutations';
-
-export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const { id } = await ctx.params;
-  const supabase = await createClient();
-  const scope = await getCommunityScope(supabase);
-  if (!scope) return NextResponse.json({ error: 'paywall' }, { status: 402 });
-
-  const post = await getPost(supabase, id);
-  if (!post) return NextResponse.json({ error: 'not_found' }, { status: 404 });
-
-  const comments = await listComments(supabase, id);
-  return NextResponse.json({ post, comments });
-}
 
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
@@ -35,8 +20,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   try {
-    const post = await updatePostBody(supabase, id, user.id, body.body_md);
-    return NextResponse.json({ post });
+    const comment = await updateCommentBody(supabase, id, user.id, body.body_md);
+    return NextResponse.json({ comment });
   } catch (err) {
     if (err instanceof CommunityError) {
       const status =
@@ -57,8 +42,6 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  // RLS enforces author-only delete (cp_author_update policy).
-  // If a moderator wants to delete, they use /admin/community endpoints (Commit 5).
-  await deletePostAsAuthor(supabase, id);
+  await deleteCommentAsAuthor(supabase, id);
   return NextResponse.json({ ok: true });
 }
