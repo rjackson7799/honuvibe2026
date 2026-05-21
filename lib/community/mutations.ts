@@ -200,3 +200,186 @@ export async function unlikePost(
     .eq('user_id', userId);
   if (error) throw error;
 }
+
+// --- Moderation mutations -------------------------------------------------
+// These rely on RLS cp_admin_all / cc_admin_all policies (is_admin OR
+// is_partner_for) to authorize. App-layer canModeratePartner() in
+// lib/community/moderation.ts gates the route handler before we get here.
+
+export async function pinPost(
+  supabase: SupabaseClient,
+  postId: string,
+  partnerId: string | null,
+): Promise<void> {
+  // Unpin any currently-pinned post in the same scope, then pin this one.
+  // Brief race window between the two updates is acceptable for MVP.
+  let unpinQuery = supabase
+    .from('community_posts')
+    .update({ pinned_at: null })
+    .not('pinned_at', 'is', null);
+  unpinQuery =
+    partnerId === null
+      ? unpinQuery.is('partner_id', null)
+      : unpinQuery.eq('partner_id', partnerId);
+  const { error: unpinErr } = await unpinQuery;
+  if (unpinErr) throw unpinErr;
+
+  const { error } = await supabase
+    .from('community_posts')
+    .update({ pinned_at: new Date().toISOString() })
+    .eq('id', postId);
+  if (error) throw error;
+}
+
+export async function unpinPost(
+  supabase: SupabaseClient,
+  postId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('community_posts')
+    .update({ pinned_at: null })
+    .eq('id', postId);
+  if (error) throw error;
+}
+
+export async function hidePost(
+  supabase: SupabaseClient,
+  postId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('community_posts')
+    .update({ status: 'hidden' })
+    .eq('id', postId);
+  if (error) throw error;
+}
+
+export async function unhidePost(
+  supabase: SupabaseClient,
+  postId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('community_posts')
+    .update({ status: 'published' })
+    .eq('id', postId);
+  if (error) throw error;
+}
+
+export async function deletePostAsMod(
+  supabase: SupabaseClient,
+  postId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('community_posts')
+    .update({ status: 'deleted' })
+    .eq('id', postId);
+  if (error) throw error;
+}
+
+// --- Reports --------------------------------------------------------------
+
+export async function fileReport(
+  supabase: SupabaseClient,
+  input: {
+    target_type: 'post' | 'comment';
+    target_id: string;
+    reporter_id: string;
+    partner_id: string | null;
+    reason: 'spam' | 'harassment' | 'off_topic' | 'other' | 'auto_flag';
+    note: string | null;
+  },
+): Promise<void> {
+  if (input.note && input.note.length > 200) {
+    throw new CommunityError('invalid', 'note too long');
+  }
+  const { error } = await supabase.from('community_reports').insert({
+    partner_id: input.partner_id,
+    target_type: input.target_type,
+    target_id: input.target_id,
+    reporter_id: input.reporter_id,
+    reason: input.reason,
+    note: input.note,
+  });
+  if (error) throw error;
+}
+
+export async function resolveReport(
+  supabase: SupabaseClient,
+  reportId: string,
+  resolverId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from('community_reports')
+    .update({
+      status: 'resolved',
+      resolved_by: resolverId,
+      resolved_at: new Date().toISOString(),
+    })
+    .eq('id', reportId);
+  if (error) throw error;
+}
+
+// --- Bans -----------------------------------------------------------------
+
+export async function banUser(
+  supabase: SupabaseClient,
+  input: {
+    partner_id: string | null;
+    user_id: string;
+    banned_by: string;
+    reason: string | null;
+  },
+): Promise<void> {
+  const { error } = await supabase.from('community_bans').upsert(
+    {
+      partner_id: input.partner_id,
+      user_id: input.user_id,
+      banned_by: input.banned_by,
+      reason: input.reason,
+    },
+    { onConflict: 'partner_id,user_id' },
+  );
+  if (error) throw error;
+}
+
+export async function unbanUser(
+  supabase: SupabaseClient,
+  partnerId: string | null,
+  userId: string,
+): Promise<void> {
+  let q = supabase.from('community_bans').delete().eq('user_id', userId);
+  q = partnerId === null ? q.is('partner_id', null) : q.eq('partner_id', partnerId);
+  const { error } = await q;
+  if (error) throw error;
+}
+
+// --- Audit log ------------------------------------------------------------
+
+export async function logModAction(
+  supabase: SupabaseClient,
+  input: {
+    actor_id: string;
+    action:
+      | 'pin'
+      | 'unpin'
+      | 'hide'
+      | 'unhide'
+      | 'delete'
+      | 'resolve_report'
+      | 'ban'
+      | 'unban';
+    target_type: string;
+    target_id: string;
+    partner_id: string | null;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<void> {
+  const { error } = await supabase.from('community_mod_actions').insert({
+    actor_id: input.actor_id,
+    action: input.action,
+    target_type: input.target_type,
+    target_id: input.target_id,
+    partner_id: input.partner_id,
+    metadata: input.metadata ?? null,
+  });
+  if (error) throw error;
+}

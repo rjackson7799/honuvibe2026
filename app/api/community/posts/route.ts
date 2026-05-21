@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { getCommunityScope } from '@/lib/community/scope';
 import { CommunityError, createPost } from '@/lib/community/mutations';
+import { shouldAutoFlag } from '@/lib/community/moderation';
 import { CATEGORIES, type Category } from '@/lib/community/constants';
 import type { LinkPreview } from '@/lib/community/types';
 
@@ -35,6 +36,20 @@ export async function POST(req: Request) {
       partner_id: scope.partnerId,
       author_id: user.id,
     });
+
+    // Soft spam auto-flag: post stays visible, mods see it in the queue.
+    // Uses admin client so the report write doesn't depend on user's RLS.
+    if (shouldAutoFlag(body.body_md)) {
+      const admin = createAdminClient();
+      await admin.from('community_reports').insert({
+        partner_id: scope.partnerId,
+        target_type: 'post',
+        target_id: post.id,
+        reporter_id: user.id,
+        reason: 'auto_flag',
+      });
+    }
+
     return NextResponse.json({ post }, { status: 201 });
   } catch (err) {
     if (err instanceof CommunityError) {
