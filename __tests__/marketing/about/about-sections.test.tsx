@@ -116,7 +116,7 @@ describe('About page sections', () => {
 
   it('MissionVision renders chapter header, both labels, and cadence row', () => {
     render(<AboutMissionVision />);
-    expect(screen.getByText(/CH\. 03 · WHAT WE'RE BUILDING TOWARD/)).toBeInTheDocument();
+    expect(screen.getByText(/CH\. 03 · MISSION & VISION/)).toBeInTheDocument();
     expect(screen.getAllByText('Mission').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Vision').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Today')).toBeInTheDocument();
