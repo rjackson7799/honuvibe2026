@@ -41,6 +41,9 @@ dev.log
 # vercel
 .vercel
 
+# supabase CLI local state
+supabase/.temp/
+
 # superpowers plugin
 .superpowers/
 docs/superpowers/
