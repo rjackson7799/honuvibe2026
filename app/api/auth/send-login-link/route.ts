@@ -17,9 +17,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@supabase/supabase-js';
 import { sendMagicLoginEmail } from '@/lib/email/send';
+import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
 
 const BodySchema = z.object({
   email: z.string().email(),
+  redirectTo: z.string().optional(),
 });
 
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -80,6 +82,7 @@ export async function POST(request: NextRequest) {
     process.env.NEXT_PUBLIC_SITE_URL ??
     'http://localhost:3000';
   const localePrefix = locale === 'ja' ? '/ja' : '';
+  const safeNext = sanitizeRedirect(body.redirectTo, `${localePrefix}/learn/dashboard`);
 
   try {
     const supabase = getServiceClient();
@@ -92,7 +95,7 @@ export async function POST(request: NextRequest) {
         type: 'magiclink',
         email,
         options: {
-          redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(`${localePrefix}/learn/dashboard`)}`,
+          redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(safeNext)}`,
         },
       });
 

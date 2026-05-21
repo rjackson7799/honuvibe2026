@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
 
 type AuthMode = 'sign-in' | 'sign-up' | 'forgot';
 
@@ -55,7 +56,7 @@ export function AuthForm() {
       const res = await fetch('/api/auth/send-login-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-locale': locale },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, redirectTo }),
       });
       if (res.status === 429) {
         setError(t('magic_link_rate_limited'));
@@ -114,7 +115,11 @@ export function AuthForm() {
         // though the session was active. A full navigation also forces the
         // server to re-read auth cookies on the dashboard request, ensuring
         // the WelcomeScreen renders consistently for new users.
-        window.location.assign(`${prefix}/learn/dashboard?welcome=true`);
+        const search = new URLSearchParams(window.location.search);
+        const requested = search.get('redirect');
+        const fallback = `${prefix}/learn/dashboard?welcome=true`;
+        const target = sanitizeRedirect(requested, fallback);
+        window.location.assign(target);
       })();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

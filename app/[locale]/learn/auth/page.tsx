@@ -5,9 +5,11 @@ import { createClient } from '@/lib/supabase/server';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { LangToggle } from '@/components/layout/lang-toggle';
 import { Link } from '@/i18n/navigation';
+import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
 
 type Props = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ redirect?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -19,8 +21,9 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function AuthPage({ params }: Props) {
+export default async function AuthPage({ params, searchParams }: Props) {
   const { locale } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
 
   const supabase = await createClient();
@@ -28,7 +31,7 @@ export default async function AuthPage({ params }: Props) {
 
   if (user) {
     const prefix = locale === 'ja' ? '/ja' : '';
-    redirect(`${prefix}/learn/dashboard`);
+    redirect(sanitizeRedirect(sp.redirect, `${prefix}/learn/dashboard`));
   }
 
   const t = await getTranslations({ locale, namespace: 'auth' });
