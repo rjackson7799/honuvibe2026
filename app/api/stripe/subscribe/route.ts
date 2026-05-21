@@ -1,31 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
-import {
-  TIER_REGISTRY,
-  getSubscriptionPriceId,
-  type SubscriptionTier,
-} from '@/lib/stripe/tiers';
+import { TIER_REGISTRY, getSubscriptionPriceId } from '@/lib/stripe/tiers';
 import { hasActiveSubscription } from '@/lib/access/checks';
-
-function parseTier(value: unknown): SubscriptionTier | null {
-  return value === 'community' || value === 'vault' ? value : null;
-}
-
-/** Fetch the user fields needed for access checks + checkout. Single source of truth. */
-async function fetchUserAccessRow(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  userId: string,
-) {
-  const { data } = await supabase
-    .from('users')
-    .select(
-      'stripe_customer_id, subscription_tier, subscription_status, subscription_expires_at, email, full_name, role',
-    )
-    .eq('id', userId)
-    .single();
-  return data;
-}
+import { parseTier, fetchUserAccessRow } from '@/lib/stripe/subscribe-helpers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -70,10 +48,16 @@ export async function POST(request: NextRequest) {
         metadata: { user_id: user.id },
       });
       customerId = customer.id;
-      await supabase
+      const { error: customerSaveError } = await supabase
         .from('users')
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id);
+      if (customerSaveError) {
+        console.error(
+          '[Stripe Subscribe POST] Failed to persist stripe_customer_id:',
+          customerSaveError.message,
+        );
+      }
     }
 
     const priceId = getSubscriptionPriceId(tier);
@@ -105,6 +89,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Re-export the helpers so the GET handler in Task 2 reuses them.
-export { fetchUserAccessRow, parseTier };
