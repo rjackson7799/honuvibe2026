@@ -12,6 +12,7 @@ import { VaultRelatedItems } from './VaultRelatedItems';
 import { VaultArticleRenderer } from './VaultArticleRenderer';
 import { VaultPromptPackRenderer } from './VaultPromptPackRenderer';
 import { VaultWorkshopBanner } from './VaultWorkshopBanner';
+import { VaultToolRenderer } from './VaultToolRenderer';
 import type { VaultContentDetail as VaultContentDetailType } from '@/lib/vault/types';
 
 type VaultContentDetailProps = {
@@ -30,8 +31,9 @@ export function VaultContentDetail({ detail, locale, partnerBadge }: VaultConten
   const isWorkshop = item.content_type === 'workshop';
   const isArticle = item.content_type === 'article';
   const isPromptPack = item.content_type === 'prompt_pack';
+  const isTool = item.content_type === 'tool';
   // In-app types render their own body — no external "View Content" link.
-  const showExternalLink = !isVideo && !isArticle && !isPromptPack && item.url;
+  const showExternalLink = !isVideo && !isArticle && !isPromptPack && !isTool && item.url;
 
   // Compute series prev/next for keyboard shortcuts
   let seriesPrevHref: string | null = null;
@@ -119,6 +121,11 @@ export function VaultContentDetail({ detail, locale, partnerBadge }: VaultConten
           locale={locale}
           isPremium={item.access_tier === 'premium'}
         />
+      )}
+
+      {/* Tool widget */}
+      {isTool && (
+        <VaultToolRenderer item={item} userTier={item.access_tier} />
       )}
 
       {/* External content link (only for types that point at an external URL) */}

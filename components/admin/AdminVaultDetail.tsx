@@ -28,6 +28,7 @@ import type {
   VaultFreshnessStatus,
 } from '@/lib/vault/types';
 import { VaultPromptListEditor } from './VaultPromptListEditor';
+import { getRegisteredToolKeys } from '@/lib/vault/tools/registry';
 import dynamic from 'next/dynamic';
 import '@uiw/react-md-editor/markdown-editor.css';
 
@@ -153,6 +154,13 @@ export function AdminVaultDetail({
   );
   const [presenterName, setPresenterName] = useState(item?.presenter_name ?? '');
   const [eventSignupUrl, setEventSignupUrl] = useState(item?.event_signup_url ?? '');
+  // Tool-only — widget key + JSON config. The config field stores raw JSON
+  // text in the input; we parse + validate on save.
+  const [toolWidgetKey, setToolWidgetKey] = useState(item?.tool_widget_key ?? '');
+  const [toolWidgetConfigText, setToolWidgetConfigText] = useState(
+    item?.tool_widget_config ? JSON.stringify(item.tool_widget_config, null, 2) : '',
+  );
+  const [toolConfigError, setToolConfigError] = useState('');
   const [freshnessStatus, setFreshnessStatus] = useState<VaultFreshnessStatus>(
     item?.freshness_status ?? 'current',
   );
@@ -201,6 +209,22 @@ export function AdminVaultDetail({
   async function handleSave() {
     setSaving(true);
     setSaveMessage('');
+    setToolConfigError('');
+    // Tool config: validate JSON before sending.
+    let parsedToolConfig: Record<string, unknown> | undefined;
+    if (contentType === 'tool' && toolWidgetConfigText.trim()) {
+      try {
+        const parsed = JSON.parse(toolWidgetConfigText);
+        if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+          throw new Error('Config must be a JSON object');
+        }
+        parsedToolConfig = parsed as Record<string, unknown>;
+      } catch (err) {
+        setToolConfigError(err instanceof Error ? err.message : 'Invalid JSON');
+        setSaving(false);
+        return;
+      }
+    }
     try {
       const formData = {
         title_en: titleEn.trim(),
@@ -234,6 +258,12 @@ export function AdminVaultDetail({
               event_date: eventDate ? new Date(eventDate).toISOString() : undefined,
               presenter_name: presenterName.trim() || undefined,
               event_signup_url: eventSignupUrl.trim() || undefined,
+            }
+          : {}),
+        ...(contentType === 'tool'
+          ? {
+              tool_widget_key: toolWidgetKey.trim() || undefined,
+              tool_widget_config: parsedToolConfig,
             }
           : {}),
       };
@@ -557,6 +587,67 @@ export function AdminVaultDetail({
             </div>
           </div>
         )}
+
+        {/* Section: Tool widget (only for content_type='tool') */}
+        {contentType === 'tool' && (() => {
+          const registeredKeys = getRegisteredToolKeys();
+          return (
+            <div className="space-y-4">
+              <h3 className="text-xs font-semibold text-fg-tertiary uppercase tracking-wider">
+                Tool widget
+              </h3>
+              {registeredKeys.length === 0 ? (
+                <p className="text-sm text-fg-tertiary">
+                  No widgets registered yet. Tool entries can be saved as drafts
+                  but cannot be published until at least one widget is registered
+                  in <code>lib/vault/tools/registry.ts</code>.
+                </p>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs text-fg-tertiary mb-1">
+                      Widget key *
+                    </label>
+                    <select
+                      value={toolWidgetKey}
+                      onChange={(e) => setToolWidgetKey(e.target.value)}
+                      className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
+                    >
+                      <option value="">— Select a widget —</option>
+                      {registeredKeys.map((k) => (
+                        <option key={k} value={k}>{k}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-fg-tertiary mt-1">
+                      Dropdown reads <code>toolWidgetRegistry</code>. Add new
+                      widgets there to make them selectable.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-fg-tertiary mb-1">
+                      Widget config (JSON, optional)
+                    </label>
+                    <textarea
+                      value={toolWidgetConfigText}
+                      onChange={(e) => setToolWidgetConfigText(e.target.value)}
+                      rows={5}
+                      placeholder='{ "defaultModel": "anthropic" }'
+                      className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal font-mono resize-y"
+                    />
+                    {toolConfigError ? (
+                      <p className="text-xs text-accent-coral mt-1">{toolConfigError}</p>
+                    ) : (
+                      <p className="text-xs text-fg-tertiary mt-1">
+                        Passed to the widget as the <code>config</code> prop. Must be a JSON object.
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Section 2: Content */}
         <div className="space-y-4">
