@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import NextLink from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { LayoutDashboard, LogOut, Shield, User } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -30,6 +32,8 @@ type Props = {
  */
 export function MarketingUserMenu({ labels }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -106,9 +110,14 @@ export function MarketingUserMenu({ labels }: Props) {
   if (loading) return <div className="h-9 w-9" />;
 
   if (!user) {
+    const authBase = locale === 'ja' ? '/ja/learn/auth' : '/learn/auth';
+    const authHref =
+      pathname && pathname !== authBase
+        ? `${authBase}?redirect=${encodeURIComponent(pathname)}`
+        : authBase;
     return (
-      <Link
-        href="/learn/auth"
+      <NextLink
+        href={authHref}
         className={cn(
           'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
           'border border-[var(--m-border-teal)] bg-[var(--m-accent-teal-soft)]',
@@ -118,7 +127,7 @@ export function MarketingUserMenu({ labels }: Props) {
       >
         <User size={15} />
         <span>{labels.signIn}</span>
-      </Link>
+      </NextLink>
     );
   }
 

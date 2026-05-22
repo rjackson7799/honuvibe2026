@@ -1,11 +1,21 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import NextLink from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { LogOut, LayoutDashboard, Shield, User } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+
+function useAuthHref() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const base = locale === 'ja' ? '/ja/learn/auth' : '/learn/auth';
+  if (!pathname || pathname === base) return base;
+  return `${base}?redirect=${encodeURIComponent(pathname)}`;
+}
 
 type UserMenuLabels = {
   signIn: string;
@@ -37,6 +47,7 @@ export function UserMenu({
   showDashboardLink = true,
 }: UserMenuProps) {
   const router = useRouter();
+  const authHref = useAuthHref();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -112,8 +123,8 @@ export function UserMenu({
 
   if (!user) {
     return (
-      <Link
-        href="/learn/auth"
+      <NextLink
+        href={authHref}
         onClick={onNavigate}
         className={cn(
           'inline-flex items-center gap-1.5 px-3 py-2 rounded',
@@ -123,7 +134,7 @@ export function UserMenu({
       >
         <User size={16} />
         {!compact && <span>{labels.signIn}</span>}
-      </Link>
+      </NextLink>
     );
   }
 
@@ -174,6 +185,7 @@ function DropdownMenu({ user, isAdmin, labels, placement = 'bottom', onSignOut, 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const authHref = useAuthHref();
   const inAdminContext = /^\/(en|ja)?\/?admin(\/|$)/.test(pathname ?? '');
   const dashboardLabel = inAdminContext && labels.studentView ? labels.studentView : labels.dashboard;
 
@@ -202,8 +214,8 @@ function DropdownMenu({ user, isAdmin, labels, placement = 'bottom', onSignOut, 
 
   if (!user) {
     return (
-      <Link
-        href="/learn/auth"
+      <NextLink
+        href={authHref}
         onClick={onNavigate}
         className={cn(
           'inline-flex items-center gap-2 px-4 py-2 rounded-md',
@@ -215,7 +227,7 @@ function DropdownMenu({ user, isAdmin, labels, placement = 'bottom', onSignOut, 
       >
         <User size={15} />
         <span>{labels.studentLogin ?? labels.signIn}</span>
-      </Link>
+      </NextLink>
     );
   }
 

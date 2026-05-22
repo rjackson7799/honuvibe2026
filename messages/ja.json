@@ -1033,6 +1033,8 @@
     "continue_google": "Googleで続ける",
     "or": "または",
     "forgot_password": "パスワードをお忘れですか？",
+    "show_password": "パスワードを表示",
+    "hide_password": "パスワードを非表示",
     "send_reset_link": "リセットリンクを送信",
     "reset_success": "パスワードリセットリンクをメールで送信しました。",
     "back_to_sign_in": "ログインに戻る",

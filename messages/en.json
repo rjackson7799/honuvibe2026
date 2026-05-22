@@ -1033,6 +1033,8 @@
     "continue_google": "Continue with Google",
     "or": "or",
     "forgot_password": "Forgot password?",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
     "send_reset_link": "Send Reset Link",
     "reset_success": "Check your email for a password reset link.",
     "back_to_sign_in": "Back to sign in",

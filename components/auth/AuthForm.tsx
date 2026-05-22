@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,7 @@ export function AuthForm() {
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -411,16 +413,33 @@ export function AuthForm() {
                 locale={locale}
                 autoComplete="email"
               />
-              <Input
-                label={t('password')}
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                locale={locale}
-                minLength={6}
-                autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
-              />
+              <div className="relative">
+                <Input
+                  label={t('password')}
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  locale={locale}
+                  minLength={6}
+                  autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
+                  className="pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? t('hide_password') : t('show_password')}
+                  aria-pressed={showPassword}
+                  className={cn(
+                    'absolute right-2 bottom-2 flex h-8 w-8 items-center justify-center rounded',
+                    'text-fg-tertiary hover:text-fg-primary',
+                    'transition-colors duration-[var(--duration-fast)]',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal',
+                  )}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
 
               {mode === 'sign-in' && (
                 <button

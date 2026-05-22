@@ -18,6 +18,11 @@ let currentRole: string | null = null;
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }),
+  usePathname: () => '/',
+}));
+
+vi.mock('next-intl', () => ({
+  useLocale: () => 'en',
 }));
 
 vi.mock('@/i18n/navigation', () => ({
@@ -76,11 +81,11 @@ describe('MarketingUserMenu', () => {
     currentRole = null;
   });
 
-  it('renders the Sign In pill linking to /learn/auth when logged out', async () => {
+  it('renders the Sign In pill linking to /learn/auth with locale-aware redirect when logged out', async () => {
     render(<MarketingUserMenu labels={labels} />);
     const label = await screen.findByText('Student Login');
     const anchor = label.closest('a');
-    expect(anchor?.getAttribute('href')).toBe('/learn/auth');
+    expect(anchor?.getAttribute('href')).toBe('/learn/auth?redirect=%2F');
     expect(screen.queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
   });
 
