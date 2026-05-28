@@ -90,7 +90,7 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
     'bg-bg-secondary text-fg-secondary border-border-default hover:border-border-hover hover:text-fg-primary';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Filter chips */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mb-1">
         {statusFilters.map((s) => (
