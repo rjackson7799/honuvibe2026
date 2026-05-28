@@ -92,7 +92,7 @@ export function AdminCourseList({ courses }: AdminCourseListProps) {
   return (
     <div className="space-y-12">
       {/* Filter chips */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mb-1">
+      <div className="flex gap-2 overflow-x-auto">
         {statusFilters.map((s) => (
           <button
             key={s.key}
