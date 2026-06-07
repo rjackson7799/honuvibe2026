@@ -19,6 +19,7 @@ import {
   FileEdit,
   Wallet,
   Shield,
+  CalendarDays,
   type LucideIcon,
 } from 'lucide-react';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -43,6 +44,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/courses/proposals', label: 'Proposals', icon: FileEdit },
       { href: '/admin/instructors', label: 'Instructors', icon: GraduationCap },
       { href: '/admin/instructor-applications', label: 'Instructor Apps', icon: UserPlus },
+      { href: '/admin/events', label: 'Events', icon: CalendarDays },
     ],
   },
   {

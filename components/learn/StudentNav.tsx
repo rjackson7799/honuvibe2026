@@ -14,6 +14,7 @@ import {
   CreditCard,
   UserCircle,
   GraduationCap,
+  CalendarDays,
   Shield,
   LogOut,
 } from 'lucide-react';
@@ -35,6 +36,9 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
   { href: '/learn/dashboard/settings', labelKey: 'nav_profile', icon: UserCircle, exact: false },
+  // Events is appended last so the mobile bottom-nav (first 6) is unchanged;
+  // invitees deep-link in from email, and this is the secondary "My Events" surface.
+  { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
 ];
 
 const instructorNavItem: NavItem = {
