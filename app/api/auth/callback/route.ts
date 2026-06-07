@@ -2,13 +2,12 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { sendStudentOnboardingEmail } from '@/lib/email/send';
-import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
+import { resolvePostAuthRedirect } from '@/lib/auth/post-auth-redirect';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const explicitRedirect = searchParams.get('redirect');
-  let redirectTo = sanitizeRedirect(explicitRedirect, '/learn/dashboard');
 
   if (code) {
     const cookieStore = await cookies();
@@ -40,11 +39,11 @@ export async function GET(request: Request) {
       const isRecovery = data.session?.user?.recovery_sent_at &&
         Date.now() - new Date(data.session.user.recovery_sent_at).getTime() < 600000; // within 10 min
 
-      if (isRecovery || redirectTo.includes('/learn/auth/reset')) {
+      if (isRecovery || explicitRedirect?.includes('/learn/auth/reset')) {
         return NextResponse.redirect(new URL('/learn/auth/reset', origin));
       }
 
-      // Check if this is a new student (onboarded = false) + pick up role for default redirect
+      // New student (onboarded = false) + role drive the default destination.
       const { data: profile } = await supabase
         .from('users')
         .select('onboarded, full_name, email, locale_preference, role')
@@ -52,21 +51,22 @@ export async function GET(request: Request) {
         .single();
 
       if (profile && !profile.onboarded) {
-        // Fire-and-forget welcome email
+        // Fire-and-forget welcome email (independent of where we land them).
         sendStudentOnboardingEmail({
           locale: (profile.locale_preference as 'en' | 'ja') ?? 'en',
           fullName: profile.full_name ?? '',
           email: profile.email ?? data.session.user.email ?? '',
           dashboardUrl: `${origin}/learn/dashboard`,
         });
-        // Add welcome flag so dashboard shows onboarding screen
-        redirectTo = '/learn/dashboard?welcome=true';
-      } else if (!explicitRedirect && profile?.role) {
-        // Role-based default redirect — respect explicit ?redirect overrides
-        if (profile.role === 'admin') redirectTo = '/admin';
-        else if (profile.role === 'partner') redirectTo = '/partner';
-        else if (profile.role === 'instructor') redirectTo = '/instructor/courses';
       }
+
+      // A safe explicit ?redirect wins even for non-onboarded users, so an
+      // invited free-tier account lands on its gated event page.
+      const redirectTo = resolvePostAuthRedirect({
+        explicitRedirect,
+        onboarded: profile?.onboarded ?? true,
+        role: profile?.role ?? null,
+      });
 
       return NextResponse.redirect(new URL(redirectTo, origin));
     }
