@@ -3,7 +3,10 @@
 // needs to validate access before consuming quota.
 
 import { createClient } from '@/lib/supabase/server';
-import type { WorkbenchScenario } from '@/lib/workbench/types';
+import type {
+  WorkbenchAttempt,
+  WorkbenchScenario,
+} from '@/lib/workbench/types';
 
 /**
  * Fetch a scenario by id using the request user's client, so RLS decides
@@ -22,4 +25,24 @@ export async function getWorkbenchScenarioById(
 
   if (error || !data) return null;
   return data as WorkbenchScenario;
+}
+
+/**
+ * Fetch one attempt by id using the request user's client, so RLS enforces
+ * ownership (own_read for members; admin_read for admins). Returns null when the
+ * attempt does not exist or is not visible to this user. The Score route uses
+ * this to gate access before consuming evaluation quota.
+ */
+export async function getWorkbenchAttemptById(
+  attemptId: string,
+): Promise<WorkbenchAttempt | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('workbench_attempts')
+    .select('*')
+    .eq('id', attemptId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return data as WorkbenchAttempt;
 }

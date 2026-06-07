@@ -72,6 +72,41 @@ export const workbenchScoresSchema = z
 export type WorkbenchScores = z.infer<typeof workbenchScoresSchema>;
 
 // ---------------------------------------------------------------------------
+// Evaluator output contract (the JSON the Sonnet evaluator must emit)
+// ---------------------------------------------------------------------------
+// Richer than scores_json: each applicable dimension carries the integer score
+// plus the rationale + improvement text shown in the rubric panel. Only the
+// numeric scores are denormalized into scores_json / overall_score; the text
+// fields feed the immediate Score response and the derived strengths /
+// improvements lists.
+
+export const workbenchDimensionResultSchema = z.object({
+  score: workbenchDimensionScoreSchema, // int 0-5
+  rationale: z.string().trim().min(1), // why this score earned, in the prompt's language
+  improvement: z.string().trim().min(1), // how to raise it, in the prompt's language
+});
+export type WorkbenchDimensionResult = z.infer<
+  typeof workbenchDimensionResultSchema
+>;
+
+// Full evaluator response. Only a scenario's applicable dimensions are present,
+// so every key is optional; the evaluator additionally asserts that exactly the
+// applicable set was returned.
+export const workbenchEvaluatorResultSchema = z
+  .object({
+    role: workbenchDimensionResultSchema,
+    context: workbenchDimensionResultSchema,
+    task: workbenchDimensionResultSchema,
+    constraints: workbenchDimensionResultSchema,
+    format: workbenchDimensionResultSchema,
+    examples: workbenchDimensionResultSchema,
+  })
+  .partial();
+export type WorkbenchEvaluatorResult = z.infer<
+  typeof workbenchEvaluatorResultSchema
+>;
+
+// ---------------------------------------------------------------------------
 // DB row — workbench_scenarios
 // ---------------------------------------------------------------------------
 
