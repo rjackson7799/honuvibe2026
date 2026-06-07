@@ -33,12 +33,10 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard', labelKey: 'nav_dashboard', icon: LayoutDashboard, exact: true },
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
+  { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
   { href: '/learn/dashboard/settings', labelKey: 'nav_profile', icon: UserCircle, exact: false },
-  // Events is appended last so the mobile bottom-nav (first 6) is unchanged;
-  // invitees deep-link in from email, and this is the secondary "My Events" surface.
-  { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
 ];
 
 const instructorNavItem: NavItem = {
@@ -195,7 +193,10 @@ export function StudentNav() {
 
       {/* Mobile bottom nav — restyled for canvas palette */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-tertiary border-t border-border-default flex">
-        {navItems.slice(0, 6).map((item) => {
+        {navItems
+          .filter((i) => i.href !== '/learn/dashboard/events')
+          .slice(0, 6)
+          .map((item) => {
           const isActive = item.exact
             ? logicalPath === item.href
             : logicalPath.startsWith(item.href);
