@@ -1,0 +1,229 @@
+{
+  "_meta": {
+    "description": "Hand-graded calibration set for the Apply-It Workbench Sonnet evaluator. Each case's `expected` per-dimension scores (integers 0-5) are author-graded against the few-shot anchors in lib/workbench/evaluator-exemplars.ts (absent dimension ~= 1, excellent ~= 5). The live harness (evaluator-calibration.live.test.ts) runs each case through the real evaluateAttempt() and asserts the mean absolute deviation from these baselines stays within the drift budget, per dimension. Run with `pnpm test:eval` before any evaluator-model bump or prompt change. See docs/plans/2026-05-27-apply-it-workbench-v1.md (Evaluator engineering plan).",
+    "drift_budget_per_dimension": 0.5,
+    "count": 20
+  },
+  "cases": [
+    {
+      "id": "mkt-launch-weak",
+      "domain": "marketing",
+      "language": "en",
+      "applicable_dimensions": ["role", "context", "task", "constraints", "format"],
+      "brief": "Draft launch announcement copy for PennyWise, a new mobile budgeting app aimed at first-time savers.",
+      "expert_prompt": "You are a consumer fintech copywriter. In under 100 words, write a launch announcement for 'PennyWise', a budgeting app for first-time savers aged 20-30 who feel anxious about money. Warm, encouraging tone; no finance jargon. Return a headline plus exactly two short paragraphs.",
+      "prompt": "Write a launch announcement for my new budgeting app.",
+      "output": "Introducing our new budgeting app! It helps you save money easily. Download it today and take control of your finances.",
+      "expected": { "role": 1, "context": 1, "task": 2, "constraints": 1, "format": 1 }
+    },
+    {
+      "id": "mkt-launch-strong",
+      "domain": "marketing",
+      "language": "en",
+      "applicable_dimensions": ["role", "context", "task", "constraints", "format"],
+      "brief": "Draft launch announcement copy for PennyWise, a new mobile budgeting app aimed at first-time savers.",
+      "expert_prompt": "You are a consumer fintech copywriter. In under 100 words, write a launch announcement for 'PennyWise', a budgeting app for first-time savers aged 20-30 who feel anxious about money. Warm, encouraging tone; no finance jargon. Return a headline plus exactly two short paragraphs.",
+      "prompt": "You are a senior consumer fintech copywriter. We're launching 'PennyWise', a budgeting app for first-time savers aged 20-30 who feel anxious about money. In under 100 words, write a launch announcement in a warm, encouraging tone with no finance jargon. Return a headline followed by exactly two short paragraphs.",
+      "output": "Money, finally on your side.\n\nPennyWise is for anyone who has ever felt a knot in their stomach opening a banking app. We turn saving into small, doable steps you can actually stick to.\n\nNo spreadsheets, no lectures. Just gentle nudges that help your balance grow while you get on with your life. Your first win is closer than you think.",
+      "expected": { "role": 5, "context": 5, "task": 5, "constraints": 5, "format": 5 }
+    },
+    {
+      "id": "mkt-subjectlines-mid",
+      "domain": "marketing",
+      "language": "en",
+      "applicable_dimensions": ["role", "task", "format"],
+      "brief": "Generate email subject lines for a weekly marketing newsletter.",
+      "expert_prompt": "You are an email marketing specialist. Write five subject lines for this week's newsletter about a new feature launch, each under 50 characters, and return them as a numbered list.",
+      "prompt": "Act as a copywriter. Write some newsletter subject lines. Put them in a list.",
+      "output": "1. Don't miss this\n2. Big news inside\n3. You'll want to see this",
+      "expected": { "role": 2, "task": 2, "format": 3 }
+    },
+    {
+      "id": "mkt-taglines-noexample",
+      "domain": "marketing",
+      "language": "en",
+      "applicable_dimensions": ["examples", "task"],
+      "brief": "Write taglines for a coffee subscription brand.",
+      "expert_prompt": "Our taglines sound like these: \"Brewed for the long haul.\" and \"Your morning, upgraded.\" Write five new taglines in that same style for our single-origin coffee subscription.",
+      "prompt": "Write five taglines in our brand voice for our coffee subscription.",
+      "output": "1. Brewed for you\n2. Taste the difference\n3. Coffee, delivered\n4. Wake up better\n5. Your daily ritual",
+      "expected": { "examples": 1, "task": 4 }
+    },
+    {
+      "id": "mkt-taglines-fewshot",
+      "domain": "marketing",
+      "language": "en",
+      "applicable_dimensions": ["examples", "format"],
+      "brief": "Write taglines for a productivity planner brand.",
+      "expert_prompt": "Our taglines sound like these: \"Less hustle, more flow.\" and \"Big plans, small steps.\" Write three new taglines in that same style for our productivity planner, as a numbered list.",
+      "prompt": "Our taglines sound like these: \"Less hustle, more flow.\" and \"Big plans, small steps.\" Write three new taglines in that same style for our productivity planner. Return them as a numbered list, one per line.",
+      "output": "1. Quiet mornings, loud results\n2. Plan less, finish more\n3. Small steps, real momentum",
+      "expected": { "examples": 5, "format": 4 }
+    },
+    {
+      "id": "ops-numbers-weak",
+      "domain": "operations",
+      "language": "en",
+      "applicable_dimensions": ["context", "task", "format"],
+      "brief": "Summarize quarterly business performance for a leadership update.",
+      "expert_prompt": "Here is our Q3 vs Q2 data: revenue $1.2M vs $1.0M, churn 4% vs 6%, new logos 38 vs 25. Summarize the quarter in exactly three bullet points; each bullet must name the metric, the percentage change, and the single biggest driver.",
+      "prompt": "Tell me about our quarterly numbers.",
+      "output": "Your quarterly numbers show some changes compared with the previous period. Revenue and other metrics moved in different directions across the quarter.",
+      "expected": { "context": 1, "task": 1, "format": 1 }
+    },
+    {
+      "id": "ops-numbers-strong",
+      "domain": "operations",
+      "language": "en",
+      "applicable_dimensions": ["context", "task", "format"],
+      "brief": "Summarize quarterly business performance for a leadership update.",
+      "expert_prompt": "Here is our Q3 vs Q2 data: revenue $1.2M vs $1.0M, churn 4% vs 6%, new logos 38 vs 25. Summarize the quarter in exactly three bullet points; each bullet must name the metric, the percentage change, and the single biggest driver.",
+      "prompt": "Here is our Q3 vs Q2 data: revenue $1.2M vs $1.0M, churn 4% vs 6%, new logos 38 vs 25. Summarize the quarter in exactly three bullet points; each bullet must name the metric, the percentage change, and the single biggest driver.",
+      "output": "- Revenue: up 20% ($1.0M to $1.2M), driven mainly by enterprise upsells.\n- Churn: down from 6% to 4%, driven by the new onboarding flow.\n- New logos: up 52% (25 to 38), driven by the partner referral program.",
+      "expected": { "context": 5, "task": 5, "format": 5 }
+    },
+    {
+      "id": "ops-officemove-constraints",
+      "domain": "operations",
+      "language": "en",
+      "applicable_dimensions": ["task", "constraints"],
+      "brief": "Write an internal announcement about an upcoming office relocation.",
+      "expert_prompt": "Draft an internal all-staff announcement about our office moving to a new building next month. Under 150 words, friendly and reassuring, and do not mention the lease cost or the dispute with the old landlord.",
+      "prompt": "Draft an internal announcement about our office moving to a new building next month. Keep it under 150 words, friendly and reassuring, for all staff. Do not mention the lease cost or the old landlord dispute.",
+      "output": "Hi everyone -- some exciting news! Next month we're moving to a brighter, bigger space just two blocks away. We'll share the full timeline and a moving-day FAQ soon. Thanks for making any office home.",
+      "expected": { "task": 4, "constraints": 5 }
+    },
+    {
+      "id": "ops-onboarding-mid",
+      "domain": "operations",
+      "language": "en",
+      "applicable_dimensions": ["role", "context", "task"],
+      "brief": "Propose improvements to a slow customer onboarding process.",
+      "expert_prompt": "You are our head of customer operations. New-customer onboarding currently takes 12 business days, with the biggest delays in manual account provisioning and the kickoff-call scheduling. Propose the three highest-impact changes to cut it under 5 days, each with the expected time saved.",
+      "prompt": "You're our operations lead. Our onboarding takes too long. Suggest improvements.",
+      "output": "Here are some ways to speed up onboarding: automate account setup, send a welcome guide, and schedule the kickoff call sooner.",
+      "expected": { "role": 4, "context": 2, "task": 2 }
+    },
+    {
+      "id": "comm-email-weak",
+      "domain": "communication",
+      "language": "en",
+      "applicable_dimensions": ["context", "task", "constraints"],
+      "brief": "Write a follow-up email to a customer.",
+      "expert_prompt": "A customer raised a billing dispute last week; we refunded them and fixed the pricing bug. They're a 2-year enterprise account. Write a follow-up email under 120 words that acknowledges the mistake, confirms the fix, and rebuilds trust, in a warm and accountable tone.",
+      "prompt": "Write a follow-up email to a customer.",
+      "output": "Hi [Name], I wanted to follow up with you about your recent experience. Please let me know if there's anything I can help with. Best regards.",
+      "expected": { "context": 1, "task": 2, "constraints": 1 }
+    },
+    {
+      "id": "comm-email-strong",
+      "domain": "communication",
+      "language": "en",
+      "applicable_dimensions": ["context", "task", "constraints"],
+      "brief": "Write a follow-up email to a customer.",
+      "expert_prompt": "A customer raised a billing dispute last week; we refunded them and fixed the pricing bug. They're a 2-year enterprise account. Write a follow-up email under 120 words that acknowledges the mistake, confirms the fix, and rebuilds trust, in a warm and accountable tone.",
+      "prompt": "A customer raised a billing dispute last week; we refunded them and fixed the pricing bug that caused it. They're a 2-year enterprise account and were frustrated. Write a follow-up email that acknowledges the mistake, confirms the fix, and rebuilds trust. Keep it under 120 words, warm and accountable, and do not offer a discount.",
+      "output": "Subject: Following up on last week\n\nHi Maria, thank you for your patience while we sorted out the billing issue. You were right to flag it -- the charge came from a pricing bug, which we've now fixed and confirmed on your account, along with the refund. We value your trust over the last two years and don't take a stumble like this lightly. If anything still looks off, reply here and it comes straight to me.",
+      "expected": { "context": 5, "task": 4, "constraints": 4 }
+    },
+    {
+      "id": "comm-feedback-role",
+      "domain": "communication",
+      "language": "en",
+      "applicable_dimensions": ["role", "task"],
+      "brief": "Write a message opening a difficult conversation with a team member.",
+      "expert_prompt": "You are an experienced HR manager known for clear, kind feedback. Write a short message to a team member who has been missing deadlines, opening a conversation without sounding accusatory and inviting their perspective.",
+      "prompt": "You are an experienced HR manager known for clear, kind feedback. Write a short message to a team member who has been missing deadlines, opening a conversation without sounding accusatory.",
+      "output": "Hi Sam, I wanted to check in -- I've noticed a few deadlines slipping lately and I'd like to understand what's getting in the way. Could we grab 20 minutes this week? No agenda beyond figuring out how to make things easier on your end.",
+      "expected": { "role": 5, "task": 4 }
+    },
+    {
+      "id": "comm-meeting-format",
+      "domain": "communication",
+      "language": "en",
+      "applicable_dimensions": ["task", "format"],
+      "brief": "Summarize decisions from a set of meeting notes.",
+      "expert_prompt": "Summarize the key decisions from the meeting notes below. Return a markdown table with columns Decision, Owner, and Due date, one row per decision.",
+      "prompt": "Summarize the key decisions from our meeting notes below. Return a markdown table with columns Decision, Owner, and Due date, one row per decision.",
+      "output": "| Decision | Owner | Due date |\n| --- | --- | --- |\n| Ship the beta | Ana | Jun 15 |\n| Finalize pricing | Theo | Jun 20 |",
+      "expected": { "task": 4, "format": 5 }
+    },
+    {
+      "id": "mkt-product-norole",
+      "domain": "marketing",
+      "language": "en",
+      "applicable_dimensions": ["role", "task"],
+      "brief": "Write marketing copy for a product.",
+      "expert_prompt": "You are a senior B2C copywriter. Write a 40-word product blurb for our reusable water bottle aimed at commuters, leading with the keep-cold-24h benefit.",
+      "prompt": "Write some marketing copy for my product.",
+      "output": "Check out our amazing product! It's the best on the market and you'll love it. Get yours today!",
+      "expected": { "role": 1, "task": 1 }
+    },
+    {
+      "id": "ja-mkt-weak",
+      "domain": "marketing",
+      "language": "ja",
+      "applicable_dimensions": ["role", "task"],
+      "brief": "新しいオンライン英会話サービスのプロモーション文を作成する。",
+      "expert_prompt": "あなたは語学学習サービスを専門とするコピーライターです。社会人向けオンライン英会話『TalkUp』の魅力を、80語以内で紹介する短いプロモーション文を書いてください。",
+      "prompt": "製品のプロモーション文を書いて。",
+      "output": "新しい製品をぜひお試しください。きっとお役に立ちます。今すぐご利用ください。",
+      "expected": { "role": 1, "task": 1 }
+    },
+    {
+      "id": "ja-mkt-strong",
+      "domain": "marketing",
+      "language": "ja",
+      "applicable_dimensions": ["role", "task", "format"],
+      "brief": "新しいオンライン英会話サービスのメール件名を作成する。",
+      "expert_prompt": "あなたは語学学習サービスを専門とするシニアコピーライターです。社会人向けオンライン英会話『TalkUp』のメール件名を、Markdownの番号付きリストでちょうど3つ、それぞれ40文字以内で書いてください。",
+      "prompt": "あなたは語学学習サービスを専門とするシニアコピーライターです。社会人向けオンライン英会話『TalkUp』のメール件名を、Markdownの番号付きリストでちょうど3つ、それぞれ40文字以内で書いてください。",
+      "output": "1. 朝15分で、話せる英語へ。\n2. 仕事帰りに、もう一歩前へ。\n3. 続く英会話、TalkUpから。",
+      "expected": { "role": 5, "task": 5, "format": 4 }
+    },
+    {
+      "id": "ja-ops-mid",
+      "domain": "operations",
+      "language": "ja",
+      "applicable_dimensions": ["context", "task"],
+      "brief": "社内会議が長すぎるという課題について改善案をまとめる。",
+      "expert_prompt": "あなたは業務改善の担当者です。毎週の定例会議が平均90分かかり、議題の脱線と資料の事前共有不足が主な原因です。会議を45分以内にするための具体的な改善策を3つ、それぞれ期待できる効果とともに提案してください。",
+      "prompt": "会議が長くて困っています。短くする方法を教えて。",
+      "output": "会議を短くするには、事前にアジェンダを共有し、時間を区切り、参加者を絞ると効果的です。",
+      "expected": { "context": 2, "task": 2 }
+    },
+    {
+      "id": "ja-comm-strong",
+      "domain": "communication",
+      "language": "ja",
+      "applicable_dimensions": ["context", "task", "constraints"],
+      "brief": "納品遅延について取引先に送るフォローアップメールを書く。",
+      "expert_prompt": "先月、納品が1週間遅れ、取引先に迷惑をかけました。すでに納品は完了し、再発防止策も共有済みです。相手は3年来の重要な取引先です。信頼を回復するためのフォローアップメールを、150文字以内で、誠実で丁寧なトーンで書いてください。値引きの提案は含めないでください。",
+      "prompt": "先月、納品が1週間遅れてしまい、取引先に迷惑をかけました。すでに納品は完了し、再発防止策も共有済みです。相手は3年来の重要な取引先です。信頼を回復するためのフォローアップメールを、150文字以内で、誠実で丁寧なトーンで書いてください。値引きの提案は含めないでください。",
+      "output": "件名: 先日の納品について\n\nこの度は納品が遅れ、ご迷惑をおかけし誠に申し訳ございませんでした。すでに納品は完了し、再発防止策も整えております。今後も変わらぬご信頼に応えられるよう努めてまいります。",
+      "expected": { "context": 5, "task": 4, "constraints": 4 }
+    },
+    {
+      "id": "ja-mkt-examples",
+      "domain": "marketing",
+      "language": "ja",
+      "applicable_dimensions": ["examples", "format"],
+      "brief": "新しい家計簿アプリのキャッチコピーを作成する。",
+      "expert_prompt": "うちのキャッチコピーはこんな感じです：「毎日に、ひと工夫を。」「小さな一歩が、大きな変化に。」この同じ調子で、新しい家計簿アプリのキャッチコピーを3つ、箇条書きで書いてください。",
+      "prompt": "うちのキャッチコピーはこんな感じです：「毎日に、ひと工夫を。」「小さな一歩が、大きな変化に。」この同じ調子で、新しい家計簿アプリのキャッチコピーを3つ、箇条書きで書いてください。",
+      "output": "・お金の不安に、そっと寄り添う。\n・続けるほど、暮らしが軽くなる。\n・今日の一円が、明日の安心に。",
+      "expected": { "examples": 5, "format": 4 }
+    },
+    {
+      "id": "ja-comm-constraints-weak",
+      "domain": "communication",
+      "language": "ja",
+      "applicable_dimensions": ["task", "constraints"],
+      "brief": "顧客からの問い合わせに対する返信メールを書く。",
+      "expert_prompt": "あなたはカスタマーサポート担当です。配送状況を尋ねる顧客からの問い合わせに対し、丁寧なトーンで、120文字以内、追跡番号の案内を必ず含めて返信メールを書いてください。",
+      "prompt": "お客様からの問い合わせに返信するメールを書いてください。",
+      "output": "お問い合わせいただきありがとうございます。内容を確認の上、改めてご連絡いたします。何卒よろしくお願いいたします。",
+      "expected": { "task": 2, "constraints": 1 }
+    }
+  ]
+}

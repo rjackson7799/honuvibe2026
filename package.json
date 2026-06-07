@@ -11,6 +11,7 @@
     "test": "vitest --project app",
     "test:run": "vitest run --project app",
     "test:rls": "node --env-file=.env.test.local node_modules/vitest/vitest.mjs run --project rls --no-file-parallelism",
+    "test:eval": "cross-env RUN_LIVE_EVAL=1 node --env-file-if-exists=.env.local node_modules/vitest/vitest.mjs run --project evaluator-live --no-file-parallelism",
     "verify:fast": "pnpm type-check && pnpm test:run",
     "verify": "pnpm type-check && pnpm test:run && pnpm build",
     "seed:glossary": "node scripts/seed-glossary.mjs"
