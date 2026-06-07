@@ -64,7 +64,7 @@
 
 ## 3. Data Model
 
-New migration `supabase/migrations/043_live_events.sql` (next free number after `042_community_feed.sql`). Conventions: `uuid` PKs via `gen_random_uuid()`, `timestamptz default now()`, bilingual `_en`/`_jp`, RLS enabled.
+New migration `supabase/migrations/044_live_events.sql` (next free number after `043_workbench.sql`). Conventions: `uuid` PKs via `gen_random_uuid()`, `timestamptz default now()`, bilingual `_en`/`_jp`, RLS enabled.
 
 ### 3.1 `live_events` (the row invitees may read once published)
 Holds only fields an invited, published-event viewer is *allowed* to see. **Recap assets are NOT here** (see §3.3) — they must stay hidden until `recap_published`, and RLS can't hide columns.
@@ -193,7 +193,7 @@ Mirror `lib/vault/{queries,actions,types}.ts` and `lib/courses/actions.ts` (auth
 ## 8. Files to Create / Modify
 
 **Create**
-- `supabase/migrations/043_live_events.sql` — three tables, `is_event_invitee`, RLS.
+- `supabase/migrations/044_live_events.sql` — three tables, `is_event_invitee`, RLS.
 - `lib/events/{types,queries,actions,ics}.ts`.
 - `app/[locale]/admin/events/page.tsx`, `app/[locale]/admin/events/[id]/page.tsx`.
 - `components/admin/AdminEventDetail.tsx` (+ invitations-manager / recap-editor subcomponents, confirmation modal).
@@ -213,7 +213,7 @@ Mirror `lib/vault/{queries,actions,types}.ts` and `lib/courses/actions.ts` (auth
 ---
 
 ## 9. Build Sequence
-1. **DB:** `043_live_events.sql` (three tables, helper, RLS); apply locally; verify with invited / non-invited / pre-publish-recap cases.
+1. **DB:** `044_live_events.sql` (three tables, helper, RLS); apply locally; verify with invited / non-invited / pre-publish-recap cases.
 2. **Server layer:** `types` → `queries` → `actions` (incl. service-role `setRsvp` + eligibility) → `ics` (with `ics` lib).
 3. **Auth flow:** patch the callback redirect; wire `createUser` + `generateLink(redirect=…)`; test new + existing users, EN + JA.
 4. **Email:** three senders + `.ics`; `Send test to me`; test sends.

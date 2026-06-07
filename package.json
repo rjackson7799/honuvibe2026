@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit",
     "test": "vitest --project app",
     "test:run": "vitest run --project app",
-    "test:rls": "node --env-file=.env.test.local node_modules/vitest/vitest.mjs run --project rls",
+    "test:rls": "node --env-file=.env.test.local node_modules/vitest/vitest.mjs run --project rls --no-file-parallelism",
     "verify:fast": "pnpm type-check && pnpm test:run",
     "verify": "pnpm type-check && pnpm test:run && pnpm build",
     "seed:glossary": "node scripts/seed-glossary.mjs"

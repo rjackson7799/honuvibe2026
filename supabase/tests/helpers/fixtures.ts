@@ -153,3 +153,20 @@ export async function resetCommunityData(): Promise<void> {
   await admin.from('community_posts').delete().neq('id', wildcard);
   await admin.from('link_previews').delete().neq('url_hash', '');
 }
+
+/** Wipes live-event data between tests, keeps users + memberships. */
+export async function resetEventData(): Promise<void> {
+  const admin = serviceClient();
+  const wildcard = '00000000-0000-0000-0000-000000000000';
+  // recap_assets + invitations cascade from live_events, but delete explicitly
+  // so the order is clear and a partial seed never leaks across tests.
+  await admin.from('live_event_recap_assets').delete().neq('event_id', wildcard);
+  await admin.from('event_invitations').delete().neq('id', wildcard);
+  await admin.from('live_events').delete().neq('id', wildcard);
+}
+
+/** Restores a fixture user's profile email after an email-mutation test. */
+export async function restoreUserEmail(userId: string): Promise<void> {
+  const admin = serviceClient();
+  await admin.from('users').update({ email: `${userId}@fixture.local` }).eq('id', userId);
+}
