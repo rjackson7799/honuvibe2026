@@ -115,3 +115,57 @@ export async function getAdminWorkbenchScenarioById(
     .maybeSingle();
   return (data as WorkbenchScenario | null) ?? null;
 }
+
+// ---------------------------------------------------------------------------
+// Workspace reads (member, session client — RLS scoped)
+// ---------------------------------------------------------------------------
+
+/** Published scenario by slug for the workspace page (RLS: published + vault access). */
+export async function getPublishedScenarioBySlug(
+  slug: string,
+): Promise<WorkbenchScenario | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('workbench_scenarios')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .maybeSingle();
+  return (data as WorkbenchScenario | null) ?? null;
+}
+
+/**
+ * The signed-in user's attempts for a scenario, newest version first. RLS
+ * (workbench_attempts_own_read) scopes to the caller, so no user_id filter is
+ * needed. Powers the version-history dropdown and the reveal-state check.
+ */
+export async function getAttemptsForScenario(
+  scenarioId: string,
+): Promise<WorkbenchAttempt[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('workbench_attempts')
+    .select('*')
+    .eq('scenario_id', scenarioId)
+    .order('version', { ascending: false });
+  return (data as WorkbenchAttempt[] | null) ?? [];
+}
+
+/**
+ * The caller's quota usage for today (UTC day, matching workbench_consume_quota).
+ * Returns zeroes when no row exists yet. RLS (workbench_daily_usage_own_read)
+ * scopes the read to the caller.
+ */
+export async function getTodayUsage(): Promise<{ runs: number; scores: number }> {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from('workbench_daily_usage')
+    .select('runs_count, evaluations_count')
+    .eq('usage_date', today)
+    .maybeSingle();
+  return {
+    runs: (data?.runs_count as number | undefined) ?? 0,
+    scores: (data?.evaluations_count as number | undefined) ?? 0,
+  };
+}

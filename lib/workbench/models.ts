@@ -67,6 +67,11 @@ export const EVALUATOR_MODEL: EvaluatorModelConfig = {
   timeoutMs: 25_000,
 };
 
+// Per-user/day quota caps. MUST match the constants in workbench_consume_quota
+// (supabase/migrations/043_workbench.sql); the RPC enforces them server-side,
+// these mirror them for display (usage meter) only.
+export const WORKBENCH_DAILY_CAPS = { runs: 25, scores: 10 } as const;
+
 /**
  * Executor models whose API key is configured in the environment. Server-side
  * only (reads process.env). The workspace dropdown renders only these, so an
