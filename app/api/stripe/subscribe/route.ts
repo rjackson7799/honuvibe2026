@@ -5,6 +5,10 @@ import { TIER_REGISTRY, getSubscriptionPriceId } from '@/lib/stripe/tiers';
 import { hasActiveSubscription } from '@/lib/access/checks';
 import { parseTier, fetchUserAccessRow } from '@/lib/stripe/subscribe-helpers';
 import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
+import {
+  trackServerEvent,
+  serverEventContextFromRequest,
+} from '@/lib/analytics-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -79,6 +83,11 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}${localePrefix}/learn/dashboard/billing?subscribed=true&tier=${tier}`,
       cancel_url: `${origin}${localePrefix}/learn/dashboard/billing`,
       locale: isJapanese ? 'ja' : 'en',
+    });
+
+    await trackServerEvent('checkout_started', {
+      ...serverEventContextFromRequest(request),
+      props: { kind: tier, currency: isJapanese ? 'jpy' : 'usd', slug_or_tier: tier },
     });
 
     return NextResponse.json({ url: session.url });
@@ -179,6 +188,12 @@ export async function GET(request: NextRequest) {
     });
 
     if (!session.url) throw new Error('Stripe session has no URL');
+
+    await trackServerEvent('checkout_started', {
+      ...serverEventContextFromRequest(request),
+      props: { kind: tier, currency: isJapanese ? 'jpy' : 'usd', slug_or_tier: tier },
+    });
+
     return NextResponse.redirect(session.url, 302);
   } catch (error) {
     console.error('[Stripe Subscribe GET] Error:', error);

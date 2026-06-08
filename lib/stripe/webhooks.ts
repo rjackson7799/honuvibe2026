@@ -10,6 +10,10 @@ import {
 import { findOrCreateUserByEmail } from '@/lib/auth/find-or-create';
 import { stripe } from '@/lib/stripe/client';
 import { resolveSubscriptionTier, paymentTypeForRenewal } from '@/lib/stripe/tiers';
+import { trackServerEvent } from '@/lib/analytics-server';
+
+/** Canonical URL for server-side funnel events fired from webhook handlers. */
+const WEBHOOK_EVENT_URL = `https://${process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ?? 'honuvibe.ai'}/checkout/completed`;
 
 /** Service role client for webhook handlers — bypasses RLS, no user session */
 function getServiceClient() {
@@ -143,6 +147,14 @@ export async function handleCheckoutCompleted(
     );
     throw enrollError; // Return 500 so Stripe retries
   }
+
+  // Funnel: conversion completed (server-side, ad-block-proof). Fired only on a
+  // genuinely new enrollment — the idempotency guard above returns before here
+  // on Stripe retries, so this counts each conversion once.
+  await trackServerEvent('checkout_completed', {
+    url: WEBHOOK_EVENT_URL,
+    props: { kind: 'course', currency },
+  });
 
   // First-touch sticky attribution on the user — only set if not already set
   if (partnerId) {
@@ -461,6 +473,11 @@ export async function handleSubscriptionCreated(
 
   const periodEnd = subscription.items.data[0]?.current_period_end;
 
+  // Count the conversion once: fire only when this subscription id is new to the
+  // user (the guard above already returned for a *different* existing sub, so a
+  // re-fired identical event has subscription_stripe_id === subscription.id).
+  const isNewSubscription = !user.subscription_stripe_id;
+
   await supabase
     .from('users')
     .update({
@@ -472,6 +489,16 @@ export async function handleSubscriptionCreated(
         : null,
     })
     .eq('id', user.id);
+
+  if (isNewSubscription) {
+    await trackServerEvent('checkout_completed', {
+      url: WEBHOOK_EVENT_URL,
+      props: {
+        kind: tier,
+        currency: subscription.items.data[0]?.price?.currency ?? 'usd',
+      },
+    });
+  }
 }
 
 export async function handleSubscriptionUpdated(

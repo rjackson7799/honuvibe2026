@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { simulatedEnroll } from '@/lib/enrollments/actions';
+import { trackCourseEnrollCtaClick } from '@/lib/analytics';
 
 type EnrollButtonProps = {
   courseId: string;
@@ -72,6 +73,8 @@ export function EnrollButton({
   }
 
   async function handleEnroll() {
+    trackCourseEnrollCtaClick({ course_slug: courseSlug, is_paid: isPaid, locale });
+
     if (!isLoggedIn) {
       const prefix = locale === 'ja' ? '/ja' : '';
       router.push(

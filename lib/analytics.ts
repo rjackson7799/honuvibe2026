@@ -10,6 +10,33 @@ export function trackEvent(name: string, props?: Record<string, string>) {
   }
 }
 
+// --- Conversion funnel spine ----------------------------------------------
+// See docs/analytics-events.md. Props are non-PII, string-valued only.
+// Note: these fire on client navigations (router.push), which do NOT tear the
+// page down synchronously, so the event delivers reliably. For events fired on
+// a true outbound navigation / full unload, prefer navigator.sendBeacon — the
+// current CTAs use client routing, so trackEvent is sufficient.
+
+export function trackCourseEnrollCtaClick(props: {
+  course_slug: string;
+  is_paid: boolean;
+  locale: string;
+}) {
+  trackEvent('course_enroll_cta_click', {
+    course_slug: props.course_slug,
+    is_paid: String(props.is_paid),
+    locale: props.locale,
+  });
+}
+
+export function trackFreeSampleStarted(props: {
+  lesson_slug: string;
+  locale: string;
+}) {
+  // Carries lesson_slug + locale ONLY — never the captured email.
+  trackEvent('free_sample_started', props);
+}
+
 // --- Community feed events ------------------------------------------------
 // All values stringified because Plausible only accepts string-valued props.
 

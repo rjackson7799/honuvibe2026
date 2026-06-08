@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import { getAttributedPartnerSlug } from '@/lib/partner-attribution';
+import {
+  trackServerEvent,
+  serverEventContextFromRequest,
+} from '@/lib/analytics-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -145,6 +149,12 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}${localePrefix}/learn/dashboard/${course.slug}?enrolled=true`,
       cancel_url: `${origin}${localePrefix}/learn/${course.slug}`,
       locale: isJapanese ? 'ja' : 'en',
+    });
+
+    // Funnel: checkout initiated (server-side, captures abandons too).
+    await trackServerEvent('checkout_started', {
+      ...serverEventContextFromRequest(request),
+      props: { kind: 'course', currency, slug_or_tier: course.slug },
     });
 
     return NextResponse.json({ url: session.url });
