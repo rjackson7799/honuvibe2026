@@ -17,7 +17,7 @@ import {
 } from '@/components/partners/PartnerBadge';
 import { PartnerFilterChips } from '@/components/partners/PartnerFilterChips';
 import { Lock } from 'lucide-react';
-import { BadgePill } from '@/components/ui/badge-pill';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -69,26 +69,12 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
 
   function VaultHeader({ count }: { count: number }) {
     return (
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-[10px] bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)] flex items-center justify-center shrink-0">
-            <Lock size={18} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-[clamp(20px,2.4vw,24px)] font-bold text-fg-primary tracking-[-0.02em]">
-                {t('page_title')}
-              </h1>
-              {count > 0 && (
-                <BadgePill variant="teal" size="sm">
-                  {t('items_found', { count })}
-                </BadgePill>
-              )}
-            </div>
-            <p className="text-[14px] text-fg-tertiary">{t('page_subtitle')}</p>
-          </div>
-        </div>
-      </div>
+      <DashboardPageHeader
+        icon={Lock}
+        title={t('page_title')}
+        subtitle={t('page_subtitle')}
+        count={count > 0 ? t('items_found', { count }) : undefined}
+      />
     );
   }
 

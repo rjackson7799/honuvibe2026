@@ -5,7 +5,8 @@ import { useTranslations, useLocale } from 'next-intl';
 import { DashboardCourseCard } from '@/components/learn/DashboardCourseCard';
 import { CourseCard } from '@/components/learn/CourseCard';
 import { SectionHeading } from '@/components/learn/SectionHeading';
-import { BadgePill } from '@/components/ui/badge-pill';
+import { BookOpen } from 'lucide-react';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 import { cn } from '@/lib/utils';
 import type { EnrollmentWithCourse } from '@/lib/enrollments/types';
 import type { Course } from '@/lib/courses/types';
@@ -58,14 +59,11 @@ export default function MyCoursesPage() {
   });
 
   const heading = (
-    <div className="flex items-center gap-2 flex-wrap">
-      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
-        {t('heading_courses')}
-      </h1>
-      {!loading && enrollments.length > 0 && (
-        <BadgePill variant="teal" size="sm">{enrollments.length}</BadgePill>
-      )}
-    </div>
+    <DashboardPageHeader
+      icon={BookOpen}
+      title={t('heading_courses')}
+      count={!loading && enrollments.length > 0 ? String(enrollments.length) : undefined}
+    />
   );
 
   if (loading) {

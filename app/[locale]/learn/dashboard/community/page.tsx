@@ -11,6 +11,8 @@ import { PostCard } from '@/components/community/PostCard';
 import { EmptyFeed } from '@/components/community/EmptyFeed';
 import { BannedBanner } from '@/components/community/BannedBanner';
 import { PostComposer } from '@/components/community/PostComposer';
+import { Users } from 'lucide-react';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -62,11 +64,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-5 max-w-[820px]">
-      <div>
-        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
-          {scope.partner?.name_en ?? t('page_title')}
-        </h1>
-      </div>
+      <DashboardPageHeader icon={Users} title={scope.partner?.name_en ?? t('page_title')} />
 
       {locale === 'ja' && lineUrl && (
         <LineJoinCard url={lineUrl} partnerScope={scope.partner?.slug ?? 'main'} />

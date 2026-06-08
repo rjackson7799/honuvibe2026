@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SetPasswordCard } from '@/components/auth/SetPasswordCard';
+import { UserCircle } from 'lucide-react';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 
 function getInitials(name: string, email: string): string {
   const source = name.trim() || email.trim();
@@ -127,9 +129,7 @@ export default function SettingsPage() {
   };
 
   const heading = (
-    <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
-      {t('profile_heading')}
-    </h1>
+    <DashboardPageHeader icon={UserCircle} title={t('profile_heading')} />
   );
 
   const inputClass =

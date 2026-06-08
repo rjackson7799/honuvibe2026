@@ -3,6 +3,7 @@
     "my_events_title": "My Events",
     "my_events_subtitle": "Live trainings you've been invited to.",
     "my_events_empty": "You have no events yet.",
+    "events_count": "{count, plural, one {# event} other {# events}}",
     "dashboard_upcoming": "Upcoming events",
     "status_needed": "Response needed",
     "badge_going": "Going",

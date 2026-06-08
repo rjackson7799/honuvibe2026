@@ -54,7 +54,7 @@ export default async function EventDetailPage({ params }: Props) {
             {t('status_cancelled')}
           </span>
         )}
-        <h1 className="text-[clamp(26px,3.4vw,38px)] font-bold text-fg-primary tracking-[-0.02em] leading-tight">
+        <h1 className="text-[clamp(24px,3vw,32px)] font-bold text-fg-primary tracking-[-0.02em] leading-tight">
           {title}
         </h1>
         <p className="text-fg-secondary">

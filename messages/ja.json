@@ -3,6 +3,7 @@
     "my_events_title": "マイイベント",
     "my_events_subtitle": "ご招待中のライブトレーニングです。",
     "my_events_empty": "まだイベントはありません。",
+    "events_count": "{count, plural, other {#件のイベント}}",
     "dashboard_upcoming": "今後のイベント",
     "status_needed": "ご返信ください",
     "badge_going": "参加",

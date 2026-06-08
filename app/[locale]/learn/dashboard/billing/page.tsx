@@ -8,6 +8,8 @@ import { VaultStatusCard } from '@/components/billing/VaultStatusCard';
 import { PaymentHistoryTable } from '@/components/billing/PaymentHistoryTable';
 import { Card } from '@/components/ui/card';
 import { SectionHeading } from '@/components/learn/SectionHeading';
+import { CreditCard } from 'lucide-react';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -45,9 +47,7 @@ export default async function BillingPage({ params }: Props) {
 
   return (
     <div className="space-y-6 max-w-[880px]">
-      <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold text-fg-primary tracking-[-0.02em]">
-        {t('title')}
-      </h1>
+      <DashboardPageHeader icon={CreditCard} title={t('title')} />
 
       <VaultStatusCard
         subscriptionStatus={profile?.subscription_status ?? 'none'}

@@ -4,6 +4,7 @@ import { CalendarDays } from 'lucide-react';
 import { getMyInvitedEventsWithRsvp } from '@/lib/events/queries';
 import { formatEventDateTime } from '@/lib/events/format';
 import { RsvpStatusPill } from '@/components/events/RsvpStatusPill';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -22,12 +23,12 @@ export default async function MyEventsPage({ params }: Props) {
 
   return (
     <div className="max-w-[800px] mx-auto px-5 py-8 space-y-6">
-      <header>
-        <h1 className="text-[clamp(24px,3vw,32px)] font-bold text-fg-primary tracking-[-0.02em]">
-          {t('my_events_title')}
-        </h1>
-        <p className="text-fg-secondary text-sm mt-1">{t('my_events_subtitle')}</p>
-      </header>
+      <DashboardPageHeader
+        icon={CalendarDays}
+        title={t('my_events_title')}
+        subtitle={t('my_events_subtitle')}
+        count={events.length > 0 ? t('events_count', { count: events.length }) : undefined}
+      />
 
       {events.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border-default py-12 text-center text-fg-tertiary">
