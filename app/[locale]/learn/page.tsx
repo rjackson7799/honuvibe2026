@@ -5,6 +5,7 @@ import { MarketingFooter } from '@/components/marketing/footer/marketing-footer'
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
   LearnHero,
+  LearnPathChooser,
   LearnPartnerStrip,
   LearnChapterVault,
   LearnChapterCourses,
@@ -57,6 +58,7 @@ export default async function LearnPage({ params, searchParams }: Props) {
       <MarketingNav />
       <main>
         <LearnHero locale={locale} />
+        <LearnPathChooser />
         <LearnPartnerStrip />
         <LearnChapterVault
           locale={locale}

@@ -1429,6 +1429,23 @@
       "q_6": "What if I'm new to AI?",
       "a_6": "Start with the Vault's AI Foundations library. Three lessons in and you'll know what to do next."
     },
+    "path_chooser": {
+      "heading": "Which path is right for you?",
+      "subhead": "Three ways to learn with HonuVibe — pick the one that fits how you want to work.",
+      "solo_intent": "I want to learn on my own time",
+      "solo_path": "The Vault",
+      "solo_desc": "Self-paced lessons, prompts, and build-alongs — bilingual, on your schedule.",
+      "solo_cta": "Explore the Vault",
+      "cohort_intent": "I want to learn live, with a group",
+      "cohort_path": "Public Courses",
+      "cohort_desc": "Teacher-led cohorts with live sessions, real projects, and community.",
+      "cohort_cta": "Browse courses",
+      "team_intent": "I want training for my team",
+      "team_path": "For Organizations",
+      "team_desc": "A branded, bilingual program built and delivered for your people.",
+      "team_cta": "Plan team training",
+      "reassure": "Every path is cancel-anytime, with a 14-day refund on the Vault. Not sure? Start free with the open Vault content."
+    },
     "start_tonight": {
       "eyebrow": "ready to start?",
       "headline": "Start tonight.",
