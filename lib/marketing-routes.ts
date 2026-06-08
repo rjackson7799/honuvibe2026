@@ -15,7 +15,7 @@
  *    (e.g. /glossary AND /glossary/<slug>).
  */
 
-const MARKETING_PATHS = ['/', '/learn', '/explore', '/partnerships', '/organizations', '/about', '/contact'] as const;
+const MARKETING_PATHS = ['/', '/learn', '/explore', '/partnerships', '/organizations', '/free-lesson', '/about', '/contact'] as const;
 const MARKETING_PATH_PREFIXES = ['/glossary', '/blog', '/partners'] as const;
 
 /**

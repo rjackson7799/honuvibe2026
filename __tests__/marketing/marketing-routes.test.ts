@@ -18,6 +18,7 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/explore', true],
     ['/partnerships', true],
     ['/organizations', true],
+    ['/free-lesson', true],
     ['/about', true],
     ['/contact', true],
     // trailing slash should still match
