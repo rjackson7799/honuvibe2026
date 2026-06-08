@@ -21,6 +21,7 @@ import {
   Shield,
   CalendarDays,
   FlaskConical,
+  Quote,
   type LucideIcon,
 } from 'lucide-react';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -69,6 +70,7 @@ const navGroups: NavGroup[] = [
     items: [
       { href: '/admin/vault', label: 'Vault', icon: Lock },
       { href: '/admin/workbench', label: 'Workbench', icon: FlaskConical },
+      { href: '/admin/proof', label: 'Proof', icon: Quote },
     ],
   },
   {

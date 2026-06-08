@@ -11,7 +11,7 @@ import {
   HomeFeaturedCourses,
   HomeOrgSection,
   HomeExploration,
-  HomeTestimonials,
+  ProofStories,
 } from '@/components/marketing/home';
 import { RecoveryHashRedirect } from '@/components/auth/RecoveryHashRedirect';
 
@@ -35,7 +35,7 @@ export default async function HomePage({ params }: Props) {
         <HomeFeaturedCourses />
         <HomeOrgSection />
         <HomeExploration />
-        <HomeTestimonials />
+        <ProofStories />
       </main>
       <MarketingNewsletter />
       <MarketingFooter />

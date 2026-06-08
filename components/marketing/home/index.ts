@@ -6,3 +6,4 @@ export { HomeFeaturedCourses } from './featured-courses';
 export { HomeOrgSection } from './org-section';
 export { HomeExploration } from './exploration';
 export { HomeTestimonials } from './testimonials';
+export { ProofStories } from './proof-stories';
