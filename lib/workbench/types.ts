@@ -206,3 +206,38 @@ export interface CreateWorkbenchScenarioInput {
 }
 
 export type UpdateWorkbenchScenarioInput = Partial<CreateWorkbenchScenarioInput>;
+
+// ---------------------------------------------------------------------------
+// Workspace shapes (build step 7)
+// ---------------------------------------------------------------------------
+// The scenario fields safe to hand the client workspace. Expert fields are
+// deliberately excluded — they reach the client only via the reveal-expert
+// route, after the member has run + revealed (the reveal gate).
+export type WorkbenchWorkspaceScenario = Pick<
+  WorkbenchScenario,
+  | 'id'
+  | 'slug'
+  | 'title_en'
+  | 'title_jp'
+  | 'domain'
+  | 'difficulty'
+  | 'brief_en'
+  | 'brief_jp'
+  | 'applicable_dimensions'
+>;
+
+// The bilingual expert payload returned by reveal-expert (client picks locale).
+export interface WorkbenchExpertContent {
+  expert_prompt_en: string;
+  expert_prompt_jp: string | null;
+  expert_output_en: string;
+  expert_output_jp: string | null;
+  why_this_works_en: string | null;
+  why_this_works_jp: string | null;
+}
+
+// Usage snapshot for the meter (GET /api/workbench/usage).
+export interface WorkbenchUsage {
+  runs: { used: number; cap: number };
+  scores: { used: number; cap: number };
+}
