@@ -2098,6 +2098,22 @@
     "back_to_dashboard": "ダッシュボードに戻る",
     "esl_dashboard_title": "ESLコンテンツステータス"
   },
+  "workbench": {
+    "page_title": "Apply-It ワークベンチ",
+    "page_subtitle": "実際のシナリオでプロンプトを練習し、ルーブリックに基づくフィードバックを受け取りましょう。",
+    "items_found": "{count}件のシナリオ",
+    "no_results": "この条件に一致するシナリオはまだありません。",
+    "filter_domain": "すべての分野",
+    "domain_marketing": "マーケティング・コンテンツ",
+    "domain_operations": "業務オペレーション",
+    "domain_communication": "ビジネスコミュニケーション",
+    "filter_level": "すべてのレベル",
+    "level_beginner": "初級",
+    "level_intermediate": "中級",
+    "level_advanced": "上級",
+    "card_dimensions": "{count}個の観点",
+    "card_cta": "練習する"
+  },
   "vault": {
     "page_title": "ザ・ヴォールト",
     "page_subtitle": "チュートリアル・ガイド・テンプレート・ツールが一箇所に。",

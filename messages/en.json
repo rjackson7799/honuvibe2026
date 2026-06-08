@@ -2098,6 +2098,22 @@
     "back_to_dashboard": "Back to dashboard",
     "esl_dashboard_title": "ESL Content Status"
   },
+  "workbench": {
+    "page_title": "Apply-It Workbench",
+    "page_subtitle": "Practice prompting on real scenarios and get rubric-scored feedback.",
+    "items_found": "{count, plural, one {# scenario} other {# scenarios}}",
+    "no_results": "No scenarios match these filters yet.",
+    "filter_domain": "All domains",
+    "domain_marketing": "Marketing & Content",
+    "domain_operations": "Business Operations",
+    "domain_communication": "Professional Communication",
+    "filter_level": "All levels",
+    "level_beginner": "Beginner",
+    "level_intermediate": "Intermediate",
+    "level_advanced": "Advanced",
+    "card_dimensions": "{count, plural, one {# dimension} other {# dimensions}}",
+    "card_cta": "Practice"
+  },
   "vault": {
     "page_title": "The Vault",
     "page_subtitle": "Tutorials, guides, templates, and tools — all in one place.",

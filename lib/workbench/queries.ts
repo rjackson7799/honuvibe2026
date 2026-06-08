@@ -33,6 +33,23 @@ export async function getWorkbenchScenarioById(
 }
 
 /**
+ * Published scenarios for the member-facing library, using the request user's
+ * client so RLS enforces visibility (workbench_scenarios_read: published AND
+ * has_vault_access). Non-Vault members get an empty list; the page gates on
+ * access before calling this. Featured scenarios first, then newest.
+ */
+export async function getPublishedScenarios(): Promise<WorkbenchScenario[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('workbench_scenarios')
+    .select('*')
+    .eq('is_published', true)
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false });
+  return (data as WorkbenchScenario[] | null) ?? [];
+}
+
+/**
  * Fetch one attempt by id using the request user's client, so RLS enforces
  * ownership (own_read for members; admin_read for admins). Returns null when the
  * attempt does not exist or is not visible to this user. The Score route uses
