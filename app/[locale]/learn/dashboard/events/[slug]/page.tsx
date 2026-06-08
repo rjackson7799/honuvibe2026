@@ -1,7 +1,7 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Video } from 'lucide-react';
+import { ArrowLeft, Video, CalendarDays } from 'lucide-react';
 import { getEventForInvitee, getMyInvitation } from '@/lib/events/queries';
 import { formatEventDateTime } from '@/lib/events/format';
 import { EventRsvp } from '@/components/events/EventRsvp';
@@ -48,36 +48,41 @@ export default async function EventDetailPage({ params }: Props) {
         <ArrowLeft size={15} /> {t('back_to_events')}
       </Link>
 
-      <header className="space-y-2">
-        {isCancelled && (
-          <span className="inline-block text-[12px] font-semibold uppercase tracking-[0.08em] text-red-600">
-            {t('status_cancelled')}
-          </span>
-        )}
-        <h1 className="text-[clamp(24px,3vw,32px)] font-bold text-fg-primary tracking-[-0.02em] leading-tight">
-          {title}
-        </h1>
-        <p className="text-fg-secondary">
-          {formatEventDateTime(event.starts_at, event.timezone, lang)}
-        </p>
-        {event.presenter_name ? (
-          <p className="text-[13px] text-fg-tertiary">
-            {t('presenter_label')}: {event.presenter_name}
-            {event.presenter_org ? ` · ${event.presenter_org}` : ''}
+      <header className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-[10px] bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)] flex items-center justify-center shrink-0 mt-0.5">
+          <CalendarDays size={18} />
+        </div>
+        <div className="space-y-2 min-w-0">
+          {isCancelled && (
+            <span className="inline-block text-[12px] font-semibold uppercase tracking-[0.08em] text-red-600">
+              {t('status_cancelled')}
+            </span>
+          )}
+          <h1 className="text-[clamp(24px,3vw,32px)] font-bold text-fg-primary tracking-[-0.02em] leading-tight">
+            {title}
+          </h1>
+          <p className="text-fg-secondary">
+            {formatEventDateTime(event.starts_at, event.timezone, lang)}
           </p>
-        ) : null}
-        {invitation && !isCancelled ? (
-          <div className="pt-1">
-            <RsvpStatusPill
-              status={invitation.status}
-              labels={{
-                needed: t('status_needed'),
-                going: t('badge_going'),
-                notGoing: t('badge_not_going'),
-              }}
-            />
-          </div>
-        ) : null}
+          {event.presenter_name ? (
+            <p className="text-[13px] text-fg-tertiary">
+              {t('presenter_label')}: {event.presenter_name}
+              {event.presenter_org ? ` · ${event.presenter_org}` : ''}
+            </p>
+          ) : null}
+          {invitation && !isCancelled ? (
+            <div className="pt-1">
+              <RsvpStatusPill
+                status={invitation.status}
+                labels={{
+                  needed: t('status_needed'),
+                  going: t('badge_going'),
+                  notGoing: t('badge_not_going'),
+                }}
+              />
+            </div>
+          ) : null}
+        </div>
       </header>
 
       {description ? (
