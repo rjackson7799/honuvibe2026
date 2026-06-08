@@ -25,6 +25,7 @@ import type {
   EventLocale,
   RecapResource,
 } from '@/lib/events/types';
+import { validateEventForPublish } from '@/lib/events/validation';
 
 type Tab = 'details' | 'invitations' | 'recap';
 
@@ -183,6 +184,12 @@ export function AdminEventDetail({ detail }: { detail: AdminEventDetailData | nu
   }
 
   // ── edit view ──
+  // Gate publish/send client-side so the common cases never hit a thrown
+  // server-action error (which Next.js redacts to an unhelpful message in prod).
+  const publishErrors = event ? validateEventForPublish(event) : [];
+  const canInvite = !!event && event.is_published && event.status !== 'cancelled';
+  const recapReady = !!event && event.recap_published;
+
   return (
     <div className="max-w-[860px] space-y-6">
       <BackLink />
@@ -202,7 +209,12 @@ export function AdminEventDetail({ detail }: { detail: AdminEventDetailData | nu
               <EyeOff size={15} /> Unpublish
             </button>
           ) : (
-            <button className={btnPrimary} disabled={busy} onClick={() => run(() => publishEvent(event!.id), 'Published.')}>
+            <button
+              className={btnPrimary}
+              disabled={busy || publishErrors.length > 0}
+              title={publishErrors.length > 0 ? publishErrors.join(' ') : undefined}
+              onClick={() => run(() => publishEvent(event!.id), 'Published.')}
+            >
               <Eye size={15} /> Publish
             </button>
           )}
@@ -232,6 +244,12 @@ export function AdminEventDetail({ detail }: { detail: AdminEventDetailData | nu
 
       {tab === 'details' && (
         <div className="space-y-4">
+          {!event!.is_published && publishErrors.length > 0 && (
+            <div className="rounded-lg border border-[color:var(--accent-gold)]/40 bg-[color:var(--accent-gold)]/5 px-4 py-2.5 text-[12px] text-fg-secondary">
+              <span className="font-semibold text-fg-primary">To publish, save these first:</span>{' '}
+              {publishErrors.join(' ')}
+            </div>
+          )}
           <div className="grid sm:grid-cols-2 gap-4">
             <Labeled label="Slug"><input className={inputCls} value={slug} onChange={(e) => setSlug(e.target.value)} /></Labeled>
             <Labeled label="Time zone">
@@ -286,10 +304,17 @@ export function AdminEventDetail({ detail }: { detail: AdminEventDetailData | nu
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button className={btnPrimary} disabled={busy} onClick={() => handleSendBatch('invite')}>Send invites</button>
-            <button className={btnGhost} disabled={busy} onClick={() => handleSendBatch('reminder')}>Send reminder</button>
-            <button className={btnGhost} disabled={busy} onClick={() => run(() => sendTestEmail(event!.id, 'invite'), 'Test invite sent to you.')}>Test invite to me</button>
+          <div className="space-y-2">
+            {!canInvite && (
+              <p className="text-[12px] text-fg-tertiary">
+                Publish the event before sending invites or reminders.
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <button className={btnPrimary} disabled={busy || !canInvite} onClick={() => handleSendBatch('invite')}>Send invites</button>
+              <button className={btnGhost} disabled={busy || !canInvite} onClick={() => handleSendBatch('reminder')}>Send reminder</button>
+              <button className={btnGhost} disabled={busy} onClick={() => run(() => sendTestEmail(event!.id, 'invite'), 'Test invite sent to you.')}>Test invite to me</button>
+            </div>
           </div>
 
           <InvitationsTable
@@ -348,7 +373,7 @@ export function AdminEventDetail({ detail }: { detail: AdminEventDetailData | nu
             >
               Save recap
             </button>
-            <button className={btnGhost} disabled={busy} onClick={() => handleSendBatch('recap')}>Send recap email</button>
+            <button className={btnGhost} disabled={busy || !recapReady} onClick={() => handleSendBatch('recap')} title={recapReady ? undefined : 'Publish the recap first.'}>Send recap email</button>
             <button className={btnGhost} disabled={busy} onClick={() => run(() => sendTestEmail(event!.id, 'recap'), 'Test recap sent to you.')}>Test recap to me</button>
           </div>
         </div>
