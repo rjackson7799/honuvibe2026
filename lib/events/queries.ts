@@ -120,6 +120,28 @@ export async function getMyInvitedEvents(): Promise<LiveEvent[]> {
 }
 
 /**
+ * Same as getMyInvitedEvents but with the viewer's RSVP status per event (for
+ * the My Events list, which now shows a status pill). Same embed pattern as
+ * getMyUpcomingEvents; no upcoming-only filter.
+ */
+export async function getMyInvitedEventsWithRsvp(): Promise<
+  Array<{ event: LiveEvent; status: RsvpStatus }>
+> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('event_invitations')
+    .select('status, live_events(*)');
+
+  return ((data ?? []) as unknown as Array<{ status: RsvpStatus; live_events: LiveEvent | null }>)
+    .filter((r) => r.live_events && r.live_events.is_published)
+    .map((r) => ({ event: r.live_events as LiveEvent, status: r.status }))
+    .sort(
+      (a, b) =>
+        new Date(a.event.starts_at).getTime() - new Date(b.event.starts_at).getTime(),
+    );
+}
+
+/**
  * The signed-in user's UPCOMING invited events, with their RSVP status — for the
  * dashboard surface. Reads the user's own invitations (RLS) with the event
  * embedded; the embed is null for unpublished events (live_events RLS requires

@@ -170,8 +170,9 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         lang={locale === 'ja' ? 'ja' : 'en'}
         labels={{
           heading: tEvents('dashboard_upcoming'),
-          going: tEvents('status_going'),
-          notGoing: tEvents('status_not_going'),
+          needed: tEvents('status_needed'),
+          going: tEvents('badge_going'),
+          notGoing: tEvents('badge_not_going'),
         }}
       />
 

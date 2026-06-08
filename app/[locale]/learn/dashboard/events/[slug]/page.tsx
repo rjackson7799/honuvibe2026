@@ -5,6 +5,7 @@ import { ArrowLeft, Video } from 'lucide-react';
 import { getEventForInvitee, getMyInvitation } from '@/lib/events/queries';
 import { formatEventDateTime } from '@/lib/events/format';
 import { EventRsvp } from '@/components/events/EventRsvp';
+import { RsvpStatusPill } from '@/components/events/RsvpStatusPill';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
@@ -65,10 +66,40 @@ export default async function EventDetailPage({ params }: Props) {
             {event.presenter_org ? ` · ${event.presenter_org}` : ''}
           </p>
         ) : null}
+        {invitation && !isCancelled ? (
+          <div className="pt-1">
+            <RsvpStatusPill
+              status={invitation.status}
+              labels={{
+                needed: t('status_needed'),
+                going: t('badge_going'),
+                notGoing: t('badge_not_going'),
+              }}
+            />
+          </div>
+        ) : null}
       </header>
 
       {description ? (
         <p className="text-fg-secondary leading-relaxed whitespace-pre-line">{description}</p>
+      ) : null}
+
+      {/* RSVP — surfaced first so first-time visitors respond before anything else. */}
+      {invitation && !isCancelled ? (
+        <EventRsvp
+          invitationId={invitation.id}
+          initialStatus={invitation.status}
+          labels={{
+            question: t('rsvp_question'),
+            prompt: t('rsvp_prompt'),
+            going: t('rsvp_going'),
+            notGoing: t('rsvp_not_going'),
+            saved: t('rsvp_saved'),
+            change: t('rsvp_change'),
+            statusGoing: t('status_going'),
+            statusNotGoing: t('status_not_going'),
+          }}
+        />
       ) : null}
 
       {/* Meeting details — only invitees of a published event can reach this page. */}
@@ -86,20 +117,6 @@ export default async function EventDetailPage({ params }: Props) {
             </div>
           ) : null}
         </section>
-      ) : null}
-
-      {/* RSVP */}
-      {invitation && !isCancelled ? (
-        <EventRsvp
-          invitationId={invitation.id}
-          initialStatus={invitation.status}
-          labels={{
-            question: t('rsvp_question'),
-            going: t('rsvp_going'),
-            notGoing: t('rsvp_not_going'),
-            saved: t('rsvp_saved'),
-          }}
-        />
       ) : null}
 
       {/* Recap (only present when recap_published + RLS-readable) */}

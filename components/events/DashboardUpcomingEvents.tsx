@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { CalendarDays, ChevronRight } from 'lucide-react';
 import { formatEventDateTime } from '@/lib/events/format';
 import type { EventLocale, LiveEvent, RsvpStatus } from '@/lib/events/types';
+import { RsvpStatusPill } from './RsvpStatusPill';
 
 export function DashboardUpcomingEvents({
   items,
@@ -10,7 +11,7 @@ export function DashboardUpcomingEvents({
 }: {
   items: Array<{ event: LiveEvent; status: RsvpStatus }>;
   lang: EventLocale;
-  labels: { heading: string; going: string; notGoing: string };
+  labels: { heading: string; needed: string; going: string; notGoing: string };
 }) {
   if (items.length === 0) return null;
 
@@ -39,13 +40,10 @@ export function DashboardUpcomingEvents({
                   </span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {status === 'going' ? (
-                    <span className="text-[11px] font-semibold text-[color:var(--accent-teal)]">
-                      {labels.going}
-                    </span>
-                  ) : status === 'not_going' ? (
-                    <span className="text-[11px] text-fg-tertiary">{labels.notGoing}</span>
-                  ) : null}
+                  <RsvpStatusPill
+                    status={status}
+                    labels={{ needed: labels.needed, going: labels.going, notGoing: labels.notGoing }}
+                  />
                   <ChevronRight size={15} className="text-fg-tertiary" />
                 </div>
               </Link>

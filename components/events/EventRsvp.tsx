@@ -6,9 +6,13 @@ import type { RsvpStatus } from '@/lib/events/types';
 
 export interface EventRsvpLabels {
   question: string;
+  prompt: string;
   going: string;
   notGoing: string;
   saved: string;
+  change: string;
+  statusGoing: string;
+  statusNotGoing: string;
 }
 
 export function EventRsvp({
@@ -25,7 +29,7 @@ export function EventRsvp({
   const [saved, setSaved] = useState(false);
 
   async function choose(next: RsvpStatus) {
-    if (busy) return;
+    if (busy || next === status) return;
     setBusy(true);
     setSaved(false);
     try {
@@ -37,6 +41,20 @@ export function EventRsvp({
     }
   }
 
+  const answered = status !== 'invited';
+
+  // Unanswered → accent treatment so a first-time visitor can't miss it.
+  const cardCls = answered
+    ? 'rounded-xl border border-border-default bg-bg-secondary p-5'
+    : 'rounded-xl border border-[color:var(--accent-gold)]/40 bg-[color:var(--accent-gold)]/5 p-5';
+
+  const heading =
+    status === 'going'
+      ? `${labels.statusGoing} ✓`
+      : status === 'not_going'
+        ? labels.statusNotGoing
+        : labels.question;
+
   const pill = (active: boolean) =>
     `h-11 px-5 rounded-[10px] text-sm font-semibold transition-colors disabled:opacity-50 ${
       active
@@ -45,8 +63,9 @@ export function EventRsvp({
     }`;
 
   return (
-    <section className="rounded-xl border border-border-default bg-bg-secondary p-5">
-      <p className="text-sm font-medium text-fg-primary mb-3">{labels.question}</p>
+    <section className={cardCls}>
+      <p className="text-sm font-semibold text-fg-primary">{heading}</p>
+      <p className="text-[13px] text-fg-secondary mb-3">{answered ? labels.change : labels.prompt}</p>
       <div className="flex flex-wrap gap-2">
         <button type="button" className={pill(status === 'going')} disabled={busy} onClick={() => choose('going')}>
           {labels.going}

@@ -1,8 +1,9 @@
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { CalendarDays } from 'lucide-react';
-import { getMyInvitedEvents } from '@/lib/events/queries';
+import { getMyInvitedEventsWithRsvp } from '@/lib/events/queries';
 import { formatEventDateTime } from '@/lib/events/format';
+import { RsvpStatusPill } from '@/components/events/RsvpStatusPill';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -17,7 +18,7 @@ export default async function MyEventsPage({ params }: Props) {
   setRequestLocale(locale);
   const lang = locale === 'ja' ? 'ja' : 'en';
   const t = await getTranslations('events');
-  const events = await getMyInvitedEvents();
+  const events = await getMyInvitedEventsWithRsvp();
 
   return (
     <div className="max-w-[800px] mx-auto px-5 py-8 space-y-6">
@@ -35,23 +36,33 @@ export default async function MyEventsPage({ params }: Props) {
         </div>
       ) : (
         <ul className="space-y-3">
-          {events.map((e) => {
+          {events.map(({ event: e, status }) => {
             const title = lang === 'ja' ? e.title_jp ?? e.title_en : e.title_en;
             return (
               <li key={e.id}>
                 <Link
                   href={`/learn/dashboard/events/${e.slug}`}
-                  className="block rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-border-hover transition-colors"
+                  className="flex items-start justify-between gap-3 rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-border-hover transition-colors"
                 >
-                  <span className="block text-fg-primary font-semibold">{title}</span>
-                  <span className="block text-[13px] text-fg-secondary mt-0.5">
-                    {formatEventDateTime(e.starts_at, e.timezone, lang)}
-                  </span>
-                  {e.presenter_name ? (
-                    <span className="block text-[12px] text-fg-tertiary mt-0.5">
-                      {t('presenter_label')}: {e.presenter_name}
+                  <div className="min-w-0">
+                    <span className="block text-fg-primary font-semibold">{title}</span>
+                    <span className="block text-[13px] text-fg-secondary mt-0.5">
+                      {formatEventDateTime(e.starts_at, e.timezone, lang)}
                     </span>
-                  ) : null}
+                    {e.presenter_name ? (
+                      <span className="block text-[12px] text-fg-tertiary mt-0.5">
+                        {t('presenter_label')}: {e.presenter_name}
+                      </span>
+                    ) : null}
+                  </div>
+                  <RsvpStatusPill
+                    status={status}
+                    labels={{
+                      needed: t('status_needed'),
+                      going: t('badge_going'),
+                      notGoing: t('badge_not_going'),
+                    }}
+                  />
                 </Link>
               </li>
             );
