@@ -2,11 +2,16 @@
 // Grows across build steps; for now it holds the scenario lookup the /run route
 // needs to validate access before consuming quota.
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import type {
   WorkbenchAttempt,
   WorkbenchScenario,
 } from '@/lib/workbench/types';
+
+export interface AdminWorkbenchScenarioListItem extends WorkbenchScenario {
+  /** Total member attempts against this scenario (a usage signal for the list). */
+  attempt_count: number;
+}
 
 /**
  * Fetch a scenario by id using the request user's client, so RLS decides
@@ -45,4 +50,51 @@ export async function getWorkbenchAttemptById(
 
   if (error || !data) return null;
   return data as WorkbenchAttempt;
+}
+
+// ---------------------------------------------------------------------------
+// Admin authoring reads (service-role client — admins see drafts too)
+// ---------------------------------------------------------------------------
+// These mirror lib/events/queries.ts getAdminEvents / getAdminEventById. They
+// use the service-role client so unpublished scenarios are visible in the admin
+// portal (the session-scoped getWorkbenchScenarioById above is RLS-gated and
+// only returns published scenarios to members).
+
+/** All scenarios (newest first) with per-scenario attempt counts. Admin only. */
+export async function getAdminWorkbenchScenarios(): Promise<
+  AdminWorkbenchScenarioListItem[]
+> {
+  const admin = createAdminClient();
+  const { data: scenarios, error } = await admin
+    .from('workbench_scenarios')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+
+  const { data: attempts } = await admin
+    .from('workbench_attempts')
+    .select('scenario_id');
+
+  const counts = new Map<string, number>();
+  for (const a of attempts ?? []) {
+    counts.set(a.scenario_id, (counts.get(a.scenario_id) ?? 0) + 1);
+  }
+
+  return (scenarios ?? []).map((s) => ({
+    ...(s as WorkbenchScenario),
+    attempt_count: counts.get(s.id) ?? 0,
+  }));
+}
+
+/** A single scenario by id, including drafts. Admin only. */
+export async function getAdminWorkbenchScenarioById(
+  id: string,
+): Promise<WorkbenchScenario | null> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('workbench_scenarios')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  return (data as WorkbenchScenario | null) ?? null;
 }

@@ -8,18 +8,12 @@ import { z } from 'zod';
 // Shared enums (single source of truth — Zod schema + derived TS type)
 // ---------------------------------------------------------------------------
 
-export const workbenchDomainSchema = z.enum([
-  'marketing',
-  'operations',
-  'communication',
-]);
+export const WORKBENCH_DOMAINS = ['marketing', 'operations', 'communication'] as const;
+export const workbenchDomainSchema = z.enum(WORKBENCH_DOMAINS);
 export type WorkbenchDomain = z.infer<typeof workbenchDomainSchema>;
 
-export const workbenchDifficultySchema = z.enum([
-  'beginner',
-  'intermediate',
-  'advanced',
-]);
+export const WORKBENCH_DIFFICULTIES = ['beginner', 'intermediate', 'advanced'] as const;
+export const workbenchDifficultySchema = z.enum(WORKBENCH_DIFFICULTIES);
 export type WorkbenchDifficulty = z.infer<typeof workbenchDifficultySchema>;
 
 // Attempt / saved-prompt language. Scenarios carry bilingual _en/_jp fields
@@ -41,14 +35,15 @@ export type WorkbenchSavedPromptSource = z.infer<
 
 // The six prompting dimensions a scenario can exercise. A scenario's
 // applicable_dimensions is a non-empty subset of these.
-export const workbenchDimensionSchema = z.enum([
+export const WORKBENCH_DIMENSIONS = [
   'role',
   'context',
   'task',
   'constraints',
   'format',
   'examples',
-]);
+] as const;
+export const workbenchDimensionSchema = z.enum(WORKBENCH_DIMENSIONS);
 export type WorkbenchDimension = z.infer<typeof workbenchDimensionSchema>;
 
 // ---------------------------------------------------------------------------
@@ -182,3 +177,32 @@ export interface WorkbenchDailyUsage {
   runs_count: number;
   evaluations_count: number;
 }
+
+// ---------------------------------------------------------------------------
+// Admin authoring input shapes (scenario CRUD — build step 5)
+// ---------------------------------------------------------------------------
+// Mirrors lib/events/types.ts CreateEventInput / UpdateEventInput. The NOT NULL
+// columns (slug, title_en, domain, difficulty, brief_en, applicable_dimensions,
+// expert_prompt_en, expert_output_en) are required on create; _jp companions and
+// why_this_works are optional at create time and enforced at publish by
+// validateScenarioForPublish (lib/workbench/validation.ts).
+
+export interface CreateWorkbenchScenarioInput {
+  slug: string;
+  title_en: string;
+  title_jp?: string | null;
+  domain: WorkbenchDomain;
+  difficulty: WorkbenchDifficulty;
+  brief_en: string;
+  brief_jp?: string | null;
+  applicable_dimensions: WorkbenchDimension[];
+  expert_prompt_en: string;
+  expert_prompt_jp?: string | null;
+  expert_output_en: string;
+  expert_output_jp?: string | null;
+  why_this_works_en?: string | null;
+  why_this_works_jp?: string | null;
+  is_featured?: boolean;
+}
+
+export type UpdateWorkbenchScenarioInput = Partial<CreateWorkbenchScenarioInput>;
