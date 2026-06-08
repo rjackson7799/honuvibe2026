@@ -22,7 +22,7 @@ export default async function MyEventsPage({ params }: Props) {
   const events = await getMyInvitedEventsWithRsvp();
 
   return (
-    <div className="max-w-[800px] mx-auto px-5 py-8 space-y-6">
+    <div className="space-y-6 max-w-[800px]">
       <DashboardPageHeader
         icon={CalendarDays}
         title={t('my_events_title')}

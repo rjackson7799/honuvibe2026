@@ -40,7 +40,7 @@ export default async function EventDetailPage({ params }: Props) {
     'inline-flex items-center gap-2 text-sm font-medium text-accent-teal hover:underline';
 
   return (
-    <div className="max-w-[760px] mx-auto px-5 py-8 space-y-7">
+    <div className="space-y-7 max-w-[760px]">
       <Link
         href="/learn/dashboard/events"
         className="inline-flex items-center gap-1.5 text-[13px] text-fg-tertiary hover:text-fg-secondary"
