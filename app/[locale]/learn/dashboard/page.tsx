@@ -18,6 +18,8 @@ import { DashboardBackdrop } from '@/components/learn/DashboardBackdrop';
 import { Card } from '@/components/ui/card';
 import { BadgePill } from '@/components/ui/badge-pill';
 import { SectionHeading } from '@/components/learn/SectionHeading';
+import { getMyUpcomingEvents } from '@/lib/events/queries';
+import { DashboardUpcomingEvents } from '@/components/events/DashboardUpcomingEvents';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -48,6 +50,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tLearn = await getTranslations({ locale, namespace: 'learn' });
+  const tEvents = await getTranslations({ locale, namespace: 'events' });
 
   const { data: profile } = await supabase
     .from('users')
@@ -55,11 +58,12 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     .eq('id', user.id)
     .single();
 
-  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse] = await Promise.all([
+  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse, upcomingEvents] = await Promise.all([
     getStudentDashboardData(user.id),
     getVaultCourseRecommendations(user.id, 6),
     getInstructorByUserId(user.id),
     getCourseBySlug('ai-essentials'),
+    getMyUpcomingEvents(3),
   ]);
 
   let instructorClassCount = 0;
@@ -160,6 +164,16 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           icon={Clock}
         />
       </div>
+
+      <DashboardUpcomingEvents
+        items={upcomingEvents}
+        lang={locale === 'ja' ? 'ja' : 'en'}
+        labels={{
+          heading: tEvents('dashboard_upcoming'),
+          going: tEvents('status_going'),
+          notGoing: tEvents('status_not_going'),
+        }}
+      />
 
       {/* Vault Recommendations */}
       {vaultRecommendations.length > 0 && (

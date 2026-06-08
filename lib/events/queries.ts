@@ -3,6 +3,7 @@ import type {
   AdminEventDetail,
   EventRecapAssets,
   LiveEvent,
+  RsvpStatus,
 } from './types';
 
 export interface AdminEventListItem extends LiveEvent {
@@ -116,4 +117,38 @@ export async function getMyInvitedEvents(): Promise<LiveEvent[]> {
     .eq('is_published', true)
     .order('starts_at', { ascending: true });
   return (data as LiveEvent[] | null) ?? [];
+}
+
+/**
+ * The signed-in user's UPCOMING invited events, with their RSVP status — for the
+ * dashboard surface. Reads the user's own invitations (RLS) with the event
+ * embedded; the embed is null for unpublished events (live_events RLS requires
+ * is_published), so those are filtered out along with past/cancelled ones.
+ */
+export async function getMyUpcomingEvents(
+  limit = 3,
+): Promise<Array<{ event: LiveEvent; status: RsvpStatus }>> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('event_invitations')
+    .select('status, live_events(*)');
+
+  const nowMs = Date.now();
+  // supabase types the to-one `live_events(*)` embed as an array; at runtime it
+  // is a single row. Cast through `unknown` (the compiler-suggested form) to the
+  // actual shape before filtering.
+  return ((data ?? []) as unknown as Array<{ status: RsvpStatus; live_events: LiveEvent | null }>)
+    .filter(
+      (r) =>
+        r.live_events &&
+        r.live_events.is_published &&
+        r.live_events.status !== 'cancelled' &&
+        new Date(r.live_events.starts_at).getTime() >= nowMs,
+    )
+    .map((r) => ({ event: r.live_events as LiveEvent, status: r.status }))
+    .sort(
+      (a, b) =>
+        new Date(a.event.starts_at).getTime() - new Date(b.event.starts_at).getTime(),
+    )
+    .slice(0, limit);
 }
