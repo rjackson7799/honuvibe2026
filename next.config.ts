@@ -60,6 +60,11 @@ const nextConfig: NextConfig = {
       { source: '/ja/videos', destination: '/ja/learn/library', permanent: true },
       { source: '/exploration', destination: '/explore', permanent: true },
       { source: '/ja/exploration', destination: '/ja/explore', permanent: true },
+
+      // Canonical B2B route is /organizations; keep a /learn/organizations alias
+      // (it would otherwise resolve to the course-slug page).
+      { source: '/learn/organizations', destination: '/organizations', permanent: true },
+      { source: '/ja/learn/organizations', destination: '/ja/organizations', permanent: true },
     ];
   },
   images: {

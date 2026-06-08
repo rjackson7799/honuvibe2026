@@ -4,6 +4,11 @@
     "my_events_subtitle": "Live trainings you've been invited to.",
     "my_events_empty": "You have no events yet.",
     "dashboard_upcoming": "Upcoming events",
+    "status_needed": "Response needed",
+    "badge_going": "Going",
+    "badge_not_going": "Not going",
+    "rsvp_prompt": "Please confirm so we can save your spot.",
+    "rsvp_change": "Tap to change your response.",
     "presenter_label": "Presenter",
     "when_label": "When",
     "join_label": "Join link",
@@ -3242,6 +3247,69 @@
       "error": "Something went wrong. Please try again.",
       "success_heading": "Inquiry received.",
       "success_body": "Thank you for reaching out. We'll review your inquiry and be in touch within 5 business days."
+    }
+  },
+  "organizations": {
+    "meta": {
+      "title": "AI Training for Organizations — HonuVibe.AI",
+      "description": "Bring practical, bilingual (EN/JP) AI training to your team or community — a branded program built and delivered by HonuVibe, with no curriculum or LMS to build yourself."
+    },
+    "hero": {
+      "overline": "For teams & organizations",
+      "headline": "Practical AI training for your whole team",
+      "subhead": "A branded learning program built and delivered with you — bilingual EN/JP, hands-on, and grounded in real work. You bring the people; we bring the curriculum, the delivery, and the aloha.",
+      "cta": "Plan training for my team"
+    },
+    "audience": {
+      "heading": "Who this is for",
+      "bullets": [
+        "Companies upskilling teams on practical, everyday AI",
+        "Professional networks and associations serving their members",
+        "Bilingual or Japan-facing teams that need EN + JP delivery",
+        "Communities that want a co-branded program without building it"
+      ]
+    },
+    "delivery": {
+      "heading": "What your team gets",
+      "body": "We design the curriculum around your team's real work, deliver it live or self-paced, and hand you something your people actually use — not a shelf of videos.",
+      "points": [
+        "Custom curriculum designed for your audience and goals",
+        "Bilingual EN/JP delivery, written natively for each language",
+        "Live cohorts, hands-on projects, and ongoing community access",
+        "Co-branded delivery on your stack — your brand, our engine"
+      ]
+    },
+    "proof": {
+      "heading": "Proven with real cohorts",
+      "body": "We've delivered bilingual cohorts for partner communities — small groups, real projects shipped, in English and Japanese.",
+      "cta": "See how we work →"
+    },
+    "form": {
+      "heading": "Plan training for your team",
+      "subhead": "Tell us a little about your team and what you'd like to achieve. We respond to every inquiry within 5 business days.",
+      "name_label": "Your name",
+      "email_label": "Work email",
+      "org_label": "Organization",
+      "team_size_label": "Team size",
+      "team_size_placeholder": "Select…",
+      "team_size_options": {
+        "under_10": "Under 10",
+        "10_25": "10–25",
+        "25_50": "25–50",
+        "50_100": "50–100",
+        "100_plus": "100+"
+      },
+      "about_label": "About your team or community",
+      "about_placeholder": "Who are they, and what do they do?",
+      "goal_label": "What would you like to achieve with AI training?",
+      "goal_placeholder": "The outcomes you're hoping for…",
+      "submit": "Plan training for my team",
+      "submitting": "Sending…",
+      "success_heading": "Thanks — we've got it.",
+      "success_body": "We'll review your note and be in touch within 5 business days.",
+      "error": "Something went wrong. Please try again.",
+      "helper_pre": "Looking to learn on your own instead?",
+      "helper_link": "Explore courses →"
     }
   },
   "community": {
