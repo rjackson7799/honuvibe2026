@@ -22,6 +22,7 @@ import {
   CalendarDays,
   FlaskConical,
   Quote,
+  Briefcase,
   type LucideIcon,
 } from 'lucide-react';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -56,6 +57,12 @@ const navGroups: NavGroup[] = [
       { href: '/admin/partners', label: 'Partners', icon: Handshake },
       { href: '/admin/applications', label: 'Applications', icon: FileText },
       { href: '/admin/partnership-inquiries', label: 'Partnership Inquiries', icon: Inbox },
+    ],
+  },
+  {
+    label: 'Studio',
+    items: [
+      { href: '/admin/studio/leads', label: 'Studio Leads', icon: Briefcase },
     ],
   },
   {

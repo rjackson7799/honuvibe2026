@@ -61,6 +61,32 @@ export interface PartnershipInquiry {
   reviewed_at: string | null;
 }
 
+export type StudioLeadStatus =
+  | 'new'
+  | 'qualified'
+  | 'proposal'
+  | 'won'
+  | 'lost';
+
+export interface StudioLead {
+  id: string;
+  created_at: string;
+  full_name: string;
+  email: string;
+  company: string;
+  industry: string | null;
+  project_type: string | null;
+  budget_range: string | null;
+  timeline: string | null;
+  message: string;
+  referral_source: string | null;
+  source_locale: 'en' | 'ja';
+  status: StudioLeadStatus;
+  notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+}
+
 export interface DashboardStats {
   active_courses: number;
   total_enrolled: number;

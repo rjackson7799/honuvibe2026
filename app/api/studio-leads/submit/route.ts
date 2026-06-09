@@ -6,38 +6,16 @@ import {
   sendStudioLeadAdminNotification,
 } from '@/lib/email/send';
 import type { StudioLeadEmailData } from '@/lib/email/types';
-
-const INDUSTRY = ['creator', 'healthcare', 'service', 'professional', 'other'] as const;
-const PROJECT_TYPE = ['starter', 'pro', 'ai_native', 'not_sure'] as const;
-const BUDGET = ['under_1k', '1k_3k', '3k_7k', '7k_15k', '15k_plus'] as const;
-const TIMELINE = ['asap', '1_month', '1_3_months', 'flexible'] as const;
-
-const INDUSTRY_LABEL: Record<(typeof INDUSTRY)[number], string> = {
-  creator: 'Creator',
-  healthcare: 'Healthcare',
-  service: 'Service Business',
-  professional: 'Professional',
-  other: 'Other',
-};
-const PROJECT_TYPE_LABEL: Record<(typeof PROJECT_TYPE)[number], string> = {
-  starter: 'Studio Starter',
-  pro: 'Studio Pro',
-  ai_native: 'Studio AI-Native',
-  not_sure: 'Not sure yet',
-};
-const BUDGET_LABEL: Record<(typeof BUDGET)[number], string> = {
-  under_1k: 'Under $1k',
-  '1k_3k': '$1k – $3k',
-  '3k_7k': '$3k – $7k',
-  '7k_15k': '$7k – $15k',
-  '15k_plus': '$15k+',
-};
-const TIMELINE_LABEL: Record<(typeof TIMELINE)[number], string> = {
-  asap: 'As soon as possible',
-  '1_month': 'Within a month',
-  '1_3_months': '1–3 months',
-  flexible: 'Flexible',
-};
+import {
+  STUDIO_INDUSTRY,
+  STUDIO_PROJECT_TYPE,
+  STUDIO_BUDGET,
+  STUDIO_TIMELINE,
+  labelizeIndustry,
+  labelizeProjectType,
+  labelizeBudget,
+  labelizeTimeline,
+} from '@/lib/studio/labels';
 
 // Optional select fields arrive as '' when unselected → coerce to null.
 const optEnum = <T extends readonly [string, ...string[]]>(values: T) =>
@@ -56,10 +34,10 @@ const schema = z.object({
   full_name: z.string().min(1).max(200),
   email: z.string().email(),
   company: z.string().min(1).max(200),
-  industry: optEnum(INDUSTRY),
-  project_type: optEnum(PROJECT_TYPE),
-  budget_range: optEnum(BUDGET),
-  timeline: optEnum(TIMELINE),
+  industry: optEnum(STUDIO_INDUSTRY),
+  project_type: optEnum(STUDIO_PROJECT_TYPE),
+  budget_range: optEnum(STUDIO_BUDGET),
+  timeline: optEnum(STUDIO_TIMELINE),
   message: z.string().min(1).max(5000),
   referral_source: optText,
   source_locale: z.enum(['en', 'ja']).default('en'),
@@ -108,10 +86,10 @@ export async function POST(req: NextRequest) {
     fullName: d.full_name,
     email: d.email,
     company: d.company,
-    industryLabel: d.industry ? INDUSTRY_LABEL[d.industry] : null,
-    projectTypeLabel: d.project_type ? PROJECT_TYPE_LABEL[d.project_type] : null,
-    budgetLabel: d.budget_range ? BUDGET_LABEL[d.budget_range] : null,
-    timelineLabel: d.timeline ? TIMELINE_LABEL[d.timeline] : null,
+    industryLabel: labelizeIndustry(d.industry),
+    projectTypeLabel: labelizeProjectType(d.project_type),
+    budgetLabel: labelizeBudget(d.budget_range),
+    timelineLabel: labelizeTimeline(d.timeline),
     referralSource: d.referral_source,
     message: d.message,
   };

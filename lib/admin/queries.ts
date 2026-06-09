@@ -5,6 +5,7 @@ import type {
   StudentDetail,
   Application,
   PartnershipInquiry,
+  StudioLead,
   RevenueStats,
   TransactionRecord,
 } from './types';
@@ -218,6 +219,23 @@ export async function getPartnershipInquiries(
 
   let query = supabase
     .from('partnership_inquiries')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getStudioLeads(status?: string): Promise<StudioLead[]> {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from('studio_leads')
     .select('*')
     .order('created_at', { ascending: false });
 

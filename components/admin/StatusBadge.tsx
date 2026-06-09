@@ -34,6 +34,11 @@ const statusStyles: Record<string, string> = {
   // Library video statuses
   featured: coralPill,
   open: tealPill,
+  // Studio lead statuses (proposal shared above)
+  new: coralPill,
+  qualified: tealPill,
+  won: tealPill,
+  lost: mutedPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -54,6 +59,10 @@ const statusLabels: Record<string, string> = {
   live: 'Live',
   featured: 'Featured',
   open: 'Open',
+  new: 'New',
+  qualified: 'Qualified',
+  won: 'Won',
+  lost: 'Lost',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
