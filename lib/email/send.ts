@@ -13,6 +13,7 @@ import type {
   NewsletterAdminNotifyData,
   ApplicationEmailData,
   PartnershipInquiryEmailData,
+  StudioLeadEmailData,
   EnrollmentEmailData,
   HonuHubContactEmailData,
   ExplorationInquiryEmailData,
@@ -310,6 +311,86 @@ export async function sendPartnershipInquiryAdminNotification(
   await sendEmail({
     to: adminEmail,
     subject: `[Partnership] ${data.organization} — ${data.fullName}`,
+    html: baseLayout({ locale: 'en', body }),
+    replyTo: data.email,
+  });
+}
+
+// ─── 3b. Studio Lead (Start a Project) ──────────────────────
+
+export async function sendStudioLeadConfirmation(
+  data: StudioLeadEmailData,
+): Promise<void> {
+  const { locale, fullName } = data;
+  const isJP = locale === 'ja';
+  const studioUrl =
+    process.env.NEXT_PUBLIC_STUDIO_URL ?? 'https://studio.honuvibe.ai';
+
+  const body = [
+    heading(isJP ? `${fullName} さん、ありがとうございます` : `Thank you, ${fullName}`),
+    paragraph(
+      isJP
+        ? 'プロジェクトのお問い合わせを受け付けました。1営業日以内に、プランとおすすめのプラン、スケジュールをご返信いたします。'
+        : "We've received your project inquiry at HonuVibe Studio. We reply to every inquiry personally — expect a plan, a tier recommendation, and a timeline within one business day.",
+    ),
+    divider(),
+    paragraph(
+      isJP
+        ? 'それまでの間、私たちの制作実績をご覧ください。'
+        : 'In the meantime, take a look at what we ship.',
+    ),
+    ctaButton({
+      href: `${studioUrl}/work`,
+      label: isJP ? '制作実績を見る' : 'View our work',
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: data.email,
+    subject: isJP
+      ? '【HonuVibe Studio】プロジェクトのお問い合わせを受け付けました'
+      : 'Your project inquiry — HonuVibe Studio',
+    html: baseLayout({
+      locale,
+      preheader: isJP
+        ? 'お問い合わせありがとうございます'
+        : 'We received your project inquiry',
+      body,
+    }),
+  });
+}
+
+export async function sendStudioLeadAdminNotification(
+  data: StudioLeadEmailData,
+): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const body = [
+    accentBanner('New Studio Project Inquiry'),
+    detailsTable([
+      { label: 'Name', value: data.fullName },
+      { label: 'Email', value: data.email },
+      { label: 'Company', value: data.company },
+      { label: 'Industry', value: data.industryLabel ?? '' },
+      { label: 'Project Type', value: data.projectTypeLabel ?? '' },
+      { label: 'Budget', value: data.budgetLabel ?? '' },
+      { label: 'Timeline', value: data.timelineLabel ?? '' },
+      { label: 'Referral', value: data.referralSource ?? '' },
+      { label: 'Locale', value: data.locale },
+    ]),
+    divider(),
+    heading('Project'),
+    paragraph(data.message),
+    ctaButton({
+      href: `mailto:${data.email}`,
+      label: `Reply to ${data.fullName}`,
+    }),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Studio] ${data.company} — ${data.fullName}`,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
   });

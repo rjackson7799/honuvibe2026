@@ -41,6 +41,19 @@ export interface PartnershipInquiryEmailData {
   referralSourceLabel: string | null;
 }
 
+export interface StudioLeadEmailData {
+  locale: Locale;
+  fullName: string;
+  email: string;
+  company: string;
+  industryLabel: string | null;
+  projectTypeLabel: string | null;
+  budgetLabel: string | null;
+  timelineLabel: string | null;
+  referralSource: string | null;
+  message: string;
+}
+
 export interface EnrollmentEmailData {
   locale: Locale;
   studentName: string;

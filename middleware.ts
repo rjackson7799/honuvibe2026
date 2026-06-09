@@ -64,6 +64,36 @@ function getPathWithoutLocale(pathname: string): string {
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // ── HonuVibe Studio subdomain (studio.honuvibe.ai) ──────────────────
+  // The Studio storefront lives in its own root-layout tree at
+  // app/studio-site/. We serve it from the `studio.` subdomain via an
+  // internal rewrite so public URLs stay clean (studio.honuvibe.ai/work),
+  // while the files live under /studio-site/work. Studio is EN-only with
+  // no auth in Phase 1, so it returns before the intl/auth pipeline.
+  const host = (request.headers.get('host') ?? '').split(':')[0].toLowerCase();
+  const isStudioHost = host.startsWith('studio.');
+
+  if (isStudioHost) {
+    const url = request.nextUrl.clone();
+    if (!url.pathname.startsWith('/studio-site')) {
+      url.pathname = `/studio-site${url.pathname === '/' ? '' : url.pathname}`;
+    }
+    return NextResponse.rewrite(url);
+  }
+
+  // Guard: the internal /studio-site/* namespace must not be reachable on the
+  // primary domain. Redirect any direct hits to the canonical subdomain.
+  if (pathname === '/studio-site' || pathname.startsWith('/studio-site/')) {
+    if (host.endsWith('honuvibe.ai')) {
+      const dest = request.nextUrl.clone();
+      dest.host = 'studio.honuvibe.ai';
+      dest.port = '';
+      dest.pathname = pathname.replace(/^\/studio-site/, '') || '/';
+      return NextResponse.redirect(dest);
+    }
+    // Local/preview: fall through so devs can preview /studio-site directly.
+  }
+
   // Supabase auth: catch code param from email links (password reset, signup confirm, etc.)
   // Supabase PKCE flow redirects to redirectTo URL with ?code=xxx — forward to our auth callback
   const code = request.nextUrl.searchParams.get('code');
@@ -189,5 +219,9 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/((?!api|trpc|_next|_vercel|studio|.*\\..*).*)',
+  // `studio(?:$|/)` still excludes the Sanity CMS at /studio and /studio/* while
+  // allowing /studio-site/* through so the guard above can run on the main domain.
+  // Non-capturing group is required — Next's route-source parser rejects
+  // capturing groups in the matcher.
+  matcher: '/((?!api|trpc|_next|_vercel|studio(?:$|/)|.*\\..*).*)',
 };
