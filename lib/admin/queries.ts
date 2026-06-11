@@ -234,18 +234,32 @@ export async function getPartnershipInquiries(
 export async function getStudioLeads(status?: string): Promise<StudioLead[]> {
   const supabase = await createClient();
 
+  // Reads from the normalized `leads` table (migration 047) — the discovery
+  // engine's source of truth — not the retired flat `studio_leads`. Column
+  // aliasing maps leads → the StudioLead shape so the admin UI is unchanged;
+  // the `status` filter targets the admin-managed `sales_stage`. New discover
+  // and studio-form leads both appear here. (Lifecycle + full discovery answers
+  // arrive with the later admin-UI upgrade.)
   let query = supabase
-    .from('studio_leads')
-    .select('*')
+    .from('leads')
+    .select(
+      'id, created_at, full_name:name, company:business_name, ' +
+        'project_type:tier_interest, status:sales_stage, email, industry, ' +
+        'budget_range, timeline, referral_source, source_locale, message, ' +
+        'notes, reviewed_by, reviewed_at',
+    )
     .order('created_at', { ascending: false });
 
   if (status) {
-    query = query.eq('status', status);
+    query = query.eq('sales_stage', status);
   }
 
   const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  // Cast: the aliased select maps leads → the StudioLead shape at the DB layer,
+  // but the supabase-js type parser only infers string-literal selects (ours is
+  // concatenated), so it can't see the aliases. Runtime shape is correct.
+  return (data ?? []) as unknown as StudioLead[];
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {

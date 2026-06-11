@@ -81,6 +81,21 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
+  // ── Build It AI discovery app (app.honuvibe.ai) ─────────────────────
+  // The "Build It AI" discovery tool lives in its own root-layout tree at
+  // app/app-site/. Served from the `app.` subdomain via an internal rewrite,
+  // mirroring the Studio storefront above. EN-only, no auth (anonymous
+  // prospects), so it returns before the intl/auth pipeline.
+  const isAppHost = host.startsWith('app.');
+
+  if (isAppHost) {
+    const url = request.nextUrl.clone();
+    if (!url.pathname.startsWith('/app-site')) {
+      url.pathname = `/app-site${url.pathname === '/' ? '' : url.pathname}`;
+    }
+    return NextResponse.rewrite(url);
+  }
+
   // Guard: the internal /studio-site/* namespace must not be reachable on the
   // primary domain. Redirect any direct hits to the canonical subdomain.
   if (pathname === '/studio-site' || pathname.startsWith('/studio-site/')) {
@@ -92,6 +107,19 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(dest);
     }
     // Local/preview: fall through so devs can preview /studio-site directly.
+  }
+
+  // Guard: the internal /app-site/* namespace must not be reachable on the
+  // primary domain. Redirect any direct hits to the canonical subdomain.
+  if (pathname === '/app-site' || pathname.startsWith('/app-site/')) {
+    if (host.endsWith('honuvibe.ai')) {
+      const dest = request.nextUrl.clone();
+      dest.host = 'app.honuvibe.ai';
+      dest.port = '';
+      dest.pathname = pathname.replace(/^\/app-site/, '') || '/';
+      return NextResponse.redirect(dest);
+    }
+    // Local/preview: fall through so devs can preview /app-site directly.
   }
 
   // Supabase auth: catch code param from email links (password reset, signup confirm, etc.)

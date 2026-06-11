@@ -1,6 +1,6 @@
 # HonuVibe.AI — Build Progress Tracker
 
-**Last updated:** 2026-04-21 (Profile rename + avatar upload)
+**Last updated:** 2026-05-06 (SmashHaus landing redesign)
 
 ### Status Legend
 - [ ] Not started
@@ -1745,5 +1745,57 @@ Implemented partner ownership for courses and Vault content. Migration 035 (rena
 
 Plan: docs/plans/2026-05-04-partner-owned-content-phase1-plan.md
 Spec: docs/plans/2026-05-04-partner-owned-content-phase1-design.md
+
+---
+
+## SmashHaus Landing Redesign — 2026-05-06
+
+Full visual rewrite of `/partners/smashhaus` to a refined co-branded design ahead of the Dylan demo. Purple/teal/coral palette, Inter + Instrument Serif typography, production-relevant mockups (DAW chat card, vinyl record, recording UI, royalty receipt, instructor earnings dashboard) instead of generic blobs. Built section-by-section with type-check + browser spot-check gates between every step.
+
+Plan: [docs/plans/2026-05-05-smashhaus-landing-redesign.md](docs/plans/2026-05-05-smashhaus-landing-redesign.md)
+Design source: [docs/designs/SmashHaus.html](docs/designs/SmashHaus.html)
+
+### What landed (12 steps, all green)
+- [x] **Step 1 — Tokens + fonts.** [fonts.ts](app/%5Blocale%5D/partners/smashhaus/fonts.ts) Fraunces/Archivo → Inter/Instrument Serif. New SmashHaus palette tokens (`--smash-purple`, `--smash-teal`, `--smash-coral`, `--smash-navy`, `--smash-sand`, `--smash-canvas`, `--smash-black`, etc.) added to scope; `--ff-*` repointed at the new font CSS vars
+- [x] **Step 2 — Animations + utility classes.** Keyframes `smash-floatA`/`floatB`/`pulseDot`/`spinSlow` (collision-prefixed), reduced-motion safe. `.smash-serif-accent` utility for italic-serif accent phrases
+- [x] **Step 3 — Hero.** Purple/teal radial washes, faint waveform SVG, gradient italic "Get AI-fluent." headline, CTAs ("Get Started for Free" → primary course; "See the curriculum →" → `#course` anchor), 3-stat trust row (6 wks / 12+ / ∞). Right column: tilted DAW/AI chat card mockup, spinning vinyl record, floating recording/VU card with AI suggestion, lesson-complete chip
+- [x] **Step 4 — Features.** Replaced Benefits with 4-card grid (WRITE/MIX/RELEASE/BUSINESS) using `MicIcon`/`SlidersIcon`/`WaveIcon`/`SparkleIcon`. Each card has a custom illustration: lyric draft on paper, DAW timeline with 4 colored tracks + coral playhead, phone+social posts, royalty receipt
+- [x] **Step 5 — Curriculum (dark).** Replaced FeaturedCourse with sticky-rail 6-week breakdown on `--smash-black`. Section anchored at `id="course"` so the hero CTA scrolls correctly. Dropped free/paid distinction; uniform Self-paced/EN/Lifetime access/Vault included chip set
+- [x] **Step 6 — Vault preview.** New section. Added `fetchSmashHausVault(partnerId)` in page.tsx (RLS-respecting server client, try/catch fail-safe, `Promise.all` with the courses fetch). `mapContentTypeToVaultTag()` normalizes DB enum to design tags. Hybrid render: real `content_items` rows when tagged, tops up to ≥3 with placeholders + dev-only badge when fewer. `Browse all` → `/learn/vault?partner=smashhaus`
+- [x] **Step 7 — Catalog restyle.** Preserved data, `Link` href, and `partner_enroll_click` analytics verbatim. Only the visual surface changed: 6-gradient cycling card heads (purple/teal/coral/navy combos), white "Most popular" badge on first card, level/weeks tag pill, purple "View course →" CTA
+- [x] **Step 8 — Testimonials.** Simpler 3-up grid (Maya Lin, Devon K., Sora T.) on sand background. Dropped the alternating light/dark variant and the 4th quote
+- [x] **Step 9 — Instructor recruitment.** Replaced placeholder Instructors roster with 2-up split: copy + earnings dashboard mockup. CTA → `/become-an-instructor` (preserves `hv_partner` cookie attribution). Mockup: tilted creator card with floating animation, dashboard with $8,420.50 amount + 9-month bar chart + top course row, floating "+$1,247.30 NEW PAYOUT" dark chip
+- [x] **Step 10 — Final CTA.** Dark gradient panel (black → deep purple → SmashHaus purple) with concentric ring SVG decoration. **Newsletter form logic preserved verbatim** — same state, onSubmit, fetch to `/api/newsletter/subscribe` with `source: 'smashhaus_partner_landing'`, same error/success/loading states, same `newsletter_signup` analytics event. Only the wrapper restyled. Input is `font-size: 16px` to prevent iOS zoom
+- [x] **Step 11 — Footer.** Minimal dark variant — single row of 4 links (Courses, Vault, About, Contact) instead of 4 columns × 16 links. Cobranded "SMASH/HAUS × HonuVibe.AI" wordmark on left. Bottom row: copyright + Privacy/Terms inline. Confirmed `/partners/smashhaus` excluded from `<ConditionalFooter>` allowlist — no double footer
+- [x] **Step 12 — Cleanup.** Deleted 3 dead components (`FAQ`, `CoBrandStrip`, `LogoStrip`), 5 orphaned icon exports (`ClockIcon`, `LockIcon`, `LightningIcon`, `QuoteIcon`, `UsersIcon`), and ~1,400 lines of legacy CSS. SmashHausLanding.tsx 1248 lines (was ~1378), smashhaus.css 2203 lines (was 3587, −39%), icons.tsx 122 lines (was 168, −27%)
+
+### Architectural decisions locked in
+- **No SmashHaus SSO ever.** All member CTAs use plain HonuVibe sign-up flow; no "members only" / "exclusive access" framing
+- **Step 13 (bespoke top nav) deferred.** [conditional-nav.tsx](components/layout/conditional-nav.tsx#L9) shows the global `<Nav />` does render on `/partners/smashhaus`. Adding a fixed sub-nav would double-stack. Track as a follow-up: extend `isAuthShellRoute()` (or add `isPartnerLandingRoute()`) to suppress the global nav for `/partners/[slug]` first
+- **Vault uses server `createClient()`, not admin client.** `lib/partner-portal/queries.ts:403 getPartnerVaultItems()` uses service-role; the public landing must respect RLS. Added a separate `fetchSmashHausVault()` helper in page.tsx that filters by `is_published = true` (covered by the existing `content_public_read` policy)
+- **Vault failure mode is silent fallback, not throw.** Try/catch around the supabase call returns `[]` on any error → placeholder branch renders → page never crashes from a missing RLS policy or DB hiccup
+- **Vault top-up rule.** 0 real items → 6 placeholders + badge. 1–2 real items → real first, then placeholders to reach 3 + badge. 3+ real items → real only (capped at 6 by SQL `.limit(6)`), no badge. Avoids the "1 lonely card in left column" demo-day visual
+- **`smash-*` keyframe prefix.** All custom keyframes prefixed to prevent collision with site-wide animations defined in globals.css
+- **JP copy still EN-only.** `TODO(smashhaus-jp-copy)` flag preserved; bespoke strings render EN even on `/ja/partners/smashhaus`. DB-driven `name_jp`/`description_jp` are the only JP-aware fields. Follow-up: add `partners.smashhaus.*` namespace to `messages/{en,ja}.json` before any JP launch
+
+### Verification (next session)
+- [ ] Hard reload `/partners/smashhaus` and `/ja/partners/smashhaus` — visual matches design comp at 1280px+ and 375px
+- [ ] Hero "See the curriculum →" smooth-scrolls to dark Curriculum section
+- [ ] Hero "Get Started for Free" → first SmashHaus course (or `/learn` if none tagged)
+- [ ] Vault: with no SmashHaus-tagged content_items → 6 placeholders. With 1+ tagged → real items first, top-up to 3
+- [ ] Catalog cards still link to `/learn/<slug>` and fire `partner_enroll_click`
+- [ ] "Apply to teach →" → `/become-an-instructor` with `hv_partner=smashhaus` cookie present
+- [ ] Final CTA email submit → 200 from `/api/newsletter/subscribe`, success state renders
+- [ ] All animations respect `prefers-reduced-motion: reduce` (toggle in DevTools Rendering panel)
+- [ ] Regression peers: `/partners/vertice-society`, `/learn`, `/` unchanged
+- [ ] `pnpm build` clean (only verified in dev mode during the build)
+- [ ] Lighthouse mobile Performance ≥ 90
+
+### Deferred (flagged for follow-up)
+- **Bespoke top nav** — needs `isPartnerLandingRoute()` to suppress global nav first
+- **JP copy** — `partners.smashhaus.*` namespace in `messages/{en,ja}.json`
+- **Real partner content tagging** — at least 1–3 courses with `courses.partner_id = smashhaus.id` and 1–2 vault items with `content_items.partner_id = smashhaus.id` so the demo isn't all-placeholder
+- **Real SmashHaus logo + brand colors** in [supabase/seed_smashhaus_demo.sql](supabase/seed_smashhaus_demo.sql)
+- **Real testimonials + instructor earnings data** to replace static mockups (currently flagged with `<PlaceholderBadge>`)
 
 *HonuVibe.AI — Progress Tracker | Updated as build progresses*

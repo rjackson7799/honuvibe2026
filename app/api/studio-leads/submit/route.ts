@@ -64,17 +64,23 @@ export async function POST(req: NextRequest) {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && serviceRoleKey) {
     const supabase = createAdminClient();
-    const { error } = await supabase.from('studio_leads').insert({
-      full_name: d.full_name,
+    // Writes to the normalized `leads` table (migration 047) — the discovery
+    // engine's source of truth — as a lightweight, session-less lead. The admin
+    // reads `leads`, so these still appear in /admin/studio/leads.
+    const { error } = await supabase.from('leads').insert({
+      name: d.full_name,
       email: d.email,
-      company: d.company,
+      business_name: d.company,
       industry: d.industry,
-      project_type: d.project_type,
+      tier_interest: d.project_type,
       budget_range: d.budget_range,
       timeline: d.timeline,
       message: d.message,
       referral_source: d.referral_source,
       source_locale: d.source_locale,
+      source: 'studio_form',
+      lifecycle: 'new',
+      sales_stage: 'new',
     });
     if (error) {
       console.error('[Studio Leads] DB insert failed:', error.message);

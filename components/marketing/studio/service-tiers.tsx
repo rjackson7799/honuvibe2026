@@ -1,6 +1,11 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Check } from './studio-icons';
+import { PRICING, AI_NATIVE_FROM } from '@/lib/pricing';
+
+// Price amounts derive from the single pricing source of truth (lib/pricing.ts);
+// marketing copy (feature lists, descriptions) stays literal here.
+const usd = (n: number) => n.toLocaleString('en-US');
 
 export type Tier = {
   name: string;
@@ -20,10 +25,10 @@ export const TIERS: Tier[] = [
     name: 'Studio Starter',
     desc: 'A sharp, fast site to get you online and credible — quickly.',
     pricePre: '$',
-    priceAmt: '500',
+    priceAmt: usd(PRICING.starter.build),
     unit: (
       <>
-        one-time build &nbsp;·&nbsp; <b>$25/mo</b> care
+        one-time build &nbsp;·&nbsp; <b>${PRICING.starter.monthly}/mo</b> care
       </>
     ),
     features: [
@@ -39,10 +44,10 @@ export const TIERS: Tier[] = [
     name: 'Studio Pro',
     desc: 'A growth engine — content, capture, and AI assists baked in.',
     pricePre: '$',
-    priceAmt: '2,500',
+    priceAmt: usd(PRICING.pro.build),
     unit: (
       <>
-        build &nbsp;·&nbsp; <b>$75/mo</b> care
+        build &nbsp;·&nbsp; <b>${PRICING.pro.monthly}/mo</b> care
       </>
     ),
     features: [
@@ -61,10 +66,10 @@ export const TIERS: Tier[] = [
     name: 'Studio AI-Native',
     desc: 'A custom system that runs and grows your business operations.',
     pricePre: 'from $',
-    priceAmt: '7,500',
+    priceAmt: usd(AI_NATIVE_FROM.build),
     unit: (
       <>
-        custom-quoted &nbsp;·&nbsp; <b>from $200/mo</b>
+        custom-quoted &nbsp;·&nbsp; <b>from ${AI_NATIVE_FROM.monthly}/mo</b>
       </>
     ),
     features: [
