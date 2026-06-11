@@ -127,16 +127,16 @@
 /* ---------- Wordmark lockup ---------- */
 .studio .lockup { display: inline-flex; align-items: baseline; gap: 8px; }
 .studio .lockup .mark {
-  display: inline-flex; align-items: center; gap: 9px;
-  font-weight: 700; font-size: 20px; letter-spacing: -0.02em; color: var(--ink);
+  font-weight: 700; font-size: 18px; letter-spacing: -0.01em; color: var(--ink);
 }
-.studio .lockup .glyph { width: 26px; height: 26px; flex: none; }
+.studio .lockup .mark .ai { color: var(--teal); }
 .studio .lockup .studio-word {
-  font-size: 12px; font-weight: 600; letter-spacing: 0.28em;
-  text-transform: uppercase; color: var(--teal-deep); position: relative; top: -1px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text-faint);
 }
 .studio .lockup.on-dark .mark { color: var(--on-dark); }
-.studio .lockup.on-dark .studio-word { color: #5fd6cd; }
+.studio .lockup.on-dark .mark .ai { color: #5fd6cd; }
+.studio .lockup.on-dark .studio-word { color: var(--on-dark-mut); }
 
 /* ---------- Top nav ---------- */
 .studio .nav {
