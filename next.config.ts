@@ -67,6 +67,18 @@ const nextConfig: NextConfig = {
       { source: '/ja/learn/organizations', destination: '/ja/organizations', permanent: true },
     ];
   },
+  async headers() {
+    return [
+      // Client preview mockups live under public/previews/ behind unguessable
+      // paths. Mark them noindex at the header level (defense-in-depth alongside
+      // the per-file <meta name="robots"> tag) so they can never be crawled or
+      // surfaced before a deal closes.
+      {
+        source: '/previews/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
