@@ -92,13 +92,15 @@ const flatItems: NavItem[] = navGroups.flatMap((g) => g.items);
 
 function isItemActive(item: NavItem, logicalPath: string): boolean {
   if (item.exact) return logicalPath === item.href;
+  const matchesHref =
+    logicalPath === item.href || logicalPath.startsWith(`${item.href}/`);
   if (item.href === '/admin/courses') {
     return (
-      logicalPath.startsWith('/admin/courses') &&
+      matchesHref &&
       !logicalPath.startsWith('/admin/courses/proposals')
     );
   }
-  return logicalPath.startsWith(item.href);
+  return matchesHref;
 }
 
 export function AdminNav() {
