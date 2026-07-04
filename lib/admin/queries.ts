@@ -227,6 +227,15 @@ export async function getPartnershipInquiries(
   }
 
   const { data, error } = await query;
+  if (
+    error?.code === 'PGRST205' &&
+    error.message?.includes("table 'public.partnership_inquiries'")
+  ) {
+    console.error(
+      '[getPartnershipInquiries] partnership_inquiries table is missing. Apply supabase/migrations/034_partnership_inquiries.sql to restore the admin inbox.',
+    );
+    return [];
+  }
   if (error) throw error;
   return data ?? [];
 }
