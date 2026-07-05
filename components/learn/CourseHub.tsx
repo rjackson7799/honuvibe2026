@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { TabNavigation } from './TabNavigation';
@@ -64,6 +64,10 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
   const displayLocale = useLocale();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('weekly_plan');
+  const searchParams = useSearchParams();
+  const [showWelcome, setShowWelcome] = useState(
+    searchParams.get('enrolled') === 'true',
+  );
 
   const title = displayLocale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
   const description = displayLocale === 'ja' && course.description_jp ? course.description_jp : course.description_en;
@@ -203,6 +207,26 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
 
   return (
     <div>
+      {showWelcome && (
+        <div className="mb-10 rounded-2xl border border-accent-teal/30 bg-accent-teal/[0.08] p-6 md:p-8">
+          <h2 className="font-serif text-2xl text-fg-primary">
+            {t('enrolled.heading')}
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-fg-secondary">
+            {t('enrolled.body')}
+          </p>
+          <p className="mt-3 text-xs text-fg-tertiary">
+            {t('enrolled.email_note')}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowWelcome(false)}
+            className="mt-4 inline-flex items-center justify-center rounded-lg bg-accent-teal px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            {t('enrolled.next_cta')}
+          </button>
+        </div>
+      )}
       {/* Hero image banner — negative margin to negate dashboard layout padding */}
       <div className="relative overflow-hidden -mt-6 -mx-6 md:-mt-8 md:-mx-8">
         {imageUrl ? (

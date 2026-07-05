@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const { data: course, error: courseError } = await supabase
       .from('courses')
       .select(
-        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published',
+        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published, format',
       )
       .eq('id', courseId)
       .single();
@@ -103,6 +103,17 @@ export async function POST(request: NextRequest) {
       ? (course.title_jp ?? course.title_en)
       : course.title_en;
 
+    // One-line description shown inside the Stripe payment form. Only set it for
+    // formats that actually include live cohort sessions — a recorded-only course
+    // must not claim "live".
+    const includeDescription =
+      course.format === 'live' || course.format === 'hybrid';
+    const productDescription = includeDescription
+      ? isJapanese
+        ? `${courseTitle} — HonuVibeのライブ講座。実際にAIで作っている実務家から、少人数で学べます。全授業の録画付き。`
+        : `${courseTitle} — a live, cohort-based AI course from HonuVibe, taught by people who build with AI every day. Recordings included.`
+      : undefined;
+
     // Build origin for return URL
     const origin =
       request.headers.get('origin') ??
@@ -122,6 +133,9 @@ export async function POST(request: NextRequest) {
             currency,
             product_data: {
               name: courseTitle,
+              ...(productDescription
+                ? { description: productDescription }
+                : {}),
               metadata: { course_id: courseId },
             },
             unit_amount: unitAmount,

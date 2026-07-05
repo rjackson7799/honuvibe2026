@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Lock, X } from 'lucide-react';
 import { SubscribeButton } from '@/components/billing/SubscribeButton';
@@ -10,11 +10,11 @@ import { trackEvent } from '@/lib/analytics';
 type VaultUnlockModalProps = {
   open: boolean;
   onClose: () => void;
+  count: number;
 };
 
-export function VaultUnlockModal({ open, onClose }: VaultUnlockModalProps) {
-  const locale = useLocale();
-  const isJP = locale === 'ja';
+export function VaultUnlockModal({ open, onClose, count }: VaultUnlockModalProps) {
+  const t = useTranslations('vault');
 
   useEffect(() => {
     if (open) trackEvent('vault_unlock_modal_open');
@@ -59,12 +59,10 @@ export function VaultUnlockModal({ open, onClose }: VaultUnlockModalProps) {
 
         {/* Heading */}
         <h2 className="text-xl font-serif text-fg-primary text-center mb-2">
-          {isJP ? 'ヴォールトを解除する' : 'Unlock The Vault'}
+          {t('modal.heading')}
         </h2>
         <p className="text-sm text-fg-secondary text-center mb-6">
-          {isJP
-            ? '英語・日本語200以上のAIチュートリアル、ガイド、テンプレートにアクセスできます。'
-            : 'Get instant access to 200+ English & Japanese AI tutorials, guides, and templates.'}
+          {t('modal.sub', { count })}
         </p>
 
         {/* Primary CTA */}
@@ -75,23 +73,21 @@ export function VaultUnlockModal({ open, onClose }: VaultUnlockModalProps) {
         {/* Divider */}
         <div className="flex items-center gap-3 mb-5">
           <div className="flex-1 h-px bg-border-default" />
-          <span className="text-xs text-fg-tertiary">{isJP ? 'または' : 'or'}</span>
+          <span className="text-xs text-fg-tertiary">{t('modal.divider')}</span>
           <div className="flex-1 h-px bg-border-default" />
         </div>
 
         {/* Secondary CTA */}
         <div className="text-center">
           <p className="text-xs text-fg-tertiary mb-2">
-            {isJP
-              ? 'コースに登録すると、受講期間中はヴォールトが無料で使えます。'
-              : 'Enroll in a course and get Vault access included for the duration of your enrollment.'}
+            {t('modal.enroll_note')}
           </p>
           <Link
             href="/learn"
             onClick={onClose}
             className="text-sm text-accent-teal hover:text-accent-teal/80 transition-colors underline underline-offset-2"
           >
-            {isJP ? 'コースを見る →' : 'Browse courses →'}
+            {t('modal.browse')}
           </Link>
         </div>
       </div>

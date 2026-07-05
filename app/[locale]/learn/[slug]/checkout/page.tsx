@@ -1,5 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
 import { checkEnrollment } from '@/lib/enrollments/queries';
@@ -8,6 +8,7 @@ import { EmbeddedCheckoutForm } from '@/components/learn/EmbeddedCheckoutForm';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ error?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -19,9 +20,12 @@ export async function generateMetadata({ params }: Props) {
   return { title: `Checkout · ${title}` };
 }
 
-export default async function CheckoutPage({ params }: Props) {
+export default async function CheckoutPage({ params, searchParams }: Props) {
   const { locale, slug } = await params;
+  const { error } = await searchParams;
   setRequestLocale(locale);
+
+  const t = await getTranslations({ locale, namespace: 'learn.checkout' });
 
   const supabase = await createClient();
   const {
@@ -124,6 +128,20 @@ export default async function CheckoutPage({ params }: Props) {
       ? course.learning_outcomes_jp
       : course.learning_outcomes_en) ?? [];
 
+  const summaryLabels = {
+    backToCourse: t('back_to_course'),
+    summaryHeading: t('summary_heading'),
+    startsText: startDateFormatted
+      ? t('starts', { date: startDateFormatted })
+      : null,
+    spotsText:
+      spotsRemaining !== null
+        ? t('spots_remaining', { count: spotsRemaining })
+        : null,
+    trustStrip: t('trust_strip'),
+    reassurance: t('reassurance'),
+  };
+
   return (
     <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start">
       {/* Left: Course summary */}
@@ -141,11 +159,17 @@ export default async function CheckoutPage({ params }: Props) {
           instructor={course.instructor}
           locale={locale}
           courseSlug={slug}
+          labels={summaryLabels}
         />
       </div>
 
       {/* Right: Stripe Embedded Checkout — framed in a HonuVibe card */}
       <div className="w-full flex-1 min-w-0">
+        {error === 'payment_failed' && (
+          <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-300">
+            {t('error_retry')}
+          </div>
+        )}
         <div className="rounded-xl border border-border-default bg-bg-secondary overflow-hidden">
           {/* Card header */}
           <div className="px-5 py-4 border-b border-border-default flex items-center gap-2">
@@ -163,17 +187,18 @@ export default async function CheckoutPage({ params }: Props) {
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
-            <span className="text-sm font-semibold text-fg-primary">Secure Checkout</span>
-            <span className="ml-auto text-xs text-fg-tertiary">Powered by Stripe</span>
+            <span className="text-sm font-semibold text-fg-primary">{t('secure')}</span>
+            <span className="ml-auto text-xs text-fg-tertiary">{t('powered_by')}</span>
           </div>
 
           {/* Stripe iframe */}
           <div className="p-4 md:p-5">
             <EmbeddedCheckoutForm courseId={course.id} locale={locale} />
             <p className="mt-3 text-center text-xs text-fg-muted">
-              {isJapanese
-                ? '「808eventures」としてカード明細に表示されます。'
-                : 'This charge will appear as “808eventures” on your card statement.'}
+              {t('card_statement')}
+            </p>
+            <p className="mt-3 text-center text-xs text-fg-tertiary leading-relaxed">
+              {t('whats_next')}
             </p>
           </div>
         </div>

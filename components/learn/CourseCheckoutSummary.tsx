@@ -1,6 +1,15 @@
 import Image from 'next/image';
 import type { InstructorCardData } from '@/lib/instructors/types';
 
+type CourseCheckoutSummaryLabels = {
+  backToCourse: string;
+  summaryHeading: string;
+  startsText: string | null;
+  spotsText: string | null;
+  trustStrip: string;
+  reassurance: string;
+};
+
 type CourseCheckoutSummaryProps = {
   title: string;
   description: string | null;
@@ -14,6 +23,7 @@ type CourseCheckoutSummaryProps = {
   instructor: InstructorCardData | null | undefined;
   locale: string;
   courseSlug: string;
+  labels: CourseCheckoutSummaryLabels;
 };
 
 export function CourseCheckoutSummary({
@@ -29,6 +39,7 @@ export function CourseCheckoutSummary({
   instructor,
   locale,
   courseSlug,
+  labels,
 }: CourseCheckoutSummaryProps) {
   const prefix = locale === 'ja' ? '/ja' : '';
 
@@ -49,7 +60,7 @@ export function CourseCheckoutSummary({
         className="inline-flex items-center gap-1.5 text-sm text-fg-tertiary hover:text-accent-teal transition-colors"
       >
         <span>←</span>
-        <span>Back to course</span>
+        <span>{labels.backToCourse}</span>
       </a>
 
       {/* Thumbnail */}
@@ -98,13 +109,11 @@ export function CourseCheckoutSummary({
 
       {/* Start date + scarcity */}
       <div className="flex flex-wrap gap-4 text-sm">
-        {startDateFormatted && (
-          <span className="text-fg-secondary">Starts {startDateFormatted}</span>
+        {startDateFormatted && labels.startsText && (
+          <span className="text-fg-secondary">{labels.startsText}</span>
         )}
-        {spotsRemaining !== null && (
-          <span className={scarcityColor}>
-            {spotsRemaining} spot{spotsRemaining !== 1 ? 's' : ''} remaining
-          </span>
+        {spotsRemaining !== null && labels.spotsText && (
+          <span className={scarcityColor}>{labels.spotsText}</span>
         )}
       </div>
 
@@ -112,7 +121,7 @@ export function CourseCheckoutSummary({
       {outcomesToShow.length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-fg-tertiary">
-            What you&apos;ll master
+            {labels.summaryHeading}
           </p>
           <ul className="space-y-1.5">
             {outcomesToShow.map((outcome, i) => (
@@ -172,8 +181,13 @@ export function CourseCheckoutSummary({
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           />
         </svg>
-        <span>Secure checkout · 14-day refund policy</span>
+        <span>{labels.trustStrip}</span>
       </div>
+
+      {/* Risk-reversal reassurance */}
+      <p className="text-xs leading-relaxed text-fg-tertiary">
+        {labels.reassurance}
+      </p>
     </div>
   );
 }

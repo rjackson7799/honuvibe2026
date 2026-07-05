@@ -128,7 +128,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
     <div className="space-y-6 pt-4">
       <VaultKeyboardShortcuts onSearch={focusSearch} />
 
-      {!hasAccess && <VaultUpsellBanner />}
+      {!hasAccess && <VaultUpsellBanner count={initialTotalCount} />}
 
       <VaultFilters
         search={search}
@@ -150,7 +150,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
       {items.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => {
-            const locked = true;
+            const locked = !hasAccess;
             return (
               <VaultContentCard
                 key={item.id}
@@ -191,7 +191,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
         </div>
       )}
 
-      <VaultUnlockModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <VaultUnlockModal open={modalOpen} onClose={() => setModalOpen(false)} count={initialTotalCount} />
     </div>
   );
 }
