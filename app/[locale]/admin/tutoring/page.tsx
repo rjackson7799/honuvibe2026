@@ -2,6 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { list1v1Courses } from '@/lib/tutoring/queries';
+import { NewTutoringEngagement } from '@/components/admin/NewTutoringEngagement';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -26,20 +27,29 @@ export default async function AdminTutoringPage({ params }: Props) {
 
   return (
     <div className="max-w-[1100px] space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold tracking-[-0.02em] text-fg-primary">
-          1v1 Sessions
-        </h1>
-        <p className="text-sm text-fg-tertiary">
-          Private tutoring engagements. Paste a session transcript to generate a diagnostic report,
-          review and edit it, then publish it to the student&apos;s dashboard.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-[clamp(22px,2.5vw,28px)] font-bold tracking-[-0.02em] text-fg-primary">
+            1v1 Sessions
+          </h1>
+          <p className="text-sm text-fg-tertiary">
+            Private tutoring engagements. Paste a session transcript to generate a diagnostic
+            report, review and edit it, then publish it to the student&apos;s dashboard.
+          </p>
+        </div>
+        {courses.length > 0 && <NewTutoringEngagement />}
       </div>
 
       {courses.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border-default py-8 px-6 text-center text-sm text-fg-tertiary">
-          No 1v1 courses yet. Create a course with type <code className="text-fg-secondary">1v1</code>{' '}
-          (private, published, max enrollment 1) and enroll the student, then it appears here.
+        <div className="space-y-4 rounded-xl border border-dashed border-border-default px-6 py-8 text-center">
+          <p className="text-sm text-fg-tertiary">
+            No 1v1 engagements yet. Create one below, then enroll the student at{' '}
+            <code className="text-fg-secondary">/admin/students/new</code> — it appears here once
+            they&apos;re enrolled.
+          </p>
+          <div className="flex justify-center">
+            <NewTutoringEngagement />
+          </div>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border-default bg-bg-secondary">

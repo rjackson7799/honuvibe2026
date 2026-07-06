@@ -41,6 +41,65 @@ async function revalidateForReport(
   }
 }
 
+/**
+ * Create a bare 1v1 engagement — a private, published `courses` shell with no
+ * curriculum (the AI course wizard is wrong for this: it generates weeks/
+ * sessions). After this, enroll the student via /admin/students/new and the
+ * engagement appears in /admin/tutoring.
+ */
+export async function createTutoringCourse(input: {
+  titleEn: string;
+  titleJp?: string | null;
+  instructorName?: string | null;
+}): Promise<{ courseId: string; slug: string }> {
+  await requireAdmin();
+  const titleEn = input.titleEn.trim();
+  if (!titleEn) throw new Error('A title is required.');
+
+  const admin = createAdminClient();
+
+  // Derive a unique slug from the title.
+  const base =
+    titleEn
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48) || 'engagement';
+  let slug = base;
+  for (let i = 2; i < 50; i += 1) {
+    const { data: taken } = await admin
+      .from('courses')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+    if (!taken) break;
+    slug = `${base}-${i}`;
+  }
+
+  const { data, error } = await admin
+    .from('courses')
+    .insert({
+      slug,
+      course_type: '1v1',
+      title_en: titleEn,
+      title_jp: input.titleJp?.trim() || null,
+      instructor_name: input.instructorName?.trim() || 'Ryan Jackson',
+      language: 'both',
+      is_private: true,
+      is_published: true,
+      status: 'published',
+      max_enrollment: 1,
+      current_enrollment: 0,
+    })
+    .select('id, slug')
+    .single();
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/admin/tutoring');
+  return { courseId: data.id, slug: data.slug };
+}
+
 export interface UpdateSessionReportInput {
   reportId: string;
   sessionDate: string;
