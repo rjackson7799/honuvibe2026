@@ -8,7 +8,6 @@ type DashboardWelcomeHeaderProps = {
   displayName: string;
   settingsHref: string;
   notificationsHref?: string;
-  showNotificationDot?: boolean;
 };
 
 export function DashboardWelcomeHeader({
@@ -18,17 +17,7 @@ export function DashboardWelcomeHeader({
   displayName,
   settingsHref,
   notificationsHref,
-  showNotificationDot = true,
 }: DashboardWelcomeHeaderProps) {
-  const NotificationButton = (
-    <>
-      <Bell size={17} />
-      {showNotificationDot && (
-        <span className="absolute top-2 right-2 w-[7px] h-[7px] rounded-full bg-[color:var(--accent-coral)] ring-[1.5px] ring-bg-secondary" />
-      )}
-    </>
-  );
-
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
@@ -40,22 +29,14 @@ export function DashboardWelcomeHeader({
         </h1>
       </div>
       <div className="flex items-center gap-2.5 shrink-0">
-        {notificationsHref ? (
+        {notificationsHref && (
           <Link
             href={notificationsHref}
             aria-label="Notifications"
             className="relative w-[38px] h-[38px] rounded-[10px] bg-bg-secondary border border-border-default text-fg-secondary hover:text-fg-primary hover:border-border-hover transition-all flex items-center justify-center"
           >
-            {NotificationButton}
+            <Bell size={17} />
           </Link>
-        ) : (
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative w-[38px] h-[38px] rounded-[10px] bg-bg-secondary border border-border-default text-fg-secondary hover:text-fg-primary hover:border-border-hover transition-all flex items-center justify-center"
-          >
-            {NotificationButton}
-          </button>
         )}
         <Link
           href={settingsHref}

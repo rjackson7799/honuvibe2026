@@ -23,7 +23,10 @@ export async function getStudentDashboardData(
   const activeCount = enrollments.filter((e) => e.status === 'active').length;
   const completedCount = enrollments.filter((e) => e.status === 'completed').length;
 
-  // Calculate total study hours from session durations
+  // Sum of durations of UPCOMING scheduled sessions — i.e. hours booked ahead,
+  // not hours actually studied. Surfaced in the dashboard as "Scheduled Hours".
+  // Tier 0 will replace this with tracked study time (and can restore the
+  // "Study Hours" label then).
   const totalMinutes = upcomingSessions.reduce(
     (sum, s) => sum + (s.duration_minutes ?? 0),
     0,

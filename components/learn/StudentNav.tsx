@@ -10,6 +10,8 @@ import {
   LayoutDashboard,
   BookOpen,
   Lock,
+  FlaskConical,
+  Route,
   Users,
   CreditCard,
   UserCircle,
@@ -33,6 +35,8 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard', labelKey: 'nav_dashboard', icon: LayoutDashboard, exact: true },
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
+  { href: '/learn/vault/workbench', labelKey: 'nav_workbench', icon: FlaskConical, exact: false },
+  { href: '/learn/paths/new', labelKey: 'nav_study_paths', icon: Route, exact: false },
   { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
@@ -131,6 +135,33 @@ export function StudentNav() {
     ? [...baseNavItems.slice(0, 4), instructorNavItem, ...baseNavItems.slice(4)]
     : baseNavItems;
 
+  // Mobile bottom bar: cap at 6 slots and always pin Settings last — it's the
+  // only mobile route to account settings + sign-out, and the instructor entry
+  // would otherwise push it off the end.
+  const settingsItem = navItems.find((i) => i.href === '/learn/dashboard/settings');
+  const mobilePrimary = navItems.filter(
+    (i) =>
+      i.href !== '/learn/dashboard/events' &&
+      i.href !== '/learn/dashboard/community' &&
+      i.href !== '/learn/dashboard/billing' &&
+      i.href !== '/learn/dashboard/settings',
+  );
+  const mobileItems = settingsItem
+    ? [...mobilePrimary.slice(0, 5), settingsItem]
+    : mobilePrimary.slice(0, 6);
+
+  // Most-specific match wins, so a parent entry (Vault) doesn't stay highlighted
+  // when a nested entry (Workbench at /learn/vault/workbench) is the active one.
+  const matchesPath = (item: NavItem) =>
+    item.exact
+      ? logicalPath === item.href
+      : logicalPath === item.href || logicalPath.startsWith(`${item.href}/`);
+  const isItemActive = (item: NavItem) =>
+    matchesPath(item) &&
+    !navItems.some(
+      (other) => other !== item && other.href.length > item.href.length && matchesPath(other),
+    );
+
   const getLabel = (item: NavItem) =>
     item.ns === 'instructor' ? tInstructor(item.labelKey) : t(item.labelKey);
 
@@ -162,9 +193,7 @@ export function StudentNav() {
         <div className="flex-1 min-h-0 overflow-y-auto px-2.5 py-3">
           <div className="flex flex-col gap-0.5">
             {navItems.map((item) => {
-              const isActive = item.exact
-                ? logicalPath === item.href
-                : logicalPath.startsWith(item.href);
+              const isActive = isItemActive(item);
               const Icon = item.icon;
               return (
                 <Link key={item.href} href={item.href} className={itemClass(isActive)}>
@@ -193,13 +222,8 @@ export function StudentNav() {
 
       {/* Mobile bottom nav — restyled for canvas palette */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-tertiary border-t border-border-default flex">
-        {navItems
-          .filter((i) => i.href !== '/learn/dashboard/events')
-          .slice(0, 6)
-          .map((item) => {
-          const isActive = item.exact
-            ? logicalPath === item.href
-            : logicalPath.startsWith(item.href);
+        {mobileItems.map((item) => {
+          const isActive = isItemActive(item);
           const Icon = item.icon;
           return (
             <Link

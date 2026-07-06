@@ -15,6 +15,8 @@ import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingB
 import { WelcomeScreen } from '@/components/learn/WelcomeScreen';
 import { SetPasswordBanner } from '@/components/learn/SetPasswordBanner';
 import { DashboardBackdrop } from '@/components/learn/DashboardBackdrop';
+import { NextSessionCard } from '@/components/learn/NextSessionCard';
+import { RecommendationsEmptyState } from '@/components/learn/RecommendationsEmptyState';
 import { Card } from '@/components/ui/card';
 import { BadgePill } from '@/components/ui/badge-pill';
 import { SectionHeading } from '@/components/learn/SectionHeading';
@@ -108,6 +110,23 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     })
     .toUpperCase();
 
+  // Next live session — formatted server-side so the client card hydrates
+  // without a timezone mismatch between SSR and the browser.
+  const nextSession = upcomingSessions[0] ?? null;
+  const nextSessionDateLabel = nextSession
+    ? new Date(nextSession.scheduled_at).toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+      })
+    : '';
+  const nextSessionTimeLabel = nextSession
+    ? new Date(nextSession.scheduled_at).toLocaleTimeString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      })
+    : '';
+
   return (
     <div className="relative space-y-7 max-w-[1100px]">
       <DashboardBackdrop />
@@ -131,6 +150,15 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
       {instructorClassCount > 0 && (
         <InstructorTeachingBanner classCount={instructorClassCount} />
+      )}
+
+      {nextSession && (
+        <NextSessionCard
+          session={nextSession}
+          locale={locale}
+          dateLabel={nextSessionDateLabel}
+          timeLabel={nextSessionTimeLabel}
+        />
       )}
 
       {/* Stat cards */}
@@ -177,8 +205,10 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       />
 
       {/* Vault Recommendations */}
-      {vaultRecommendations.length > 0 && (
+      {vaultRecommendations.length > 0 ? (
         <VaultCourseRecommendations items={vaultRecommendations} />
+      ) : (
+        <RecommendationsEmptyState />
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -333,28 +363,41 @@ export default async function DashboardPage({ params, searchParams }: Props) {
                     : 'gray';
 
               const due = assignment.due_date ? new Date(assignment.due_date) : null;
+              const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
               const daysUntilDue = due
-                ? Math.ceil((due.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+                ? Math.round(
+                    (new Date(due.getFullYear(), due.getMonth(), due.getDate()).getTime() -
+                      startOfToday.getTime()) /
+                      86_400_000,
+                  )
                 : null;
-              const isUrgent = daysUntilDue !== null && daysUntilDue <= 3;
-              const dueLabel = due
-                ? t('due_date', {
-                    date: due.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                    }),
-                  })
-                : t('no_due_date');
+              const isOverdue = daysUntilDue !== null && daysUntilDue < 0;
+              const isDueToday = daysUntilDue === 0;
+              const isSoon = daysUntilDue !== null && daysUntilDue > 0 && daysUntilDue <= 3;
+              const dueLabel = isOverdue
+                ? t('overdue')
+                : isDueToday
+                  ? t('due_today')
+                  : due
+                    ? t('due_date', {
+                        date: due.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                        }),
+                      })
+                    : t('no_due_date');
+              const dueClass = isOverdue
+                ? 'text-[color:var(--accent-coral)] font-semibold'
+                : isDueToday || isSoon
+                  ? 'text-[color:var(--accent-coral)]'
+                  : 'text-fg-tertiary';
 
               return (
-                <div
+                <Link
                   key={assignment.id}
-                  className="flex items-center gap-3 px-4 py-3 bg-bg-secondary border border-border-default rounded-[10px]"
+                  href={`/learn/dashboard/${assignment.course_slug}`}
+                  className="flex items-center gap-3 px-4 py-3 bg-bg-secondary border border-border-default rounded-[10px] hover:border-border-hover transition-colors"
                 >
-                  <div
-                    aria-hidden
-                    className="w-5 h-5 rounded-md border-[1.5px] border-[rgba(26,43,51,0.2)] shrink-0"
-                  />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                       <span className="text-[13.5px] font-semibold text-fg-primary truncate">
@@ -369,13 +412,11 @@ export default async function DashboardPage({ params, searchParams }: Props) {
                     </p>
                   </div>
                   <span
-                    className={`text-[12px] font-medium whitespace-nowrap shrink-0 ${
-                      isUrgent ? 'text-[color:var(--accent-coral)]' : 'text-fg-tertiary'
-                    }`}
+                    className={`text-[12px] font-medium whitespace-nowrap shrink-0 ${dueClass}`}
                   >
                     {dueLabel}
                   </span>
-                </div>
+                </Link>
               );
             })}
           </div>
