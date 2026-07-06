@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Check, Clock } from './studio-icons';
+import { ArrowRight, Clock } from './studio-icons';
 
 export function HomeHero() {
   return (
@@ -15,8 +15,8 @@ export function HomeHero() {
             </h1>
             <p className="sub">
               HonuVibe Studio builds AI-native websites and systems for small
-              businesses — the production lab run by the people teaching AI. We
-              don&apos;t just talk about it. We ship it.
+              businesses — run by the people teaching AI. We don&apos;t just talk
+              about it. We ship it.
             </p>
             <div className="cta-row">
               <Link href="/contact" className="btn btn-coral btn-lg">
@@ -28,10 +28,6 @@ export function HomeHero() {
               </Link>
             </div>
             <div className="trust">
-              <span className="item">
-                <Check /> <b>30+</b> sites shipped
-              </span>
-              <span className="dot" />
               <span className="item">
                 <Clock /> <b>1</b>-business-day reply
               </span>

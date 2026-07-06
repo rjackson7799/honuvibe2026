@@ -23,7 +23,7 @@ export type Tier = {
 export const TIERS: Tier[] = [
   {
     name: 'Studio Starter',
-    desc: 'A sharp, fast site to get you online and credible — quickly.',
+    desc: 'A sharp, fast site that gets you online and credible.',
     pricePre: '$',
     priceAmt: usd(PRICING.starter.build),
     unit: (
@@ -64,7 +64,7 @@ export const TIERS: Tier[] = [
   },
   {
     name: 'Studio AI-Native',
-    desc: 'A custom system that runs and grows your business operations.',
+    desc: 'A custom system that runs your operations and grows your business.',
     pricePre: 'from $',
     priceAmt: usd(AI_NATIVE_FROM.build),
     unit: (

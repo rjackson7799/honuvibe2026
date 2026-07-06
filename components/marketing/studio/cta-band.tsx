@@ -14,7 +14,7 @@ export function CtaBand() {
           </h2>
           <p>
             Tell us where you want to grow. We&apos;ll send back a clear plan, a
-            tier recommendation, and a timeline — usually within one business day.
+            tier recommendation, and a timeline — within one business day.
           </p>
           <div className="cta-row">
             <Link href="/contact" className="btn btn-coral btn-lg">
