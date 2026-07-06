@@ -12,7 +12,7 @@ export interface StudentStats {
   active_courses: number;
   completed_courses: number;
   upcoming_sessions_count: number;
-  total_study_hours: number;
+  sessions_completed: number;
 }
 
 export interface UpcomingSessionItem {
@@ -50,6 +50,8 @@ export interface StudentDashboardData {
   upcomingSessions: UpcomingSessionItem[];
   pendingAssignments: PendingAssignmentItem[];
   stats: StudentStats;
+  /** Real sessions-completed percent per active course, keyed by course id. */
+  coursesProgress: Map<string, number>;
 }
 
 export interface CommunityLink {

@@ -2,10 +2,13 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import { FileText, Zap, FolderOpen } from 'lucide-react';
+import { AssignmentCompletionToggle } from './AssignmentCompletionToggle';
 import type { CourseAssignment } from '@/lib/courses/types';
 
 type AssignmentCardProps = {
   assignment: CourseAssignment;
+  showCompletionToggle?: boolean;
+  isCompleted?: boolean;
 };
 
 const typeIcons = {
@@ -14,7 +17,7 @@ const typeIcons = {
   project: FolderOpen,
 } as const;
 
-export function AssignmentCard({ assignment }: AssignmentCardProps) {
+export function AssignmentCard({ assignment, showCompletionToggle = false, isCompleted = false }: AssignmentCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
 
@@ -38,6 +41,12 @@ export function AssignmentCard({ assignment }: AssignmentCardProps) {
   return (
     <div className="border border-border-default rounded-lg p-4 space-y-2">
       <div className="flex items-center gap-2">
+        {showCompletionToggle && (
+          <AssignmentCompletionToggle
+            assignmentId={assignment.id}
+            isCompleted={isCompleted}
+          />
+        )}
         <Icon size={16} className="text-accent-teal shrink-0" />
         <span className="text-xs font-medium text-accent-teal uppercase tracking-wide">
           {typeLabel}

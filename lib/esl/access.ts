@@ -29,14 +29,15 @@ export async function checkESLAccess(
     return { hasAccess: false, source: null };
   }
 
-  // If ESL is included, check for active enrollment
+  // If ESL is included, check for a live enrollment ('completed' still counts —
+  // finishing the course must not revoke ESL access the purchase granted).
   if (course.esl_included) {
     const { data: enrollment } = await supabase
       .from('enrollments')
       .select('id')
       .eq('user_id', userId)
       .eq('course_id', courseId)
-      .eq('status', 'active')
+      .in('status', ['active', 'completed'])
       .maybeSingle();
 
     if (enrollment) {

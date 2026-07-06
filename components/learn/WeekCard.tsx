@@ -18,12 +18,17 @@ type WeekCardProps = {
   freeSessionIds?: string[];
   isLoggedIn?: boolean;
   isEnrolled?: boolean;
+  completedSessionIds?: string[];
+  completedAssignmentIds?: string[];
 };
 
-export function WeekCard({ week, state, defaultOpen = false, freeSessionIds = [], isLoggedIn = false, isEnrolled = false }: WeekCardProps) {
+export function WeekCard({ week, state, defaultOpen = false, freeSessionIds = [], isLoggedIn = false, isEnrolled = false, completedSessionIds = [], completedAssignmentIds = [] }: WeekCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  const completedSessionSet = new Set(completedSessionIds);
+  const completedAssignmentSet = new Set(completedAssignmentIds);
 
   const title = locale === 'ja' && week.title_jp ? week.title_jp : week.title_en;
   const subtitle = locale === 'ja' && week.subtitle_jp ? week.subtitle_jp : week.subtitle_en;
@@ -116,6 +121,8 @@ export function WeekCard({ week, state, defaultOpen = false, freeSessionIds = []
                   isFree={freeSessionIds.includes(session.id)}
                   isLoggedIn={isLoggedIn}
                   isEnrolled={isEnrolled}
+                  showCompletionToggle={isEnrolled}
+                  isCompleted={completedSessionSet.has(session.id)}
                 />
               ))}
             </div>
@@ -125,7 +132,12 @@ export function WeekCard({ week, state, defaultOpen = false, freeSessionIds = []
           {week.assignments.length > 0 && (
             <div className="space-y-3">
               {week.assignments.map((assignment) => (
-                <AssignmentCard key={assignment.id} assignment={assignment} />
+                <AssignmentCard
+                  key={assignment.id}
+                  assignment={assignment}
+                  showCompletionToggle={isEnrolled}
+                  isCompleted={completedAssignmentSet.has(assignment.id)}
+                />
               ))}
             </div>
           )}

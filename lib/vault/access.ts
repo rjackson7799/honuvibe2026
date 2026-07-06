@@ -67,12 +67,14 @@ export async function checkVaultAccess(userId: string): Promise<VaultAccessResul
     };
   }
 
-  // 3. Legacy course-enrollment path — any active enrollment grants Vault access.
+  // 3. Legacy course-enrollment path — any live enrollment grants Vault access.
+  // 'completed' still counts: finishing a course must not revoke the Vault
+  // access the purchase granted.
   const { data: enrollment } = await supabase
     .from('enrollments')
     .select('id, course:courses(title_en)')
     .eq('user_id', userId)
-    .eq('status', 'active')
+    .in('status', ['active', 'completed'])
     .limit(1)
     .maybeSingle();
 

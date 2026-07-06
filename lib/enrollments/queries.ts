@@ -32,12 +32,14 @@ export async function checkEnrollment(
 
   if (!course) return { is_enrolled: false, enrollment: null };
 
+  // 'completed' still counts as enrolled: finishing a course must not revoke
+  // hub access or the ability to un-mark items. Refunded/cancelled do not.
   const { data: enrollment } = await supabase
     .from('enrollments')
     .select('*')
     .eq('user_id', userId)
     .eq('course_id', course.id)
-    .eq('status', 'active')
+    .in('status', ['active', 'completed'])
     .maybeSingle();
 
   return {

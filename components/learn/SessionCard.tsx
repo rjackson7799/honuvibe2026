@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { Video, Play, Clock, ExternalLink, Lock, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SessionCompletionToggle } from './SessionCompletionToggle';
 import type { CourseSession } from '@/lib/courses/types';
 
 type SessionCardProps = {
@@ -12,6 +13,8 @@ type SessionCardProps = {
   isFree?: boolean;
   isLoggedIn?: boolean;
   isEnrolled?: boolean;
+  showCompletionToggle?: boolean;
+  isCompleted?: boolean;
 };
 
 function getSessionState(session: CourseSession): 'upcoming' | 'live-soon' | 'live' | 'completed' {
@@ -29,7 +32,7 @@ function getSessionState(session: CourseSession): 'upcoming' | 'live-soon' | 'li
   return 'upcoming';
 }
 
-export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = false, isEnrolled = false }: SessionCardProps) {
+export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = false, isEnrolled = false, showCompletionToggle = false, isCompleted = false }: SessionCardProps) {
   const t = useTranslations('learn');
   const locale = useLocale();
 
@@ -175,6 +178,9 @@ export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = 
             <p className="text-xs text-fg-tertiary italic">
               {t('link_available_soon')}
             </p>
+          )}
+          {showCompletionToggle && (
+            <SessionCompletionToggle sessionId={session.id} isCompleted={isCompleted} />
           )}
         </div>
       ) : showLoginCta ? (

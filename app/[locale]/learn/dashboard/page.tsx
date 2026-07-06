@@ -5,8 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 import { getStudentDashboardData } from '@/lib/dashboard/queries';
 import { getCourseBySlug } from '@/lib/courses/queries';
 import { StatCard } from '@/components/admin/StatCard';
-import { BookOpen, CheckCircle, Calendar, Clock, ArrowRight } from 'lucide-react';
+import { BookOpen, CheckCircle, Calendar, CircleCheckBig, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { AssignmentCompletionToggle } from '@/components/learn/AssignmentCompletionToggle';
 import { DashboardWelcomeHeader } from '@/components/learn/DashboardWelcomeHeader';
 import { getVaultCourseRecommendations } from '@/lib/vault/queries';
 import { VaultCourseRecommendations } from '@/components/vault/VaultCourseRecommendations';
@@ -76,7 +77,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       .eq('instructor_id', instructorProfile.id);
     instructorClassCount = count ?? 0;
   }
-  const { enrollments, upcomingSessions, pendingAssignments, stats } = dashboardData;
+  const { enrollments, upcomingSessions, pendingAssignments, stats, coursesProgress } = dashboardData;
 
   // Use || (not ??) so empty-string full_name (from webhook-created users
   // who didn't pass a name through Stripe) falls through to the email-prefix
@@ -187,9 +188,9 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         <StatCard
           variant="learn"
           accent="teal"
-          label={t('stats_study_hours')}
-          value={stats.total_study_hours}
-          icon={Clock}
+          label={t('stats_sessions_completed')}
+          value={stats.sessions_completed}
+          icon={CircleCheckBig}
         />
       </div>
 
@@ -234,13 +235,9 @@ export default async function DashboardPage({ params, searchParams }: Props) {
               {enrollments.slice(0, 3).map((enrollment, i) => {
                 const course = enrollment.course;
                 const title = locale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
-                const totalWeeks = course.total_weeks ?? 1;
-                const startDate = course.start_date ? new Date(course.start_date) : null;
-                const weeksPassed = startDate
-                  ? Math.max(1, Math.ceil((now.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)))
-                  : 1;
-                const currentWeek = Math.min(weeksPassed, totalWeeks);
-                const progressPercent = Math.round((currentWeek / totalWeeks) * 100);
+                // Real sessions-completed percent (not calendar-elapsed). A
+                // brand-new enrollment reads 0%.
+                const progressPercent = coursesProgress.get(course.id) ?? 0;
                 const isComplete = progressPercent === 100;
                 const isLast = i === Math.min(enrollments.length, 3) - 1;
 
@@ -255,7 +252,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
                         {title}
                       </span>
                       <span className="text-[11.5px] text-fg-tertiary font-medium shrink-0">
-                        {tLearn('week_of', { current: currentWeek, total: totalWeeks })}
+                        {tLearn('progress', { percent: progressPercent })}
                       </span>
                     </div>
                     <div className="h-[5px] bg-[rgba(26,43,51,0.07)] rounded-full overflow-hidden">
@@ -398,6 +395,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
                   href={`/learn/dashboard/${assignment.course_slug}`}
                   className="flex items-center gap-3 px-4 py-3 bg-bg-secondary border border-border-default rounded-[10px] hover:border-border-hover transition-colors"
                 >
+                  <AssignmentCompletionToggle assignmentId={assignment.id} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                       <span className="text-[13.5px] font-semibold text-fg-primary truncate">

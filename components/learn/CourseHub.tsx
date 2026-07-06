@@ -26,40 +26,57 @@ type CourseHubProps = {
   course: CourseWithCurriculum;
   locale: string;
   isEnrolled: boolean;
+  completedSessionIds: string[];
+  completedAssignmentIds: string[];
+  percent: number;
 };
 
 type WeekState = 'current' | 'completed' | 'locked' | 'upcoming';
 
-function getWeekState(week: CourseWeekWithContent, startDate: string | null): WeekState {
-  if (!startDate) return week.is_unlocked ? 'current' : 'locked';
-
-  const now = new Date();
-  const courseStart = new Date(startDate);
-  const weekStart = new Date(courseStart.getTime() + (week.week_number - 1) * 7 * 24 * 60 * 60 * 1000);
-  const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-  // Manual unlock override
-  if (week.is_unlocked && now < weekStart) return 'upcoming';
-  if (!week.is_unlocked && now >= weekStart) {
-    // Past the date but not unlocked — treat as locked
-    return 'locked';
+/**
+ * Completion-driven week state (replaces the old calendar-elapsed logic):
+ * - 'locked'    — the week is not unlocked.
+ * - 'completed' — unlocked and every session in the week is complete.
+ * - 'current'   — the first unlocked, not-fully-complete week.
+ * - 'upcoming'  — any later unlocked, not-fully-complete week.
+ */
+function computeWeekStates(
+  weeks: CourseWeekWithContent[],
+  completedSessionIds: Set<string>,
+): Map<string, WeekState> {
+  const byId = new Map<string, WeekState>();
+  let currentAssigned = false;
+  for (const week of weeks) {
+    let state: WeekState;
+    if (!week.is_unlocked) {
+      state = 'locked';
+    } else {
+      const sessionIds = week.sessions.map((s) => s.id);
+      const allDone =
+        sessionIds.length > 0 &&
+        sessionIds.every((id) => completedSessionIds.has(id));
+      if (allDone) {
+        state = 'completed';
+      } else if (!currentAssigned) {
+        state = 'current';
+        currentAssigned = true;
+      } else {
+        state = 'upcoming';
+      }
+    }
+    byId.set(week.id, state);
   }
-
-  if (now >= weekEnd) return 'completed';
-  if (now >= weekStart && now < weekEnd) return 'current';
-  return 'locked';
+  return byId;
 }
 
-function getCurrentWeek(startDate: string | null, totalWeeks: number | null): number {
-  if (!startDate || !totalWeeks) return 1;
-  const start = new Date(startDate);
-  const now = new Date();
-  const diffMs = now.getTime() - start.getTime();
-  const diffWeeks = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1;
-  return Math.max(1, Math.min(diffWeeks, totalWeeks));
-}
-
-export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
+export function CourseHub({
+  course,
+  locale,
+  isEnrolled,
+  completedSessionIds,
+  completedAssignmentIds,
+  percent,
+}: CourseHubProps) {
   const t = useTranslations('learn');
   const displayLocale = useLocale();
   const router = useRouter();
@@ -72,9 +89,8 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
   const title = displayLocale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
   const description = displayLocale === 'ja' && course.description_jp ? course.description_jp : course.description_en;
 
-  const currentWeek = getCurrentWeek(course.start_date, course.total_weeks);
-  const totalWeeks = course.total_weeks ?? 1;
-  const progressPercent = Math.round((currentWeek / totalWeeks) * 100);
+  const completedSessionSet = new Set(completedSessionIds);
+  const weekStateById = computeWeekStates(course.weeks, completedSessionSet);
 
   const prefix = displayLocale === 'ja' ? '/ja' : '';
 
@@ -189,18 +205,12 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
 
   // Collect all resources from unlocked weeks
   const allResources = course.weeks
-    .filter((w) => {
-      const state = getWeekState(w, course.start_date);
-      return state !== 'locked';
-    })
+    .filter((w) => weekStateById.get(w.id) !== 'locked')
     .flatMap((w) => w.resources);
 
   // Collect all vocabulary from unlocked weeks
   const allVocabulary = course.weeks
-    .filter((w) => {
-      const state = getWeekState(w, course.start_date);
-      return state !== 'locked';
-    })
+    .filter((w) => weekStateById.get(w.id) !== 'locked')
     .flatMap((w) => w.vocabulary);
 
   const imageUrl = course.hero_image_url || course.thumbnail_url;
@@ -290,15 +300,14 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
 
             {/* Progress info */}
             <div className="flex items-center gap-4 text-sm text-fg-tertiary">
-              <span>{t('week_of', { current: currentWeek, total: totalWeeks })}</span>
-              <span>{t('progress', { percent: progressPercent })}</span>
+              <span>{t('progress', { percent })}</span>
             </div>
 
             {/* Progress bar */}
             <div className="h-2 bg-bg-tertiary/50 rounded-full overflow-hidden max-w-md">
               <div
                 className="h-full bg-accent-teal rounded-full transition-all duration-[var(--duration-slow)]"
-                style={{ width: `${progressPercent}%` }}
+                style={{ width: `${percent}%` }}
               />
             </div>
           </div>
@@ -370,13 +379,16 @@ export function CourseHub({ course, locale, isEnrolled }: CourseHubProps) {
         {activeTab === 'weekly_plan' && (
           <div className="space-y-3">
             {course.weeks.map((week) => {
-              const state = getWeekState(week, course.start_date);
+              const state = weekStateById.get(week.id) ?? 'upcoming';
               return (
                 <WeekCard
                   key={week.id}
                   week={week}
                   state={state}
                   defaultOpen={state === 'current'}
+                  isEnrolled
+                  completedSessionIds={completedSessionIds}
+                  completedAssignmentIds={completedAssignmentIds}
                 />
               );
             })}

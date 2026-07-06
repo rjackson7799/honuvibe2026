@@ -1,5 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserEnrollments } from '@/lib/enrollments/queries';
+import {
+  getSessionsCompletedCount,
+  getCoursesProgressMap,
+} from '@/lib/progress/queries';
 import type {
   StudentDashboardData,
   UpcomingSessionItem,
@@ -14,29 +18,33 @@ import type { UserProfile } from '@/lib/admin/types';
 export async function getStudentDashboardData(
   userId: string,
 ): Promise<StudentDashboardData> {
-  const [enrollments, upcomingSessions, pendingAssignments] = await Promise.all([
+  const [
+    enrollments,
+    upcomingSessions,
+    pendingAssignments,
+    sessionsCompleted,
+    completedCoursesCount,
+  ] = await Promise.all([
     getUserEnrollments(userId),
     getUpcomingSessionsForStudent(userId),
     getPendingAssignmentsForStudent(userId),
+    getSessionsCompletedCount(userId),
+    getCompletedCoursesCount(userId),
   ]);
 
-  const activeCount = enrollments.filter((e) => e.status === 'active').length;
-  const completedCount = enrollments.filter((e) => e.status === 'completed').length;
-
-  // Sum of durations of UPCOMING scheduled sessions — i.e. hours booked ahead,
-  // not hours actually studied. Surfaced in the dashboard as "Scheduled Hours".
-  // Tier 0 will replace this with tracked study time (and can restore the
-  // "Study Hours" label then).
-  const totalMinutes = upcomingSessions.reduce(
-    (sum, s) => sum + (s.duration_minutes ?? 0),
-    0,
+  // getUserEnrollments returns active enrollments only, so its length is the
+  // active count. Completed enrollments are counted separately (they drop out
+  // of the active-only query once §2 flips their status).
+  const coursesProgress = await getCoursesProgressMap(
+    userId,
+    enrollments.map((e) => e.course_id),
   );
 
   const stats: StudentStats = {
-    active_courses: activeCount,
-    completed_courses: completedCount,
+    active_courses: enrollments.length,
+    completed_courses: completedCoursesCount,
     upcoming_sessions_count: upcomingSessions.length,
-    total_study_hours: Math.round(totalMinutes / 60),
+    sessions_completed: sessionsCompleted,
   };
 
   return {
@@ -44,7 +52,21 @@ export async function getStudentDashboardData(
     upcomingSessions,
     pendingAssignments,
     stats,
+    coursesProgress,
   };
+}
+
+/** Lifetime count of the user's completed-course enrollments. */
+async function getCompletedCoursesCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+
+  const { count } = await supabase
+    .from('enrollments')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('status', 'completed');
+
+  return count ?? 0;
 }
 
 export async function getUpcomingSessionsForStudent(
@@ -57,7 +79,7 @@ export async function getUpcomingSessionsForStudent(
     .from('enrollments')
     .select('course_id')
     .eq('user_id', userId)
-    .eq('status', 'active');
+    .in('status', ['active', 'completed']);
 
   if (!enrollments || enrollments.length === 0) return [];
 
@@ -126,7 +148,7 @@ export async function getPendingAssignmentsForStudent(
     .from('enrollments')
     .select('course_id')
     .eq('user_id', userId)
-    .eq('status', 'active');
+    .in('status', ['active', 'completed']);
 
   if (!enrollments || enrollments.length === 0) return [];
 
@@ -163,23 +185,36 @@ export async function getPendingAssignmentsForStudent(
     .in('week_id', weekIds)
     .order('sort_order', { ascending: true });
 
-  return (assignments ?? []).map((a) => {
-    const week = weekMap.get(a.week_id);
-    const course = week ? courseMap.get(week.course_id) : null;
-    return {
-      id: a.id,
-      title_en: a.title_en,
-      title_jp: a.title_jp,
-      description_en: a.description_en,
-      description_jp: a.description_jp,
-      assignment_type: a.assignment_type,
-      due_date: a.due_date,
-      week_number: week?.week_number ?? 0,
-      course_title_en: course?.title_en ?? '',
-      course_title_jp: course?.title_jp ?? null,
-      course_slug: course?.slug ?? '',
-    };
-  });
+  // Drop assignments the user has already marked complete so the dashboard
+  // stays a to-do list.
+  const { data: completedRows } = await supabase
+    .from('course_item_completions')
+    .select('item_id')
+    .eq('user_id', userId)
+    .eq('item_type', 'assignment');
+  const completedAssignmentIds = new Set(
+    (completedRows ?? []).map((r) => r.item_id),
+  );
+
+  return (assignments ?? [])
+    .filter((a) => !completedAssignmentIds.has(a.id))
+    .map((a) => {
+      const week = weekMap.get(a.week_id);
+      const course = week ? courseMap.get(week.course_id) : null;
+      return {
+        id: a.id,
+        title_en: a.title_en,
+        title_jp: a.title_jp,
+        description_en: a.description_en,
+        description_jp: a.description_jp,
+        assignment_type: a.assignment_type,
+        due_date: a.due_date,
+        week_number: week?.week_number ?? 0,
+        course_title_en: course?.title_en ?? '',
+        course_title_jp: course?.title_jp ?? null,
+        course_slug: course?.slug ?? '',
+      };
+    });
 }
 
 export async function getCommunityLinksForStudent(
@@ -191,7 +226,7 @@ export async function getCommunityLinksForStudent(
     .from('enrollments')
     .select('course:courses(id, slug, title_en, title_jp, community_platform, community_link, community_duration_months, zoom_link, thumbnail_url)')
     .eq('user_id', userId)
-    .eq('status', 'active');
+    .in('status', ['active', 'completed']);
 
   if (!enrollments) return [];
 
