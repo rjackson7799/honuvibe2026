@@ -20,9 +20,13 @@ import {
   Wallet,
   Shield,
   CalendarDays,
+  CalendarCheck,
+  ListChecks,
+  Ticket,
   FlaskConical,
   Quote,
   Briefcase,
+  UserRound,
   type LucideIcon,
 } from 'lucide-react';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -48,6 +52,9 @@ const navGroups: NavGroup[] = [
       { href: '/admin/instructors', label: 'Instructors', icon: GraduationCap },
       { href: '/admin/instructor-applications', label: 'Instructor Apps', icon: UserPlus },
       { href: '/admin/events', label: 'Events', icon: CalendarDays },
+      { href: '/admin/event-registrations', label: 'Event RSVPs', icon: Ticket },
+      { href: '/admin/course-surveys', label: 'Course Surveys', icon: ListChecks },
+      { href: '/admin/tutoring', label: '1v1 Sessions', icon: UserRound },
     ],
   },
   {
@@ -70,6 +77,7 @@ const navGroups: NavGroup[] = [
     items: [
       { href: '/admin/community', label: 'Moderation', icon: Shield },
       { href: '/admin/surveys', label: 'Surveys', icon: ClipboardList },
+      { href: '/admin/event-surveys', label: 'Event Surveys', icon: CalendarCheck },
     ],
   },
   {

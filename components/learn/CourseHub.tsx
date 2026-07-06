@@ -19,8 +19,10 @@ import { InstructorCard } from './InstructorCard';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/layout/container';
 import { ESLTab } from '@/components/esl/ESLTab';
+import { SessionReportsTab } from './SessionReportsTab';
 import { getFreeSessionIds } from '@/lib/courses/utils';
 import type { CourseWithCurriculum, CourseWeekWithContent } from '@/lib/courses/types';
+import type { SessionReport } from '@/lib/tutoring/types';
 
 type CourseHubProps = {
   course: CourseWithCurriculum;
@@ -29,6 +31,7 @@ type CourseHubProps = {
   completedSessionIds: string[];
   completedAssignmentIds: string[];
   percent: number;
+  sessionReports?: SessionReport[];
 };
 
 type WeekState = 'current' | 'completed' | 'locked' | 'upcoming';
@@ -76,12 +79,24 @@ export function CourseHub({
   completedSessionIds,
   completedAssignmentIds,
   percent,
+  sessionReports = [],
 }: CourseHubProps) {
   const t = useTranslations('learn');
+  const tt = useTranslations('tutoring');
   const displayLocale = useLocale();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('weekly_plan');
   const searchParams = useSearchParams();
+  const is1v1 = course.course_type === '1v1';
+  const reportLocale: 'en' | 'ja' = displayLocale === 'ja' ? 'ja' : 'en';
+  // Honor the ?tab= deep-link (e.g. the email's ?tab=reports); otherwise 1v1
+  // courses open on reports and cohort/self-study on the weekly plan.
+  const tabParam = searchParams.get('tab');
+  const validTabKeys = is1v1
+    ? ['reports', 'overview', 'community']
+    : ['overview', 'weekly_plan', 'esl', 'resources', 'community'];
+  const [activeTab, setActiveTab] = useState(
+    tabParam && validTabKeys.includes(tabParam) ? tabParam : is1v1 ? 'reports' : 'weekly_plan',
+  );
   const [showWelcome, setShowWelcome] = useState(
     searchParams.get('enrolled') === 'true',
   );
@@ -193,15 +208,23 @@ export function CourseHub({
     );
   }
 
-  const tabs = [
-    { key: 'overview', label: t('overview') },
-    { key: 'weekly_plan', label: t('weekly_plan') },
-    ...(course.esl_enabled
-      ? [{ key: 'esl', label: t('esl_practice') }]
-      : []),
-    { key: 'resources', label: t('resources') },
-    { key: 'community', label: t('community') },
-  ];
+  // 1v1 engagements are report-centric — no curriculum weeks/resources — so they
+  // get a focused tab set led by the reports tab.
+  const tabs = is1v1
+    ? [
+        { key: 'reports', label: tt('reports_tab') },
+        { key: 'overview', label: t('overview') },
+        ...(course.community_platform || course.zoom_link
+          ? [{ key: 'community', label: t('community') }]
+          : []),
+      ]
+    : [
+        { key: 'overview', label: t('overview') },
+        { key: 'weekly_plan', label: t('weekly_plan') },
+        ...(course.esl_enabled ? [{ key: 'esl', label: t('esl_practice') }] : []),
+        { key: 'resources', label: t('resources') },
+        { key: 'community', label: t('community') },
+      ];
 
   // Collect all resources from unlocked weeks
   const allResources = course.weeks
@@ -321,6 +344,13 @@ export function CourseHub({
 
       {/* Tab content */}
       <div className="min-h-[400px]">
+        {/* 1v1 Reports Tab */}
+        {activeTab === 'reports' && is1v1 && (
+          <div className="py-4">
+            <SessionReportsTab reports={sessionReports} locale={reportLocale} />
+          </div>
+        )}
+
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-6">

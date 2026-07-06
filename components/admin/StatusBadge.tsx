@@ -39,6 +39,10 @@ const statusStyles: Record<string, string> = {
   qualified: tealPill,
   won: tealPill,
   lost: mutedPill,
+  // 1v1 session-report statuses
+  generating: coralPill,
+  review: coralPill,
+  failed: dangerPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -63,6 +67,9 @@ const statusLabels: Record<string, string> = {
   qualified: 'Qualified',
   won: 'Won',
   lost: 'Lost',
+  generating: 'Generating',
+  review: 'In Review',
+  failed: 'Failed',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

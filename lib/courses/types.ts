@@ -24,7 +24,7 @@ export interface PartnerSlim {
   name_jp: string | null;
 }
 
-export type CourseType = 'cohort' | 'self-study';
+export type CourseType = 'cohort' | 'self-study' | '1v1';
 export type CourseStatus =
   | 'draft'
   | 'proposal'

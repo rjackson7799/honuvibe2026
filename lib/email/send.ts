@@ -8,9 +8,13 @@ import {
   detailsTable,
   accentBanner,
 } from './templates';
+import { buildEventIcs } from '@/lib/events/ics';
 import type {
   ContactEmailData,
   NewsletterAdminNotifyData,
+  EventConfirmRequestData,
+  EventRsvpConfirmationData,
+  EventRsvpAdminNotifyData,
   ApplicationEmailData,
   PartnershipInquiryEmailData,
   StudioLeadEmailData,
@@ -28,7 +32,12 @@ import type {
   StudentProfileEmailData,
   SurveyAdminWithProfileData,
   PaymentLinkEmailData,
+  PresenterSummaryEmailData,
+  CourseSurveyInviteData,
+  CourseSummaryEmailData,
+  SessionReportReadyData,
 } from './types';
+import { escapeHtml } from './escape';
 
 // ─── Internal helper ────────────────────────────────────────
 
@@ -37,6 +46,7 @@ async function sendEmail(options: {
   subject: string;
   html: string;
   replyTo?: string;
+  attachments?: { filename: string; content: Buffer; contentType?: string }[];
 }): Promise<void> {
   const resend = getResendClient();
   if (!resend || !options.to) return;
@@ -48,6 +58,7 @@ async function sendEmail(options: {
       subject: options.subject,
       html: options.html,
       replyTo: options.replyTo,
+      attachments: options.attachments,
     });
 
     if (error) {
@@ -131,19 +142,413 @@ export async function sendNewsletterAdminNotification(
   const adminEmail = getAdminEmail();
   if (!adminEmail) return;
 
+  const isEventRsvp = data.source?.startsWith('event:') ?? false;
+
   const body = [
-    accentBanner('New Newsletter Subscriber'),
-    paragraph('A new subscriber just joined the HonuVibe newsletter:'),
+    accentBanner(isEventRsvp ? 'New Event RSVP' : 'New Newsletter Subscriber'),
+    paragraph(
+      isEventRsvp
+        ? 'Someone just RSVP’d to a public event:'
+        : 'A new subscriber just joined the HonuVibe newsletter:',
+    ),
     detailsTable([
       { label: 'Email', value: data.email },
       { label: 'Source Locale', value: data.locale },
+      ...(data.source ? [{ label: 'Source', value: data.source }] : []),
     ]),
   ].join('');
 
   await sendEmail({
     to: adminEmail,
-    subject: `[Newsletter] New subscriber: ${data.email}`,
+    subject: isEventRsvp
+      ? `[Event RSVP] ${data.source?.slice('event:'.length)} — ${data.email}`
+      : `[Newsletter] New subscriber: ${data.email}`,
     html: baseLayout({ locale: 'en', body }),
+  });
+}
+
+// ─── 2b. Public Event RSVP ──────────────────────────────────
+
+/** Double-opt-in: ask the registrant to confirm and secure their seat. */
+export async function sendEventConfirmRequest(
+  data: EventConfirmRequestData,
+): Promise<void> {
+  const { locale, email, fullName, eventTitle, eventWhen, eventFormat, confirmUrl } = data;
+  const isJP = locale === 'ja';
+
+  const body = [
+    heading(isJP ? `${fullName} さん、あと一歩です` : `One more step, ${fullName}`),
+    paragraph(
+      isJP
+        ? '下のボタンをクリックして、お席を確定してください。確定をもって予約が完了します。'
+        : 'Click below to confirm and secure your seat — your spot is held only once you confirm.',
+    ),
+    detailsTable([
+      { label: isJP ? 'イベント' : 'Event', value: eventTitle },
+      { label: isJP ? '日時' : 'When', value: eventWhen },
+      { label: isJP ? '形式' : 'Format', value: eventFormat },
+    ]),
+    ctaButton({
+      href: confirmUrl,
+      label: isJP ? '参加を確定する →' : 'Confirm my seat →',
+    }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'このメールに心当たりがない場合は、無視していただいて結構です。'
+        : "If you didn't request this, you can safely ignore this email.",
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? `【要確認】お席の確定 — ${eventTitle}`
+      : `Confirm your seat — ${eventTitle}`,
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'お席を確定してください' : 'Confirm to secure your seat',
+      body,
+    }),
+  });
+}
+
+/**
+ * Pre-event survey summary for the presenter. Returns a typed result so the
+ * caller records a truthful delivery state (sent only when the provider
+ * accepts). To = presenter, BCC = admins. ALL dynamic + model-generated text is
+ * HTML-escaped — the summary derives from untrusted respondent free-text.
+ */
+export async function sendPresenterSummaryEmail(
+  data: PresenterSummaryEmailData,
+): Promise<{ ok: boolean; providerId?: string; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) return { ok: false, error: 'email_not_configured' };
+  if (!data.to) return { ok: false, error: 'no_recipient' };
+
+  const isJP = data.locale === 'ja';
+  const body = [
+    accentBanner(isJP ? '発表者向けブリーフィング' : 'Presenter briefing'),
+    heading(escapeHtml(data.eventTitle)),
+    detailsTable([
+      { label: isJP ? '日時' : 'When', value: escapeHtml(data.eventWhen) },
+      { label: isJP ? '形式' : 'Format', value: escapeHtml(data.eventFormat) },
+      { label: isJP ? '回答数' : 'Responses', value: String(data.responseCount) },
+    ]),
+    divider(),
+    heading(isJP ? '参加者の概要' : 'Who registered'),
+    paragraph(escapeHtml(data.summaryText)),
+    ...(data.keyTakeaways.length
+      ? [
+          heading(isJP ? '要点' : 'Key takeaways'),
+          `<ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6;color:#4a4a6a;">${data.keyTakeaways
+            .map((k) => `<li style="margin:0 0 6px;">${escapeHtml(k)}</li>`)
+            .join('')}</ul>`,
+        ]
+      : []),
+    divider(),
+    heading(isJP ? '重点トピック' : 'Focus topics'),
+    paragraph(escapeHtml(data.focusTopics)),
+    divider(),
+    heading(isJP ? '準備メモ' : 'Presenter prep notes'),
+    paragraph(escapeHtml(data.presenterPrepNotes)),
+    ...(data.topStats && data.topStats.length
+      ? [
+          divider(),
+          heading(isJP ? '主な回答' : 'Top responses'),
+          ...data.topStats.map(
+            (s) =>
+              `<p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#1a1a2e;">${escapeHtml(s.prompt)}</p>` +
+              detailsTable(
+                s.rows.map((r) => ({ label: escapeHtml(r.label), value: escapeHtml(r.value) })),
+              ),
+          ),
+        ]
+      : []),
+    ctaButton({
+      href: data.eventAdminUrl,
+      label: isJP ? '登録状況を見る →' : 'View registrations →',
+    }),
+  ].join('');
+
+  try {
+    const { data: sent, error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: data.to,
+      bcc: data.bcc.length ? data.bcc : undefined,
+      subject: isJP
+        ? `【発表者向け】${data.eventTitle} 事前アンケート要約`
+        : `Presenter briefing — ${data.eventTitle}`,
+      html: baseLayout({
+        locale: data.locale,
+        preheader: isJP ? '参加者の事前アンケート要約' : 'Your audience briefing',
+        body,
+      }),
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, providerId: sent?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
+  }
+}
+
+/** Per-student invite to a course's pre-course survey. Best-effort (void). */
+export async function sendCourseSurveyInvite(data: CourseSurveyInviteData): Promise<void> {
+  const { locale, email, fullName, courseTitle, surveyUrl } = data;
+  const isJP = locale === 'ja';
+  const name = escapeHtml(fullName);
+  const course = escapeHtml(courseTitle);
+
+  const body = [
+    heading(isJP ? `${name} さん、受講前アンケートのお願い` : `A quick pre-course survey, ${name}`),
+    paragraph(
+      isJP
+        ? `${course} の準備として、数分のアンケートにご協力ください。講師がクラスをあなたに合わせて準備できます。`
+        : `Help us tailor ${course} to you — a few quick questions so your instructor can prepare for the group.`,
+    ),
+    ctaButton({ href: surveyUrl, label: isJP ? 'アンケートに答える →' : 'Take the survey →' }),
+    divider(),
+    paragraph(isJP ? 'このリンクはあなた専用です。' : 'This link is personal to you.'),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP ? `【受講前アンケート】${courseTitle}` : `Pre-course survey — ${courseTitle}`,
+    html: baseLayout({
+      locale,
+      preheader: isJP ? '受講前アンケートのお願い' : 'Your pre-course survey',
+      body,
+    }),
+  });
+}
+
+/**
+ * "Your session report is ready" — sent to a 1v1 student when a report is
+ * published. Short bilingual notify (branch on the recipient's locale). All
+ * dynamic values are HTML-escaped; the CTA deep-links to the reports tab.
+ * Re-send is manual-only (an admin button) — never automatic on edit.
+ */
+export async function sendSessionReportReadyEmail(data: SessionReportReadyData): Promise<void> {
+  const { locale, email, fullName, courseTitle, sessionDate, reportUrl } = data;
+  const isJP = locale === 'ja';
+  const name = escapeHtml(fullName);
+  const course = escapeHtml(courseTitle);
+  const when = escapeHtml(sessionDate);
+
+  const body = [
+    heading(isJP ? `${name} さん、セッションレポートが届きました` : `Your session report is ready, ${name}`),
+    paragraph(
+      isJP
+        ? `${when} の ${course} セッションのレポートをまとめました。良かった点、つまずいた点と直し方、語彙、宿題、次回の focus をまとめています。`
+        : `We've put together the report from your ${course} session on ${when} — your wins, the tricky spots with corrections, vocabulary, homework, and what to focus on next.`,
+    ),
+    ctaButton({ href: reportUrl, label: isJP ? 'レポートを見る →' : 'View your report →' }),
+    divider(),
+    paragraph(
+      isJP
+        ? 'このレポートはダッシュボードの「1v1 レポート」タブにいつでも保存されています。'
+        : 'This report is saved in the "1v1 Reports" tab of your dashboard anytime.',
+    ),
+  ].join('');
+
+  await sendEmail({
+    to: email,
+    subject: isJP ? `【セッションレポート】${courseTitle}` : `Your session report — ${courseTitle}`,
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'セッションレポートが届きました' : 'Your session report is ready',
+      body,
+    }),
+  });
+}
+
+/**
+ * Pre-course survey summary for the instructor(s). Returns a typed result so the
+ * caller records a truthful delivery state. To = instructors, BCC = admins. All
+ * dynamic + model-generated text is HTML-escaped.
+ */
+export async function sendCourseSummaryEmail(
+  data: CourseSummaryEmailData,
+): Promise<{ ok: boolean; providerId?: string; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) return { ok: false, error: 'email_not_configured' };
+  if (data.to.length === 0) return { ok: false, error: 'no_recipient' };
+
+  const isJP = data.locale === 'ja';
+  const body = [
+    accentBanner(isJP ? '受講前アンケートのまとめ' : 'Pre-course survey summary'),
+    heading(escapeHtml(data.courseTitle)),
+    detailsTable([{ label: isJP ? '回答数' : 'Responses', value: String(data.responseCount) }]),
+    divider(),
+    heading(isJP ? 'この受講生グループ' : 'Who enrolled'),
+    paragraph(escapeHtml(data.summaryText)),
+    ...(data.keyTakeaways.length
+      ? [
+          heading(isJP ? '要点' : 'Key takeaways'),
+          `<ul style="margin:0 0 16px;padding-left:20px;font-size:15px;line-height:1.6;color:#4a4a6a;">${data.keyTakeaways
+            .map((k) => `<li style="margin:0 0 6px;">${escapeHtml(k)}</li>`)
+            .join('')}</ul>`,
+        ]
+      : []),
+    divider(),
+    heading(isJP ? '重点的に教えるべき内容' : 'Teaching focus'),
+    paragraph(escapeHtml(data.teachingFocus)),
+    divider(),
+    heading(isJP ? '準備メモ' : 'Instructor notes'),
+    paragraph(escapeHtml(data.instructorNotes)),
+    ...(data.topStats && data.topStats.length
+      ? [
+          divider(),
+          heading(isJP ? '主な回答' : 'Top responses'),
+          ...data.topStats.map(
+            (s) =>
+              `<p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#1a1a2e;">${escapeHtml(s.prompt)}</p>` +
+              detailsTable(
+                s.rows.map((r) => ({ label: escapeHtml(r.label), value: escapeHtml(r.value) })),
+              ),
+          ),
+        ]
+      : []),
+    ctaButton({
+      href: data.adminUrl,
+      label: isJP ? '管理画面で見る →' : 'View in admin →',
+    }),
+  ].join('');
+
+  try {
+    const { data: sent, error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: data.to,
+      bcc: data.bcc.length ? data.bcc : undefined,
+      subject: isJP
+        ? `【講師向け】${data.courseTitle} 受講前アンケート要約`
+        : `Cohort briefing — ${data.courseTitle}`,
+      html: baseLayout({
+        locale: data.locale,
+        preheader: isJP ? '受講生の事前アンケート要約' : 'Your incoming cohort briefing',
+        body,
+      }),
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, providerId: sent?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
+  }
+}
+
+export async function sendEventRsvpConfirmation(
+  data: EventRsvpConfirmationData,
+): Promise<void> {
+  const { locale, email, fullName, eventTitle, eventWhen, eventFormat, eventPageUrl, meetingUrl } =
+    data;
+  const isJP = locale === 'ja';
+
+  const body = [
+    accentBanner(isJP ? 'お席が確定しました' : "Your seat is confirmed!"),
+    heading(isJP ? `${fullName} さん、ご参加をお待ちしています` : `You're in, ${fullName}`),
+    paragraph(
+      isJP
+        ? '無料ライブイベントへのお席が確定しました。開始前にリマインダーをお送りし、終了後には録画もお届けします。'
+        : "Your spot for this free live event is locked in. We'll send a reminder before we go live, and the recording afterward.",
+    ),
+    detailsTable([
+      { label: isJP ? 'イベント' : 'Event', value: eventTitle },
+      { label: isJP ? '日時' : 'When', value: eventWhen },
+      { label: isJP ? '形式' : 'Format', value: eventFormat },
+    ]),
+    ctaButton({
+      href: meetingUrl ?? eventPageUrl,
+      label: meetingUrl
+        ? isJP
+          ? 'Zoomで参加する →'
+          : 'Join on Zoom →'
+        : isJP
+          ? 'イベント詳細を見る'
+          : 'View Event Details',
+    }),
+    ...(data.surveyUrl
+      ? [
+          divider(),
+          heading(isJP ? '開始前に：30秒のアンケート' : 'Before we start: a 30-second survey'),
+          paragraph(
+            isJP
+              ? '発表者が当日の内容をあなたに合わせて準備できるよう、簡単なアンケートにご協力ください。'
+              : 'Answer a few quick questions so the presenter can tailor the session to you.',
+          ),
+          ctaButton({
+            href: data.surveyUrl,
+            label: isJP ? 'アンケートに答える →' : 'Take the survey →',
+          }),
+        ]
+      : []),
+    divider(),
+    paragraph(
+      isJP
+        ? 'カレンダーに追加できるよう、招待ファイル（.ics）を添付しています。'
+        : "We've attached a calendar invite (.ics) so you can add it to your calendar.",
+    ),
+  ].join('');
+
+  // Build the calendar attachment defensively — a bad date must not block the
+  // confirmation email itself.
+  let attachments: { filename: string; content: Buffer; contentType?: string }[] | undefined;
+  try {
+    const ics = buildEventIcs({
+      uid: `${data.eventSlug}@honuvibe.ai`,
+      title: eventTitle,
+      description: data.eventDescription,
+      startsAt: new Date(data.startsAt),
+      endsAt: data.endsAt ? new Date(data.endsAt) : null,
+      eventPageUrl,
+    });
+    attachments = [
+      {
+        filename: `${data.eventSlug}.ics`,
+        content: Buffer.from(ics, 'utf-8'),
+        contentType: 'text/calendar',
+      },
+    ];
+  } catch (err) {
+    console.error('[Event RSVP] ICS build failed:', err);
+  }
+
+  await sendEmail({
+    to: email,
+    subject: isJP
+      ? `【HonuVibe.AI】お申し込み完了 — ${eventTitle}`
+      : `You're registered — ${eventTitle}`,
+    html: baseLayout({
+      locale,
+      preheader: isJP ? 'お申し込みありがとうございます' : "Your spot is saved",
+      body,
+    }),
+    attachments,
+  });
+}
+
+export async function sendEventRsvpAdminNotification(
+  data: EventRsvpAdminNotifyData,
+): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const body = [
+    accentBanner('New Event Registration'),
+    detailsTable([
+      { label: 'Name', value: data.fullName },
+      { label: 'Email', value: data.email },
+      { label: 'Event', value: data.eventTitle },
+      { label: 'Referral', value: data.referralSource ?? '—' },
+      { label: 'Locale', value: data.locale },
+      { label: 'Seats Remaining', value: String(data.seatsRemaining) },
+    ]),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Event RSVP] ${data.eventTitle} — ${data.fullName}`,
+    html: baseLayout({ locale: 'en', body }),
+    replyTo: data.email,
   });
 }
 

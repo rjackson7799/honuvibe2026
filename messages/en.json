@@ -3501,5 +3501,11 @@
     "course_channels_strip_label": "Your course channels",
     "back_to_feed": "Back to feed",
     "comments_heading": "Comments"
+  },
+  "tutoring": {
+    "reports_tab": "1v1 Reports",
+    "list_intro": "Your session reports, newest first. Tap one to open it.",
+    "list_empty": "Your session reports will appear here after your next session.",
+    "session_on": "Session on {date}"
   }
 }

@@ -11,6 +11,95 @@ export interface ContactEmailData {
 export interface NewsletterAdminNotifyData {
   locale: Locale;
   email: string;
+  /** Optional signup origin, e.g. "event:ai-prompting-jumpstart". */
+  source?: string;
+}
+
+/** "Confirm your seat" email sent on submit — the double-opt-in step. */
+export interface EventConfirmRequestData {
+  locale: Locale;
+  email: string;
+  fullName: string;
+  eventTitle: string;
+  eventWhen: string;
+  eventFormat: string;
+  /** Tokenized /events/[slug]/confirm?token=… URL. */
+  confirmUrl: string;
+}
+
+/** "You're in" email sent AFTER a seat is confirmed — carries the join link + .ics. */
+export interface EventRsvpConfirmationData {
+  locale: Locale;
+  email: string;
+  fullName: string;
+  eventSlug: string;
+  eventTitle: string;
+  /** Pre-formatted date/time string in the recipient's locale. */
+  eventWhen: string;
+  /** e.g. "Live on Zoom". */
+  eventFormat: string;
+  /** Public /events/[slug] page URL — also the .ics destination. */
+  eventPageUrl: string;
+  /** Join URL (e.g. Zoom) — shown only post-confirmation. */
+  meetingUrl: string | null;
+  /** ISO start/end instants — used to build the .ics calendar attachment. */
+  startsAt: string;
+  endsAt: string | null;
+  eventDescription?: string;
+  /** Tokenized pre-event survey URL — appended as a CTA when present. */
+  surveyUrl?: string;
+}
+
+export interface EventRsvpAdminNotifyData {
+  locale: Locale;
+  email: string;
+  fullName: string;
+  eventSlug: string;
+  eventTitle: string;
+  referralSource: string | null;
+  seatsRemaining: number;
+}
+
+/** Per-student invite to a course's pre-course survey (tokenized link). */
+export interface CourseSurveyInviteData {
+  locale: Locale;
+  email: string;
+  fullName: string;
+  courseTitle: string;
+  surveyUrl: string;
+}
+
+/** Pre-course survey summary mailed to the instructor(s) (To), BCC'd to admins. */
+export interface CourseSummaryEmailData {
+  to: string[];
+  bcc: string[];
+  locale: Locale;
+  courseTitle: string;
+  responseCount: number;
+  summaryText: string;
+  keyTakeaways: string[];
+  teachingFocus: string;
+  instructorNotes: string;
+  topStats?: { prompt: string; rows: { label: string; value: string }[] }[];
+  adminUrl: string;
+}
+
+/** Pre-event survey summary mailed to the presenter (To), BCC'd to admins. */
+export interface PresenterSummaryEmailData {
+  to: string;
+  bcc: string[];
+  locale: Locale;
+  eventTitle: string;
+  eventWhen: string;
+  eventFormat: string;
+  responseCount: number;
+  summaryText: string;
+  keyTakeaways: string[];
+  focusTopics: string;
+  presenterPrepNotes: string;
+  /** Optional per-question top stats (single/multi only). */
+  topStats?: { prompt: string; rows: { label: string; value: string }[] }[];
+  eventAdminUrl: string;
 }
 
 export interface ApplicationEmailData {
@@ -188,6 +277,18 @@ export interface PaymentLinkEmailData {
   courseTitle: string;
   paymentUrl: string;
   priceUsd: number; // cents
+}
+
+/** "Your session report is ready" — sent to a 1v1 student when a report publishes. */
+export interface SessionReportReadyData {
+  locale: Locale;
+  email: string;
+  fullName: string;
+  courseTitle: string;
+  /** Session date, pre-formatted for the recipient's locale. */
+  sessionDate: string;
+  /** Deep link to the reports tab: /learn/dashboard/{slug}?tab=reports (locale-prefixed). */
+  reportUrl: string;
 }
 
 export interface StudentOnboardingEmailData {

@@ -3501,5 +3501,11 @@
     "course_channels_strip_label": "コース別チャンネル",
     "back_to_feed": "フィードに戻る",
     "comments_heading": "コメント"
+  },
+  "tutoring": {
+    "reports_tab": "1v1 レポート",
+    "list_intro": "セッションレポート（新しい順）。タップして開きます。",
+    "list_empty": "次回のセッション後、ここにレポートが表示されます。",
+    "session_on": "{date} のセッション"
   }
 }

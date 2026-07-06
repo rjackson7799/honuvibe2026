@@ -5,7 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
 import { checkEnrollment } from '@/lib/enrollments/queries';
 import { getCourseCompletion } from '@/lib/progress/queries';
+import { getPublishedReportsForStudent } from '@/lib/tutoring/queries';
 import { CourseHub } from '@/components/learn/CourseHub';
+import type { SessionReport } from '@/lib/tutoring/types';
 
 type Props = {
   params: Promise<{ locale: string; 'course-slug': string }>;
@@ -54,6 +56,12 @@ export default async function CourseHubPage({ params }: Props) {
     percent = completion.percent;
   }
 
+  // Published 1v1 session reports (RLS restricts to the caller's own published rows).
+  let sessionReports: SessionReport[] = [];
+  if (course.course_type === '1v1' && enrollmentCheck.is_enrolled) {
+    sessionReports = await getPublishedReportsForStudent(course.id, user.id);
+  }
+
   return (
     <CourseHub
       course={course}
@@ -62,6 +70,7 @@ export default async function CourseHubPage({ params }: Props) {
       completedSessionIds={completedSessionIds}
       completedAssignmentIds={completedAssignmentIds}
       percent={percent}
+      sessionReports={sessionReports}
     />
   );
 }
