@@ -8,8 +8,13 @@
 
 import { revalidatePath } from 'next/cache';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { z } from 'zod';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { validateScenarioForPublish } from './validation';
+import { validateScenarioForPublish, nextCopySlug } from './validation';
+import {
+  createWorkbenchScenarioSchema,
+  updateWorkbenchScenarioSchema,
+} from './types';
 import type {
   CreateWorkbenchScenarioInput,
   UpdateWorkbenchScenarioInput,
@@ -41,6 +46,21 @@ function revalidateScenarioPaths(opts: { id?: string; slug?: string }): void {
   }
 }
 
+/**
+ * Validates an action payload, throwing a single human-readable message (the
+ * admin form surfaces error.message in its banner, so raw ZodError JSON won't do).
+ */
+function parseInput<S extends z.ZodTypeAny>(schema: S, input: unknown): z.infer<S> {
+  const result = schema.safeParse(input);
+  if (!result.success) {
+    const messages = result.error.issues.map((issue) =>
+      issue.path.length ? `${issue.path.join('.')}: ${issue.message}` : issue.message,
+    );
+    throw new Error(`Invalid scenario input — ${messages.join(' ')}`);
+  }
+  return result.data;
+}
+
 async function getScenarioOrThrow(
   admin: SupabaseClient,
   id: string,
@@ -60,10 +80,11 @@ export async function createScenario(
   input: CreateWorkbenchScenarioInput,
 ): Promise<{ id: string; slug: string }> {
   await requireAdmin();
+  const parsed = parseInput(createWorkbenchScenarioSchema, input);
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('workbench_scenarios')
-    .insert(input)
+    .insert(parsed)
     .select('id, slug')
     .single();
   if (error) throw error;
@@ -76,10 +97,11 @@ export async function updateScenario(
   updates: UpdateWorkbenchScenarioInput,
 ): Promise<void> {
   await requireAdmin();
+  const parsed = parseInput(updateWorkbenchScenarioSchema, updates);
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('workbench_scenarios')
-    .update(updates)
+    .update(parsed)
     .eq('id', id)
     .select('slug')
     .single();
@@ -128,6 +150,53 @@ export async function setScenarioFeatured(
     .single();
   if (error) throw error;
   revalidateScenarioPaths({ id, slug: data?.slug });
+}
+
+/**
+ * Duplicates a scenario as an unpublished, unfeatured draft with a
+ * collision-safe `<slug>-copy` slug — the fast path for authoring variations.
+ */
+export async function duplicateScenario(
+  id: string,
+): Promise<{ id: string; slug: string }> {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const source = await getScenarioOrThrow(admin, id);
+
+  // Only sibling copies can collide, so fetch just the `<root>-copy%` slugs.
+  const root = source.slug.replace(/-copy(-\d+)?$/, '');
+  const { data: siblings } = await admin
+    .from('workbench_scenarios')
+    .select('slug')
+    .like('slug', `${root}-copy%`);
+  const slug = nextCopySlug(source.slug, (siblings ?? []).map((s) => s.slug));
+
+  const { data, error } = await admin
+    .from('workbench_scenarios')
+    .insert({
+      slug,
+      title_en: `${source.title_en} (copy)`,
+      title_jp: source.title_jp,
+      domain: source.domain,
+      difficulty: source.difficulty,
+      brief_en: source.brief_en,
+      brief_jp: source.brief_jp,
+      applicable_dimensions: source.applicable_dimensions,
+      expert_prompt_en: source.expert_prompt_en,
+      expert_prompt_jp: source.expert_prompt_jp,
+      expert_output_en: source.expert_output_en,
+      expert_output_jp: source.expert_output_jp,
+      why_this_works_en: source.why_this_works_en,
+      why_this_works_jp: source.why_this_works_jp,
+      jp_needs_review: source.jp_needs_review,
+      is_published: false,
+      is_featured: false,
+    })
+    .select('id, slug')
+    .single();
+  if (error) throw error;
+  revalidatePath('/admin/workbench');
+  return { id: data.id, slug: data.slug };
 }
 
 /**

@@ -1,6 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { getAdminWorkbenchScenarioById } from '@/lib/workbench/queries';
+import { getAvailableExecutorModels } from '@/lib/workbench/models';
 import { AdminWorkbenchScenarioForm } from '@/components/admin/AdminWorkbenchScenarioForm';
 
 type Props = {
@@ -18,12 +19,18 @@ export default async function AdminWorkbenchScenarioPage({ params }: Props) {
   const { locale, id } = await params;
   setRequestLocale(locale);
 
+  const availableModels = getAvailableExecutorModels();
+
   if (id === 'new') {
-    return <AdminWorkbenchScenarioForm scenario={null} />;
+    return (
+      <AdminWorkbenchScenarioForm scenario={null} availableModels={availableModels} />
+    );
   }
 
   const scenario = await getAdminWorkbenchScenarioById(id);
   if (!scenario) notFound();
 
-  return <AdminWorkbenchScenarioForm scenario={scenario} />;
+  return (
+    <AdminWorkbenchScenarioForm scenario={scenario} availableModels={availableModels} />
+  );
 }

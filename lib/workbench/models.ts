@@ -67,6 +67,17 @@ export const EVALUATOR_MODEL: EvaluatorModelConfig = {
   timeoutMs: 25_000,
 };
 
+// Admin authoring assists (draft-from-idea, EN→JP translate). Same shape as the
+// evaluator config; translate calls override temperature to 0.2 for fidelity.
+export const AUTHORING_MODEL: EvaluatorModelConfig = {
+  provider: 'anthropic',
+  apiId: 'claude-sonnet-4-6',
+  envVar: 'ANTHROPIC_API_KEY',
+  maxTokens: 4000,
+  temperature: 0.7,
+  timeoutMs: 60_000,
+};
+
 // Per-user/day quota caps. MUST match the constants in workbench_consume_quota
 // (supabase/migrations/043_workbench.sql); the RPC enforces them server-side,
 // these mirror them for display (usage meter) only.

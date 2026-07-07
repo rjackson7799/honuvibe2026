@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateScenarioForPublish } from './validation';
+import { validateScenarioForPublish, nextCopySlug } from './validation';
 import type { CreateWorkbenchScenarioInput } from './types';
 
 // A fully bilingual, publish-ready scenario. Helpers override single fields to
@@ -93,5 +93,53 @@ describe('validateScenarioForPublish', () => {
       makeScenario({ why_this_works_en: 'Because.', why_this_works_jp: null }),
     );
     expect(errors.some((e) => e.toLowerCase().includes('why'))).toBe(true);
+  });
+});
+
+describe('jp_needs_review publish gate', () => {
+  it('blocks publish while JP content awaits review', () => {
+    const errors = validateScenarioForPublish({
+      ...makeScenario(),
+      jp_needs_review: true,
+    });
+    expect(
+      errors.some((e) => e.toLowerCase().includes('machine-translated')),
+    ).toBe(true);
+  });
+
+  it('passes once JP review is cleared', () => {
+    expect(
+      validateScenarioForPublish({ ...makeScenario(), jp_needs_review: false }),
+    ).toEqual([]);
+  });
+});
+
+describe('nextCopySlug', () => {
+  it('appends -copy when free', () => {
+    expect(nextCopySlug('launch-copy-hero', [])).toBe('launch-copy-hero-copy');
+  });
+
+  it('numbers subsequent copies', () => {
+    expect(
+      nextCopySlug('launch-copy-hero', ['launch-copy-hero-copy']),
+    ).toBe('launch-copy-hero-copy-2');
+    expect(
+      nextCopySlug('launch-copy-hero', [
+        'launch-copy-hero-copy',
+        'launch-copy-hero-copy-2',
+      ]),
+    ).toBe('launch-copy-hero-copy-3');
+  });
+
+  it('does not stack -copy suffixes when duplicating a copy', () => {
+    expect(
+      nextCopySlug('launch-copy-hero-copy', ['launch-copy-hero-copy']),
+    ).toBe('launch-copy-hero-copy-2');
+    expect(
+      nextCopySlug('launch-copy-hero-copy-2', [
+        'launch-copy-hero-copy',
+        'launch-copy-hero-copy-2',
+      ]),
+    ).toBe('launch-copy-hero-copy-3');
   });
 });

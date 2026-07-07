@@ -42,6 +42,7 @@ function makeScenario(
     why_this_works_jp: null,
     is_published: true,
     is_featured: false,
+    jp_needs_review: false,
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
     ...overrides,

@@ -434,7 +434,7 @@ export function WorkbenchWorkspace({
         userPrompt={viewed?.prompt_text ?? promptText}
         onReveal={handleReveal}
         revealing={revealing}
-        canReveal={!!viewed}
+        canReveal={attempts.some((a) => a.scored_at != null)}
       />
     </div>
   );

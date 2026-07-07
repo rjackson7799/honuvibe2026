@@ -82,25 +82,23 @@ export async function getAdminWorkbenchScenarios(): Promise<
   AdminWorkbenchScenarioListItem[]
 > {
   const admin = createAdminClient();
+  // PostgREST embedded aggregate — counts attempts per scenario in the database
+  // instead of pulling every attempt row into memory.
   const { data: scenarios, error } = await admin
     .from('workbench_scenarios')
-    .select('*')
+    .select('*, workbench_attempts(count)')
     .order('created_at', { ascending: false });
   if (error) throw error;
 
-  const { data: attempts } = await admin
-    .from('workbench_attempts')
-    .select('scenario_id');
-
-  const counts = new Map<string, number>();
-  for (const a of attempts ?? []) {
-    counts.set(a.scenario_id, (counts.get(a.scenario_id) ?? 0) + 1);
-  }
-
-  return (scenarios ?? []).map((s) => ({
-    ...(s as WorkbenchScenario),
-    attempt_count: counts.get(s.id) ?? 0,
-  }));
+  return (scenarios ?? []).map((row) => {
+    const { workbench_attempts, ...scenario } = row as WorkbenchScenario & {
+      workbench_attempts: Array<{ count: number }>;
+    };
+    return {
+      ...(scenario as WorkbenchScenario),
+      attempt_count: workbench_attempts?.[0]?.count ?? 0,
+    };
+  });
 }
 
 /** A single scenario by id, including drafts. Admin only. */
@@ -149,6 +147,22 @@ export async function getAttemptsForScenario(
     .eq('scenario_id', scenarioId)
     .order('version', { ascending: false });
   return (data as WorkbenchAttempt[] | null) ?? [];
+}
+
+/**
+ * Whether the signed-in user has at least one scored attempt for a scenario.
+ * RLS (workbench_attempts_own_read) scopes the read to the caller. Gates the
+ * expert reveal — expert content requires a scored attempt, not just any run.
+ */
+export async function userHasScoredAttempt(scenarioId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('workbench_attempts')
+    .select('id')
+    .eq('scenario_id', scenarioId)
+    .not('scored_at', 'is', null)
+    .limit(1);
+  return (data?.length ?? 0) > 0;
 }
 
 /**

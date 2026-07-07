@@ -21,6 +21,7 @@ interface ScenarioPublishCheckInput {
   expert_output_jp?: string | null;
   why_this_works_en?: string | null;
   why_this_works_jp?: string | null;
+  jp_needs_review?: boolean;
 }
 
 const isBlank = (v: string | null | undefined): boolean => !v || !v.trim();
@@ -77,5 +78,28 @@ export function validateScenarioForPublish(
     );
   }
 
+  // Machine-translated JP must be human-reviewed before publish (project rule:
+  // never machine-translate without human review for production).
+  if (scenario.jp_needs_review) {
+    errors.push(
+      'Japanese content is machine-translated — review it and mark JP as reviewed.',
+    );
+  }
+
   return errors;
+}
+
+/**
+ * Collision-safe slug for a duplicated scenario. Strips any existing
+ * `-copy`/`-copy-N` suffix so duplicating a copy doesn't stack suffixes, then
+ * picks the first of `<root>-copy`, `<root>-copy-2`, … not already taken.
+ */
+export function nextCopySlug(baseSlug: string, takenSlugs: string[]): string {
+  const root = baseSlug.replace(/-copy(-\d+)?$/, '');
+  const taken = new Set(takenSlugs);
+  let candidate = `${root}-copy`;
+  for (let n = 2; taken.has(candidate); n++) {
+    candidate = `${root}-copy-${n}`;
+  }
+  return candidate;
 }

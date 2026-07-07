@@ -123,6 +123,8 @@ export interface WorkbenchScenario {
   why_this_works_jp: string | null;
   is_published: boolean;
   is_featured: boolean;
+  /** True when _jp fields are machine-translated and awaiting human review (blocks publish). */
+  jp_needs_review: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -181,31 +183,48 @@ export interface WorkbenchDailyUsage {
 // ---------------------------------------------------------------------------
 // Admin authoring input shapes (scenario CRUD — build step 5)
 // ---------------------------------------------------------------------------
-// Mirrors lib/events/types.ts CreateEventInput / UpdateEventInput. The NOT NULL
-// columns (slug, title_en, domain, difficulty, brief_en, applicable_dimensions,
-// expert_prompt_en, expert_output_en) are required on create; _jp companions and
-// why_this_works are optional at create time and enforced at publish by
-// validateScenarioForPublish (lib/workbench/validation.ts).
+// Zod schemas validate the create/update server-action payloads before they
+// reach the service-role client (mirrors lib/admin/course-survey-actions.ts).
+// The NOT NULL columns (slug, title_en, domain, difficulty, brief_en,
+// applicable_dimensions, expert_prompt_en, expert_output_en) are required on
+// create; _jp companions and why_this_works are optional at create time and
+// enforced at publish by validateScenarioForPublish (lib/workbench/validation.ts).
 
-export interface CreateWorkbenchScenarioInput {
-  slug: string;
-  title_en: string;
-  title_jp?: string | null;
-  domain: WorkbenchDomain;
-  difficulty: WorkbenchDifficulty;
-  brief_en: string;
-  brief_jp?: string | null;
-  applicable_dimensions: WorkbenchDimension[];
-  expert_prompt_en: string;
-  expert_prompt_jp?: string | null;
-  expert_output_en: string;
-  expert_output_jp?: string | null;
-  why_this_works_en?: string | null;
-  why_this_works_jp?: string | null;
-  is_featured?: boolean;
-}
+export const createWorkbenchScenarioSchema = z.object({
+  slug: z
+    .string()
+    .trim()
+    .min(1, 'Slug is required.')
+    .regex(
+      /^[a-z0-9-]+$/,
+      'Slug must be lowercase letters, numbers, and hyphens only.',
+    ),
+  title_en: z.string().trim().min(1, 'Title (EN) is required.'),
+  title_jp: z.string().nullable().optional(),
+  domain: workbenchDomainSchema,
+  difficulty: workbenchDifficultySchema,
+  brief_en: z.string().trim().min(1, 'Brief (EN) is required.'),
+  brief_jp: z.string().nullable().optional(),
+  applicable_dimensions: z
+    .array(workbenchDimensionSchema)
+    .min(1, 'Select at least one applicable dimension.'),
+  expert_prompt_en: z.string().trim().min(1, 'Expert prompt (EN) is required.'),
+  expert_prompt_jp: z.string().nullable().optional(),
+  expert_output_en: z.string().trim().min(1, 'Expert output (EN) is required.'),
+  expert_output_jp: z.string().nullable().optional(),
+  why_this_works_en: z.string().nullable().optional(),
+  why_this_works_jp: z.string().nullable().optional(),
+  is_featured: z.boolean().optional(),
+  jp_needs_review: z.boolean().optional(),
+});
+export type CreateWorkbenchScenarioInput = z.infer<
+  typeof createWorkbenchScenarioSchema
+>;
 
-export type UpdateWorkbenchScenarioInput = Partial<CreateWorkbenchScenarioInput>;
+export const updateWorkbenchScenarioSchema = createWorkbenchScenarioSchema.partial();
+export type UpdateWorkbenchScenarioInput = z.infer<
+  typeof updateWorkbenchScenarioSchema
+>;
 
 // ---------------------------------------------------------------------------
 // Workspace shapes (build step 7)

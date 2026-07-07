@@ -2251,7 +2251,7 @@
     "ws_versions": "Versions",
     "ws_reveal": "Reveal expert approach",
     "ws_revealing": "Revealing…",
-    "ws_reveal_hint": "Run your prompt at least once to compare with the expert version.",
+    "ws_reveal_hint": "Score at least one attempt to compare with the expert version.",
     "ws_compare_title": "Expert comparison",
     "ws_your_prompt": "Your prompt",
     "ws_expert_prompt": "Expert prompt",

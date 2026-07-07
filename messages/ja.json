@@ -2251,7 +2251,7 @@
     "ws_versions": "バージョン",
     "ws_reveal": "お手本を見る",
     "ws_revealing": "表示中…",
-    "ws_reveal_hint": "お手本と比較するには、まずプロンプトを1回実行してください。",
+    "ws_reveal_hint": "お手本と比較するには、まず1回スコアを取得してください。",
     "ws_compare_title": "お手本との比較",
     "ws_your_prompt": "あなたのプロンプト",
     "ws_expert_prompt": "お手本のプロンプト",

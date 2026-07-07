@@ -1,11 +1,13 @@
 // POST /api/workbench/attempts/[id]/reveal-expert — reveal the scenario's
 // expert prompt/output/why for an attempt the caller owns.
 //
-// Reveal is gated by attempt existence: expert content is only ever returned
-// once the member has at least one attempt (i.e. has actually run the scenario).
-// Idempotent — sets expert_revealed_at once, then returns the (bilingual) expert
-// content; the client picks the locale. Mirrors the score route's admin-write
-// pattern (workbench_attempts has no client write policy).
+// Reveal is gated on scoring: expert content requires at least one SCORED
+// attempt on the scenario (a throwaway run isn't enough — the practice loop is
+// run → score → compare). Attempts that were already revealed under the old
+// any-run gate are grandfathered in. Idempotent — sets expert_revealed_at once,
+// then returns the (bilingual) expert content; the client picks the locale.
+// Mirrors the score route's admin-write pattern (workbench_attempts has no
+// client write policy).
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
@@ -13,6 +15,7 @@ import { requireVaultAccess } from '@/lib/vault/access';
 import {
   getWorkbenchAttemptById,
   getWorkbenchScenarioById,
+  userHasScoredAttempt,
 } from '@/lib/workbench/queries';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -34,11 +37,22 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid attempt id' }, { status: 400 });
   }
 
-  // RLS own_read — 404 covers both not-found and not-owned. No attempt => no
-  // reveal, which is the gate (expert content only after a successful run).
+  // RLS own_read — 404 covers both not-found and not-owned.
   const attempt = await getWorkbenchAttemptById(attemptId);
   if (!attempt) {
     return NextResponse.json({ error: 'Attempt not found' }, { status: 404 });
+  }
+
+  // Scored-attempt gate. Already-revealed attempts stay accessible; otherwise
+  // this attempt (or any sibling attempt on the scenario) must be scored first.
+  if (!attempt.expert_revealed_at && !attempt.scored_at) {
+    const hasScored = await userHasScoredAttempt(attempt.scenario_id);
+    if (!hasScored) {
+      return NextResponse.json(
+        { error: 'Score at least one attempt before revealing the expert version' },
+        { status: 403 },
+      );
+    }
   }
 
   const scenario = await getWorkbenchScenarioById(attempt.scenario_id);
