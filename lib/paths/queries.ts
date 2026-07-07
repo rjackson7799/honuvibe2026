@@ -12,6 +12,7 @@ import type {
   PathGenerationResult,
 } from './types';
 import { GENERATION_PROMPT_VERSION } from './prompt';
+import { GENERATION_MODEL } from './generate';
 
 // ---------------------------------------------------------------------------
 // Student queries
@@ -90,8 +91,17 @@ export async function createPath(
   const adminClient = createAdminClient();
   const { response } = generationResult;
 
+  // Drop duplicate content items (study_path_items has UNIQUE(path_id, content_item_id) —
+  // a duplicate from the model would otherwise fail the whole insert).
+  const seenContentIds = new Set<string>();
+  const uniqueItems = response.items.filter((item) => {
+    if (seenContentIds.has(item.content_item_id)) return false;
+    seenContentIds.add(item.content_item_id);
+    return true;
+  });
+
   // Count free vs premium items
-  const freeItems = response.items.length;
+  const freeItems = uniqueItems.length;
   const premiumItems = 0;
 
   // Insert study path
@@ -108,11 +118,11 @@ export async function createPath(
       description_en: response.description_en,
       description_jp: response.description_jp,
       estimated_hours: response.estimated_hours,
-      total_items: response.items.length,
+      total_items: uniqueItems.length,
       free_items: freeItems,
       premium_items: premiumItems,
       status: 'active',
-      generation_model: 'claude-sonnet-4-20250514',
+      generation_model: GENERATION_MODEL,
       generation_prompt_version: GENERATION_PROMPT_VERSION,
       generated_at: new Date().toISOString(),
     })
@@ -124,7 +134,7 @@ export async function createPath(
   }
 
   // Fetch denormalized content item data for each path item
-  const contentIds = response.items.map((item) => item.content_item_id);
+  const contentIds = uniqueItems.map((item) => item.content_item_id);
   const { data: contentItems } = await adminClient
     .from('content_items')
     .select('id, title_en, content_type, access_tier, duration_minutes, url, embed_url')
@@ -135,7 +145,7 @@ export async function createPath(
   );
 
   // Insert path items
-  const itemRows = response.items.map((item) => {
+  const itemRows = uniqueItems.map((item) => {
     const content = contentMap.get(item.content_item_id);
     return {
       path_id: path.id,

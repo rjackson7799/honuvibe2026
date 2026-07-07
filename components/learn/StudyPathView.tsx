@@ -25,6 +25,10 @@ export function StudyPathView({ path: initialPath, hasPremium }: StudyPathViewPr
   const [path, setPath] = useState(initialPath);
   const [activeItem, setActiveItem] = useState<StudyPathItem | null>(null);
   const [archiving, setArchiving] = useState(false);
+  const [regenOpen, setRegenOpen] = useState(false);
+  const [regenFeedback, setRegenFeedback] = useState('');
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState<string | null>(null);
 
   const prefix = locale === 'ja' ? '/ja' : '';
   const title = locale === 'ja' && path.title_jp ? path.title_jp : path.title_en;
@@ -76,6 +80,29 @@ export function StudyPathView({ path: initialPath, hasPremium }: StudyPathViewPr
 
   function handleStartItem(item: StudyPathItem) {
     setActiveItem(item);
+  }
+
+  async function handleRegenerate() {
+    setRegenerating(true);
+    setRegenError(null);
+    try {
+      const response = await fetch(`/api/learn/paths/${path.id}/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: regenFeedback }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? t('error_regenerate'));
+      }
+
+      router.push(`${prefix}/learn/paths/${data.path_id}`);
+    } catch (err) {
+      setRegenError(err instanceof Error ? err.message : t('error_regenerate'));
+      setRegenerating(false);
+    }
   }
 
   async function handleArchive() {
@@ -216,28 +243,57 @@ export function StudyPathView({ path: initialPath, hasPremium }: StudyPathViewPr
         )}
 
       {/* Path actions */}
-      <div className="flex flex-col gap-3 sm:flex-row border-t border-border-primary pt-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          href={`${prefix}/learn/paths/${path.id}/regenerate`}
-          onClick={(e: React.MouseEvent) => {
-            e.preventDefault();
-            router.push(`${prefix}/learn/paths/new?regenerate=${path.id}`);
-          }}
-        >
-          <RefreshCw className="h-4 w-4" />
-          {t('regenerate')}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleArchive}
-          disabled={archiving}
-        >
-          <Archive className="h-4 w-4" />
-          {t('archive_path')}
-        </Button>
+      <div className="space-y-3 border-t border-border-primary pt-6">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setRegenOpen((open) => !open)}
+            disabled={regenerating}
+          >
+            <RefreshCw className="h-4 w-4" />
+            {t('regenerate')}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleArchive}
+            disabled={archiving}
+          >
+            <Archive className="h-4 w-4" />
+            {t('archive_path')}
+          </Button>
+        </div>
+
+        {regenOpen && (
+          <div className="space-y-2 rounded-lg border border-border-primary bg-bg-secondary p-4">
+            <label className="block text-sm text-fg-secondary">
+              {t('regenerate_feedback')}
+            </label>
+            <textarea
+              value={regenFeedback}
+              onChange={(e) => setRegenFeedback(e.target.value)}
+              rows={2}
+              maxLength={300}
+              className="w-full rounded-md border border-border-primary bg-bg-primary p-2 text-base text-fg-primary focus:border-accent-teal focus:outline-none"
+            />
+            {regenError && <p className="text-xs text-red-400">{regenError}</p>}
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleRegenerate} disabled={regenerating}>
+                <RefreshCw className={`h-4 w-4 ${regenerating ? 'animate-spin' : ''}`} />
+                {t('regenerate')}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setRegenOpen(false)}
+                disabled={regenerating}
+              >
+                {t('cancel')}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Cohort upsell */}

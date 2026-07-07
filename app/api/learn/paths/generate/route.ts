@@ -3,7 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 import { generateStudyPath, PathGenerationError } from '@/lib/paths/generate';
 import { createPath, saveGenerationLog, getPathGenerationCount } from '@/lib/paths/queries';
 import { GENERATION_PROMPT_VERSION } from '@/lib/paths/prompt';
+import { hasPremiumAccess } from '@/lib/paths/access';
 import type { PathIntakeInput } from '@/lib/paths/types';
+
+export const maxDuration = 60;
 
 const MAX_GENERATIONS_PER_DAY = 3;
 
@@ -64,15 +67,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user subscription tier
+    // Get user tier (mirrors the viewer's premium check: admin/trialing/grace included)
     const { data: profile } = await supabase
       .from('users')
-      .select('subscription_tier')
+      .select('role, subscription_tier, subscription_status, subscription_expires_at')
       .eq('id', user.id)
       .single();
 
     const userTier: 'free' | 'vault' =
-      profile?.subscription_tier === 'vault' ? 'vault' : 'free';
+      profile &&
+      hasPremiumAccess({
+        role: profile.role ?? 'student',
+        subscription_tier: profile.subscription_tier,
+        subscription_status: profile.subscription_status,
+        subscription_expires_at: profile.subscription_expires_at,
+      })
+        ? 'vault'
+        : 'free';
 
     // Generate path via Claude
     const input: PathIntakeInput = {

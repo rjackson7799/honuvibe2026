@@ -79,7 +79,7 @@ export function PathIntakeForm({
                   : 'border-border-primary bg-bg-secondary text-fg-secondary hover:border-border-hover'
               }`}
             >
-              {lang === 'en' ? 'English' : 'Japanese'}
+              {lang === 'en' ? 'English' : '日本語'}
             </button>
           ))}
         </div>

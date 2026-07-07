@@ -23,6 +23,8 @@ import { BadgePill } from '@/components/ui/badge-pill';
 import { SectionHeading } from '@/components/learn/SectionHeading';
 import { getMyUpcomingEvents } from '@/lib/events/queries';
 import { DashboardUpcomingEvents } from '@/components/events/DashboardUpcomingEvents';
+import { getUserPaths } from '@/lib/paths/queries';
+import { PathCard } from '@/components/learn/PathCard';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -54,6 +56,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tLearn = await getTranslations({ locale, namespace: 'learn' });
   const tEvents = await getTranslations({ locale, namespace: 'events' });
+  const tPaths = await getTranslations({ locale, namespace: 'study_paths' });
 
   const { data: profile } = await supabase
     .from('users')
@@ -61,13 +64,15 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     .eq('id', user.id)
     .single();
 
-  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse, upcomingEvents] = await Promise.all([
+  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse, upcomingEvents, studyPaths] = await Promise.all([
     getStudentDashboardData(user.id),
     getVaultCourseRecommendations(user.id, 6),
     getInstructorByUserId(user.id),
     getCourseBySlug('ai-essentials'),
     getMyUpcomingEvents(3),
+    getUserPaths(user.id).catch(() => []),
   ]);
+  const activeStudyPaths = studyPaths.filter((p) => p.status === 'active');
 
   let instructorClassCount = 0;
   if (instructorProfile?.is_active) {
@@ -204,6 +209,22 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           notGoing: tEvents('badge_not_going'),
         }}
       />
+
+      {/* Study Paths — continue where you left off */}
+      {activeStudyPaths.length > 0 && (
+        <div>
+          <SectionHeading
+            title={tPaths('your_paths')}
+            viewAllHref="/learn/paths"
+            viewAllLabel={tPaths('view_all_paths')}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {activeStudyPaths.slice(0, 2).map((path) => (
+              <PathCard key={path.id} path={path} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Vault Recommendations */}
       {vaultRecommendations.length > 0 ? (

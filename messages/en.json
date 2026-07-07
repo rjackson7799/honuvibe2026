@@ -2394,7 +2394,8 @@
     "no_results": "No content found matching your filters."
   },
   "study_paths": {
-    "create_title": "Let's build your learning path.",
+    "page_title": "Study Paths",
+    "list_subtitle": "Your AI-curated learning paths.",
     "create_subtitle": "Tell us what you want to learn, and our AI will curate a personalized curriculum from the HonuVibe library.",
     "goal_label": "What do you want to learn?",
     "goal_placeholder": "Describe your learning goal in a few sentences...",
@@ -2436,7 +2437,15 @@
     "path_progress": "{completed} of {total} completed",
     "cohort_upsell_title": "Interested in structured learning?",
     "cohort_upsell_text": "Our cohort courses include live instruction, community, and accountability.",
-    "view_courses": "View Courses"
+    "view_courses": "View Courses",
+    "view_all_paths": "View all paths",
+    "cancel": "Cancel",
+    "try_again": "Try again",
+    "error_generate": "Failed to generate path",
+    "error_regenerate": "Failed to regenerate path",
+    "error_generic": "An error occurred",
+    "min_unit": "min",
+    "item_fallback": "Item {number}"
   },
   "subscription": {
     "premium_title": "HonuVibe Premium",

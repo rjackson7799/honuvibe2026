@@ -9,9 +9,12 @@ import type {
   CatalogItem,
 } from './types';
 
-const MODEL = 'claude-sonnet-4-20250514';
-const MAX_TOKENS = 4000;
-const TEMPERATURE = 0.3;
+// Also recorded on study_paths.generation_model — keep the two in sync via this export.
+export const GENERATION_MODEL = 'claude-sonnet-5';
+// Sonnet 5's tokenizer produces ~30% more tokens than Sonnet 4 for the same text.
+const MAX_TOKENS = 6000;
+// Anthropic API request timeout — must stay under the route's maxDuration (60s).
+const REQUEST_TIMEOUT_MS = 45_000;
 
 export class PathGenerationError extends Error {
   constructor(
@@ -58,21 +61,31 @@ export async function generateStudyPath(
   // 4. Call Claude API
   const startTime = Date.now();
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      temperature: TEMPERATURE,
-      system: 'You are a curriculum designer. Respond ONLY with valid JSON, no markdown fencing or extra text.',
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
+  let response: Response;
+  try {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: GENERATION_MODEL,
+        max_tokens: MAX_TOKENS,
+        system: 'You are a curriculum designer. Respond ONLY with valid JSON, no markdown fencing or extra text.',
+        messages: [{ role: 'user', content: prompt }],
+      }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (err) {
+    throw new PathGenerationError(
+      err instanceof DOMException && err.name === 'TimeoutError'
+        ? `Claude API request timed out after ${REQUEST_TIMEOUT_MS / 1000}s`
+        : `Claude API request failed: ${err instanceof Error ? err.message : String(err)}`,
+      'API_ERROR',
+    );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();

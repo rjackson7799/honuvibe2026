@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { PathIntakeForm } from '@/components/learn/PathIntakeForm';
 import { PathGenerating } from '@/components/learn/PathGenerating';
 import { PathPreview } from '@/components/learn/PathPreview';
@@ -18,6 +18,7 @@ type PathIntakeFlowProps = {
 export function PathIntakeFlow({ tags, userTier }: PathIntakeFlowProps) {
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations('study_paths');
   const prefix = locale === 'ja' ? '/ja' : '';
 
   const [state, setState] = useState<FlowState>('intake');
@@ -39,13 +40,13 @@ export function PathIntakeFlow({ tags, userTier }: PathIntakeFlowProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error ?? 'Failed to generate path');
+        throw new Error(data.error ?? t('error_generate'));
       }
 
       setGeneratedPath(data.path);
       setState('preview');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('error_generic'));
       setState('error');
     }
   }
@@ -73,12 +74,12 @@ export function PathIntakeFlow({ tags, userTier }: PathIntakeFlowProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error ?? 'Failed to regenerate path');
+        throw new Error(data.error ?? t('error_regenerate'));
       }
 
       setGeneratedPath(data.path);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Regeneration failed');
+      setError(err instanceof Error ? err.message : t('error_regenerate'));
     } finally {
       setIsRegenerating(false);
     }
@@ -107,7 +108,7 @@ export function PathIntakeFlow({ tags, userTier }: PathIntakeFlowProps) {
           onClick={() => setState('intake')}
           className="text-sm text-accent-teal hover:underline"
         >
-          Try again
+          {t('try_again')}
         </button>
       </div>
     );

@@ -50,7 +50,7 @@ export function PathItemCard({
   const [completing, setCompleting] = useState(false);
 
   const Icon = getContentTypeIcon(item.item_content_type);
-  const title = item.item_title_en ?? `Item ${index + 1}`;
+  const title = item.item_title_en ?? t('item_fallback', { number: index + 1 });
   const rationale =
     locale === 'ja' ? item.rationale_jp : item.rationale_en;
   const learningFocus =
@@ -112,7 +112,7 @@ export function PathItemCard({
           {/* Meta row */}
           <div className="mt-1 flex items-center gap-2 text-xs text-fg-muted">
             {item.item_duration_minutes && (
-              <span>{item.item_duration_minutes} min</span>
+              <span>{item.item_duration_minutes} {t('min_unit')}</span>
             )}
             {item.item_access_tier === 'premium' && (
               <span className="rounded bg-accent-gold/20 px-1.5 py-0.5 text-accent-gold text-[10px] font-medium uppercase">

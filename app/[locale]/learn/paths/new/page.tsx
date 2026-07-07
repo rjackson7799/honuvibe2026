@@ -1,7 +1,10 @@
 import { setRequestLocale } from 'next-intl/server';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { Route } from 'lucide-react';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { hasPremiumAccess } from '@/lib/paths/access';
+import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
 import { PathIntakeFlow } from './PathIntakeFlow';
 
 type Props = {
@@ -13,7 +16,7 @@ export async function generateMetadata({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'study_paths' });
 
   return {
-    title: t('create_title'),
+    title: t('page_title'),
   };
 }
 
@@ -41,30 +44,37 @@ export default async function NewStudyPathPage({ params }: Props) {
     .eq('category', 'topic')
     .order('name_en');
 
-  // Fetch user profile for subscription tier
+  // Fetch user profile for subscription tier (same premium check as the API routes)
   const { data: profile } = await supabase
     .from('users')
-    .select('subscription_tier')
+    .select('role, subscription_tier, subscription_status, subscription_expires_at')
     .eq('id', user.id)
     .single();
+
+  const userTier: 'free' | 'vault' =
+    profile &&
+    hasPremiumAccess({
+      role: profile.role ?? 'student',
+      subscription_tier: profile.subscription_tier,
+      subscription_status: profile.subscription_status,
+      subscription_expires_at: profile.subscription_expires_at,
+    })
+      ? 'vault'
+      : 'free';
 
   const t = await getTranslations({ locale, namespace: 'study_paths' });
 
   return (
-    <div className="mx-auto max-w-xl space-y-8 py-8">
-      <div className="text-center space-y-2">
-        <h1 className="font-display text-2xl md:text-3xl text-fg-primary">
-          {t('create_title')}
-        </h1>
-        <p className="text-fg-secondary text-sm max-w-md mx-auto">
-          {t('create_subtitle')}
-        </p>
-      </div>
-
-      <PathIntakeFlow
-        tags={tags ?? []}
-        userTier={profile?.subscription_tier === 'vault' ? 'vault' : 'free'}
+    <div className="space-y-8 max-w-[800px]">
+      <DashboardPageHeader
+        icon={Route}
+        title={t('page_title')}
+        subtitle={t('create_subtitle')}
       />
+
+      <div className="max-w-xl">
+        <PathIntakeFlow tags={tags ?? []} userTier={userTier} />
+      </div>
     </div>
   );
 }

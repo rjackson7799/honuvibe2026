@@ -9,7 +9,10 @@ import {
   getPathGenerationCount,
 } from '@/lib/paths/queries';
 import { GENERATION_PROMPT_VERSION } from '@/lib/paths/prompt';
+import { hasPremiumAccess } from '@/lib/paths/access';
 import type { PathIntakeInput } from '@/lib/paths/types';
+
+export const maxDuration = 60;
 
 const MAX_GENERATIONS_PER_DAY = 3;
 
@@ -51,24 +54,29 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const feedback = (body as { feedback?: string }).feedback;
 
-    // Archive old path
-    await archivePath(id);
-
     // Build new goal with feedback appended
     let goalDescription = oldPath.goal_description;
     if (feedback && feedback.trim().length > 0) {
       goalDescription = `${oldPath.goal_description} | Feedback: ${feedback.trim()}`;
     }
 
-    // Get user tier
+    // Get user tier (mirrors the viewer's premium check: admin/trialing/grace included)
     const { data: profile } = await supabase
       .from('users')
-      .select('subscription_tier')
+      .select('role, subscription_tier, subscription_status, subscription_expires_at')
       .eq('id', user.id)
       .single();
 
     const userTier: 'free' | 'vault' =
-      profile?.subscription_tier === 'vault' ? 'vault' : 'free';
+      profile &&
+      hasPremiumAccess({
+        role: profile.role ?? 'student',
+        subscription_tier: profile.subscription_tier,
+        subscription_status: profile.subscription_status,
+        subscription_expires_at: profile.subscription_expires_at,
+      })
+        ? 'vault'
+        : 'free';
 
     const input: PathIntakeInput = {
       goal_description: goalDescription,
@@ -79,6 +87,10 @@ export async function POST(
 
     const generationResult = await generateStudyPath(input, user.id, userTier);
     const pathWithItems = await createPath(input, user.id, generationResult);
+
+    // Archive the old path only after the replacement exists — a failed
+    // generation must not strand the user with no path at all.
+    await archivePath(id);
 
     // Save generation log (non-blocking)
     saveGenerationLog({

@@ -36,7 +36,7 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
   { href: '/learn/vault/workbench', labelKey: 'nav_workbench', icon: FlaskConical, exact: false },
-  { href: '/learn/paths/new', labelKey: 'nav_study_paths', icon: Route, exact: false },
+  { href: '/learn/paths', labelKey: 'nav_study_paths', icon: Route, exact: false },
   { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },

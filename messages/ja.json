@@ -2394,7 +2394,8 @@
     "no_results": "条件に合うコンテンツが見つかりませんでした。"
   },
   "study_paths": {
-    "create_title": "あなたの学習パスを作りましょう。",
+    "page_title": "学習パス",
+    "list_subtitle": "AIがキュレーションしたあなたの学習パス。",
     "create_subtitle": "学びたいことを教えてください。AIがHonuVibeライブラリからパーソナライズされたカリキュラムをキュレーションします。",
     "goal_label": "何を学びたいですか？",
     "goal_placeholder": "学習目標を数文で説明してください...",
@@ -2436,7 +2437,15 @@
     "path_progress": "{total}件中{completed}件完了",
     "cohort_upsell_title": "体系的な学習に興味がありますか？",
     "cohort_upsell_text": "コホートコースにはライブ指導、コミュニティ、アカウンタビリティが含まれます。",
-    "view_courses": "コースを見る"
+    "view_courses": "コースを見る",
+    "view_all_paths": "すべてのパスを見る",
+    "cancel": "キャンセル",
+    "try_again": "もう一度試す",
+    "error_generate": "パスの生成に失敗しました",
+    "error_regenerate": "パスの再生成に失敗しました",
+    "error_generic": "エラーが発生しました",
+    "min_unit": "分",
+    "item_fallback": "アイテム {number}"
   },
   "subscription": {
     "premium_title": "HonuVibe プレミアム",
