@@ -55,7 +55,15 @@ describe('ConditionalMain padding gate', () => {
     },
   );
 
-  it.each(['/learn/dashboard', '/ja/learn/vault', '/admin', '/admin/courses'])(
+  it.each([
+    '/learn/dashboard',
+    '/ja/learn/vault',
+    '/learn/paths',
+    '/learn/paths/new',
+    '/ja/learn/paths/new',
+    '/admin',
+    '/admin/courses',
+  ])(
     'omits dark-Nav padding on auth-shell route %s',
     (pathname) => {
       mockUsePathname.mockReturnValue(pathname);

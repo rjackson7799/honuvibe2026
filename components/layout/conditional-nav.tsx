@@ -9,7 +9,7 @@ import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 // AuthForm container, so the legacy dark global Nav would just clash with the
 // new marketing-shell aesthetic users see elsewhere.
 function isAuthShellRoute(pathname: string) {
-  return /^\/(ja\/)?(learn\/(dashboard|vault|auth)|admin)(\/|$)/.test(pathname);
+  return /^\/(ja\/)?(learn\/(dashboard|vault|auth|paths)|admin)(\/|$)/.test(pathname);
 }
 
 // Slot pattern: the async <Nav /> is resolved by the server layout before
