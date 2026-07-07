@@ -11,7 +11,7 @@ type Member = {
   langs: readonly ('en' | 'jp')[];
 };
 
-const ALL_MEMBERS: readonly Member[] = [
+const MEMBERS: readonly Member[] = [
   {
     key: 'ryan',
     photoSrc: '/images/partners/instructors/ryan.webp',
@@ -34,10 +34,6 @@ const ALL_MEMBERS: readonly Member[] = [
     langs: ['en', 'jp'],
   },
 ];
-
-const MEMBERS: readonly Member[] = ALL_MEMBERS.filter(
-  (m) => m.key === 'ryan' || m.key === 'chimi',
-);
 
 const CADENCE_KEYS = ['1', '2', '3'] as const;
 
@@ -83,7 +79,7 @@ export function AboutTeam() {
         </div>
 
         {/* Portrait grid */}
-        <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 items-start gap-6 md:mt-16 md:grid-cols-2 md:gap-8">
+        <div className="mx-auto mt-12 grid max-w-3xl grid-cols-1 items-start gap-6 sm:grid-cols-2 md:mt-16 md:grid-cols-3 md:gap-8">
           {MEMBERS.map((m) => (
             <TeamCard key={m.key} member={m} />
           ))}

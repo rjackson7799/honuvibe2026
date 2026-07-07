@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { SOCIAL_LINKS } from '@/lib/constants/social';
 
 /**
  * Marketing footer — applies the new design treatment (navy dark band,
@@ -17,10 +18,10 @@ export function MarketingFooter() {
     'mb-4 text-[11.5px] font-bold uppercase tracking-[0.08em] text-white/40';
 
   const social: Array<{ label: string; href: string }> = [
-    { label: 'TikTok', href: '#' },
-    { label: 'IG', href: '#' },
-    { label: 'YT', href: '#' },
-    { label: 'LINE', href: '#' },
+    { label: 'TikTok', href: SOCIAL_LINKS.tiktok },
+    { label: 'IG', href: SOCIAL_LINKS.instagram },
+    { label: 'YT', href: SOCIAL_LINKS.youtube },
+    { label: 'IN', href: SOCIAL_LINKS.linkedin },
   ];
 
   return (
@@ -43,6 +44,8 @@ export function MarketingFooter() {
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.08] text-[11px] font-bold text-white/60 transition-colors hover:bg-white/[0.12] hover:text-white"
                 >
                   {s.label}

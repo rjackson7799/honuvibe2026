@@ -11,6 +11,7 @@ import {
   YouTubeIcon,
   LinkedInIcon,
 } from '@/components/marketing/about/social-icons';
+import { SOCIAL_LINKS } from '@/lib/constants/social';
 
 type Social = {
   key: 'tiktok' | 'instagram' | 'youtube' | 'linkedin';
@@ -19,22 +20,10 @@ type Social = {
 };
 
 const SOCIALS: readonly Social[] = [
-  { key: 'tiktok', href: 'https://www.tiktok.com/@honuvibe', Icon: TikTokIcon },
-  {
-    key: 'instagram',
-    href: 'https://www.instagram.com/honuvibe',
-    Icon: InstagramIcon,
-  },
-  {
-    key: 'youtube',
-    href: 'https://www.youtube.com/@honuvibe',
-    Icon: YouTubeIcon,
-  },
-  {
-    key: 'linkedin',
-    href: 'https://www.linkedin.com/company/honuvibe',
-    Icon: LinkedInIcon,
-  },
+  { key: 'tiktok', href: SOCIAL_LINKS.tiktok, Icon: TikTokIcon },
+  { key: 'instagram', href: SOCIAL_LINKS.instagram, Icon: InstagramIcon },
+  { key: 'youtube', href: SOCIAL_LINKS.youtube, Icon: YouTubeIcon },
+  { key: 'linkedin', href: SOCIAL_LINKS.linkedin, Icon: LinkedInIcon },
 ];
 
 export function ContactSocialSection() {

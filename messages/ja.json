@@ -2501,7 +2501,7 @@
       "subhead": "現場で働く人のための、実践的なAIトレーニングとコミュニティ。プロフェッショナル、ソロプレナー、スモールビジネス、クリエイター、そして彼らを支える組織のために。",
       "cta_primary": "コースを見る",
       "cta_secondary": "パートナーになる",
-      "social_proof": "英語・日本語あわせて<count>500+</count>名の学習者と一緒に学ぼう",
+      "social_proof": "英語・日本語あわせて<strong>{count}+</strong>名の学習者と一緒に学ぼう",
       "vault_brand": "The Vault",
       "vault_library_label": "ライブラリ",
       "vault_progress_label": "進捗",
@@ -2786,7 +2786,7 @@
       "headline": "Questions",
       "note_label": "ノート {n}",
       "q_1_q": "最小規模の案件は？",
-      "q_1_a": "多くの案件は4週間・約2万USドルから始まります。既存クライアントやプロボノ案件では2週間スプリントもお受けします。",
+      "q_1_a": "決まった最低金額はありません。制作の範囲と料金はHonuVibe Studioが担当し、明朗な料金プランは$500から。詳しい料金はstudio.honuvibe.aiをご覧ください。チームやコミュニティ向けの学習プログラムは、パートナーシップのページでご案内しています。",
       "q_2_q": "使うツールは固定？",
       "q_2_a": "デフォルトはNext.js + Tailwind + Supabase + Vercel。素早く出荷でき、保守しやすい組み合わせです。既存スタックがある場合はそれに合わせます。",
       "q_3_q": "「AIネイティブ開発」って何が違うの？",
@@ -2848,7 +2848,7 @@
       "headline_2": "台本を読むだけではない",
       "subhead": "HonuVibe の講師は全員、現役の実践者です。学者でもなく、台本を読むだけの人でもありません。",
       "cadence_stat_1_label": "講師数",
-      "cadence_stat_1_value": "2名",
+      "cadence_stat_1_value": "3名",
       "cadence_stat_2_label": "言語",
       "cadence_stat_2_value": "EN + 日本語",
       "cadence_stat_3_label": "専門分野",
@@ -2870,20 +2870,6 @@
       "members_chimi_bio": "Chiemi は認定作業療法士であり、ビジネスオペレーションの豊富な経験を持っています。医療、専門サービス、コミュニティ組織のワークフローを AI でどう改善できるか、独自の視点で示してくれます。",
       "members_chimi_photo_alt": "AIコンサルタント兼トレーナー Chiemi M."
     },
-    "aloha_standard": {
-      "overline": "私たちのスタイル",
-      "headline_line_1": "アロハ・",
-      "headline_line_2": "スタンダード。",
-      "lede": "Aloha は、マーケティングのスローガンではありません。HonuVibe が向き合うすべてのコース、パートナーシップ、そしてやりとりにおいて実践している、実際の行動基準です。",
-      "generously_title": "惜しみなく与える。",
-      "generously_body": "無料のコンテンツ、無料のコミュニティアクセス、透明性のある情報。寛大さは、時間とともに積み重なって返ってくると信じています。",
-      "no_hard_sell_title": "決して押し売りはしない。",
-      "no_hard_sell_body": "招きます。示します。仕事の質に語らせます。HonuVibe にふさわしい方は、自然にそれを感じてくださるはずです。",
-      "pro_bono_title": "プロボノも本気の仕事です。",
-      "pro_bono_body": "非営利団体やコミュニティ組織から相談があったとき、有料クライアントとまったく同じ品質と関心でお応えします。彼らのミッションは、本当に大切だからです。",
-      "celebrate_title": "コミュニティを称えます。",
-      "celebrate_body": "HonuVibe のメンバーがプロジェクトをリリースしたり、事業を成長させたり、助成金を獲得したとき――それは私たちにとって大切な瞬間です。そうしたストーリーを、ちゃんと語る場所をつくっています。"
-    },
     "mission_vision": {
       "chapter_overline": "第三章 · ミッション & ビジョン",
       "chapter_meta_right": "現在 · 2030年以降",
@@ -2899,15 +2885,6 @@
       "cadence_stat_2_value": "2030年以降",
       "cadence_stat_3_label": "フォーカス",
       "cadence_stat_3_value": "米国 + 日本"
-    },
-    "social_section": {
-      "overline": "つながる",
-      "headline": "私たちの歩みを、ぜひ。",
-      "tiktok_label": "TikTok",
-      "instagram_label": "Instagram",
-      "youtube_label": "YouTube",
-      "line_label": "LINE",
-      "newsletter_link": "または、ニュースレターを購読して毎週のインサイトを受け取る →"
     },
     "closing": {
       "meta_left": "第一号 終",

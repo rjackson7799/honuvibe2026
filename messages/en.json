@@ -2501,7 +2501,7 @@
       "subhead": "Practical AI training and community for the people doing the actual work — professionals, solopreneurs, small businesses, creators, and the organizations that support them.",
       "cta_primary": "Explore Courses",
       "cta_secondary": "Partner With Us",
-      "social_proof": "Join <count>500+</count> learners across EN & JP",
+      "social_proof": "Join <strong>{count}+</strong> learners across EN & JP",
       "vault_brand": "The Vault",
       "vault_library_label": "Library",
       "vault_progress_label": "Progress",
@@ -2786,7 +2786,7 @@
       "headline": "Questions",
       "note_label": "Note {n}",
       "q_1_q": "What's the smallest project you take?",
-      "q_1_a": "Most engagements start at 4 weeks / ~$20K USD. We occasionally take 2-week sprints for existing clients or pro-bono work.",
+      "q_1_a": "There's no fixed minimum. Project scope and pricing live with HonuVibe Studio — transparent tiers start at $500, with the full range at studio.honuvibe.ai. Learning engagements for teams and communities are scoped on our partnerships page.",
       "q_2_q": "Are you locked into a specific stack?",
       "q_2_a": "We default to Next.js + Tailwind + Supabase + Vercel because it ships fast and stays maintainable. We'll happily work in your stack if you have one.",
       "q_3_q": "What does \"AI-native development\" actually mean?",
@@ -2848,7 +2848,7 @@
       "headline_2": "Not script readers",
       "subhead": "Every HonuVibe instructor is a working practitioner — not an academic, not a script reader.",
       "cadence_stat_1_label": "Instructors",
-      "cadence_stat_1_value": "2",
+      "cadence_stat_1_value": "3",
       "cadence_stat_2_label": "Languages",
       "cadence_stat_2_value": "EN + 日本語",
       "cadence_stat_3_label": "Specialties",
@@ -2870,20 +2870,6 @@
       "members_chimi_bio": "Chiemi is a Certified Occupational Therapist with deep business operations experience. She brings a unique perspective on how AI can improve workflows in healthcare, professional services, and community organizations.",
       "members_chimi_photo_alt": "Chiemi M., AI consultant and trainer"
     },
-    "aloha_standard": {
-      "overline": "How We Show Up",
-      "headline_line_1": "The Aloha",
-      "headline_line_2": "Standard.",
-      "lede": "Aloha is not a marketing tagline. It is the actual operating standard for how HonuVibe shows up — in every course, every partnership, and every interaction.",
-      "generously_title": "We give generously.",
-      "generously_body": "Free content, free community access, transparent information. We trust that generosity compounds.",
-      "no_hard_sell_title": "We never hard sell.",
-      "no_hard_sell_body": "We invite. We demonstrate. We let the quality of the work speak. People who are right for HonuVibe will feel it.",
-      "pro_bono_title": "Pro-bono work is real work.",
-      "pro_bono_body": "When a nonprofit or community organization comes to us, they receive the same quality and attention as any paying client. Their mission matters.",
-      "celebrate_title": "We celebrate our community.",
-      "celebrate_body": "When a HonuVibe member ships a project, grows their business, or wins a grant — that is a HonuVibe moment. We make space for those stories."
-    },
     "mission_vision": {
       "chapter_overline": "CH. 03 · MISSION & VISION",
       "chapter_meta_right": "TODAY · 2030+",
@@ -2899,15 +2885,6 @@
       "cadence_stat_2_value": "2030+",
       "cadence_stat_3_label": "Focus",
       "cadence_stat_3_value": "US + Japan"
-    },
-    "social_section": {
-      "overline": "Connect",
-      "headline": "Follow the journey.",
-      "tiktok_label": "TikTok",
-      "instagram_label": "Instagram",
-      "youtube_label": "YouTube",
-      "line_label": "LINE",
-      "newsletter_link": "Or subscribe to the newsletter for weekly insights →"
     },
     "closing": {
       "meta_left": "END OF ISSUE 01",
@@ -3077,7 +3054,7 @@
       "outcome_workflow_body": "Concrete tools, concrete prompts, concrete adoption plan — not vendor decks.",
       "outcome_enablement_title": "Internal team enablement",
       "outcome_enablement_body": "Workshops and writeups so your team can keep going without us.",
-      "quote": "Often the cheapest move at a 40-person team can made it to write down how it already and AI — and then make that handbook actually good.",
+      "quote": "Often the cheapest move at a 40-person team is to write down how it already uses AI — and then make that handbook actually good.",
       "quote_attr": "— Engagement note, 2026",
       "artifact_label": "honuvibe-audit · sample",
       "artifact_caret": "ready for rollout review →",

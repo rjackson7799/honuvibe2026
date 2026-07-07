@@ -141,7 +141,7 @@ describe('Home page sections', () => {
     expect(screen.getByText('Synthesize')).toBeInTheDocument();
   });
 
-  it('FeaturedCourses shows three course titles, the TRACK ribbon, and routes CTAs to /learn', () => {
+  it('FeaturedCourses shows three course titles, the TRACK ribbon, and routes CTAs to /learn#courses', () => {
     render(<HomeFeaturedCourses />);
     expect(screen.getByRole('heading', { name: 'Featured Courses' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AI Essentials' })).toBeInTheDocument();
@@ -150,7 +150,7 @@ describe('Home page sections', () => {
     expect(screen.getByText('TRACK')).toBeInTheDocument();
     const courseLinks = screen.getAllByRole('link');
     for (const link of courseLinks) {
-      expect(link).toHaveAttribute('href', '/learn');
+      expect(link).toHaveAttribute('href', '/learn#courses');
     }
   });
 

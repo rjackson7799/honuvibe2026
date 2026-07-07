@@ -75,7 +75,7 @@ export function HomeFeaturedCourses() {
         <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
           <SectionHeading>{t('heading')}</SectionHeading>
           <a
-            href="/learn"
+            href="/learn#courses"
             className="inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-[var(--m-accent-teal)] transition-opacity hover:opacity-80"
           >
             {t('see_all')}
@@ -135,7 +135,7 @@ export function HomeFeaturedCourses() {
                   </p>
 
                   <a
-                    href="/learn"
+                    href="/learn#courses"
                     className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--m-ink-primary)] px-5 py-3.5 text-[15px] font-semibold text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--m-accent-teal)]"
                   >
                     {course.cta}

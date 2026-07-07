@@ -101,12 +101,12 @@ describe('About page sections', () => {
     );
   });
 
-  it('Team renders Ryan + Chiemi (not Mizuho) with cadence row and CTA', () => {
+  it('Team renders Ryan + Mizuho + Chiemi with cadence row and CTA', () => {
     render(<AboutTeam />);
     expect(screen.getByText(/CH\. 02 · THE CREW/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Ryan Jackson' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Mizuho H.' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Chiemi M.' })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Mizuho H.' })).toBeNull();
     expect(screen.getByText('Founder & Director of AI Education')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /See what we teach/ })).toHaveAttribute(
       'href',
