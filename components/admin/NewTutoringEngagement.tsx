@@ -46,8 +46,8 @@ export function NewTutoringEngagement() {
     >
       <h2 className="text-[15px] font-semibold text-fg-primary">New 1-on-1 engagement</h2>
       <p className="text-[13px] text-fg-tertiary">
-        Creates a private, published course (max 1 seat). Next, enroll the student at{' '}
-        <span className="font-medium text-fg-secondary">/admin/students/new</span>.
+        Creates a private, published course (max 1 seat). You&apos;ll add the student on the next
+        screen.
       </p>
 
       <label className="block text-[13px]">

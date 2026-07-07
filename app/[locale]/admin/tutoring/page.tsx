@@ -44,9 +44,8 @@ export default async function AdminTutoringPage({ params }: Props) {
       {courses.length === 0 ? (
         <div className="space-y-4 rounded-xl border border-dashed border-border-default px-6 py-8 text-center">
           <p className="text-sm text-fg-tertiary">
-            No 1v1 engagements yet. Create one below, then enroll the student at{' '}
-            <code className="text-fg-secondary">/admin/students/new</code> — it appears here once
-            they&apos;re enrolled.
+            No 1v1 engagements yet. Create one below — you&apos;ll add the student on the next
+            screen.
           </p>
           <div className="flex justify-center">
             <NewTutoringEngagement />

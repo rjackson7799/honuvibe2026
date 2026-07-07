@@ -44,8 +44,9 @@ async function revalidateForReport(
 /**
  * Create a bare 1v1 engagement — a private, published `courses` shell with no
  * curriculum (the AI course wizard is wrong for this: it generates weeks/
- * sessions). After this, enroll the student via /admin/students/new and the
- * engagement appears in /admin/tutoring.
+ * sessions). After this, the engagement dashboard offers an inline enroll
+ * control for existing students (/admin/students/new remains the path for a
+ * student with no account yet).
  */
 export async function createTutoringCourse(input: {
   titleEn: string;
