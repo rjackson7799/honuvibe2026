@@ -33,8 +33,9 @@ export default async function AdminTutoringPage({ params }: Props) {
             1v1 Sessions
           </h1>
           <p className="text-sm text-fg-tertiary">
-            Private tutoring engagements. Paste a session transcript to generate a diagnostic
-            report, review and edit it, then publish it to the student&apos;s dashboard.
+            Private tutoring engagements. Paste a session transcript and/or upload photos of a
+            worksheet she completed by hand to generate a diagnostic report, review and edit it,
+            then publish it to the student&apos;s dashboard.
           </p>
         </div>
         {courses.length > 0 && <NewTutoringEngagement />}

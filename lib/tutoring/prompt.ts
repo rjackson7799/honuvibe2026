@@ -5,7 +5,7 @@ const CATEGORY_LIST = PATTERN_CATEGORIES.map(
   (c) => `  - ${c} (${PATTERN_LABELS[c].en} / ${PATTERN_LABELS[c].jp})`,
 ).join('\n');
 
-export const SESSION_REPORT_SYSTEM_PROMPT = `You are an expert ESL (English as a Second Language) diagnostician and tutor for a Japanese-L1 adult professional learner. You are analyzing the transcript of a completed one-on-one English tutoring session and producing a structured diagnostic report. Two audiences read your output: (1) the STUDENT, who sees the encouraging, student-safe portions, and (2) the INSTRUCTOR, who additionally sees answer keys and your candid private analysis.
+export const SESSION_REPORT_SYSTEM_PROMPT = `You are an expert ESL (English as a Second Language) diagnostician and tutor for a Japanese-L1 adult professional learner. You are analyzing a completed one-on-one English tutoring session and/or student-submitted written work — this may be a session transcript, one or more photographs of a handwritten worksheet the student completed at home, or both — and producing a structured diagnostic report. Two audiences read your output: (1) the STUDENT, who sees the encouraging, student-safe portions, and (2) the INSTRUCTOR, who additionally sees answer keys and your candid private analysis.
 
 Your deep expertise covers both English linguistics and the specific L1-interference patterns Japanese speakers exhibit (articles, prepositions, plurals/countability, verb tense, subject–verb agreement, word order, katakana-English pronunciation, register/politeness transfer, etc.).
 
@@ -13,10 +13,10 @@ REQUIREMENTS:
 
 1. SNAPSHOT — a warm 2–3 sentence summary of the session, addressed to the student. Bilingual EN/JP.
 
-2. WINS (at least 1) — specific things the student did well this session. Concrete and genuine, not generic praise. Where a moment in the transcript illustrates the win, include the verbatim quote. Bilingual.
+2. WINS (at least 1) — specific things the student did well. Concrete and genuine, not generic praise. Where a moment in the transcript or worksheet illustrates the win, include the verbatim quote. Bilingual.
 
-3. TROUBLE SPOTS (at least 1, at most 8 — the highest-value ones) — each is a real error from the session:
-   - quote: the student's words, VERBATIM from the transcript (do not paraphrase or clean up).
+3. TROUBLE SPOTS (at least 1, at most 8 — the highest-value ones) — each is a real error from the material:
+   - quote: the student's own words, VERBATIM from the source — copied from the transcript when there is one, or transcribed exactly from her handwriting in the worksheet photo(s) (do not paraphrase or clean up).
    - correction: the corrected version.
    - explanation: WHY it was wrong and how to think about it, in plain, encouraging language. Bilingual.
    - pattern_category: exactly one slug from the taxonomy below. Use 'other' only when nothing else fits.
@@ -45,7 +45,7 @@ ${CATEGORY_LIST}
 
 QUALITY STANDARDS:
 - Japanese must be natural and accurate — not machine-translation quality. Never text-justify; write natural JP.
-- Verbatim quotes in trouble_spots must be the student's actual words from the transcript.
+- Verbatim quotes in trouble_spots must be the student's actual words from the transcript or worksheet.
 - Student-facing tone (snapshot, wins, explanations, study areas, homework) is warm and encouraging — this learner should feel capable, not criticized.
 - Assign all ids sequentially as specified.
 - Use only the taxonomy slugs for pattern_category and recurring_patterns.category.
@@ -63,8 +63,11 @@ function formatPriorPattern(p: PriorPatternLine): string {
 }
 
 export function buildSessionReportPrompt(context: SessionReportContext): string {
+  const hasTranscript = context.transcript.trim().length > 0;
+  const imageCount = context.images?.length ?? 0;
+
   const lines: string[] = [
-    `Produce the structured diagnostic report for the following completed 1v1 English tutoring session.`,
+    `Produce the structured diagnostic report for the following 1v1 English tutoring material.`,
     ``,
     `Course: ${context.courseTitleEn}`,
   ];
@@ -85,12 +88,25 @@ export function buildSessionReportPrompt(context: SessionReportContext): string 
     }
   }
 
-  lines.push(
-    ``,
-    `--- SESSION TRANSCRIPT (verbatim) ---`,
-    context.transcript,
-    `--- END TRANSCRIPT ---`,
-  );
+  if (hasTranscript) {
+    lines.push(
+      ``,
+      `--- SESSION TRANSCRIPT (verbatim) ---`,
+      context.transcript,
+      `--- END TRANSCRIPT ---`,
+    );
+  }
+
+  if (imageCount > 0) {
+    const plural = imageCount === 1 ? 'photo' : 'photos';
+    lines.push(
+      ``,
+      `--- STUDENT WORKSHEET ---`,
+      `The student completed a worksheet by hand at home; ${imageCount} ${plural} of it ${imageCount === 1 ? 'is' : 'are'} attached to this message${hasTranscript ? ' (in addition to the transcript above)' : ''}.`,
+      `Read her handwriting carefully. Note what she got right (wins) and every error (trouble spots), transcribing her actual written answers verbatim into the quotes. Treat the worksheet as both a source of trouble spots and a homework/practice review. If any handwriting is genuinely illegible, say so in your instructor analysis rather than guessing.`,
+      `--- END WORKSHEET ---`,
+    );
+  }
 
   return lines.join('\n');
 }

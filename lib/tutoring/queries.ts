@@ -168,7 +168,7 @@ export async function getReportForAdmin(reportId: string): Promise<SessionReport
 
   const { data: priv } = await supabase
     .from('session_report_private')
-    .select('report_id, transcript_ref, margin_notes, instructor_json, generation_error, model_id, reviewed_by, reviewed_at, updated_at')
+    .select('report_id, transcript_ref, source_image_refs, margin_notes, instructor_json, generation_error, model_id, reviewed_by, reviewed_at, updated_at')
     .eq('report_id', reportId)
     .maybeSingle();
 

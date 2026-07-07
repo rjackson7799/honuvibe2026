@@ -21,6 +21,26 @@ export async function generateSessionReport(
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
 
+  // When worksheet photos are present, send a multimodal content array (image
+  // blocks first, then the text prompt); otherwise a plain text string. The
+  // model, tool, and output schema are identical either way.
+  const promptText = buildSessionReportPrompt(context);
+  const images = context.images ?? [];
+  const content =
+    images.length > 0
+      ? [
+          ...images.map((img) => ({
+            type: 'image' as const,
+            source: {
+              type: 'base64' as const,
+              media_type: img.mediaType,
+              data: img.base64,
+            },
+          })),
+          { type: 'text' as const, text: promptText },
+        ]
+      : promptText;
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -34,12 +54,7 @@ export async function generateSessionReport(
       system: SESSION_REPORT_SYSTEM_PROMPT,
       tools: [SESSION_REPORT_TOOL],
       tool_choice: { type: 'tool', name: SESSION_REPORT_TOOL.name },
-      messages: [
-        {
-          role: 'user',
-          content: buildSessionReportPrompt(context),
-        },
-      ],
+      messages: [{ role: 'user', content }],
     }),
   });
 

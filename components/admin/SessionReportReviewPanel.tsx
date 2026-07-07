@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Trash2, Plus, ExternalLink, Eye, PencilLine } from 'lucide-react';
+import { Loader2, Trash2, Plus, ExternalLink, Eye, PencilLine, Images, X } from 'lucide-react';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { SessionReportView } from '@/components/learn/SessionReportView';
 import { splitReport } from '@/lib/tutoring/split';
@@ -26,6 +26,7 @@ type ReportProp = {
   marginNotes: string | null;
   generationError: string | null;
   hasTranscript: boolean;
+  hasImages: boolean;
 };
 
 // ---- small field helpers ----
@@ -144,6 +145,7 @@ export function SessionReportReviewPanel({
   const [saving, startSave] = useTransition();
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [worksheetUrls, setWorksheetUrls] = useState<string[] | null>(null);
 
   const patch = (u: (r: GeneratedSessionReport) => GeneratedSessionReport) =>
     setData((prev) => (prev ? u(prev) : prev));
@@ -235,7 +237,7 @@ export function SessionReportReviewPanel({
   }
 
   function handleDelete() {
-    if (!confirm('Delete this report and its transcript permanently?')) return;
+    if (!confirm('Delete this report and its transcript and photos permanently?')) return;
     setBusy('delete');
     startSave(async () => {
       try {
@@ -262,6 +264,23 @@ export function SessionReportReviewPanel({
     }
   }
 
+  async function handleViewWorksheet() {
+    setBusy('worksheet');
+    try {
+      const res = await fetch(`/api/tutoring/${report.id}/images`);
+      const json = (await res.json()) as { images?: { url: string }[]; error?: string };
+      if (res.ok && json.images?.length) {
+        setWorksheetUrls(json.images.map((i) => i.url));
+      } else {
+        flash(false, json.error ?? 'Could not load worksheet photos.');
+      }
+    } catch {
+      flash(false, 'Could not load worksheet photos.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
   const isGenerating = report.status === 'generating';
   const isFailed = report.status === 'failed';
   const isPublished = report.status === 'published';
@@ -269,6 +288,52 @@ export function SessionReportReviewPanel({
 
   return (
     <div className="space-y-5">
+      {/* Worksheet photos modal */}
+      {worksheetUrls && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setWorksheetUrls(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-bg-primary p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-[15px] font-semibold text-fg-primary">
+                Worksheet photos <span className="text-fg-tertiary">(instructor-only)</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setWorksheetUrls(null)}
+                aria-label="Close"
+                className="text-fg-tertiary hover:text-fg-primary"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {worksheetUrls.map((url, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block overflow-hidden rounded-lg border border-border-default"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Worksheet photo ${i + 1}`} className="w-full object-contain" />
+                </a>
+              ))}
+            </div>
+            <p className="mt-3 text-[12px] text-fg-tertiary">
+              Click a photo to open it full size. These links expire in about an hour.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -289,6 +354,21 @@ export function SessionReportReviewPanel({
               className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] text-fg-secondary hover:border-accent-teal hover:text-accent-teal disabled:opacity-50"
             >
               <ExternalLink size={14} /> Transcript
+            </button>
+          )}
+          {report.hasImages && (
+            <button
+              type="button"
+              onClick={handleViewWorksheet}
+              disabled={busy === 'worksheet'}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] text-fg-secondary hover:border-accent-teal hover:text-accent-teal disabled:opacity-50"
+            >
+              {busy === 'worksheet' ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <Images size={14} />
+              )}{' '}
+              Worksheet photos
             </button>
           )}
           {(isReview || isFailed) && (

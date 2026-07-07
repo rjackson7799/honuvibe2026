@@ -5,7 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { generatedSessionReportSchema } from './schemas';
 import { splitReport } from './split';
-import type { GeneratedSessionReport } from './types';
+import type { GeneratedSessionReport, SourceImageRef } from './types';
 
 async function requireAdmin(): Promise<{ adminId: string }> {
   const supabase = await createClient();
@@ -173,7 +173,7 @@ export async function unpublishSessionReport(reportId: string): Promise<{ ok: tr
   return { ok: true };
 }
 
-/** Delete a report (cascades the private child) and its raw transcript object. */
+/** Delete a report (cascades the private child) and its raw transcript + photos. */
 export async function deleteSessionReport(reportId: string): Promise<{ ok: true }> {
   await requireAdmin();
   const admin = createAdminClient();
@@ -185,13 +185,17 @@ export async function deleteSessionReport(reportId: string): Promise<{ ok: true 
     .maybeSingle();
   const { data: priv } = await admin
     .from('session_report_private')
-    .select('transcript_ref')
+    .select('transcript_ref, source_image_refs')
     .eq('report_id', reportId)
     .maybeSingle();
 
-  // Best-effort transcript cleanup (bucket object is not FK-cascaded).
-  if (priv?.transcript_ref) {
-    await admin.storage.from('tutoring-private').remove([priv.transcript_ref]);
+  // Best-effort storage cleanup (bucket objects are not FK-cascaded).
+  const objectPaths = [
+    ...(priv?.transcript_ref ? [priv.transcript_ref] : []),
+    ...(((priv?.source_image_refs ?? []) as SourceImageRef[]).map((r) => r.path)),
+  ];
+  if (objectPaths.length > 0) {
+    await admin.storage.from('tutoring-private').remove(objectPaths);
   }
 
   const { error } = await admin.from('session_reports').delete().eq('id', reportId);

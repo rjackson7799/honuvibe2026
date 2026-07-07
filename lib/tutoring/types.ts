@@ -35,9 +35,17 @@ export interface SessionReport {
   updated_at: string;
 }
 
+// A stored worksheet photo: a path into the private `tutoring-private` bucket
+// plus the media type it was normalized to (always image/jpeg today).
+export interface SourceImageRef {
+  path: string;
+  media_type: string;
+}
+
 export interface SessionReportPrivate {
   report_id: string;
   transcript_ref: string | null;
+  source_image_refs: SourceImageRef[];
   margin_notes: string | null;
   instructor_json: GeneratedSessionReport | null;
   generation_error: string | null;
@@ -104,6 +112,10 @@ export interface SessionReportContext {
   sessionDate: string;
   topic: string | null;
   durationMinutes: number | null;
+  // Session transcript (may be empty when the report is built from worksheet
+  // photos alone).
   transcript: string;
+  // Worksheet photos as base64, attached to the model message as vision blocks.
+  images?: Array<{ base64: string; mediaType: string }>;
   priorPatterns: PriorPatternLine[];
 }

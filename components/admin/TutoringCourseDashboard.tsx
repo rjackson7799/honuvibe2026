@@ -1,11 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronRight, Loader2, Plus } from 'lucide-react';
+import { ChevronRight, Loader2, Plus, ImagePlus, X } from 'lucide-react';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { TutoringEnrollStudent } from '@/components/admin/TutoringEnrollStudent';
+import { downscaleImage } from '@/lib/images/downscale-image';
 import type { SessionReport, StudentPattern } from '@/lib/tutoring/types';
+
+// Keep in step with the generate route's server-side caps.
+const MAX_PHOTOS = 6;
+// Ceiling for the combined downscaled payload, kept safely under Vercel's
+// ~4.5 MB function body limit.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 
 type CourseProp = {
   id: string;
@@ -38,9 +46,42 @@ export function TutoringCourseDashboard({
   const [duration, setDuration] = useState('');
   const [transcript, setTranscript] = useState('');
   const [marginNotes, setMarginNotes] = useState('');
+  const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingIds, setPendingIds] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Revoke any remaining preview object URLs on unmount (ref avoids re-running
+  // the cleanup on every photos change and revoking URLs still in use).
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
+  useEffect(() => () => photosRef.current.forEach((p) => URL.revokeObjectURL(p.url)), []);
+
+  function addFiles(list: FileList | null) {
+    if (!list) return;
+    const incoming = Array.from(list).filter((f) => f.type.startsWith('image/'));
+    if (incoming.length === 0) return;
+    const room = MAX_PHOTOS - photos.length;
+    if (room <= 0 || incoming.length > room) {
+      setError(`You can attach up to ${MAX_PHOTOS} photos.`);
+      if (room <= 0) return;
+    } else {
+      setError(null);
+    }
+    const added = incoming
+      .slice(0, room)
+      .map((file) => ({ file, url: URL.createObjectURL(file) }));
+    setPhotos((prev) => [...prev, ...added]);
+  }
+
+  function removePhoto(idx: number) {
+    setPhotos((prev) => {
+      const target = prev[idx];
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((_, i) => i !== idx);
+    });
+  }
 
   const hasGenerating =
     pendingIds.length > 0 || initialReports.some((r) => r.status === 'generating');
@@ -76,7 +117,10 @@ export function TutoringCourseDashboard({
     return () => clearInterval(t);
   }, [hasGenerating, poll]);
 
-  const canSubmit = !!course.student && sessionDate.trim() !== '' && transcript.trim() !== '';
+  const canSubmit =
+    !!course.student &&
+    sessionDate.trim() !== '' &&
+    (transcript.trim() !== '' || photos.length > 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,18 +128,37 @@ export function TutoringCourseDashboard({
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch('/api/tutoring/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          courseId: course.id,
-          sessionDate,
-          topic: topic.trim() || null,
-          durationMinutes: duration ? Number(duration) : null,
-          transcript,
-          marginNotes: marginNotes.trim() || null,
-        }),
-      });
+      const fd = new FormData();
+      fd.set('courseId', course.id);
+      fd.set('sessionDate', sessionDate);
+      if (topic.trim()) fd.set('topic', topic.trim());
+      if (duration) fd.set('durationMinutes', duration);
+      if (transcript.trim()) fd.set('transcript', transcript);
+      if (marginNotes.trim()) fd.set('marginNotes', marginNotes.trim());
+
+      // Downscale photos in the browser so the multipart body stays under the
+      // ~4.5 MB platform limit; the server re-normalizes with sharp. The
+      // transcript ships in the same body, so count it toward the budget too —
+      // a long JP transcript plus near-max photos can otherwise 413 before the
+      // route ever runs.
+      let total = transcript.trim() ? new Blob([transcript]).size : 0;
+      for (let i = 0; i < photos.length; i += 1) {
+        let blob: Blob;
+        try {
+          blob = await downscaleImage(photos[i].file);
+        } catch {
+          setError('One of the photos could not be processed. Try a different image.');
+          return;
+        }
+        total += blob.size;
+        fd.append('images', blob, `worksheet-${i + 1}.jpg`);
+      }
+      if (total > MAX_UPLOAD_BYTES) {
+        setError('The transcript and photos are too large to upload together. Trim the transcript or attach fewer photos and retry.');
+        return;
+      }
+
+      const res = await fetch('/api/tutoring/generate', { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? 'Failed to start generation.');
@@ -106,6 +169,8 @@ export function TutoringCourseDashboard({
       setDuration('');
       setTranscript('');
       setMarginNotes('');
+      photos.forEach((p) => URL.revokeObjectURL(p.url));
+      setPhotos([]);
       setShowForm(false);
       router.refresh();
     } catch {
@@ -126,7 +191,7 @@ export function TutoringCourseDashboard({
             {course.student ? (
               <>Student: {course.student.name ?? course.student.email ?? 'Unknown'}</>
             ) : (
-              <span className="text-red-600">No active student enrolled — enroll one to generate reports.</span>
+              <span className="text-amber-600">No student enrolled yet — add one below.</span>
             )}
           </p>
         </div>
@@ -143,6 +208,9 @@ export function TutoringCourseDashboard({
 
       <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
         <div className="space-y-6">
+          {/* Enroll the (single) student when the seat is empty */}
+          {!course.student && <TutoringEnrollStudent courseId={course.id} />}
+
           {/* New report form */}
           {showForm && course.student && (
             <form
@@ -187,7 +255,11 @@ export function TutoringCourseDashboard({
 
               <label className="block text-[13px]">
                 <span className="mb-1 block font-medium text-fg-secondary">
-                  Transcript <span className="text-fg-tertiary">(pasted, kept private — never shown to the student)</span>
+                  Transcript{' '}
+                  <span className="text-fg-tertiary">
+                    (kept private — never shown to the student; optional if you attach worksheet
+                    photos)
+                  </span>
                 </span>
                 <textarea
                   value={transcript}
@@ -195,9 +267,77 @@ export function TutoringCourseDashboard({
                   rows={10}
                   placeholder="Paste the full session transcript here…"
                   className="w-full rounded-lg border border-border-default bg-bg-primary px-3 py-2 font-mono text-[13px] text-fg-primary"
-                  required
                 />
               </label>
+
+              {/* Worksheet photos */}
+              <div className="block text-[13px]">
+                <span className="mb-1 block font-medium text-fg-secondary">
+                  Worksheet photos{' '}
+                  <span className="text-fg-tertiary">
+                    (optional — handwritten work she sends via LINE; kept private, AI reads the
+                    answers)
+                  </span>
+                </span>
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    addFiles(e.dataTransfer.files);
+                  }}
+                  className="rounded-lg border border-dashed border-border-default bg-bg-primary px-3 py-4"
+                >
+                  {photos.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                      {photos.map((p, i) => (
+                        <div
+                          key={p.url}
+                          className="relative h-20 w-20 overflow-hidden rounded-lg border border-border-default"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={p.url}
+                            alt={`Worksheet ${i + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePhoto(i)}
+                            aria-label={`Remove photo ${i + 1}`}
+                            className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white hover:bg-black/80"
+                          >
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={photos.length >= MAX_PHOTOS}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] text-fg-secondary hover:border-accent-teal hover:text-accent-teal disabled:opacity-50"
+                    >
+                      <ImagePlus size={14} /> Add photos
+                    </button>
+                    <span className="text-[12px] text-fg-tertiary">
+                      {photos.length}/{MAX_PHOTOS} · JPEG, PNG, or WebP
+                    </span>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      addFiles(e.target.files);
+                      e.target.value = '';
+                    }}
+                  />
+                </div>
+              </div>
 
               <label className="block text-[13px]">
                 <span className="mb-1 block font-medium text-fg-secondary">

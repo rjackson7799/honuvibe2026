@@ -48,6 +48,7 @@ export default async function AdminSessionReportPage({ params }: Props) {
           marginNotes: report.private?.margin_notes ?? null,
           generationError: report.private?.generation_error ?? null,
           hasTranscript: !!report.private?.transcript_ref,
+          hasImages: (report.private?.source_image_refs?.length ?? 0) > 0,
         }}
       />
     </div>
