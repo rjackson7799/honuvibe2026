@@ -1,9 +1,33 @@
 import { useTranslations } from 'next-intl';
 import { Container, Section } from '@/components/marketing/primitives';
+import { TOTAL_LEARNERS } from '@/lib/constants/social';
 import { cn } from '@/lib/utils';
 
-export function LearnPartnerStrip() {
+export function LearnPartnerStrip({
+  vaultTotalCount = 0,
+}: {
+  vaultTotalCount?: number;
+}) {
   const t = useTranslations('learn.partners');
+
+  const stats = [
+    {
+      value: t('stat_learners_value', { count: TOTAL_LEARNERS.toLocaleString() }),
+      label: t('stat_learners_label'),
+    },
+    ...(vaultTotalCount > 0
+      ? [
+          {
+            value: t('stat_lessons_value', { count: vaultTotalCount }),
+            label: t('stat_lessons_label'),
+          },
+        ]
+      : []),
+    {
+      value: t('stat_languages_value'),
+      label: t('stat_languages_label'),
+    },
+  ];
 
   const entries = [
     { name: t('vertice_name'), href: '/partnerships#vertice-society', placeholder: false },
@@ -15,6 +39,19 @@ export function LearnPartnerStrip() {
   return (
     <Section variant="sand" spacing="tight">
       <Container>
+        <div className="mb-12 flex flex-wrap items-start justify-center gap-x-14 gap-y-8 sm:gap-x-20">
+          {stats.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="text-[34px] font-bold leading-none tracking-[-0.02em] text-[var(--m-ink-primary)] md:text-[42px]">
+                {stat.value}
+              </p>
+              <p className="mt-2 text-[12.5px] font-semibold uppercase tracking-[0.1em] text-[var(--m-ink-secondary)]">
+                {stat.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
         <p className="mb-8 text-center text-[11.5px] font-bold uppercase tracking-[0.18em] text-[var(--m-ink-secondary)]">
           {t('label')}
         </p>

@@ -5,12 +5,10 @@ import { MarketingFooter } from '@/components/marketing/footer/marketing-footer'
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
   LearnHero,
-  LearnPathChooser,
   LearnPartnerStrip,
   LearnChapterVault,
   LearnChapterCourses,
   LearnChapterCohorts,
-  LearnComparisonDark,
   LearnFAQ,
   LearnStartTonight,
 } from '@/components/marketing/learn';
@@ -58,8 +56,7 @@ export default async function LearnPage({ params, searchParams }: Props) {
       <MarketingNav />
       <main>
         <LearnHero locale={locale} />
-        <LearnPathChooser />
-        <LearnPartnerStrip />
+        <LearnPartnerStrip vaultTotalCount={vaultCounts.total} />
         <LearnChapterVault
           locale={locale}
           vaultSample={vaultSample}
@@ -72,7 +69,6 @@ export default async function LearnPage({ params, searchParams }: Props) {
           ownerSlug={ownerSlug}
         />
         <LearnChapterCohorts />
-        <LearnComparisonDark />
         <LearnFAQ />
         <LearnStartTonight />
       </main>

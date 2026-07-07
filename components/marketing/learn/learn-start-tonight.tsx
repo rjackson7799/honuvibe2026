@@ -1,33 +1,9 @@
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
-import { Container, Section } from '@/components/marketing/primitives';
+import { Button, Container, Section } from '@/components/marketing/primitives';
 
 export function LearnStartTonight() {
   const t = useTranslations('learn.start_tonight');
-
-  const cards = [
-    {
-      label: t('card_vault_label'),
-      price: t('card_vault_price'),
-      cta: t('card_vault_cta'),
-      href: '/learn/auth?intent=vault',
-      tone: 'teal' as const,
-    },
-    {
-      label: t('card_courses_label'),
-      price: t('card_courses_price'),
-      cta: t('card_courses_cta'),
-      href: '#courses',
-      tone: 'teal' as const,
-    },
-    {
-      label: t('card_private_label'),
-      price: t('card_private_price'),
-      cta: t('card_private_cta'),
-      href: '/partnerships',
-      tone: 'coral' as const,
-    },
-  ];
 
   return (
     <Section variant="navy">
@@ -50,39 +26,37 @@ export function LearnStartTonight() {
           <p className="mt-4 text-[13.5px] font-semibold uppercase tracking-[0.06em] text-white/80">
             {t('refund_line')}
           </p>
-        </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {cards.map((card) => (
+          <div className="mt-9 flex justify-center">
+            <Button href="#vault" variant="primary-teal" size="lg" withArrow>
+              {t('cta_primary')}
+            </Button>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
             <a
-              key={card.label}
-              href={card.href}
-              className="group rounded-2xl border border-white/10 bg-white/[0.04] p-7 transition-all hover:-translate-y-0.5 hover:border-white/25 hover:bg-white/[0.07]"
+              href="#courses"
+              className="group inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-white/85 transition-colors hover:text-white"
             >
-              <p
-                className={
-                  card.tone === 'teal'
-                    ? 'text-[10.5px] font-bold uppercase tracking-[0.14em] text-[var(--m-accent-teal)]'
-                    : 'text-[10.5px] font-bold uppercase tracking-[0.14em] text-[var(--m-accent-coral)]'
-                }
-              >
-                {card.label}
-              </p>
-              <p className="mt-3 text-[28px] font-bold leading-none tracking-[-0.02em] text-white">
-                {card.price}
-              </p>
-              <span
-                className={
-                  card.tone === 'teal'
-                    ? 'mt-6 inline-flex items-center gap-2 text-[14.5px] font-bold text-[var(--m-accent-teal)] transition-transform group-hover:translate-x-0.5'
-                    : 'mt-6 inline-flex items-center gap-2 text-[14.5px] font-bold text-[var(--m-accent-coral)] transition-transform group-hover:translate-x-0.5'
-                }
-              >
-                {card.cta}
-                <ArrowRight size={15} strokeWidth={2} />
-              </span>
+              {t('link_courses')}
+              <ArrowRight
+                size={15}
+                strokeWidth={2}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
             </a>
-          ))}
+            <a
+              href="/partnerships"
+              className="group inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-white/85 transition-colors hover:text-white"
+            >
+              {t('link_team')}
+              <ArrowRight
+                size={15}
+                strokeWidth={2}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </a>
+          </div>
         </div>
       </Container>
     </Section>

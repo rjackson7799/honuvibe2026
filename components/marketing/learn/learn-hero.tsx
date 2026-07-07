@@ -1,7 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { BrowserFrame, Button, Container, Section } from '@/components/marketing/primitives';
 import { TOTAL_LEARNERS } from '@/lib/constants/social';
-import { LearnIntentPicker } from './learn-intent-picker';
 
 export function LearnHero({ locale }: { locale: string }) {
   const t = useTranslations('learn.hero');
@@ -29,13 +28,15 @@ export function LearnHero({ locale }: { locale: string }) {
             </div>
 
             <h1
-              className="mb-7 font-serif italic leading-[1.05] tracking-[-0.015em] text-[var(--m-ink-primary)]"
+              className="mb-6 font-serif italic leading-[1.05] tracking-[-0.015em] text-[var(--m-ink-primary)]"
               style={{ fontSize: 'clamp(40px, 5.5vw, 64px)' }}
             >
               {t('headline')}
             </h1>
 
-            <LearnIntentPicker />
+            <p className="max-w-[480px] text-[17px] leading-[1.6] text-[var(--m-ink-secondary)]">
+              {t('subhead')}
+            </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button href="#vault" variant="primary-teal" size="lg" withArrow>

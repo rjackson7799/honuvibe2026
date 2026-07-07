@@ -31,11 +31,12 @@ export function LearnChapterVault({
           {t('intro')}
         </p>
 
-        <div className="mx-auto mt-14 grid max-w-[920px] gap-6 md:grid-cols-2">
+        <div className="mx-auto mt-14 grid max-w-[1120px] items-start gap-6 md:grid-cols-3">
           <PricingCard
             title={t('community.title')}
             subtitle={t('community.subtitle')}
             tagline={t('community.tagline')}
+            bestFor={t('community.best_for')}
             price={t('community.price')}
             priceUnit={t('community.price_unit')}
             priceNote={t('community.price_note')}
@@ -58,6 +59,7 @@ export function LearnChapterVault({
             title={t('vault.title')}
             subtitle={t('vault.subtitle')}
             tagline={t('vault.tagline')}
+            bestFor={t('vault.best_for')}
             price={t('vault.price')}
             priceUnit={t('vault.price_unit')}
             priceNote={t('vault.price_note')}
@@ -72,6 +74,25 @@ export function LearnChapterVault({
             // (creates Stripe Customer + Checkout Session). next/link would prefetch
             // and create ghost sessions on hover/viewport.
             ctaHref={`/api/stripe/subscribe?tier=vault${locale === 'ja' ? '&locale=ja' : ''}`}
+          />
+          <PricingCard
+            variant="coral"
+            title={t('cohorts.title')}
+            subtitle={t('cohorts.subtitle')}
+            tagline={t('cohorts.tagline')}
+            bestFor={t('cohorts.best_for')}
+            price={t('cohorts.price')}
+            priceUnit={t('cohorts.price_unit')}
+            priceNote={t('cohorts.price_note')}
+            bullets={[
+              t('cohorts.bullet_1'),
+              t('cohorts.bullet_2'),
+              t('cohorts.bullet_3'),
+            ]}
+            cta={t('cohorts.cta')}
+            // In-page anchor to the live-cohort catalog below — cohorts enroll
+            // per-course, not via the subscription checkout.
+            ctaHref="#courses"
           />
         </div>
 
@@ -91,9 +112,11 @@ type PricingCardProps = {
   recommended?: boolean;
   recommendedLabel?: string;
   includesLabel?: string;
+  variant?: 'teal' | 'coral';
   title: string;
   subtitle: string;
   tagline: string;
+  bestFor: string;
   price: string;
   priceUnit: string;
   priceNote: string;
@@ -106,9 +129,11 @@ function PricingCard({
   recommended,
   recommendedLabel,
   includesLabel,
+  variant = 'teal',
   title,
   subtitle,
   tagline,
+  bestFor,
   price,
   priceUnit,
   priceNote,
@@ -116,6 +141,7 @@ function PricingCard({
   cta,
   ctaHref,
 }: PricingCardProps) {
+  const accent = variant === 'coral' ? 'var(--m-accent-coral)' : 'var(--m-accent-teal)';
   return (
     <article
       className={cn(
@@ -157,6 +183,13 @@ function PricingCard({
         {priceNote}
       </p>
 
+      <p
+        className="mt-3 text-[12.5px] font-semibold leading-snug"
+        style={{ color: accent }}
+      >
+        {bestFor}
+      </p>
+
       <div className="my-6 border-t border-[var(--m-border-soft)]" />
 
       {recommended && includesLabel && (
@@ -181,7 +214,8 @@ function PricingCard({
             <Check
               size={15}
               strokeWidth={2}
-              className="mt-1 shrink-0 text-[var(--m-accent-teal)]"
+              className="mt-1 shrink-0"
+              style={{ color: accent }}
             />
             <span>{line}</span>
           </li>
@@ -189,7 +223,12 @@ function PricingCard({
       </ul>
 
       <div className="mt-auto pt-7">
-        <Button href={ctaHref} variant="primary-teal" withArrow className="w-full">
+        <Button
+          href={ctaHref}
+          variant={variant === 'coral' ? 'primary-coral' : 'primary-teal'}
+          withArrow
+          className="w-full"
+        >
           {cta}
         </Button>
       </div>
