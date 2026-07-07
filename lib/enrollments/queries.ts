@@ -1,8 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
-import type { Enrollment, EnrollmentWithCourse, EnrollmentCheck } from './types';
+import type {
+  Enrollment,
+  EnrollmentStatus,
+  EnrollmentWithCourse,
+  EnrollmentCheck,
+} from './types';
 
+// Defaults to active-only: the dashboard overview's active_courses stat
+// counts the result directly (lib/dashboard/queries.ts).
 export async function getUserEnrollments(
   userId: string,
+  statuses: EnrollmentStatus[] = ['active'],
 ): Promise<EnrollmentWithCourse[]> {
   const supabase = await createClient();
 
@@ -10,7 +18,7 @@ export async function getUserEnrollments(
     .from('enrollments')
     .select('*, course:courses(*)')
     .eq('user_id', userId)
-    .eq('status', 'active')
+    .in('status', statuses)
     .order('enrolled_at', { ascending: false });
 
   if (error) throw error;

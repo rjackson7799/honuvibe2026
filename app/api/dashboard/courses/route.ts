@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getUserEnrollments } from '@/lib/enrollments/queries';
 import { getPublishedCourses } from '@/lib/courses/queries';
+import { getCoursesProgressMap } from '@/lib/progress/queries';
 
 export async function GET() {
   const supabase = await createClient();
@@ -12,12 +13,21 @@ export async function GET() {
   }
 
   const [enrollments, allCourses] = await Promise.all([
-    getUserEnrollments(user.id),
+    getUserEnrollments(user.id, ['active', 'completed']),
     getPublishedCourses(),
   ]);
+
+  const progressMap = await getCoursesProgressMap(
+    user.id,
+    enrollments.map((e) => e.course_id),
+  );
 
   const enrolledCourseIds = new Set(enrollments.map((e) => e.course_id));
   const exploreCourses = allCourses.filter((c) => !enrolledCourseIds.has(c.id));
 
-  return NextResponse.json({ enrollments, exploreCourses });
+  return NextResponse.json({
+    enrollments,
+    exploreCourses,
+    progress: Object.fromEntries(progressMap),
+  });
 }
