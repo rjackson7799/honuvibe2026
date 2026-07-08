@@ -179,6 +179,32 @@ JP equivalents (pending visual verification on `/ja/*` routes):
 3. **Phase 2 (LMS):** Auth, course catalog, Stripe payments, student dashboard, progress tracking, certificates
 4. **Phase 3 (Growth):** Interactive Exploration Island map, future HonuHub locations, advanced LMS features
 
+## Development Workflow
+
+Every unit of work runs the same loop: **Plan → Execute → Review → Verify → Ship.**
+Full detail in `docs/dev-workflow.md`; execution prompt in `docs/plans/_EXECUTION_TEMPLATE.md`.
+
+- **Plan:** one file per unit at `docs/plans/<YYYY-MM-DD>-<slug>.md`. Pause for Ryan's
+  explicit review of the plan before a full build.
+- **Execute:** a fresh session per plan (clean context prevents drift). Fan out to
+  parallel sub-agents only when phases are genuinely independent — most plans are one unit.
+- **Review (required, before commit):** get an independent adversarial pass that tries to
+  *refute* the diff — a code-reviewer sub-agent (`requesting-code-review`) for routine work,
+  or `/code-review` / `/code-review ultra` (user-triggered, billed) for large features.
+  Triage findings with `receiving-code-review`; verify each before acting, don't blindly apply.
+- **Verify (required, before commit):** `pnpm verify` (type-check → tests → build) is the
+  default gate; `pnpm verify:fast` for inner loops. If RLS/migrations changed, also run
+  `pnpm test:rls` — local run needs the duplicate survey migrations (022/025) temp-renamed
+  first, then restored. UI changes also get a browser EN + `/ja` smoke. Never claim done
+  without the relevant gate green.
+- **Ship:** stage only intentional files, commit directly to `main`, push. No branches,
+  no PRs, hooks must pass (no `--no-verify`). Use **pnpm**, never npm.
+- **Prod migrations are manual:** if a migration shipped, apply the `0NN_*.sql` in the
+  Supabase dashboard SQL editor on `zvfwtndbxshrtpwcwynw` *after* deploy — the Vercel
+  deploy does not run it, and the code 500s ahead of its schema until you do.
+- One-keystroke helpers: **`/verify`** (run the gate) and **`/ship`** (verify → review →
+  commit to main → push → report).
+
 ## Code Style
 
 - TypeScript strict mode — no `any` types

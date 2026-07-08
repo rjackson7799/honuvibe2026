@@ -88,14 +88,22 @@ Phase 4 — Site-wide regression check (don't break the rest of the site)
   2. Click through the site's primary navigation: home, learn, explore,
      partnerships, about, contact, learn/auth. Each loads without console
      errors and renders the right shell (marketing vs learn).
-  3. Run a clean production build:
+  3. Run the scripted verify gate from the project root:
 
-        pnpm build
+        pnpm verify        # type-check → test:run → build
 
-     Must finish with zero TypeScript errors and zero ESLint errors. If
-     warnings appear that weren't there before, list them in the completion
-     report.
-  4. If the plan touched any auth-adjacent surface (login CTA, dashboard
+     (Use `pnpm verify:fast` for quick inner loops; the full `pnpm verify`
+     is mandatory before commit.) Must finish with zero TypeScript errors,
+     all tests passing, and a clean build. If warnings appear that weren't
+     there before, list them in the completion report.
+  4. If the plan touched RLS policies or added/changed a migration, also run:
+
+        pnpm test:rls
+
+     CAVEAT: the local RLS suite fails on the duplicate survey migration
+     versions (022/025). Temp-rename those migration files before the run,
+     then restore them afterward. Do not commit the rename.
+  5. If the plan touched any auth-adjacent surface (login CTA, dashboard
      link, magic-link copy, account menu): manually run the magic-link
      flow end-to-end (request link → check the email → click → land in
      dashboard). Confirm cookies + redirect still work.
@@ -103,6 +111,23 @@ Phase 4 — Site-wide regression check (don't break the rest of the site)
   If ANY check in Phase 3 or Phase 4 fails: STOP. Do not commit. Report the
   failure with the exact error, which step failed, and your hypothesis for
   the cause. Wait for Ryan.
+
+Phase 4.5 — Adversarial review (BEFORE committing)
+  The execution agent has been marking its own homework. Get an independent
+  pass that tries to REFUTE the work, not approve it.
+
+  1. Dispatch an in-session code-reviewer sub-agent over the diff (the
+     `requesting-code-review` skill). Prompt it explicitly to look for bugs,
+     broken conventions, missing JP parity, and regressions — its job is to
+     find what's wrong.
+  2. Triage every finding with `receiving-code-review` discipline: verify
+     each against the actual code before acting. Fix the real ones. For any
+     finding you reject, note why in the completion report.
+  3. Re-run the relevant verify gate (Phase 4) after fixes. Only then proceed.
+
+  (For a large feature or a pre-merge pass, Ryan may instead run `/code-review`
+  or `/code-review ultra` — those are user-triggered and billed; you cannot
+  launch them yourself.)
 
 Phase 5 — Plan completion & commit
   Once everything passes:
@@ -123,7 +148,8 @@ Phase 6 — Completion report
   Commit: <full SHA>
   Branch: main (pushed)
   Files changed: <N> (<comma-separated list>)
-  Build: clean (pnpm build passed)
+  Verify: pnpm verify clean (type-check + tests + build)
+  Review: adversarial sub-agent pass — <N findings, N fixed, N rejected>
   Dev: tested at localhost:3000 (EN + JP)
 
   Verification:
@@ -134,8 +160,15 @@ Phase 6 — Completion report
   - [x] Nav surface unchanged (home/learn/explore/partnerships/about/contact)
   - [x] No orphaned translation keys
   - [x] No new console warnings
-  - [x] pnpm build clean
+  - [x] pnpm verify clean (type-check + tests + build)
+  - [x] (if RLS/migration touched) pnpm test:rls clean
   - [x] (if applicable) Auth flow still works
+
+  Out-of-band — REQUIRED if a migration shipped:
+  - [ ] Apply <0NN_*.sql> in the Supabase dashboard SQL editor on project
+        zvfwtndbxshrtpwcwynw AFTER deploy — prod is NOT migrated by the Vercel
+        deploy, and the code will 500 ahead of its schema until you do.
+  - If no migration: write "None — no schema change in this plan."
 
   Judgment calls made (need Ryan's review):
   - <bullet list of every decision you made without explicit instruction in
