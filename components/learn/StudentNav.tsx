@@ -17,6 +17,7 @@ import {
   UserCircle,
   GraduationCap,
   CalendarDays,
+  Bell,
   Shield,
   LogOut,
 } from 'lucide-react';
@@ -39,6 +40,7 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/paths', labelKey: 'nav_study_paths', icon: Route, exact: false },
   { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
+  { href: '/learn/dashboard/notifications', labelKey: 'nav_notifications', icon: Bell, exact: false },
   { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
   { href: '/learn/dashboard/settings', labelKey: 'nav_profile', icon: UserCircle, exact: false },
 ];
@@ -143,6 +145,7 @@ export function StudentNav() {
     (i) =>
       i.href !== '/learn/dashboard/events' &&
       i.href !== '/learn/dashboard/community' &&
+      i.href !== '/learn/dashboard/notifications' &&
       i.href !== '/learn/dashboard/billing' &&
       i.href !== '/learn/dashboard/settings',
   );

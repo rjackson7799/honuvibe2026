@@ -8,6 +8,8 @@ type DashboardWelcomeHeaderProps = {
   displayName: string;
   settingsHref: string;
   notificationsHref?: string;
+  notificationsLabel?: string;
+  unreadCount?: number;
 };
 
 export function DashboardWelcomeHeader({
@@ -17,6 +19,8 @@ export function DashboardWelcomeHeader({
   displayName,
   settingsHref,
   notificationsHref,
+  notificationsLabel = 'Notifications',
+  unreadCount = 0,
 }: DashboardWelcomeHeaderProps) {
   return (
     <div className="flex items-start justify-between gap-4">
@@ -32,10 +36,15 @@ export function DashboardWelcomeHeader({
         {notificationsHref && (
           <Link
             href={notificationsHref}
-            aria-label="Notifications"
+            aria-label={notificationsLabel}
             className="relative w-[38px] h-[38px] rounded-[10px] bg-bg-secondary border border-border-default text-fg-secondary hover:text-fg-primary hover:border-border-hover transition-all flex items-center justify-center"
           >
             <Bell size={17} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-[color:var(--accent-coral)] text-white text-[10px] font-bold leading-[16px] text-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </Link>
         )}
         <Link
