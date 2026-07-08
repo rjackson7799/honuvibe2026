@@ -110,7 +110,7 @@ export function MarketingNavClient({
               <MarketingUserMenu labels={userMenuLabels} />
               {showGetStarted && (
                 <Link
-                  href="/learn"
+                  href="/learn#vault"
                   className={cn(
                     'inline-flex items-center gap-2 rounded-lg px-5 py-2',
                     'bg-[var(--m-accent-teal)] text-[14px] font-semibold text-white',

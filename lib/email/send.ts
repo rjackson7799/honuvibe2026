@@ -9,6 +9,7 @@ import {
   accentBanner,
 } from './templates';
 import { buildEventIcs } from '@/lib/events/ics';
+import { STUDIO_URL } from '@/lib/constants/urls';
 import type {
   ContactEmailData,
   NewsletterAdminNotifyData,
@@ -735,8 +736,6 @@ export async function sendStudioLeadConfirmation(
 ): Promise<void> {
   const { locale, fullName } = data;
   const isJP = locale === 'ja';
-  const studioUrl =
-    process.env.NEXT_PUBLIC_STUDIO_URL ?? 'https://studio.honuvibe.ai';
 
   const body = [
     heading(isJP ? `${fullName} さん、ありがとうございます` : `Thank you, ${fullName}`),
@@ -752,7 +751,7 @@ export async function sendStudioLeadConfirmation(
         : 'In the meantime, take a look at what we ship.',
     ),
     ctaButton({
-      href: `${studioUrl}/work`,
+      href: `${STUDIO_URL}/work`,
       label: isJP ? '制作実績を見る' : 'View our work',
     }),
   ].join('');

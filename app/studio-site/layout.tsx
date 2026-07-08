@@ -3,13 +3,12 @@ import { inter, dmSerif } from '@/app/fonts';
 import { StudioNav } from '@/components/marketing/studio/studio-nav';
 import { StudioFooter } from '@/components/marketing/studio/studio-footer';
 import { StudioReveal } from '@/components/marketing/studio/studio-reveal';
+import { STUDIO_URL } from '@/lib/constants/urls';
 import '@/styles/globals.css';
 import '@/components/marketing/studio/studio.css';
 
-const studioUrl = process.env.NEXT_PUBLIC_STUDIO_URL || 'https://studio.honuvibe.ai';
-
 export const metadata: Metadata = {
-  metadataBase: new URL(studioUrl),
+  metadataBase: new URL(STUDIO_URL),
   title: {
     default: 'HonuVibe Studio — AI-native websites for small businesses',
     template: '%s — HonuVibe Studio',
@@ -19,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'HonuVibe Studio',
-    url: studioUrl,
+    url: STUDIO_URL,
   },
   twitter: { card: 'summary_large_image' },
   robots: { index: true, follow: true },

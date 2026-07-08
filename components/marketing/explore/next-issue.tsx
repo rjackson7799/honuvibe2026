@@ -1,9 +1,9 @@
 import { useTranslations } from 'next-intl';
 import { Button, Container, Section } from '@/components/marketing/primitives';
+import { STUDIO_URL } from '@/lib/constants/urls';
 
 export function ExploreNextIssue() {
   const t = useTranslations('explore.next_issue');
-  const studioUrl = process.env.NEXT_PUBLIC_STUDIO_URL || 'https://studio.honuvibe.ai';
 
   return (
     <Section variant="navy" spacing="default">
@@ -28,7 +28,7 @@ export function ExploreNextIssue() {
             <p className="text-[16px] leading-[1.7] text-white/85">{t('subhead')}</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button
-                href={studioUrl}
+                href={STUDIO_URL}
                 variant="primary-teal"
                 size="md"
                 withArrow

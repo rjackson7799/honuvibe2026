@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { SOCIAL_LINKS } from '@/lib/constants/social';
+import { STUDIO_URL } from '@/lib/constants/urls';
 
 /**
  * Marketing footer — applies the new design treatment (navy dark band,
@@ -63,6 +64,14 @@ export function MarketingFooter() {
               <Link href="/partnerships" className={linkClass}>{nav('partnerships')}</Link>
               <Link href="/about" className={linkClass}>{nav('about')}</Link>
               <Link href="/contact" className={linkClass}>{nav('contact')}</Link>
+              <a
+                href={STUDIO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                {t('studio_link')}
+              </a>
             </div>
           </div>
 

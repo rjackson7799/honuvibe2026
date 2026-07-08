@@ -110,7 +110,7 @@
     "resources": "Resources",
     "library": "Library",
     "build": "Build",
-    "partnerships": "Partnerships",
+    "partnerships": "For Organizations",
     "contact": "Contact",
     "get_started": "Get Started",
     "sign_in": "Sign In",
@@ -1122,6 +1122,7 @@
     "connect_title": "Connect",
     "glossary_link": "AI Glossary",
     "newsletter_link": "Newsletter",
+    "studio_link": "Studio",
     "partners_title": "Partners"
   },
   "auth": {

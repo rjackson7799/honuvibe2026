@@ -1,9 +1,7 @@
 import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import { Section, Container } from '@/components/marketing/primitives';
-
-const studioUrl =
-  process.env.NEXT_PUBLIC_STUDIO_URL || 'https://studio.honuvibe.ai';
+import { STUDIO_URL } from '@/lib/constants/urls';
 
 type PersonaKey = 'solo' | 'org' | 'build';
 
@@ -15,7 +13,7 @@ const PERSONAS: {
 }[] = [
   { key: 'solo', href: '/learn#vault', accent: 'teal' },
   { key: 'org', href: '/partnerships', accent: 'coral' },
-  { key: 'build', href: studioUrl, accent: 'teal', external: true },
+  { key: 'build', href: STUDIO_URL, accent: 'teal', external: true },
 ];
 
 /**

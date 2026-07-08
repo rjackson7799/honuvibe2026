@@ -110,7 +110,7 @@
     "resources": "リソース",
     "library": "ライブラリ",
     "build": "ビルド",
-    "partnerships": "パートナーシップ",
+    "partnerships": "法人・団体向け",
     "contact": "お問い合わせ",
     "get_started": "はじめる",
     "sign_in": "ログイン",
@@ -1122,6 +1122,7 @@
     "connect_title": "つながる",
     "glossary_link": "AI用語辞典",
     "newsletter_link": "ニュースレター",
+    "studio_link": "スタジオ",
     "partners_title": "パートナー"
   },
   "auth": {

@@ -96,6 +96,7 @@ Hero headlines use one of two voices, chosen by page intent:
 Rules:
 - Pick the voice from page intent, not aesthetics. CTA-first → action. Story-first → editorial.
 - Section headings (h2/h3 inside a page) always stay upright DM Serif Display 400, regardless of which hero voice the page opens with. This keeps body-of-page typography stable across both hero voices.
+  - **Exception — shared FinalCta band:** `components/marketing/final-cta.tsx` deliberately renders its heading in italic DM Serif Display on every page it closes (Home now; About/Explore later) as an intentional editorial sign-off. This is the one sanctioned exception to the upright-serif rule — don't "fix" it to upright.
 - Don't invent a third hero voice. If a new page truly fits neither, default to editorial and flag it for review.
 
 JP equivalents (pending visual verification on `/ja/*` routes):

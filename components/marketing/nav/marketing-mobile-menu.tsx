@@ -94,7 +94,7 @@ export function MarketingMobileMenu({
 
         {showGetStarted && (
           <Link
-            href="/learn"
+            href="/learn#vault"
             onClick={onClose}
             className={cn(
               'mt-4 inline-flex items-center justify-center gap-2 rounded-[10px]',
