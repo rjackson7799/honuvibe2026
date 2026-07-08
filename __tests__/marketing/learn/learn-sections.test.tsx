@@ -3,10 +3,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
 import {
   LearnHero,
-  LearnPartnerStrip,
   LearnChapterVault,
   LearnStartTonight,
 } from '@/components/marketing/learn';
+import { ProofBand } from '@/components/marketing/proof-band';
 
 vi.mock('next-intl', () => {
   function getNs(ns: string): Record<string, unknown> {
@@ -90,16 +90,16 @@ describe('Learn page sections', () => {
     expect(secondary).toHaveAttribute('href', '#courses');
   });
 
-  it('PartnerStrip renders the numbers strip with learner + lesson counts', () => {
-    render(<LearnPartnerStrip vaultTotalCount={42} />);
+  it('ProofBand renders the numbers strip with learner + lesson counts', () => {
+    render(<ProofBand vaultTotalCount={42} />);
     expect(screen.getByText('1,400+')).toBeInTheDocument();
     expect(screen.getByText('learners')).toBeInTheDocument();
     expect(screen.getByText('42')).toBeInTheDocument();
     expect(screen.getByText('bilingual lessons')).toBeInTheDocument();
   });
 
-  it('PartnerStrip hides the lesson stat when the count is zero', () => {
-    render(<LearnPartnerStrip vaultTotalCount={0} />);
+  it('ProofBand hides the lesson stat when the count is zero', () => {
+    render(<ProofBand vaultTotalCount={0} />);
     expect(screen.getByText('1,400+')).toBeInTheDocument();
     expect(screen.queryByText('bilingual lessons')).not.toBeInTheDocument();
   });
@@ -152,7 +152,7 @@ describe('Learn page sections', () => {
     render(
       <>
         <LearnHero locale="en" />
-        <LearnPartnerStrip vaultTotalCount={42} />
+        <ProofBand vaultTotalCount={42} />
         <LearnChapterVault locale="en" vaultTotalCount={42} />
         <LearnStartTonight />
       </>,

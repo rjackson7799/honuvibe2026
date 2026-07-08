@@ -1,8 +1,8 @@
 import { useTranslations } from 'next-intl';
 import { FinalCta } from '@/components/marketing/final-cta';
 
-export function LearnStartTonight() {
-  const t = useTranslations('learn.start_tonight');
+export function HomeFinalCta() {
+  const t = useTranslations('home.final_cta');
 
   return (
     <FinalCta
@@ -10,9 +10,9 @@ export function LearnStartTonight() {
       headline={t('headline')}
       body={t('body')}
       note={t('refund_line')}
-      primary={{ href: '#vault', label: t('cta_primary') }}
+      primary={{ href: '/learn#vault', label: t('cta_primary') }}
       links={[
-        { href: '#courses', label: t('link_courses') },
+        { href: '/learn#courses', label: t('link_courses') },
         { href: '/partnerships', label: t('link_team') },
       ]}
     />

@@ -6,6 +6,7 @@ import {
   Container,
   Section,
 } from '@/components/marketing/primitives';
+import { TOTAL_LEARNERS } from '@/lib/constants/social';
 import { cn } from '@/lib/utils';
 
 export function HomeHero() {
@@ -44,7 +45,7 @@ export function HomeHero() {
             </p>
 
             <div className="flex flex-wrap gap-3.5">
-              <Button href="/learn" variant="primary-teal" withArrow>
+              <Button href="/learn#vault" variant="primary-teal" withArrow>
                 {t('cta_primary')}
               </Button>
               <Button href="/partnerships" variant="outline-teal">
@@ -65,7 +66,8 @@ export function HomeHero() {
               </div>
               <span className="text-[13.5px] text-[var(--m-ink-tertiary)]">
                 {t.rich('social_proof', {
-                  count: (chunks) => (
+                  count: TOTAL_LEARNERS.toLocaleString(),
+                  strong: (chunks) => (
                     <strong className="text-[var(--m-ink-primary)]">{chunks}</strong>
                   ),
                 })}

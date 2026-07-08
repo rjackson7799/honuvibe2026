@@ -3,12 +3,12 @@ import { Container, Section } from '@/components/marketing/primitives';
 import { TOTAL_LEARNERS } from '@/lib/constants/social';
 import { cn } from '@/lib/utils';
 
-export function LearnPartnerStrip({
+export function ProofBand({
   vaultTotalCount = 0,
 }: {
   vaultTotalCount?: number;
 }) {
-  const t = useTranslations('learn.partners');
+  const t = useTranslations('proof_band');
 
   const stats = [
     {

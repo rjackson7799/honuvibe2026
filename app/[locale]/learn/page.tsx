@@ -5,13 +5,13 @@ import { MarketingFooter } from '@/components/marketing/footer/marketing-footer'
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
   LearnHero,
-  LearnPartnerStrip,
   LearnChapterVault,
   LearnChapterCourses,
   LearnChapterCohorts,
   LearnFAQ,
   LearnStartTonight,
 } from '@/components/marketing/learn';
+import { ProofBand } from '@/components/marketing/proof-band';
 import {
   getPublishedCoursesWithPartners,
   getActivePublicPartners,
@@ -56,7 +56,7 @@ export default async function LearnPage({ params, searchParams }: Props) {
       <MarketingNav />
       <main>
         <LearnHero locale={locale} />
-        <LearnPartnerStrip vaultTotalCount={vaultCounts.total} />
+        <ProofBand vaultTotalCount={vaultCounts.total} />
         <LearnChapterVault
           locale={locale}
           vaultSample={vaultSample}

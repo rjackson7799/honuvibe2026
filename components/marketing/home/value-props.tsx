@@ -2,7 +2,9 @@ import { useTranslations } from 'next-intl';
 import { BrainCircuit, Globe, Archive } from 'lucide-react';
 import {
   Container,
+  Overline,
   Section,
+  SectionHeading,
 } from '@/components/marketing/primitives';
 
 const cardIcons = [BrainCircuit, Globe, Archive] as const;
@@ -13,6 +15,12 @@ export function HomeValueProps() {
   return (
     <Section variant="canvas">
       <Container>
+        <div className="mx-auto mb-14 max-w-[640px] text-center">
+          <Overline tone="caption" className="mb-3.5">
+            {t('overline')}
+          </Overline>
+          <SectionHeading>{t('heading')}</SectionHeading>
+        </div>
         <div className="grid gap-12 md:grid-cols-3">
           {([1, 2, 3] as const).map((n, i) => {
             const Icon = cardIcons[i];

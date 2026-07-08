@@ -69,7 +69,7 @@ export function HomeVaultSection() {
           </ul>
 
           <div className="mt-6">
-            <Button href="/learn" variant="primary-teal" size="md" withArrow>
+            <Button href="/learn#vault" variant="primary-teal" size="md" withArrow>
               {t('cta_explore')}
             </Button>
           </div>

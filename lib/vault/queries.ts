@@ -1,3 +1,5 @@
+import { unstable_cache } from 'next/cache';
+import { createClient as createAnonClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import type {
   VaultContentItem,
@@ -235,6 +237,39 @@ export async function getVaultContentTypeCounts(): Promise<{
     return { total: 0, byType: emptyByType };
   }
 }
+
+/**
+ * Published-lesson total for marketing pages that must stay statically
+ * prerenderable (Home). The cookie-bound createClient() opts a route into
+ * per-request dynamic rendering, so this uses a cookie-less anon client
+ * behind unstable_cache instead.
+ */
+export const getCachedVaultTotalCount = unstable_cache(
+  async (): Promise<number> => {
+    try {
+      const supabase = createAnonClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { auth: { persistSession: false } },
+      );
+      const { count, error } = await supabase
+        .from('content_items')
+        .select('id', { count: 'exact', head: true })
+        .eq('is_published', true);
+
+      if (error) {
+        console.error('getCachedVaultTotalCount error:', error);
+        return 0;
+      }
+      return count ?? 0;
+    } catch (error) {
+      console.error('getCachedVaultTotalCount error:', error);
+      return 0;
+    }
+  },
+  ['vault-total-count'],
+  { revalidate: 3600 },
+);
 
 export async function getVaultItemBySlug(
   slug: string,

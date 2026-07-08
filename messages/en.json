@@ -1359,20 +1359,6 @@
       "screenshot_alt": "HonuVibe lesson preview",
       "screenshot_coming_soon": "Lesson preview coming soon"
     },
-    "partners": {
-      "label": "Trusted by communities, schools, and visionaries",
-      "stat_learners_value": "{count}+",
-      "stat_learners_label": "learners",
-      "stat_lessons_value": "{count}",
-      "stat_lessons_label": "bilingual lessons",
-      "stat_languages_value": "EN / 日本語",
-      "stat_languages_label": "every lesson",
-      "vertice_name": "Vertice Society",
-      "placeholder_1": "Studio Aoyama",
-      "placeholder_2": "Folio Labs",
-      "placeholder_3": "Tunes",
-      "coming_soon": "Coming soon"
-    },
     "chapter_vault": {
       "number": "01",
       "title": "The Vault",
@@ -2450,16 +2436,30 @@
     "powered_by": "Powered by HonuVibe.AI",
     "no_courses_yet": "Courses coming soon."
   },
+  "proof_band": {
+    "label": "Trusted by communities, schools, and visionaries",
+    "stat_learners_value": "{count}+",
+    "stat_learners_label": "learners",
+    "stat_lessons_value": "{count}",
+    "stat_lessons_label": "bilingual lessons",
+    "stat_languages_value": "EN / 日本語",
+    "stat_languages_label": "every lesson",
+    "vertice_name": "Vertice Society",
+    "placeholder_1": "Studio Aoyama",
+    "placeholder_2": "Folio Labs",
+    "placeholder_3": "Tunes",
+    "coming_soon": "Coming soon"
+  },
   "home": {
     "hero": {
       "eyebrow_label": "Practical AI Training",
       "eyebrow_lang": "EN / 日本語",
-      "headline_line_1": "Learn AI.",
-      "headline_line_2": "Apply It.",
-      "headline_line_3": "Move Forward.",
-      "subhead": "Practical AI training and community for the people doing the actual work — professionals, solopreneurs, small businesses, creators, and the organizations that support them.",
-      "cta_primary": "Explore Courses",
-      "cta_secondary": "Partner With Us",
+      "headline_line_1": "Learn AI tonight.",
+      "headline_line_2": "Use it at work",
+      "headline_line_3": "tomorrow.",
+      "subhead": "One membership. Every lesson we teach — practical, self-paced AI training in English and Japanese, with new lessons added every month.",
+      "cta_primary": "Join the Vault — $99/mo",
+      "cta_secondary": "For Organizations",
       "social_proof": "Join <strong>{count}+</strong> learners across EN & JP",
       "vault_brand": "The Vault",
       "vault_library_label": "Library",
@@ -2486,16 +2486,26 @@
       "lesson_4_desc": "Sanity-check the brief, package it for stakeholders, and close the loop.",
       "lesson_4_time": "10 min"
     },
-    "how_it_works": {
-      "overline": "How HonuVibe Works",
-      "card_1_title": "Learn",
-      "card_1_body": "Live cohorts and self-paced courses, in English and Japanese, taught by working practitioners.",
-      "card_2_title": "Apply",
-      "card_2_body": "Real projects, real workflows, real outcomes. The Vault keeps everything you've learned in reach.",
-      "card_3_title": "Move Forward",
-      "card_3_body": "A bilingual community, expert mentors, and an Aloha-grounded standard for showing up."
+    "personas": {
+      "heading": "Who is this for?",
+      "subhead": "Three ways in — pick the one that sounds like you.",
+      "solo_intent": "I want to use AI in my own work",
+      "solo_path": "Professionals & solopreneurs",
+      "solo_desc": "Self-paced, practical lessons in the Vault. Join tonight, put it to work tomorrow — and keep access as the library grows.",
+      "solo_cta": "Join the Vault — $99/mo",
+      "org_intent": "I'm bringing AI to my team or community",
+      "org_path": "Organizations",
+      "org_desc": "Bilingual cohorts and training programs, built around your members, employees, or community.",
+      "org_cta": "Explore partnerships",
+      "build_intent": "I need something built, not taught",
+      "build_path": "HonuVibe Studio",
+      "build_desc": "Websites, tools, and AI workflows, designed and shipped for you. Transparent tiers from $500.",
+      "build_cta": "Visit the Studio",
+      "reassure": "Not sure? Start with the Vault — it's where most people begin."
     },
     "value_props": {
+      "overline": "How HonuVibe Works",
+      "heading": "Practical, bilingual, and always in reach.",
       "card_1_title": "Practical, not theoretical",
       "card_1_body": "Learn from working examples and real projects, not lecture-hall theory. Every lesson ties back to something you can apply on Monday morning.",
       "card_2_title": "Bilingual by design",
@@ -2513,7 +2523,7 @@
       "chip_prompts": "Prompt libraries",
       "chip_workflows": "Real-world workflows",
       "chip_bilingual": "EN / JP",
-      "cta_explore": "Explore the Vault",
+      "cta_explore": "Join the Vault — $99/mo",
       "lesson": {
         "browser_url_path": "/library/real-world/customer-research-agent",
         "breadcrumb_root": "Library",
@@ -2598,17 +2608,6 @@
       "cta": "Explore Partnerships",
       "image_caption": "Group cohort session · Waikiki"
     },
-    "exploration": {
-      "heading": "Explore Our Work",
-      "subhead": "Real projects. Real outcomes. Built by the HonuVibe community.",
-      "see_all": "Explore our work",
-      "project_1_title": "KwameBrathwaite.com",
-      "project_1_desc": "A photography archive gets a modern overhaul.",
-      "project_2_title": "Harper's Circle",
-      "project_2_desc": "One app for the family caring for aging parents — warmth out, logistics in.",
-      "project_3_title": "HCI Medical Group",
-      "project_3_desc": "A healthcare website paired with a custom internal project management tool."
-    },
     "testimonials": {
       "heading": "What People Are Saying",
       "quote_1_text": "I've taken a lot of online courses. HonuVibe is the first one where I actually changed how I work within the first week.",
@@ -2620,6 +2619,15 @@
       "quote_3_text": "The Vault alone is worth it. I went back to the prompt engineering module three times as my projects evolved.",
       "quote_3_name": "Sarah L.",
       "quote_3_role": "Freelance Designer · San Francisco"
+    },
+    "final_cta": {
+      "eyebrow": "ready to start?",
+      "headline": "Start tonight.",
+      "body": "One membership, every lesson we teach. Your first lesson takes about ten minutes — the Vault never closes.",
+      "refund_line": "Not for you? Full refund within 14 days.",
+      "cta_primary": "Join the Vault — $99/mo",
+      "link_courses": "Browse live cohorts",
+      "link_team": "Train your team"
     }
   },
   "explore": {

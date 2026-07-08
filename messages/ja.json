@@ -1359,20 +1359,6 @@
       "screenshot_alt": "HonuVibeのレッスンプレビュー",
       "screenshot_coming_soon": "レッスンプレビュー準備中"
     },
-    "partners": {
-      "label": "コミュニティ、学校、ビジョナリーから信頼されています",
-      "stat_learners_value": "{count}+",
-      "stat_learners_label": "受講者",
-      "stat_lessons_value": "{count}",
-      "stat_lessons_label": "バイリンガルレッスン",
-      "stat_languages_value": "EN / 日本語",
-      "stat_languages_label": "全レッスン",
-      "vertice_name": "Vertice Society",
-      "placeholder_1": "Studio Aoyama",
-      "placeholder_2": "Folio Labs",
-      "placeholder_3": "Tunes",
-      "coming_soon": "近日公開"
-    },
     "chapter_vault": {
       "number": "01",
       "title": "The Vault",
@@ -2450,16 +2436,30 @@
     "powered_by": "HonuVibe.AI 提供",
     "no_courses_yet": "コースは近日公開予定です。"
   },
+  "proof_band": {
+    "label": "コミュニティ、学校、ビジョナリーから信頼されています",
+    "stat_learners_value": "{count}+",
+    "stat_learners_label": "受講者",
+    "stat_lessons_value": "{count}",
+    "stat_lessons_label": "バイリンガルレッスン",
+    "stat_languages_value": "EN / 日本語",
+    "stat_languages_label": "全レッスン",
+    "vertice_name": "Vertice Society",
+    "placeholder_1": "Studio Aoyama",
+    "placeholder_2": "Folio Labs",
+    "placeholder_3": "Tunes",
+    "coming_soon": "近日公開"
+  },
   "home": {
     "hero": {
       "eyebrow_label": "実践的なAIトレーニング",
       "eyebrow_lang": "EN / 日本語",
-      "headline_line_1": "AIを学ぶ。",
-      "headline_line_2": "実践する。",
-      "headline_line_3": "前へ進む。",
-      "subhead": "現場で働く人のための、実践的なAIトレーニングとコミュニティ。プロフェッショナル、ソロプレナー、スモールビジネス、クリエイター、そして彼らを支える組織のために。",
-      "cta_primary": "コースを見る",
-      "cta_secondary": "パートナーになる",
+      "headline_line_1": "今夜、AIを学ぶ。",
+      "headline_line_2": "明日から、",
+      "headline_line_3": "仕事で使う。",
+      "subhead": "ひとつのメンバーシップで、私たちが教える全レッスンへ。英語と日本語で学べる実践的な自習型AIトレーニング。新しいレッスンを毎月追加。",
+      "cta_primary": "Vaultに参加 — $99/月",
+      "cta_secondary": "法人・団体の方へ",
       "social_proof": "英語・日本語あわせて<strong>{count}+</strong>名の学習者と一緒に学ぼう",
       "vault_brand": "The Vault",
       "vault_library_label": "ライブラリ",
@@ -2486,16 +2486,26 @@
       "lesson_4_desc": "ブリーフを検証し、ステークホルダー向けにパッケージ化して締めくくります。",
       "lesson_4_time": "10分"
     },
-    "how_it_works": {
-      "overline": "HonuVibeの仕組み",
-      "card_1_title": "学ぶ",
-      "card_1_body": "現役の実務家が教える、英語と日本語のライブコホート＆セルフペースのコース。",
-      "card_2_title": "実践する",
-      "card_2_body": "本物のプロジェクト、本物のワークフロー、本物の成果。学んだ内容はすべてThe Vaultにいつでも戻れます。",
-      "card_3_title": "前へ進む",
-      "card_3_body": "バイリンガルなコミュニティ、経験豊富なメンター、そしてAlohaに根ざした取り組みの基準。"
+    "personas": {
+      "heading": "どんな人のため？",
+      "subhead": "入り口は3つ。あなたに合うものを選んでください。",
+      "solo_intent": "自分の仕事でAIを使いたい",
+      "solo_path": "プロフェッショナル＆ソロプレナー",
+      "solo_desc": "Vaultの実践的な自習レッスン。今夜始めて、明日から仕事で。ライブラリが育っても、アクセスはそのまま。",
+      "solo_cta": "Vaultに参加 — $99/月",
+      "org_intent": "チームやコミュニティにAIを届けたい",
+      "org_path": "法人・団体",
+      "org_desc": "メンバー、社員、コミュニティに合わせて設計する、バイリンガルのコホート＆研修プログラム。",
+      "org_cta": "パートナーシップを見る",
+      "build_intent": "教わるより、作ってほしい",
+      "build_path": "HonuVibe Studio",
+      "build_desc": "ウェブサイト、ツール、AIワークフローの設計と開発。料金は$500からの明朗プラン。",
+      "build_cta": "Studioを見る",
+      "reassure": "迷ったらVaultから。ほとんどの方がここから始めています。"
     },
     "value_props": {
+      "overline": "HonuVibeの仕組み",
+      "heading": "実践的で、バイリンガルで、いつでも手の届くところに。",
       "card_1_title": "理論より、実践",
       "card_1_body": "講義室の理論ではなく、実例とリアルなプロジェクトから学ぶ。どのレッスンも、月曜の朝からすぐに使える内容に紐づいています。",
       "card_2_title": "最初からバイリンガル",
@@ -2513,7 +2523,7 @@
       "chip_prompts": "プロンプトライブラリ",
       "chip_workflows": "実践的ワークフロー",
       "chip_bilingual": "EN / JP",
-      "cta_explore": "Vaultを見る",
+      "cta_explore": "Vaultに参加 — $99/月",
       "lesson": {
         "browser_url_path": "/library/real-world/customer-research-agent",
         "breadcrumb_root": "ライブラリ",
@@ -2598,17 +2608,6 @@
       "cta": "パートナーシップを見る",
       "image_caption": "グループコホート開催・ワイキキ"
     },
-    "exploration": {
-      "heading": "私たちの仕事を見る",
-      "subhead": "本物のプロジェクト。本物の成果。HonuVibeコミュニティが手がけた事例です。",
-      "see_all": "すべての事例を見る",
-      "project_1_title": "KwameBrathwaite.com",
-      "project_1_desc": "写真アーカイブを現代的にリデザイン。",
-      "project_2_title": "Harper's Circle",
-      "project_2_desc": "高齢の親を介護する家族のための一つのアプリ。温かさは届け、調整は家族の中で完結する。",
-      "project_3_title": "HCI Medical Group",
-      "project_3_desc": "医療機関向けウェブサイトと、社内向けに構築したカスタム・プロジェクト管理ツール。"
-    },
     "testimonials": {
       "heading": "受講者の声",
       "quote_1_text": "オンラインコースは数多く受けてきましたが、最初の1週間で実際に働き方が変わったのはHonuVibeが初めてでした。",
@@ -2620,6 +2619,15 @@
       "quote_3_text": "The Vaultだけでも価値があります。プロジェクトが進むにつれて、プロンプトエンジニアリングのモジュールに3回戻りました。",
       "quote_3_name": "Sarah L.",
       "quote_3_role": "フリーランスデザイナー・サンフランシスコ"
+    },
+    "final_cta": {
+      "eyebrow": "始める準備はできましたか",
+      "headline": "今夜から。",
+      "body": "ひとつのメンバーシップで、私たちが教える全レッスンへ。最初のレッスンは約10分 — Vaultは年中無休です。",
+      "refund_line": "合わなければ、14日以内は全額返金。",
+      "cta_primary": "Vaultに参加 — $99/月",
+      "link_courses": "ライブコホートを見る",
+      "link_team": "チーム研修について"
     }
   },
   "explore": {
