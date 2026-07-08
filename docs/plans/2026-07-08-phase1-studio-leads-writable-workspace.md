@@ -90,16 +90,16 @@ feat(admin): writable studio leads — create/edit + outreach workspace (phase 1
 
 ## Verification
 
-> Executed in the build session (2026-07-08): `pnpm verify` fully green.
-> `pnpm test:rls` and every runtime/DB/browser item below could NOT run in the
-> automation environment (no local Docker → no local Supabase, no dev server, no
-> browser). Those items are **code-verified** (type-check + production build +
-> adversarial code-review of the exact diff) but their runtime walkthroughs are
-> pending — Ryan to run them against a local Supabase (after applying 056) and/or
-> post-deploy. Left unchecked below where not actually exercised at runtime.
+> Executed in the build session (2026-07-08): `pnpm verify` fully green, and once
+> Docker was started, `supabase db reset` (all migrations incl. 056 applied
+> cleanly on a fresh DB) + `pnpm test:rls` green. The remaining runtime/DB/browser
+> items below were NOT exercised interactively (no dev server / browser in the
+> automation env); they are **code-verified** (type-check + production build +
+> adversarial code-review of the exact diff) with runtime walkthroughs pending —
+> Ryan to run them against local Supabase and/or post-deploy.
 
 - [x] `pnpm verify` clean (type-check → tests 475/475 → build) — executed, green
-- [ ] `pnpm test:rls` clean — NOT RUN (Docker unavailable in build env). Migration 056 is RLS-neutral (adds nullable columns, drops 2 NOT NULLs, one COMMENT — no policy/RLS-table change). Ryan to run with dup 022/025 temp-renamed.
+- [x] `pnpm test:rls` clean — executed green (8 files / 71 tests) after `supabase db reset` applied 056 cleanly on a fresh DB; dup 022/025 temp-renamed for the run and restored (not committed). Migration 056 is RLS-neutral.
 - [ ] Apply 056 to local DB; create a lead with only a company name → appears in list with source "manual", no crash on null name/email — runtime pending (logic verified in review)
 - [ ] Edit lead: change sales_stage + notes + phone + website + preview URL → persists after reload; status filter tabs count it correctly — runtime pending
 - [ ] Generate outreach email (needs `ANTHROPIC_API_KEY` in `.env.local`) → subject/body populate + generated-at timestamp shows without refresh; editable; Save draft persists; subject-copy copies subject only, body-copy copies body only (no `Subject:` prefix) — runtime pending (copy logic verified in review)
