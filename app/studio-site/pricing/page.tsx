@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { PageHead } from '@/components/marketing/studio/page-head';
 import { TierGrid } from '@/components/marketing/studio/service-tiers';
+import { StudioFAQ } from '@/components/marketing/studio/studio-faq';
 import { CtaBand } from '@/components/marketing/studio/cta-band';
 import { Check } from '@/components/marketing/studio/studio-icons';
 
@@ -46,6 +47,7 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+      <StudioFAQ />
       <CtaBand />
     </>
   );
