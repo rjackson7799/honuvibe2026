@@ -38,16 +38,7 @@ export function ExploreNextIssue() {
                 {t('studio_cta')}
               </Button>
               <Button
-                href="/partnerships"
-                variant="outline-teal"
-                size="md"
-                withArrow
-                className="!border-white/30 !text-white hover:!bg-white/10"
-              >
-                {t('primary_cta')}
-              </Button>
-              <Button
-                href="/learn"
+                href="/learn#vault"
                 variant="outline-teal"
                 size="md"
                 className="!border-white/30 !text-white hover:!bg-white/10"

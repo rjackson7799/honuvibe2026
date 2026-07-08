@@ -6,8 +6,9 @@ import {
   AboutOriginStory,
   AboutTeam,
   AboutMissionVision,
-  AboutClosingCta,
+  AboutFinalCta,
 } from '@/components/marketing/about';
+import { ProofBand } from '@/components/marketing/proof-band';
 
 vi.mock('next-intl', () => {
   function getNs(ns: string): Record<string, unknown> {
@@ -124,15 +125,20 @@ describe('About page sections', () => {
     expect(screen.getByText('US + Japan')).toBeInTheDocument();
   });
 
-  it('ClosingCta renders meta strip + dual CTA (Learn primary, Partnerships secondary)', () => {
-    render(<AboutClosingCta />);
-    expect(screen.getByText(/END OF ISSUE 01/)).toBeInTheDocument();
-    expect(screen.getByText(/FIN/)).toBeInTheDocument();
+  it('FinalCta closes the page on a single Vault CTA + two router links', () => {
+    render(<AboutFinalCta />);
+    expect(screen.getByText('the next chapter')).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /Start learning/i }),
-    ).toHaveAttribute('href', '/learn');
+      screen.getByRole('heading', { name: /Write it with us\./ }),
+    ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /Partner with us/i }),
+      screen.getByRole('link', { name: /Start in the Vault/i }),
+    ).toHaveAttribute('href', '/learn#vault');
+    expect(
+      screen.getByRole('link', { name: /Join a live cohort/i }),
+    ).toHaveAttribute('href', '/learn#courses');
+    expect(
+      screen.getByRole('link', { name: /Bring HonuVibe to your team/i }),
     ).toHaveAttribute('href', '/partnerships');
   });
 
@@ -140,10 +146,11 @@ describe('About page sections', () => {
     const { container } = render(
       <>
         <AboutHero />
+        <ProofBand vaultTotalCount={42} />
         <AboutOriginStory />
         <AboutTeam />
         <AboutMissionVision />
-        <AboutClosingCta />
+        <AboutFinalCta />
       </>,
     );
     expect(container).toBeTruthy();

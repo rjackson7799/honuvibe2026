@@ -2770,9 +2770,8 @@
       "meta_right": "次号 · 2027年春",
       "headline_1": "次号に",
       "headline_2": "載りませんか？",
-      "subhead": "ご自身でAIを学ぶ方も、組織にAI活用を届けたい方も、それぞれに合った道があります。",
+      "subhead": "この号に載っているプロジェクトはすべて、HonuVibe Studio が手がけたものです。プロジェクトをお任せいただくか、学びを始めて、次号にあなたの作品を載せてください。",
       "studio_cta": "スタジオで制作する",
-      "primary_cta": "プロジェクトについて相談する",
       "secondary_cta": "学びを始める"
     }
   },
@@ -2854,15 +2853,13 @@
       "cadence_stat_3_label": "フォーカス",
       "cadence_stat_3_value": "米国 + 日本"
     },
-    "closing": {
-      "meta_left": "第一号 終",
-      "meta_center": "次章へ続く",
-      "meta_right": "完",
-      "headline_1": "一緒に、",
-      "headline_2": "つくろう",
-      "lede": "無料の Vault レッスンから始めるか、コホートに参加するか、チームに HonuVibe を導入してください。",
-      "cta_primary": "学び始める",
-      "cta_secondary": "パートナーになる"
+    "final_cta": {
+      "eyebrow": "次の章へ",
+      "headline": "続きを、一緒に。",
+      "body": "HonuVibe の始まりの物語は、ここまで。この先の章は、学ぶ皆さんと一緒に書いていきます。今夜 Vault で始めるか、ライブコホートに参加するか、組織への導入をご相談ください。",
+      "cta_primary": "Vault で始める",
+      "link_courses": "ライブコホートに参加する",
+      "link_team": "チームに HonuVibe を導入する"
     }
   },
   "contact": {

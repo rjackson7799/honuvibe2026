@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
+import { STUDIO_URL } from '@/lib/constants/urls';
 import {
   ExploreReelHero,
   ExploreIndex,
@@ -131,14 +132,18 @@ describe('Explore page sections', () => {
     expect(screen.getByText(/Japanese localization/i)).toBeInTheDocument();
   });
 
-  it('NextIssue renders the dual CTAs routing to /partnerships and /learn', () => {
+  it('NextIssue renders the Studio primary (new tab) and Start learning → /learn#vault', () => {
     render(<ExploreNextIssue />);
-    expect(
-      screen.getByRole('link', { name: /Tell us about your project/i }),
-    ).toHaveAttribute('href', '/partnerships');
+    const studio = screen.getByRole('link', { name: /Build with our Studio/i });
+    expect(studio).toHaveAttribute('href', STUDIO_URL);
+    expect(studio).toHaveAttribute('target', '_blank');
+    expect(studio).toHaveAttribute('rel', 'noopener noreferrer');
     expect(
       screen.getByRole('link', { name: /Start learning/i }),
-    ).toHaveAttribute('href', '/learn');
+    ).toHaveAttribute('href', '/learn#vault');
+    expect(
+      screen.queryByRole('link', { name: /Tell us about your project/i }),
+    ).toBeNull();
   });
 
   it('renders every Explore section without console.error', () => {

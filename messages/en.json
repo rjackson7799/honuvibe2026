@@ -2770,9 +2770,8 @@
       "meta_right": "Next issue · Spring MMXXVII",
       "headline_1": "Want to be in the",
       "headline_2": "next issue?",
-      "subhead": "Whether you want to learn AI yourself or bring AI work to your organization — there's a path.",
+      "subhead": "Every build in this issue came out of HonuVibe Studio. Bring us your project — or start learning and put your own work in the next one.",
       "studio_cta": "Build with our Studio",
-      "primary_cta": "Tell us about your project",
       "secondary_cta": "Start learning"
     }
   },
@@ -2854,15 +2853,13 @@
       "cadence_stat_3_label": "Focus",
       "cadence_stat_3_value": "US + Japan"
     },
-    "closing": {
-      "meta_left": "END OF ISSUE 01",
-      "meta_center": "NEXT CHAPTER AWAITS",
-      "meta_right": "FIN",
-      "headline_1": "Build",
-      "headline_2": "with us",
-      "lede": "Start with a free Vault lesson, join a cohort, or bring HonuVibe to your team.",
-      "cta_primary": "Start learning",
-      "cta_secondary": "Partner with us"
+    "final_cta": {
+      "eyebrow": "the next chapter",
+      "headline": "Write it with us.",
+      "body": "You've read how HonuVibe started. The next chapter gets written with learners — start in the Vault tonight, join a live cohort, or bring us to your organization.",
+      "cta_primary": "Start in the Vault",
+      "link_courses": "Join a live cohort",
+      "link_team": "Bring HonuVibe to your team"
     }
   },
   "contact": {

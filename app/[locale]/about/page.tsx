@@ -8,8 +8,10 @@ import {
   AboutOriginStory,
   AboutTeam,
   AboutMissionVision,
-  AboutClosingCta,
+  AboutFinalCta,
 } from '@/components/marketing/about';
+import { ProofBand } from '@/components/marketing/proof-band';
+import { getCachedVaultTotalCount } from '@/lib/vault/queries';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -29,15 +31,18 @@ export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const vaultTotalCount = await getCachedVaultTotalCount();
+
   return (
     <MarketingShell>
       <MarketingNav />
       <main>
         <AboutHero />
+        <ProofBand vaultTotalCount={vaultTotalCount} />
         <AboutOriginStory />
         <AboutTeam />
         <AboutMissionVision />
-        <AboutClosingCta />
+        <AboutFinalCta />
       </main>
       <MarketingNewsletter />
       <MarketingFooter />

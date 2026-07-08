@@ -30,7 +30,7 @@ export function ProofBand({
   ];
 
   const entries = [
-    { name: t('vertice_name'), href: '/partnerships#vertice-society', placeholder: false },
+    { name: t('vertice_name'), href: '/partners/vertice-society', placeholder: false },
     { name: t('placeholder_1'), placeholder: true },
     { name: t('placeholder_2'), placeholder: true },
     { name: t('placeholder_3'), placeholder: true },
