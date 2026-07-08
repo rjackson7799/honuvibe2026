@@ -175,9 +175,11 @@ export async function sendEventConfirmRequest(
 ): Promise<void> {
   const { locale, email, fullName, eventTitle, eventWhen, eventFormat, confirmUrl } = data;
   const isJP = locale === 'ja';
+  // fullName is free-form public RSVP input — escape before HTML interpolation.
+  const name = escapeHtml(fullName);
 
   const body = [
-    heading(isJP ? `${fullName} さん、あと一歩です` : `One more step, ${fullName}`),
+    heading(isJP ? `${name} さん、あと一歩です` : `One more step, ${name}`),
     paragraph(
       isJP
         ? '下のボタンをクリックして、お席を確定してください。確定をもって予約が完了します。'
@@ -442,10 +444,12 @@ export async function sendEventRsvpConfirmation(
   const { locale, email, fullName, eventTitle, eventWhen, eventFormat, eventPageUrl, meetingUrl } =
     data;
   const isJP = locale === 'ja';
+  // fullName is free-form public RSVP input — escape before HTML interpolation.
+  const name = escapeHtml(fullName);
 
   const body = [
     accentBanner(isJP ? 'お席が確定しました' : "Your seat is confirmed!"),
-    heading(isJP ? `${fullName} さん、ご参加をお待ちしています` : `You're in, ${fullName}`),
+    heading(isJP ? `${name} さん、ご参加をお待ちしています` : `You're in, ${name}`),
     paragraph(
       isJP
         ? '無料ライブイベントへのお席が確定しました。開始前にリマインダーをお送りし、終了後には録画もお届けします。'
@@ -532,13 +536,16 @@ export async function sendEventRsvpAdminNotification(
   const adminEmail = getAdminEmail();
   if (!adminEmail) return;
 
+  // Name/email/referral are free-form public RSVP input — escape before HTML
+  // interpolation so a crafted registration can't inject markup into the admin
+  // inbox. eventTitle is code-defined (public-events.ts).
   const body = [
     accentBanner('New Event Registration'),
     detailsTable([
-      { label: 'Name', value: data.fullName },
-      { label: 'Email', value: data.email },
+      { label: 'Name', value: escapeHtml(data.fullName) },
+      { label: 'Email', value: escapeHtml(data.email) },
       { label: 'Event', value: data.eventTitle },
-      { label: 'Referral', value: data.referralSource ?? '—' },
+      { label: 'Referral', value: data.referralSource ? escapeHtml(data.referralSource) : '—' },
       { label: 'Locale', value: data.locale },
       { label: 'Seats Remaining', value: String(data.seatsRemaining) },
     ]),

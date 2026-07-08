@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email } = await request.json();
+    const { email, source } = await request.json();
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
     }
+
+    // Optional, non-PII tag identifying where the signup came from, e.g.
+    // "event:ai-prompting-jumpstart" for a public-event RSVP. Trimmed/capped so
+    // a malformed body can't bloat the admin notification.
+    const sourceTag =
+      typeof source === 'string' && source.trim()
+        ? source.trim().slice(0, 80)
+        : undefined;
 
     // Beehiiv integration placeholder
     // When BEEHIIV_API_KEY and BEEHIIV_PUBLICATION_ID are set,
@@ -44,7 +52,11 @@ export async function POST(request: NextRequest) {
     const referer = request.headers.get('referer') ?? '';
     const locale = referer.includes('/ja/') ? 'ja' : 'en';
     const { sendNewsletterAdminNotification } = await import('@/lib/email/send');
-    void sendNewsletterAdminNotification({ email, locale: locale as 'en' | 'ja' });
+    void sendNewsletterAdminNotification({
+      email,
+      locale: locale as 'en' | 'ja',
+      source: sourceTag,
+    });
 
     return NextResponse.json({ success: true });
   } catch {

@@ -1,6 +1,7 @@
 {
   "framework": "nextjs",
   "regions": ["hnd1"],
+  "crons": [{ "path": "/api/cron/presenter-summaries", "schedule": "0 * * * *" }],
   "headers": [
     {
       "source": "/api/rss",

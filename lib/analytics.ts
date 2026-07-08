@@ -37,6 +37,14 @@ export function trackFreeSampleStarted(props: {
   trackEvent('free_sample_started', props);
 }
 
+export function trackEventRsvp(props: {
+  event_slug: string;
+  locale: string;
+}) {
+  // Carries event_slug + locale ONLY — never the captured email.
+  trackEvent('event_rsvp', props);
+}
+
 // --- Community feed events ------------------------------------------------
 // All values stringified because Plausible only accepts string-valued props.
 

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { MarketingLangToggle } from './marketing-lang-toggle';
 import { MarketingUserMenu, type MarketingUserMenuLabels } from './marketing-user-menu';
 import { MarketingMobileMenu, type MobileNavLink } from './marketing-mobile-menu';
+import { MarketingEventStrip } from '../event-strip';
 
 type Props = {
   links: MobileNavLink[];
@@ -55,9 +56,10 @@ export function MarketingNavClient({
 
   return (
     <>
+      <MarketingEventStrip />
       <nav
         className={cn(
-          'fixed inset-x-0 top-0 z-[200] h-[68px] bg-[var(--m-canvas)]',
+          'fixed inset-x-0 top-[var(--m-strip-h)] z-[200] h-[68px] bg-[var(--m-canvas)]',
           'transition-[border-color,box-shadow] duration-300',
           scrolled
             ? 'border-b border-[rgba(26,43,51,0.1)] shadow-[0_2px_20px_rgba(26,43,51,0.06)]'

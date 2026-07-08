@@ -15,7 +15,10 @@ type MarketingShellProps = {
  */
 export function MarketingShell({ children, className }: MarketingShellProps) {
   return (
-    <div data-shell="marketing" className={cn('min-h-screen', className)}>
+    <div
+      data-shell="marketing"
+      className={cn('min-h-screen pt-[var(--m-strip-h)]', className)}
+    >
       {children}
     </div>
   );

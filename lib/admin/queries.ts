@@ -379,19 +379,27 @@ export interface ActiveSurvey {
   slug: string;
   title_en: string;
   title_jp: string;
+  course_id: string | null;
+  kind: 'course' | 'event';
 }
 
+/**
+ * Active COURSE surveys for the add-student picker. Filters out event surveys
+ * (kind='event') so they never leak into student assignment; returns course_id
+ * so the UI can show only the selected course's survey (+ unbound legacy ones).
+ */
 export async function getActiveSurveys(): Promise<ActiveSurvey[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from('surveys')
-    .select('id, slug, title_en, title_jp')
+    .select('id, slug, title_en, title_jp, course_id, kind')
     .eq('is_active', true)
+    .eq('kind', 'course')
     .order('title_en', { ascending: true });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as ActiveSurvey[];
 }
 
 export interface ActivePartner {

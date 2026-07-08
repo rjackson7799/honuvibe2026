@@ -8,6 +8,13 @@
 :root {
   /* === DARK MODE (Default) === */
 
+  /* Site-wide marketing announcement strip height. 0 when no strip is shown;
+     MarketingEventStrip sets this on <html> to its measured height so the fixed
+     nav (top-[var(--m-strip-h)]) and MarketingShell (pt-[var(--m-strip-h)])
+     shift down by exactly the strip's height. Declared here on :root (not the
+     [data-shell="marketing"] block) so the inline override inherits into it. */
+  --m-strip-h: 0px;
+
   /* Backgrounds */
   --bg-primary: #080c18;
   --bg-secondary: #0d1220;

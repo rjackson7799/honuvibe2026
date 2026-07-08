@@ -7,7 +7,9 @@ export type SurveyTokenResult = {
   userId: string;
   assignmentId: string;
   userName: string;
+  surveyId: string;
   surveySlug: string;
+  kind: 'course' | 'event';
   status: 'pending' | 'completed';
 } | null;
 
@@ -25,7 +27,7 @@ export async function validateSurveyToken(token: string): Promise<SurveyTokenRes
       id,
       status,
       user_id,
-      survey:surveys(slug),
+      survey:surveys(id, slug, kind),
       user:users(full_name)
     `)
     .eq('token', token)
@@ -33,14 +35,20 @@ export async function validateSurveyToken(token: string): Promise<SurveyTokenRes
 
   if (error || !data) return null;
 
-  const survey = data.survey as unknown as { slug: string } | null;
+  const survey = data.survey as unknown as {
+    id: string;
+    slug: string;
+    kind: 'course' | 'event';
+  } | null;
   const user = data.user as unknown as { full_name: string | null } | null;
 
   return {
     userId: data.user_id,
     assignmentId: data.id,
     userName: user?.full_name ?? '',
+    surveyId: survey?.id ?? '',
     surveySlug: survey?.slug ?? '',
+    kind: survey?.kind ?? 'course',
     status: data.status as 'pending' | 'completed',
   };
 }

@@ -290,7 +290,13 @@ export function AddStudentFlow({ activeCourses, activeSurveys, activePartners = 
               </label>
               <select
                 value={selectedCourseId}
-                onChange={(e) => setSelectedCourseId(e.target.value)}
+                onChange={(e) => {
+                  const cid = e.target.value;
+                  setSelectedCourseId(cid);
+                  // Bind the survey to the chosen course (auto-select its survey).
+                  const bound = activeSurveys.find((s) => s.course_id === cid);
+                  setSelectedSurveyId(bound ? bound.id : '');
+                }}
                 className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
               >
                 <option value="">— No course enrollment —</option>
@@ -312,11 +318,13 @@ export function AddStudentFlow({ activeCourses, activeSurveys, activePartners = 
                 className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
               >
                 <option value="">— No survey —</option>
-                {activeSurveys.map((survey) => (
-                  <option key={survey.id} value={survey.id}>
-                    {survey.title_en}
-                  </option>
-                ))}
+                {activeSurveys
+                  .filter((s) => s.course_id === null || s.course_id === selectedCourseId)
+                  .map((survey) => (
+                    <option key={survey.id} value={survey.id}>
+                      {survey.title_en}
+                    </option>
+                  ))}
               </select>
             </div>
 
