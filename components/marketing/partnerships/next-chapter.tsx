@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Button, Container, Section } from '@/components/marketing/primitives';
+import { STUDIO_URL } from '@/lib/constants/urls';
 
 export function PartnershipsNextChapter() {
   const t = useTranslations('partnerships.next_chapter');
@@ -26,7 +27,7 @@ export function PartnershipsNextChapter() {
             <p className="text-[16px] leading-[1.7] text-white/85">{t('lede')}</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button
-                href="/partnerships/apply"
+                href="/partnerships/apply?type=cohort"
                 variant="primary-teal"
                 size="md"
                 withArrow
@@ -34,7 +35,9 @@ export function PartnershipsNextChapter() {
                 {t('cta_primary')}
               </Button>
               <Button
-                href="/explore"
+                href={STUDIO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 variant="outline-teal"
                 size="md"
                 className="!border-white/30 !text-white hover:!bg-white/10"

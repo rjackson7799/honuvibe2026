@@ -1,14 +1,10 @@
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Container, Section } from '@/components/marketing/primitives';
-
-const CHAPTERS = [
-  { num: '01', key: 'chip_01', href: '#cohort' },
-  { num: '02', key: 'chip_02', href: '#project' },
-  { num: '03', key: 'chip_03', href: '#consulting' },
-] as const;
 
 export function PartnershipsEditorialHero() {
   const t = useTranslations('partnerships.editorial_hero');
+  const locale = useLocale();
+  const isJa = locale === 'ja';
 
   return (
     <Section variant="navy" spacing="hero" className="relative overflow-hidden">
@@ -24,8 +20,12 @@ export function PartnershipsEditorialHero() {
           {/* Headline + lede */}
           <div>
             <h1
-              className="font-serif italic leading-[0.92] tracking-[-0.025em] text-white"
-              style={{ fontSize: 'clamp(56px, 9vw, 112px)' }}
+              className={
+                isJa
+                  ? 'font-sans font-medium leading-[1.15] tracking-[0.02em] text-white'
+                  : 'font-serif italic leading-[0.96] tracking-[-0.025em] text-white'
+              }
+              style={{ fontSize: 'clamp(44px, 7vw, 88px)' }}
             >
               {t('headline_1')}
               <br />
@@ -34,7 +34,7 @@ export function PartnershipsEditorialHero() {
             </h1>
           </div>
 
-          {/* Lede + chip nav */}
+          {/* Lede + anchor chip */}
           <div className="flex flex-col gap-8">
             <p
               className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-[var(--m-accent-teal)]"
@@ -45,24 +45,18 @@ export function PartnershipsEditorialHero() {
               {t('lede')}
             </p>
 
-            {/* Chapter chips */}
-            <ul className="mt-2 grid gap-2 sm:grid-cols-3">
-              {CHAPTERS.map((c) => (
-                <li key={c.num}>
-                  <a
-                    href={c.href}
-                    className="group flex h-full flex-col rounded-[10px] border border-white/15 bg-white/[0.03] px-4 py-3.5 transition-colors hover:border-[var(--m-accent-teal)] hover:bg-white/[0.06]"
-                  >
-                    <span className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">
-                      {c.num}
-                    </span>
-                    <span className="mt-1 text-[14px] font-semibold leading-snug text-white">
-                      {t(c.key)}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {/* Single-focus anchor chip */}
+            <a
+              href="#cohort"
+              className="group mt-2 flex flex-col rounded-[10px] border border-white/15 bg-white/[0.03] px-4 py-3.5 transition-colors hover:border-[var(--m-accent-teal)] hover:bg-white/[0.06]"
+            >
+              <span className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">
+                01
+              </span>
+              <span className="mt-1 text-[14px] font-semibold leading-snug text-white">
+                {t('anchor_label')}
+              </span>
+            </a>
           </div>
         </div>
       </Container>

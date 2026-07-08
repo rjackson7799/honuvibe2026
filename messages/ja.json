@@ -2918,20 +2918,18 @@
   },
   "partnerships": {
     "meta": {
-      "title": "パートナーシップ — HonuVibe.AI",
-      "description": "HonuVibeとの3つの組み方 — バイリンガルのコホートプログラム、原価ベースのプロジェクト構築、シニアによるAI戦略。ハワイ発、日本に明るく。"
+      "title": "法人・団体向け — HonuVibe.AI",
+      "description": "組織とコミュニティのためのAI学習プログラム — 御社のチームと共同設計するバイリンガルコホート。ハワイ発、日本に明るく。"
     },
     "editorial_hero": {
       "meta_left": "VOL. 01 · パートナーシップ",
       "meta_center": "MMXXVI",
       "meta_right": "EN · 日本語",
-      "overline": "3つの入り口",
-      "headline_1": "ともに、",
-      "headline_2": "つくる",
-      "lede": "HonuVibeは3通りの形で組みます。あなたのコミュニティに教え、あなたのチームと一緒に開発し、重要な場面で助言します。バイリンガルがデフォルト。ハワイ発、日本に明るく。",
-      "chip_01": "コミュニティ・組織向け学習",
-      "chip_02": "プロジェクトの構築",
-      "chip_03": "戦略・監査・AIオペレーション"
+      "overline": "法人・団体・コミュニティ向け",
+      "headline_1": "あなたのコミュニティのための、",
+      "headline_2": "AIプログラム",
+      "lede": "組織と一緒に、AI学習プログラムを設計し、運営します。カリキュラム、コミュニティの場、そしてメンバーが何度も戻ってくるコホートサイクルまで。シニアによる指導。バイリンガル提供。ハワイ発。",
+      "anchor_label": "コホートパートナーシップの進み方"
     },
     "cohort": {
       "overline": "Ch. 01 · コミュニティ・組織向け学習",
@@ -2968,6 +2966,12 @@
       "also_label": "並行中:",
       "also_value": "バイリンガルの医療アーカイブ · 写真コレクティブのリビルド · 他はRyanと相談中",
       "cta": "コホートパートナーシップに申し込む"
+    },
+    "studio_router": {
+      "overline": "学習プログラム以外をお探しですか？",
+      "heading": "教わるのではなく、つくってほしい・助言がほしい？ それはHonuVibe Studioの出番です。",
+      "body": "サイト、アプリ、アーカイブ、実践的なAI戦略 — 同じシニアチームが、デザイン＆開発プラクティスとしてお届けします。",
+      "cta": "HonuVibe Studioを見る"
     },
     "project": {
       "overline": "Ch. 02 · プロジェクトの構築",
@@ -3031,32 +3035,18 @@
     },
     "method": {
       "headline": "Method",
-      "chapter_label": "3つのエンゲージメントの進み方",
-      "footnote": "同じオペレーティングシステム。形が3通り。",
-      "col_phase": "フェーズ",
-      "col_cohort": "プライベートコホート",
-      "col_project": "コントラクト",
-      "col_consulting": "コンサルティング",
+      "chapter_label": "コホートパートナーシップの進み方",
+      "footnote": "ひとつのオペレーティングシステムを、あなたのコミュニティに合わせて。",
       "row_discover_phase": "対象の深掘り",
-      "row_discover_cohort": "1〜2週。アンケート、メンバー面談、言語選好の確認。",
-      "row_discover_project": "キックオフ時。対象プロダクトとユーザーに絞ったスコープ。",
-      "row_discover_consulting": "1日集中。関係者を1つの部屋に。",
-      "row_design_phase": "共同設計／SOW",
-      "row_design_cohort": "2〜3週。モジュール構成、録画計画、講師ブリーフィング。",
-      "row_design_project": "スプリント＋SOW署名。対象を絞り、可能なら固定報酬。",
-      "row_design_consulting": "ロードマップ文書。四半期ごとに開き直したくなる1本。",
-      "row_ship_phase": "スプリント＆出荷",
-      "row_ship_cohort": "6〜12週のライブコホート。バイリンガル提供、Vaultで非同期サポート。",
-      "row_ship_project": "1〜6週以上の構築。毎週デモ。本番ローンチ。",
-      "row_ship_consulting": "ワークショップ、ワーキングセッション、意思決定を記録に残す。",
-      "row_iterate_phase": "共同提供＋反復",
-      "row_iterate_cohort": "ライブコホート、オフィスアワー、終了後もVaultを開放。",
-      "row_iterate_project": "引き継ぎ＋任意のリテーナー。鍵は御社チームに。",
-      "row_iterate_consulting": "書き物の納品物。チームが必要としなくなるまで内製化支援。",
+      "row_discover_body": "1〜2週。アンケート、メンバー面談、言語選好の確認 — 設計を始める前に、メンバーがどんな人たちかを学びます。",
+      "row_design_phase": "共同設計",
+      "row_design_body": "2〜3週。モジュール構成、録画計画、講師ブリーフィング — 御社のチームと同じ部屋で。",
+      "row_deliver_phase": "ライブ提供",
+      "row_deliver_body": "6〜12週のライブコホート。必要に応じてバイリンガル提供、期間中はVaultで非同期サポート。",
+      "row_iterate_phase": "反復",
+      "row_iterate_body": "ライブセッション、オフィスアワー、メンバーの声を次のサイクルへ。終了後もVaultは開いたまま。",
       "row_outcome_phase": "アウトカム",
-      "row_outcome_cohort": "コホートのエンゲージメント、修了、そしてバイリンガルのVaultライブラリ。",
-      "row_outcome_project": "御社チームが運用できる、本番ローンチ。",
-      "row_outcome_consulting": "整合したプランと、それを実行できるチーム。"
+      "row_outcome_body": "コホートのエンゲージメント、修了、そしてコミュニティの手元に残るバイリンガルのVaultライブラリ。"
     },
     "next_chapter": {
       "meta_left": "終 · VOL. 01",
@@ -3064,9 +3054,9 @@
       "meta_right": "NEXT ISSUE",
       "headline_1": "次の章を、",
       "headline_2": "ご一緒に。",
-      "lede": "あなたのコミュニティのこと、ずっと先送りにしているプロジェクト、または会議のたびに蒸し返されるAIの判断について、お聞かせください。すべてのお問い合わせに、5営業日以内に直接ご返信します。",
-      "cta_primary": "問い合わせを開始",
-      "cta_secondary": "最近の仕事を見る"
+      "lede": "あなたのコミュニティと、思い描いているプログラムについてお聞かせください。すべてのお問い合わせに、5営業日以内に直接ご返信します。",
+      "cta_primary": "コホートパートナーシップに申し込む",
+      "cta_secondary": "HonuVibe Studioを見る"
     },
     "apply": {
       "overline": "はじめる",

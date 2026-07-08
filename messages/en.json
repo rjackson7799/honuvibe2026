@@ -2918,20 +2918,18 @@
   },
   "partnerships": {
     "meta": {
-      "title": "Partnerships — HonuVibe.AI",
-      "description": "Three ways to work with HonuVibe — bilingual cohort programs, at-cost project builds, and senior AI strategy. Hawaii-rooted, Japan-fluent."
+      "title": "For Organizations — HonuVibe.AI",
+      "description": "AI learning programs for organizations and communities — bilingual cohorts co-designed with your team. Hawaii-rooted, Japan-fluent."
     },
     "editorial_hero": {
       "meta_left": "VOL. 01 · PARTNERSHIPS",
       "meta_center": "MMXXVI",
       "meta_right": "EN · 日本語",
-      "overline": "Three ways in",
-      "headline_1": "Partner",
-      "headline_2": "with us",
-      "lede": "HonuVibe partners three ways. We teach for your community, we build with your team, and we advise where it matters most. Senior team. At-cost work. Hawaii-rooted.",
-      "chip_01": "Community & organizational learning",
-      "chip_02": "Building out your project",
-      "chip_03": "Strategy, audits & AI-ops"
+      "overline": "For organizations & communities",
+      "headline_1": "AI programs,",
+      "headline_2": "built for your community",
+      "lede": "We design and run AI learning programs with organizations — the curriculum, the community space, and the cohort cycles your members actually return to. Senior instruction. Bilingual delivery. Hawaii-rooted.",
+      "anchor_label": "How a cohort partnership works"
     },
     "cohort": {
       "overline": "Ch. 01 · Community & organizational learning",
@@ -2968,6 +2966,12 @@
       "also_label": "Also active:",
       "also_value": "A bilingual healthcare archive · A photography collective rebuild · TBD with Ryan",
       "cta": "Apply for a cohort partnership"
+    },
+    "studio_router": {
+      "overline": "Not a learning program?",
+      "heading": "Need something built or advised, not taught? That's HonuVibe Studio.",
+      "body": "Sites, apps, archives, and hands-on AI strategy — delivered by the same senior team, over at our design & development practice.",
+      "cta": "Visit HonuVibe Studio"
     },
     "project": {
       "overline": "Ch. 02 · Building out your project",
@@ -3031,32 +3035,18 @@
     },
     "method": {
       "headline": "Method",
-      "chapter_label": "How the three engagements run",
-      "footnote": "Same operating system. Three different shapes.",
-      "col_phase": "Phase",
-      "col_cohort": "Private cohorts",
-      "col_project": "Contracting",
-      "col_consulting": "Consulting",
+      "chapter_label": "How a cohort partnership runs",
+      "footnote": "One operating system, shaped around your community.",
       "row_discover_phase": "Audience deep-dive",
-      "row_discover_cohort": "1–2 weeks. Surveys, member interviews, language preferences.",
-      "row_discover_project": "At kickoff. Scoped to the product surface and users.",
-      "row_discover_consulting": "One-day intensive. Stakeholders in one room.",
-      "row_design_phase": "Co-design / SOW",
-      "row_design_cohort": "2–3 weeks. Modules outlined, recordings planned, instructors briefed.",
-      "row_design_project": "Sprint + signed SOW. Tight surface, fixed fee where possible.",
-      "row_design_consulting": "Roadmap doc. The thing you'll re-open every quarter.",
-      "row_ship_phase": "Sprint & ship",
-      "row_ship_cohort": "6–12 week live cohort. Bilingual delivery, async on Vault.",
-      "row_ship_project": "1–6+ week build. Weekly demos. Production launch.",
-      "row_ship_consulting": "Workshops, working sessions, decisions on the record.",
-      "row_iterate_phase": "Co-deliver + iterate",
-      "row_iterate_cohort": "Live cohort sessions. Office hours. Vault open after.",
-      "row_iterate_project": "Handoff + optional retainer. Your team owns the keys.",
-      "row_iterate_consulting": "Written artifacts. Team enablement until they don't need us.",
+      "row_discover_body": "1–2 weeks. Surveys, member interviews, language preferences — we learn who your members are before we design anything.",
+      "row_design_phase": "Co-design",
+      "row_design_body": "2–3 weeks. Modules outlined, recordings planned, instructors briefed — with your team in the room.",
+      "row_deliver_phase": "Deliver live",
+      "row_deliver_body": "6–12 week live cohort. Bilingual delivery when you need it, async on the Vault throughout.",
+      "row_iterate_phase": "Iterate",
+      "row_iterate_body": "Live sessions, office hours, and member feedback folded back into the next cycle. The Vault stays open after.",
       "row_outcome_phase": "Outcome",
-      "row_outcome_cohort": "Cohort engagement, completion, and a bilingual Vault library.",
-      "row_outcome_project": "A production launch your team can run.",
-      "row_outcome_consulting": "An aligned plan and a team that can execute it."
+      "row_outcome_body": "Cohort engagement, completion, and a bilingual Vault library your community keeps."
     },
     "next_chapter": {
       "meta_left": "END · VOL. 01",
@@ -3064,9 +3054,9 @@
       "meta_right": "NEXT ISSUE",
       "headline_1": "Let's write the",
       "headline_2": "next chapter.",
-      "lede": "Tell us about your community, the project you've been putting off, or the AI decision you keep re-litigating in meetings. We respond to every inquiry personally within five business days.",
-      "cta_primary": "Start an inquiry",
-      "cta_secondary": "See recent work"
+      "lede": "Tell us about your community and the program you're imagining. We respond to every inquiry personally within five business days.",
+      "cta_primary": "Apply for a cohort partnership",
+      "cta_secondary": "Visit HonuVibe Studio"
     },
     "apply": {
       "overline": "Get started",

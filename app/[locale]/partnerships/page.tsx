@@ -6,8 +6,7 @@ import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing
 import {
   PartnershipsEditorialHero,
   PartnershipsCohortChapter,
-  PartnershipsProjectChapter,
-  PartnershipsConsultingChapter,
+  PartnershipsStudioRouter,
   PartnershipsMethodTable,
   PartnershipsNextChapter,
 } from '@/components/marketing/partnerships';
@@ -35,8 +34,7 @@ export default async function PartnershipsPage({ params }: Props) {
       <main>
         <PartnershipsEditorialHero />
         <PartnershipsCohortChapter />
-        <PartnershipsProjectChapter />
-        <PartnershipsConsultingChapter />
+        <PartnershipsStudioRouter />
         <PartnershipsMethodTable />
         <PartnershipsNextChapter />
       </main>
