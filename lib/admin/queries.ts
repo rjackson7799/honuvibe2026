@@ -6,6 +6,7 @@ import type {
   Application,
   PartnershipInquiry,
   StudioLead,
+  StudioLeadDetail,
   RevenueStats,
   TransactionRecord,
 } from './types';
@@ -255,7 +256,7 @@ export async function getStudioLeads(status?: string): Promise<StudioLead[]> {
       'id, created_at, full_name:name, company:business_name, ' +
         'project_type:tier_interest, status:sales_stage, email, industry, ' +
         'budget_range, timeline, referral_source, source_locale, message, ' +
-        'notes, reviewed_by, reviewed_at',
+        'notes, phone, existing_url, source, reviewed_by, reviewed_at',
     )
     .order('created_at', { ascending: false });
 
@@ -269,6 +270,36 @@ export async function getStudioLeads(status?: string): Promise<StudioLead[]> {
   // but the supabase-js type parser only infers string-literal selects (ours is
   // concatenated), so it can't see the aliases. Runtime shape is correct.
   return (data ?? []) as unknown as StudioLead[];
+}
+
+/**
+ * A single lead by id for the workspace detail page — same aliasing as
+ * getStudioLeads plus the workspace-only columns (migration 056). Returns null
+ * when the row does not exist. The aliased select keeps the UI vocabulary
+ * (full_name/company/status/project_type) in sync with StudioLeadDetail; the DB
+ * column names live only in lib/studio/lead-actions.ts.
+ */
+export async function getStudioLeadById(
+  id: string,
+): Promise<StudioLeadDetail | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('leads')
+    .select(
+      'id, created_at, updated_at, full_name:name, company:business_name, ' +
+        'project_type:tier_interest, status:sales_stage, email, industry, ' +
+        'budget_range, timeline, referral_source, source_locale, message, ' +
+        'notes, phone, existing_url, source, reviewed_by, reviewed_at, ' +
+        'preview_url, preview_password, outreach_email_subject, ' +
+        'outreach_email_body, outreach_email_generated_at',
+    )
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  // Same concatenated-select cast rationale as getStudioLeads above.
+  return data as unknown as StudioLeadDetail;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {

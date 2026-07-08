@@ -68,23 +68,40 @@ export type StudioLeadStatus =
   | 'won'
   | 'lost';
 
+// Field names are the aliased vocabulary (full_name/company/status/project_type);
+// the leads-table column names (name/business_name/sales_stage/tier_interest) live
+// only in the UI→DB mapping helper inside lib/studio/lead-actions.ts.
 export interface StudioLead {
   id: string;
   created_at: string;
-  full_name: string;
-  email: string;
+  full_name: string | null;
+  email: string | null;
   company: string;
   industry: string | null;
   project_type: string | null;
   budget_range: string | null;
   timeline: string | null;
-  message: string;
+  message: string | null;
   referral_source: string | null;
   source_locale: 'en' | 'ja';
   status: StudioLeadStatus;
   notes: string | null;
+  phone: string | null;
+  existing_url: string | null;
+  source: string;
   reviewed_by: string | null;
   reviewed_at: string | null;
+}
+
+// The lead workspace (detail page) — StudioLead plus the workspace-only columns
+// added by migration 056.
+export interface StudioLeadDetail extends StudioLead {
+  preview_url: string | null;
+  preview_password: string | null;
+  outreach_email_subject: string | null;
+  outreach_email_body: string | null;
+  outreach_email_generated_at: string | null;
+  updated_at: string;
 }
 
 export interface DashboardStats {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { StatusBadge } from './StatusBadge';
 import {
   labelizeIndustry,
@@ -10,6 +11,21 @@ import {
 } from '@/lib/studio/labels';
 import type { StudioLead } from '@/lib/admin/types';
 
+// Human labels for the lead `source` vocabulary (leads.source, no CHECK
+// constraint). studio_form_migrated is the 047 backfill value that lives in prod.
+const SOURCE_LABELS: Record<string, string> = {
+  studio_form: 'Studio form',
+  studio_form_migrated: 'Studio form (migrated)',
+  discover: 'Discovery',
+  manual: 'Manual',
+  prospecting: 'Prospecting',
+};
+
+// Sources that carry a meaningful visitor locale. Manual/prospected leads are
+// originated in the (EN-only) admin, so their `source_locale` default is not a
+// signal worth showing.
+const LOCALE_BEARING_SOURCES = new Set(['studio_form', 'studio_form_migrated', 'discover']);
+
 export function StudioLeadCard({ lead }: { lead: StudioLead }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -17,6 +33,20 @@ export function StudioLeadCard({ lead }: { lead: StudioLead }) {
   const projectType = labelizeProjectType(lead.project_type);
   const budget = labelizeBudget(lead.budget_range);
   const timeline = labelizeTimeline(lead.timeline);
+
+  // full_name may be null on a manually-created lead — fall back to the company.
+  const displayName = lead.full_name || lead.company;
+  const formattedDate = new Date(lead.created_at).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  // Only repeat the company in the meta row when the header shows a distinct name.
+  const metaParts = [
+    lead.full_name ? lead.company : null,
+    lead.email,
+    formattedDate,
+  ].filter(Boolean) as string[];
 
   return (
     <div className="border border-border-default rounded-lg overflow-hidden">
@@ -28,21 +58,11 @@ export function StudioLeadCard({ lead }: { lead: StudioLead }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-medium text-fg-primary">
-              {lead.full_name}
+              {displayName}
             </span>
             <StatusBadge status={lead.status} />
           </div>
-          <div className="text-xs text-fg-tertiary">
-            {lead.company}
-            {' · '}
-            {lead.email}
-            {' · '}
-            {new Date(lead.created_at).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </div>
+          <div className="text-xs text-fg-tertiary">{metaParts.join(' · ')}</div>
         </div>
         <span className="text-fg-tertiary text-sm ml-2">
           {expanded ? '▲' : '▼'}
@@ -59,15 +79,20 @@ export function StudioLeadCard({ lead }: { lead: StudioLead }) {
             {lead.referral_source && (
               <Field label="Referral" value={lead.referral_source} />
             )}
-            <Field label="Source Locale" value={lead.source_locale} />
+            <Field label="Source" value={SOURCE_LABELS[lead.source] ?? lead.source} />
+            {LOCALE_BEARING_SOURCES.has(lead.source) && (
+              <Field label="Source Locale" value={lead.source_locale} />
+            )}
           </div>
 
-          <div>
-            <span className="text-xs text-fg-tertiary block mb-1">Project</span>
-            <p className="text-sm text-fg-secondary whitespace-pre-wrap">
-              {lead.message}
-            </p>
-          </div>
+          {lead.message && (
+            <div>
+              <span className="text-xs text-fg-tertiary block mb-1">Project</span>
+              <p className="text-sm text-fg-secondary whitespace-pre-wrap">
+                {lead.message}
+              </p>
+            </div>
+          )}
 
           {lead.notes && (
             <div>
@@ -80,13 +105,21 @@ export function StudioLeadCard({ lead }: { lead: StudioLead }) {
             </div>
           )}
 
-          <div className="pt-1">
-            <a
-              href={`mailto:${lead.email}`}
-              className="text-xs font-medium text-accent-teal hover:underline"
+          <div className="flex items-center gap-4 pt-1">
+            <Link
+              href={`/admin/studio/leads/${lead.id}`}
+              className="text-xs font-semibold text-accent-teal hover:underline"
             >
-              Reply to {lead.full_name} →
-            </a>
+              Open workspace →
+            </Link>
+            {lead.email && (
+              <a
+                href={`mailto:${lead.email}`}
+                className="text-xs font-medium text-fg-tertiary hover:text-accent-teal hover:underline"
+              >
+                Reply to {displayName}
+              </a>
+            )}
           </div>
         </div>
       )}
