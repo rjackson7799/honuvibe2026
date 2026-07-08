@@ -8,7 +8,9 @@ import { isMarketingPath, isMarketingPathWithLocale } from '@/lib/marketing-rout
  *
  * Test all 6 in-scope marketing routes both with and without locale prefix,
  * plus a representative set of out-of-scope routes that MUST NOT match
- * (auth, dashboard, vault, admin, course-detail, partner pages, etc.).
+ * (auth, dashboard, vault, admin, course-detail, etc.). Note: the bespoke
+ * /partners/<slug> landings DO match — they were migrated to the light
+ * marketing nav (2026-05-16), so '/partners' is a marketing prefix.
  */
 
 describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
@@ -34,6 +36,10 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/blog/', true],
     ['/blog/some-post', true],
     ['/blog/aloha-and-ai', true],
+    // /partners and its bespoke-landing children are marketing (prefix-matched);
+    // both partner landings use the light marketing nav.
+    ['/partners/vertice-society', true],
+    ['/partners/smashhaus', true],
   ])('matches %s -> %s', (path, expected) => {
     expect(isMarketingPath(path)).toBe(expected);
   });
@@ -52,8 +58,6 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/admin/courses', false],
     ['/instructor', false],
     ['/partner', false],
-    ['/partners/vertice-society', false],
-    ['/partners/smashhaus', false],
     ['/honuhub', false],
     ['/privacy', false],
     ['/terms', false],
@@ -86,6 +90,9 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/partnerships', true],
     ['/about', true],
     ['/contact', true],
+    // Bespoke partner landings use the light marketing nav — both locales
+    ['/partners/smashhaus', true],
+    ['/ja/partners/smashhaus', true],
   ])('matches %s -> true', (path) => {
     expect(isMarketingPathWithLocale(path)).toBe(true);
   });
@@ -103,9 +110,6 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     // Course slug deep links
     ['/learn/ai-essentials', false],
     ['/ja/learn/ai-essentials', false],
-    // Partners + bespoke partner
-    ['/partners/smashhaus', false],
-    ['/ja/partners/smashhaus', false],
     // Honuhub kept public but out-of-scope for marketing rebuild
     ['/honuhub', false],
     ['/ja/honuhub', false],
