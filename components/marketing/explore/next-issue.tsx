@@ -3,6 +3,7 @@ import { Button, Container, Section } from '@/components/marketing/primitives';
 
 export function ExploreNextIssue() {
   const t = useTranslations('explore.next_issue');
+  const studioUrl = process.env.NEXT_PUBLIC_STUDIO_URL || 'https://studio.honuvibe.ai';
 
   return (
     <Section variant="navy" spacing="default">
@@ -26,7 +27,23 @@ export function ExploreNextIssue() {
           <div>
             <p className="text-[16px] leading-[1.7] text-white/85">{t('subhead')}</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button href="/partnerships" variant="primary-teal" size="md" withArrow>
+              <Button
+                href={studioUrl}
+                variant="primary-teal"
+                size="md"
+                withArrow
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t('studio_cta')}
+              </Button>
+              <Button
+                href="/partnerships"
+                variant="outline-teal"
+                size="md"
+                withArrow
+                className="!border-white/30 !text-white hover:!bg-white/10"
+              >
                 {t('primary_cta')}
               </Button>
               <Button
