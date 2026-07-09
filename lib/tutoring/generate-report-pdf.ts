@@ -99,8 +99,13 @@ function renderSection(sec: ReportSection, i: number): React.ReactNode {
           bilingual(it.task, `${i}-${j}-t`),
           it.answerKey ? h(Text, { style: s.answerKey }, `Answer key: ${it.answerKey}`) : null,
         )));
-    default:
+    default: {
+      // Exhaustiveness guard: a future ReportSection variant becomes a compile
+      // error here instead of silently dropping. Renders nothing at runtime.
+      const _exhaustive: never = sec;
+      void _exhaustive;
       return null;
+    }
   }
 }
 

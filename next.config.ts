@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     'app/api/tutoring/[reportId]/document/route': ['./lib/pdf/fonts/**'],
     'app/api/courses/[courseId]/syllabus/route': ['./lib/pdf/fonts/**'],
+    'app/api/courses/[courseId]/sessions/[sessionId]/presentation/route': ['./lib/pdf/fonts/**'],
   },
   devIndicators: {
     position: 'bottom-right',
