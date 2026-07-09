@@ -49,6 +49,7 @@ export default async function AdminSessionReportPage({ params }: Props) {
           generationError: report.private?.generation_error ?? null,
           hasTranscript: !!report.private?.transcript_ref,
           hasImages: (report.private?.source_image_refs?.length ?? 0) > 0,
+          hasStudentJson: !!report.student_json,
         }}
       />
     </div>

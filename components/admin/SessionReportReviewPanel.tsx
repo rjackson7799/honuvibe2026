@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Trash2, Plus, ExternalLink, Eye, PencilLine, Images, X } from 'lucide-react';
+import { Loader2, Trash2, Plus, ExternalLink, Eye, PencilLine, Images, X, Download } from 'lucide-react';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { SessionReportView } from '@/components/learn/SessionReportView';
 import { splitReport } from '@/lib/tutoring/split';
@@ -27,6 +27,7 @@ type ReportProp = {
   generationError: string | null;
   hasTranscript: boolean;
   hasImages: boolean;
+  hasStudentJson: boolean;
 };
 
 // ---- small field helpers ----
@@ -123,6 +124,39 @@ function rid(prefix: string): string {
   return `${prefix}_${crypto.randomUUID().slice(0, 8)}`;
 }
 
+function DownloadGroup({
+  label, disabled, downloading, onDownload, variant,
+}: {
+  label: string;
+  disabled: boolean;
+  downloading: string | null;
+  onDownload: (format: 'pdf' | 'docx') => void;
+  variant: 'student' | 'teacher';
+}) {
+  const btn = (format: 'pdf' | 'docx', text: string) => {
+    const tag = `${variant}-${format}`;
+    return (
+      <button
+        type="button"
+        onClick={() => onDownload(format)}
+        disabled={disabled || downloading === tag}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] text-fg-secondary hover:border-accent-teal hover:text-accent-teal disabled:opacity-50"
+      >
+        {downloading === tag ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} {text}
+      </button>
+    );
+  };
+  return (
+    <div>
+      <p className="mb-1.5 text-[12px] font-medium text-fg-tertiary">{label}</p>
+      <div className="flex items-center gap-2">
+        {btn('pdf', 'PDF')}
+        {btn('docx', 'Word')}
+      </div>
+    </div>
+  );
+}
+
 export function SessionReportReviewPanel({
   courseId,
   studentName,
@@ -146,9 +180,13 @@ export function SessionReportReviewPanel({
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [worksheetUrls, setWorksheetUrls] = useState<string[] | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [downloading, setDownloading] = useState<string | null>(null);
 
-  const patch = (u: (r: GeneratedSessionReport) => GeneratedSessionReport) =>
+  const patch = (u: (r: GeneratedSessionReport) => GeneratedSessionReport) => {
     setData((prev) => (prev ? u(prev) : prev));
+    setDirty(true);
+  };
 
   function flash(ok: boolean, text: string) {
     setMsg({ ok, text });
@@ -169,6 +207,7 @@ export function SessionReportReviewPanel({
           report: data,
         });
         flash(true, 'Saved.');
+        setDirty(false);
         router.refresh();
       } catch {
         flash(false, 'Save failed — every section needs text in both English and Japanese.');
@@ -278,6 +317,36 @@ export function SessionReportReviewPanel({
       flash(false, 'Could not load worksheet photos.');
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function handleDownload(variant: 'student' | 'teacher', format: 'pdf' | 'docx') {
+    const tag = `${variant}-${format}`;
+    setDownloading(tag);
+    setMsg(null);
+    try {
+      const res = await fetch(`/api/tutoring/${report.id}/document?variant=${variant}&format=${format}`);
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
+        flash(false, j.error ?? 'Download failed.');
+        return;
+      }
+      const blob = await res.blob();
+      const cd = res.headers.get('Content-Disposition') ?? '';
+      const m = /filename="([^"]+)"/.exec(cd);
+      const name = m?.[1] ?? `HonuVibe-1v1-${variant}.${format}`;
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objUrl);
+    } catch {
+      flash(false, 'Network error.');
+    } finally {
+      setDownloading(null);
     }
   }
 
@@ -456,9 +525,9 @@ export function SessionReportReviewPanel({
           {/* metadata + view toggle */}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-default bg-bg-secondary p-4">
             <div className="grid flex-1 gap-3 sm:grid-cols-3">
-              <Field label="Session date" value={sessionDate} onChange={setSessionDate} type="date" />
-              <Field label="Topic" value={topic} onChange={setTopic} />
-              <Field label="Duration (min)" value={duration} onChange={setDuration} type="number" />
+              <Field label="Session date" value={sessionDate} onChange={(v) => { setSessionDate(v); setDirty(true); }} type="date" />
+              <Field label="Topic" value={topic} onChange={(v) => { setTopic(v); setDirty(true); }} />
+              <Field label="Duration (min)" value={duration} onChange={(v) => { setDuration(v); setDirty(true); }} type="number" />
             </div>
             <div className="inline-flex overflow-hidden rounded-lg border border-border-default">
               <button
@@ -481,6 +550,30 @@ export function SessionReportReviewPanel({
               </button>
             </div>
           </div>
+
+          {(isReview || isPublished) && (
+            <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+              <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
+                <DownloadGroup
+                  label="Send to student"
+                  disabled={!report.hasStudentJson || dirty}
+                  downloading={downloading}
+                  onDownload={(f) => handleDownload('student', f)}
+                  variant="student"
+                />
+                <DownloadGroup
+                  label="Teacher copy (next session)"
+                  disabled={!data || dirty}
+                  downloading={downloading}
+                  onDownload={(f) => handleDownload('teacher', f)}
+                  variant="teacher"
+                />
+              </div>
+              {dirty && (
+                <p className="mt-2 text-[12px] text-amber-600">Save changes before downloading.</p>
+              )}
+            </div>
+          )}
 
           {view === 'preview' ? (
             <div className="space-y-4 rounded-xl border border-border-default bg-bg-primary p-6">
@@ -725,7 +818,7 @@ export function SessionReportReviewPanel({
               {/* Instructor analysis (private) */}
               <SectionCard title="Instructor analysis (private — never shown to the student)">
                 <Area label="" value={data.instructor_analysis} rows={5} onChange={(v) => patch((r) => ({ ...r, instructor_analysis: v }))} />
-                <Area label="Margin notes (private)" value={marginNotes} onChange={setMarginNotes} rows={2} />
+                <Area label="Margin notes (private)" value={marginNotes} onChange={(v) => { setMarginNotes(v); setDirty(true); }} rows={2} />
               </SectionCard>
 
               {/* Save */}
