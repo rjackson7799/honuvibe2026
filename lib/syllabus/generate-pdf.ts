@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToBuffer, Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
-import { registerFonts } from './fonts';
+import { registerFonts } from '@/lib/pdf/fonts';
 import { getSyllabusStrings } from './strings';
 import type { CourseWithCurriculum } from '@/lib/courses/types';
 

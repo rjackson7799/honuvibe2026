@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToBuffer, Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
-import { registerFonts } from '@/lib/syllabus/fonts';
+import { registerFonts } from '@/lib/pdf/fonts';
 import type { TeachingMaterialInput } from './types';
 
 // Brand colors (matching syllabus)

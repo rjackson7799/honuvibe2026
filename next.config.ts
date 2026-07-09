@@ -3,6 +3,10 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@react-pdf/renderer'],
+  outputFileTracingIncludes: {
+    'app/api/tutoring/[reportId]/document/route': ['./lib/pdf/fonts/**'],
+    'app/api/courses/[courseId]/syllabus/route': ['./lib/pdf/fonts/**'],
+  },
   devIndicators: {
     position: 'bottom-right',
   },
