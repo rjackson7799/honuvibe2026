@@ -50,8 +50,9 @@ function renderSection(sec: ReportSection, i: number): React.ReactNode {
     case 'next_session':
       return h(View, { key: i, wrap: false }, title, bilingual(sec.body, `${i}-b`));
     case 'instructor_analysis':
-    case 'margin_notes':
       return h(View, { key: i }, title, h(Text, { style: s.en }, sec.text));
+    case 'margin_notes':
+      return h(View, { key: i }, title, h(Text, { style: s.jp }, sec.text));
     case 'wins':
       return h(View, { key: i }, title, ...sec.items.map((it, j) =>
         h(View, { key: j, style: s.item },
@@ -61,7 +62,7 @@ function renderSection(sec: ReportSection, i: number): React.ReactNode {
     case 'trouble_spots':
       return h(View, { key: i }, title, ...sec.items.map((it, j) =>
         h(View, { key: j, style: s.item },
-          h(Text, { style: s.tag }, `${it.patternLabel.en} · ${it.patternLabel.jp}`),
+          h(Text, { style: s.tag }, it.patternLabel.en, ' · ', h(Text, { style: { fontFamily: 'Noto Sans JP' } }, it.patternLabel.jp)),
           h(Text, { style: s.quote }, `You said: “${it.quote}”`),
           h(Text, { style: s.en }, `Try: ${it.correction}`),
           bilingual(it.explanation, `${i}-${j}-e`),
@@ -81,13 +82,13 @@ function renderSection(sec: ReportSection, i: number): React.ReactNode {
     case 'vocabulary':
       return h(View, { key: i }, title, ...sec.items.map((it, j) =>
         h(View, { key: j, style: s.item },
-          h(Text, { style: s.en }, `${it.term.en}${it.reading ? `  ${it.reading}` : ''} — ${it.term.jp}`),
+          h(Text, { style: s.en }, `${it.term.en}${it.reading ? `  ${it.reading}` : ''} — `, h(Text, { style: { fontFamily: 'Noto Sans JP' } }, it.term.jp)),
           bilingual(it.example, `${i}-${j}-x`),
         )));
     case 'grammar_points':
       return h(View, { key: i }, title, ...sec.items.map((it, j) =>
         h(View, { key: j, style: s.item },
-          h(Text, { style: s.en }, `${it.title.en} — ${it.title.jp}`),
+          h(Text, { style: s.en }, `${it.title.en} — `, h(Text, { style: { fontFamily: 'Noto Sans JP' } }, it.title.jp)),
           h(Text, { style: s.mono }, it.pattern),
           bilingual(it.explanation, `${i}-${j}-e`),
           ...it.examples.map((ex, k) => bilingual(ex, `${i}-${j}-ex-${k}`)),
