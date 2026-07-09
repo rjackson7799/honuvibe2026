@@ -14,6 +14,15 @@ function jp(text: string): Paragraph {
   return new Paragraph({ children: [new TextRun({ text, font: JP_FONT })], spacing: { after: 80 } });
 }
 
+function mixedLine(enText: string, jpText: string, opts: { bold?: boolean; color?: string } = {}): Paragraph {
+  return new Paragraph({
+    children: [
+      new TextRun({ text: enText, font: EN_FONT, ...opts }),
+      new TextRun({ text: jpText, font: JP_FONT, ...opts }),
+    ],
+  });
+}
+
 function bilingual(b: Bilingual): Paragraph[] {
   return [en(b.en), jp(b.jp)];
 }
@@ -46,7 +55,7 @@ function renderSection(sec: ReportSection): Paragraph[] {
       ])];
     case 'trouble_spots':
       return [head, ...sec.items.flatMap((it) => [
-        en(`${it.patternLabel.en} · ${it.patternLabel.jp}`, { color: TEAL, bold: true }),
+        mixedLine(`${it.patternLabel.en} · `, it.patternLabel.jp, { color: TEAL, bold: true }),
         en(`You said: “${it.quote}”`, { italics: true }),
         en(`Try: ${it.correction}`),
         ...bilingual(it.explanation),
@@ -57,12 +66,12 @@ function renderSection(sec: ReportSection): Paragraph[] {
       return [head, ...sec.items.flatMap((it) => [...bilingual(it.area), ...bilingual(it.why)])];
     case 'vocabulary':
       return [head, ...sec.items.flatMap((it) => [
-        en(`${it.term.en}${it.reading ? `  ${it.reading}` : ''} — ${it.term.jp}`, { bold: true }),
+        mixedLine(`${it.term.en}${it.reading ? `  ${it.reading}` : ''} — `, it.term.jp, { bold: true }),
         ...bilingual(it.example),
       ])];
     case 'grammar_points':
       return [head, ...sec.items.flatMap((it) => [
-        en(`${it.title.en} — ${it.title.jp}`, { bold: true }),
+        mixedLine(`${it.title.en} — `, it.title.jp, { bold: true }),
         en(it.pattern),
         ...bilingual(it.explanation),
         ...it.examples.flatMap((ex) => bilingual(ex)),
@@ -72,8 +81,10 @@ function renderSection(sec: ReportSection): Paragraph[] {
         ...bilingual(it.task),
         ...(it.answerKey ? [en(`Answer key: ${it.answerKey}`, { color: AMBER })] : []),
       ])];
-    default:
-      return [head];
+    default: {
+      const _exhaustive: never = sec;
+      return [_exhaustive];
+    }
   }
 }
 
