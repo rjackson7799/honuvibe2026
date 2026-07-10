@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getTutoringAccessForReport } from '@/lib/tutoring/auth';
 import { getReportForAdmin, getTutoringCourse } from '@/lib/tutoring/queries';
 import { buildReportModel, type DocVariant } from '@/lib/tutoring/report-document-model';
 import { generateReportPdf } from '@/lib/tutoring/generate-report-pdf';
@@ -34,13 +34,10 @@ export async function GET(
       return NextResponse.json({ error: 'Invalid format.' }, { status: 400 });
     }
 
-    // Auth: role check first for a clean 403 before any load.
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    // Auth: gate first for a clean 401/403/404 before any load.
+    const gate = await getTutoringAccessForReport(reportId);
+    if (!gate.ok) {
+      return NextResponse.json({ error: gate.error }, { status: gate.status });
     }
 
     const report = await getReportForAdmin(reportId);

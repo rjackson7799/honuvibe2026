@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { getTutoringAccess, getTutoringAccessForReport } from '@/lib/tutoring/auth';
 import { generateSessionReport, TUTORING_MODEL_ID } from '@/lib/tutoring/generator';
 import { splitReport } from '@/lib/tutoring/split';
 import { loadPriorPatternLines } from '@/lib/tutoring/patterns';
@@ -59,14 +60,9 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    if (profile?.role !== 'admin' && profile?.role !== 'instructor') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    // Authorization (admin vs. assigned-instructor) is decided below, once we
+    // know which course/report this request targets — see the gate calls in
+    // each branch. This early check is auth (who), not authz (allowed-to-what).
 
     // Branch on Content-Type BEFORE reading the body — the body stream can only
     // be consumed once, so we can't call both formData() and json().
@@ -128,6 +124,11 @@ export async function POST(request: NextRequest) {
 
     if (reportIdIn) {
       // ---- REGENERATE ----
+      const gate = await getTutoringAccessForReport(reportIdIn);
+      if (!gate.ok) {
+        return NextResponse.json({ error: gate.error }, { status: gate.status });
+      }
+
       const { data: report } = await admin
         .from('session_reports')
         .select('id, course_id, student_id, session_date, topic, duration_minutes, status')
@@ -199,6 +200,12 @@ export async function POST(request: NextRequest) {
       if (!courseIdIn) {
         return NextResponse.json({ error: 'courseId is required' }, { status: 400 });
       }
+      const gate = await getTutoringAccess(courseIdIn);
+      if (!gate.ok) {
+        return NextResponse.json({ error: gate.error }, { status: gate.status });
+      }
+      const { access } = gate;
+
       if (!sessionDateIn || !/^\d{4}-\d{2}-\d{2}$/.test(sessionDateIn)) {
         return NextResponse.json({ error: 'A valid session date is required' }, { status: 400 });
       }
@@ -276,7 +283,7 @@ export async function POST(request: NextRequest) {
           topic,
           duration_minutes: durationMinutes,
           status: 'generating',
-          created_by: user.id,
+          created_by: access.userId,
         })
         .select('id')
         .single();

@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
+import { getTutoringAccessForReport } from '@/lib/tutoring/auth';
 import type { SourceImageRef } from '@/lib/tutoring/types';
 
 const BUCKET = 'tutoring-private';
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 60; // 1 hour
 
 /**
- * Admin-only: mint short-lived signed URLs to re-view a report's worksheet
- * photos. The bucket has no SELECT policy, so reads go through the service role
- * after an explicit admin check (mirrors the transcript route).
+ * Admin or assigned-instructor: mint short-lived signed URLs to re-view a
+ * report's worksheet photos. The bucket has no SELECT policy, so reads go
+ * through the service role after the shared access gate (mirrors the
+ * transcript route).
  */
 export async function GET(
   _request: NextRequest,
@@ -17,18 +19,9 @@ export async function GET(
   try {
     const { reportId } = await params;
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const gate = await getTutoringAccessForReport(reportId);
+    if (!gate.ok) {
+      return NextResponse.json({ error: gate.error }, { status: gate.status });
     }
 
     const admin = createAdminClient();

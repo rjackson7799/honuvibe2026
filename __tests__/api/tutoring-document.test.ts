@@ -1,20 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { getUserMock, fromMock, roleSingleMock } = vi.hoisted(() => ({
-  getUserMock: vi.fn(),
-  fromMock: vi.fn(),
-  roleSingleMock: vi.fn(),
+const { getTutoringAccessForReportMock } = vi.hoisted(() => ({
+  getTutoringAccessForReportMock: vi.fn(),
 }));
 const { getReportForAdminMock, getTutoringCourseMock } = vi.hoisted(() => ({
   getReportForAdminMock: vi.fn(),
   getTutoringCourseMock: vi.fn(),
 }));
 
-vi.mock('@/lib/supabase/server', () => ({
-  createClient: async () => ({
-    auth: { getUser: getUserMock },
-    from: fromMock,
-  }),
+vi.mock('@/lib/tutoring/auth', () => ({
+  getTutoringAccessForReport: getTutoringAccessForReportMock,
 }));
 vi.mock('@/lib/tutoring/queries', () => ({
   getReportForAdmin: getReportForAdminMock,
@@ -35,9 +30,29 @@ function req(query: string): Request {
 const ctx = { params: Promise.resolve({ reportId: 'r1' }) };
 
 function asAdmin() {
-  getUserMock.mockResolvedValue({ data: { user: { id: 'u1' } } });
-  roleSingleMock.mockResolvedValue({ data: { role: 'admin' } });
-  fromMock.mockReturnValue({ select: () => ({ eq: () => ({ single: roleSingleMock }) }) });
+  getTutoringAccessForReportMock.mockResolvedValue({
+    ok: true,
+    access: { role: 'admin', userId: 'u1', instructorProfileId: null, courseId: 'c1' },
+  });
+}
+function asAssignedInstructor() {
+  getTutoringAccessForReportMock.mockResolvedValue({
+    ok: true,
+    access: { role: 'instructor', userId: 'teacher-1', instructorProfileId: 'profile-1', courseId: 'c1' },
+  });
+}
+function asUnauthenticated() {
+  getTutoringAccessForReportMock.mockResolvedValue({
+    ok: false,
+    status: 401,
+    error: 'Not authenticated',
+  });
+}
+function asStudent() {
+  getTutoringAccessForReportMock.mockResolvedValue({ ok: false, status: 403, error: 'Forbidden' });
+}
+function asUnassignedInstructor() {
+  getTutoringAccessForReportMock.mockResolvedValue({ ok: false, status: 403, error: 'Forbidden' });
 }
 
 const fullReport = {
@@ -70,15 +85,19 @@ describe('GET /api/tutoring/[reportId]/document', () => {
   });
 
   it('returns 401 when unauthenticated', async () => {
-    getUserMock.mockResolvedValue({ data: { user: null } });
+    asUnauthenticated();
     const res = await GET(req('?variant=student&format=pdf') as never, ctx as never);
     expect(res.status).toBe(401);
   });
 
-  it('returns 403 for a non-admin', async () => {
-    getUserMock.mockResolvedValue({ data: { user: { id: 'u1' } } });
-    roleSingleMock.mockResolvedValue({ data: { role: 'student' } });
-    fromMock.mockReturnValue({ select: () => ({ eq: () => ({ single: roleSingleMock }) }) });
+  it('returns 403 for a student', async () => {
+    asStudent();
+    const res = await GET(req('?variant=student&format=pdf') as never, ctx as never);
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 403 for an unassigned instructor', async () => {
+    asUnassignedInstructor();
     const res = await GET(req('?variant=student&format=pdf') as never, ctx as never);
     expect(res.status).toBe(403);
   });
@@ -90,8 +109,17 @@ describe('GET /api/tutoring/[reportId]/document', () => {
     expect(res.status).toBe(409);
   });
 
-  it('returns a PDF attachment on the happy path', async () => {
+  it('returns a PDF attachment on the happy path for an admin', async () => {
     asAdmin();
+    getReportForAdminMock.mockResolvedValue(fullReport);
+    const res = await GET(req('?variant=student&format=pdf') as never, ctx as never);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('Content-Type')).toBe('application/pdf');
+    expect(res.headers.get('Content-Disposition')).toContain('attachment');
+  });
+
+  it('returns a PDF attachment on the happy path for an assigned instructor', async () => {
+    asAssignedInstructor();
     getReportForAdminMock.mockResolvedValue(fullReport);
     const res = await GET(req('?variant=student&format=pdf') as never, ctx as never);
     expect(res.status).toBe(200);

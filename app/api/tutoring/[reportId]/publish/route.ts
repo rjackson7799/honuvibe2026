@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
+import { getTutoringAccessForReport } from '@/lib/tutoring/auth';
 import { applyPatternsForReport, type TroubleSpotForPattern } from '@/lib/tutoring/patterns';
 import { sendSessionReportReadyEmail } from '@/lib/email/send';
 import type { GeneratedSessionReport } from '@/lib/tutoring/types';
@@ -63,19 +64,11 @@ export async function POST(
   try {
     const { reportId } = await params;
 
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    const { data: profile } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-    if (profile?.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    const gate = await getTutoringAccessForReport(reportId);
+    if (!gate.ok) {
+      return NextResponse.json({ error: gate.error }, { status: gate.status });
     }
+    const { access } = gate;
 
     const body = (await request.json().catch(() => ({}))) as { resend?: boolean };
 
@@ -135,7 +128,7 @@ export async function POST(
     }
     await admin
       .from('session_report_private')
-      .update({ reviewed_by: user.id, reviewed_at: nowIso, updated_at: nowIso })
+      .update({ reviewed_by: access.userId, reviewed_at: nowIso, updated_at: nowIso })
       .eq('report_id', reportId);
 
     // Side effects run AFTER the status flip commits — the student can already
@@ -175,6 +168,10 @@ export async function POST(
     }
     revalidatePath(`/admin/tutoring/${report.course_id}`);
     revalidatePath(`/admin/tutoring/${report.course_id}/reports/${reportId}`);
+    revalidatePath(`/instructor/tutoring/${report.course_id}`);
+    revalidatePath(`/instructor/tutoring/${report.course_id}/reports/${reportId}`);
+    revalidatePath(`/ja/instructor/tutoring/${report.course_id}`);
+    revalidatePath(`/ja/instructor/tutoring/${report.course_id}/reports/${reportId}`);
 
     return NextResponse.json({ ok: true, emailed });
   } catch (error) {

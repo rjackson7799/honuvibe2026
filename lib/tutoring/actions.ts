@@ -3,9 +3,18 @@
 import { revalidatePath } from 'next/cache';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { requireTutoringAccessForReport } from './auth';
 import { generatedSessionReportSchema } from './schemas';
 import { splitReport } from './split';
 import type { GeneratedSessionReport, SourceImageRef } from './types';
+
+// INVARIANT: every write in this file runs through createAdminClient()
+// (service role) after one of the code-level gates below (requireAdmin /
+// requireTutoringAccessForReport) — RLS grants instructors READ access only
+// (migration 058), not writes. Converting any of these actions to the
+// user-scoped client would silently break teacher writes: the code gate
+// would still pass for an assigned instructor, but RLS would then reject the
+// INSERT/UPDATE/DELETE itself.
 
 async function requireAdmin(): Promise<{ adminId: string }> {
   const supabase = await createClient();
@@ -30,6 +39,10 @@ async function revalidateForReport(
 ): Promise<void> {
   revalidatePath(`/admin/tutoring/${courseId}`);
   revalidatePath(`/admin/tutoring/${courseId}/reports/${reportId}`);
+  revalidatePath(`/instructor/tutoring/${courseId}`);
+  revalidatePath(`/instructor/tutoring/${courseId}/reports/${reportId}`);
+  revalidatePath(`/ja/instructor/tutoring/${courseId}`);
+  revalidatePath(`/ja/instructor/tutoring/${courseId}/reports/${reportId}`);
   const { data: course } = await admin
     .from('courses')
     .select('slug')
@@ -119,7 +132,7 @@ export interface UpdateSessionReportInput {
 export async function updateSessionReport(
   input: UpdateSessionReportInput,
 ): Promise<{ ok: true }> {
-  await requireAdmin();
+  const access = await requireTutoringAccessForReport(input.reportId);
   const report = generatedSessionReportSchema.parse(input.report);
   const { instructor_json, student_json } = splitReport(report);
 
@@ -160,7 +173,7 @@ export async function updateSessionReport(
  * double-counts patterns.
  */
 export async function unpublishSessionReport(reportId: string): Promise<{ ok: true }> {
-  await requireAdmin();
+  const access = await requireTutoringAccessForReport(reportId);
   const admin = createAdminClient();
   const { data: parent, error } = await admin
     .from('session_reports')
@@ -176,7 +189,7 @@ export async function unpublishSessionReport(reportId: string): Promise<{ ok: tr
 
 /** Delete a report (cascades the private child) and its raw transcript + photos. */
 export async function deleteSessionReport(reportId: string): Promise<{ ok: true }> {
-  await requireAdmin();
+  const access = await requireTutoringAccessForReport(reportId);
   const admin = createAdminClient();
 
   const { data: report } = await admin
