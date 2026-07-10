@@ -13,6 +13,8 @@ export const FIXTURES = {
     banned_vertice: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa5',
     honuvibe_admin: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa6',
     vertice_partner_admin: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa7',
+    instructor_1: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa8',
+    instructor_2: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaa9',
   },
 } as const;
 
@@ -101,6 +103,18 @@ export async function seedFixtures(): Promise<void> {
     {
       id: FIXTURES.users.vertice_partner_admin,
       role: 'student',
+      subscription_tier: 'free',
+      subscription_status: null,
+    },
+    {
+      id: FIXTURES.users.instructor_1,
+      role: 'instructor',
+      subscription_tier: 'free',
+      subscription_status: null,
+    },
+    {
+      id: FIXTURES.users.instructor_2,
+      role: 'instructor',
       subscription_tier: 'free',
       subscription_status: null,
     },
