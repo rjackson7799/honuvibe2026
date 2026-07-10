@@ -92,6 +92,10 @@ export interface TutoringCourseSummary {
   studentEmail: string | null;
   reportCount: number;
   lastSessionDate: string | null;
+  // The assigned (lead) teacher, via course_instructors. Null when the
+  // engagement predates teacher assignment (Phase 1 of multi-teacher 1v1).
+  teacherName: string | null;
+  teacherProfileId: string | null;
 }
 
 // ------------------------------------------------------------

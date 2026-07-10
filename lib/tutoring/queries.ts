@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type {
   SessionReport,
   SessionReportPrivate,
@@ -42,17 +43,31 @@ type EnrollmentRow = {
   users: { id: string; full_name: string | null; email: string | null } | null;
 };
 
-/** ADMIN: every 1v1 course as an engagement summary (student + report stats). */
-export async function list1v1Courses(): Promise<TutoringCourseSummary[]> {
-  const supabase = await createClient();
+// A course_instructors row joined to its instructor_profiles, used to resolve
+// the assigned (lead) teacher for a batch of courses. Cast via `as unknown`
+// like EnrollmentRow above — this client has no generated Database types.
+type CourseInstructorTeacherRow = {
+  course_id: string;
+  instructor_id: string;
+  role: string;
+  instructor_profiles: { id: string; display_name: string } | null;
+};
 
-  const { data: courses } = await supabase
-    .from('courses')
-    .select('id, slug, title_en, created_at')
-    .eq('course_type', '1v1')
-    .order('created_at', { ascending: false });
+type MinimalCourseRow = { id: string; slug: string; title_en: string };
 
-  const courseRows = courses ?? [];
+/**
+ * Shared aggregation for both list1v1Courses (admin) and
+ * listMyTutoringEngagements (instructor): given a batch of 1v1 course rows,
+ * attach each course's active enrollment (student) and report stats
+ * (count + last session date). Teacher fields are left null here — callers
+ * that know the assignment (a batch join for admin, or the caller's own
+ * identity for the instructor list) fill them in afterward. Do not
+ * copy-paste this block; extend it if a third caller needs the same shape.
+ */
+async function buildEngagementSummaries(
+  courseRows: MinimalCourseRow[],
+  supabase: SupabaseClient,
+): Promise<TutoringCourseSummary[]> {
   if (courseRows.length === 0) return [];
   const courseIds = courseRows.map((c) => c.id);
 
@@ -93,8 +108,117 @@ export async function list1v1Courses(): Promise<TutoringCourseSummary[]> {
       studentEmail: student?.email ?? null,
       reportCount: stats.count,
       lastSessionDate: stats.last,
+      teacherName: null,
+      teacherProfileId: null,
     };
   });
+}
+
+/**
+ * ADMIN: every 1v1 course as an engagement summary (student + report stats +
+ * assigned teacher). course_instructors is read via the user-scoped client —
+ * `course_instructors_public_read` (015_multi_instructor.sql) already covers
+ * this because every 1v1 engagement is created with is_published = true
+ * (lib/tutoring/actions.ts), and `course_instructors_admin_all` covers it
+ * regardless; matches the client choice used throughout lib/instructors/queries.ts.
+ */
+export async function list1v1Courses(): Promise<TutoringCourseSummary[]> {
+  const supabase = await createClient();
+
+  const { data: courses } = await supabase
+    .from('courses')
+    .select('id, slug, title_en, created_at')
+    .eq('course_type', '1v1')
+    .order('created_at', { ascending: false });
+
+  const courseRows = courses ?? [];
+  if (courseRows.length === 0) return [];
+  const courseIds = courseRows.map((c) => c.id);
+
+  const summaries = await buildEngagementSummaries(courseRows, supabase);
+
+  const { data: ciData } = await supabase
+    .from('course_instructors')
+    .select('course_id, instructor_id, role, instructor_profiles!inner(id, display_name)')
+    .in('course_id', courseIds);
+  const courseInstructorRows = (ciData ?? []) as unknown as CourseInstructorTeacherRow[];
+
+  // An engagement has at most one row in practice (one lead teacher). If more
+  // than one somehow exists, prefer the 'lead' row.
+  const teacherByCourse = new Map<string, { teacherProfileId: string; teacherName: string | null }>();
+  for (const ci of courseInstructorRows) {
+    const existing = teacherByCourse.get(ci.course_id);
+    if (!existing || ci.role === 'lead') {
+      teacherByCourse.set(ci.course_id, {
+        teacherProfileId: ci.instructor_id,
+        teacherName: ci.instructor_profiles?.display_name ?? null,
+      });
+    }
+  }
+
+  return summaries.map((s) => {
+    const teacher = teacherByCourse.get(s.courseId);
+    return {
+      ...s,
+      teacherProfileId: teacher?.teacherProfileId ?? null,
+      teacherName: teacher?.teacherName ?? null,
+    };
+  });
+}
+
+/**
+ * INSTRUCTOR: this teacher's own 1v1 engagements, same TutoringCourseSummary
+ * shape as list1v1Courses. Explicit filtering via course_instructors is
+ * REQUIRED — courses_public_read (001_phase2_schema.sql) exposes every
+ * published course row, so RLS alone cannot scope the course list to this
+ * instructor.
+ *
+ * Uses the user-scoped client throughout (no admin client needed):
+ * - course_instructors / courses: readable via their public-read policies,
+ *   since every 1v1 engagement is created with is_published = true
+ *   (lib/tutoring/actions.ts) — same as list1v1Courses above.
+ * - enrollments / session_reports / users (joined inside
+ *   buildEngagementSummaries): granted to the assigned instructor by
+ *   migration 058's `enrollments_1v1_instructor_read`,
+ *   `session_reports_instructor_read`, and `users_1v1_instructor_read`
+ *   policies.
+ * - instructor_profiles: readable via `instructor_profiles_public_read`
+ *   (004_instructor_management.sql, is_active = true).
+ */
+export async function listMyTutoringEngagements(
+  instructorProfileId: string,
+): Promise<TutoringCourseSummary[]> {
+  const supabase = await createClient();
+
+  const { data: links } = await supabase
+    .from('course_instructors')
+    .select('course_id')
+    .eq('instructor_id', instructorProfileId);
+  const courseIds = (links ?? []).map((l) => l.course_id as string);
+  if (courseIds.length === 0) return [];
+
+  const { data: courses } = await supabase
+    .from('courses')
+    .select('id, slug, title_en, created_at')
+    .in('id', courseIds)
+    .eq('course_type', '1v1')
+    .order('created_at', { ascending: false });
+
+  const courseRows = courses ?? [];
+  if (courseRows.length === 0) return [];
+
+  const { data: profile } = await supabase
+    .from('instructor_profiles')
+    .select('display_name')
+    .eq('id', instructorProfileId)
+    .maybeSingle();
+
+  const summaries = await buildEngagementSummaries(courseRows, supabase);
+  return summaries.map((s) => ({
+    ...s,
+    teacherProfileId: instructorProfileId,
+    teacherName: profile?.display_name ?? null,
+  }));
 }
 
 export interface TutoringCourseDetail {
@@ -110,7 +234,11 @@ export interface TutoringCourseDetail {
   } | null;
 }
 
-/** ADMIN: a single 1v1 course + its (single) active enrollee. */
+/**
+ * ADMIN or assigned instructor (RLS-scoped via migration 058; callers must
+ * still gate with lib/tutoring/auth): a single 1v1 course + its (single)
+ * active enrollee.
+ */
 export async function getTutoringCourse(courseId: string): Promise<TutoringCourseDetail | null> {
   const supabase = await createClient();
   const { data: course } = await supabase
@@ -144,7 +272,11 @@ export async function getTutoringCourse(courseId: string): Promise<TutoringCours
   };
 }
 
-/** ADMIN: one course's reports, all statuses, newest first. */
+/**
+ * ADMIN or assigned instructor (RLS-scoped via migration 058; callers must
+ * still gate with lib/tutoring/auth): one course's reports, all statuses,
+ * newest first.
+ */
 export async function getReportsForCourse(courseId: string): Promise<SessionReport[]> {
   const supabase = await createClient();
   const { data } = await supabase
@@ -156,7 +288,11 @@ export async function getReportsForCourse(courseId: string): Promise<SessionRepo
   return (data ?? []) as SessionReport[];
 }
 
-/** ADMIN: a single report joined with its instructor-only private child. */
+/**
+ * ADMIN or assigned instructor (RLS-scoped via migration 058; callers must
+ * still gate with lib/tutoring/auth): a single report joined with its
+ * instructor-only private child.
+ */
 export async function getReportForAdmin(reportId: string): Promise<SessionReportWithPrivate | null> {
   const supabase = await createClient();
   const { data: report } = await supabase
@@ -178,7 +314,11 @@ export async function getReportForAdmin(reportId: string): Promise<SessionReport
   };
 }
 
-/** ADMIN: accumulated recurring patterns for a student in a course. */
+/**
+ * ADMIN or assigned instructor (RLS-scoped via migration 058; callers must
+ * still gate with lib/tutoring/auth): accumulated recurring patterns for a
+ * student in a course.
+ */
 export async function getPatternsForStudent(
   courseId: string,
   studentId: string,
