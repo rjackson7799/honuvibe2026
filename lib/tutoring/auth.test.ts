@@ -158,10 +158,39 @@ describe('getTutoringAccessForReport', () => {
     vi.clearAllMocks();
   });
 
-  it('returns 404 for an unknown reportId', async () => {
+  it('returns 404 for an unknown reportId when the caller is an authenticated admin', async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: 'admin-1' } } });
+    mockUserRole('admin');
     mockAdminTables({ report: null });
     const result = await getTutoringAccessForReport('missing-report');
     expect(result).toEqual({ ok: false, status: 404, error: 'Report not found' });
+  });
+
+  it('returns 401 for an unauthenticated caller when the report exists', async () => {
+    getUserMock.mockResolvedValue({ data: { user: null } });
+    mockAdminTables({ report: { course_id: 'course-1' } });
+    const result = await getTutoringAccessForReport('report-1');
+    expect(result).toEqual({ ok: false, status: 401, error: 'Not authenticated' });
+  });
+
+  it('returns 401 (not 404) for an unauthenticated caller when the report is missing', async () => {
+    // Deliberate: auth runs BEFORE the report lookup, so 404-vs-401 cannot be
+    // used as a report-existence oracle by unauthenticated callers.
+    getUserMock.mockResolvedValue({ data: { user: null } });
+    mockAdminTables({ report: null });
+    const result = await getTutoringAccessForReport('missing-report');
+    expect(result).toEqual({ ok: false, status: 401, error: 'Not authenticated' });
+  });
+
+  it('returns 403 for a student without ever querying session_reports', async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: 'u1' } } });
+    mockUserRole('student');
+    mockAdminTables({ report: null });
+    const result = await getTutoringAccessForReport('missing-report');
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.status).toBe(403);
+    // Wrong-role callers learn nothing about report existence either.
+    expect(adminFromMock).not.toHaveBeenCalled();
   });
 
   it('delegates to getTutoringAccess with the report course_id', async () => {
@@ -204,6 +233,8 @@ describe('requireTutoringAccess / requireTutoringAccessForReport', () => {
   });
 
   it('requireTutoringAccessForReport throws when the report is missing', async () => {
+    getUserMock.mockResolvedValue({ data: { user: { id: 'admin-1' } } });
+    mockUserRole('admin');
     mockAdminTables({ report: null });
     await expect(requireTutoringAccessForReport('missing-report')).rejects.toThrow(
       'Report not found',
