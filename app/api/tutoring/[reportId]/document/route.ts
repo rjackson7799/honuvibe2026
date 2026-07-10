@@ -94,6 +94,12 @@ export async function GET(
     });
   } catch (error) {
     console.error('[Tutoring Document] Error:', error);
-    return NextResponse.json({ error: 'Failed to generate document.' }, { status: 500 });
+    // Surface the underlying message (admin-only route) so a renderer failure
+    // is diagnosable from the UI instead of hiding behind a generic string.
+    const detail = error instanceof Error ? error.message : null;
+    return NextResponse.json(
+      { error: detail ? `Failed to generate document: ${detail}` : 'Failed to generate document.' },
+      { status: 500 },
+    );
   }
 }

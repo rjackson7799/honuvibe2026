@@ -3,10 +3,14 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@react-pdf/renderer'],
+  // Keys are picomatch globs matched against the NORMALIZED route (leading
+  // slash, no `app/` prefix, no trailing `/route` — see Next's
+  // collect-build-traces.ts + normalizeAppPath). `*` stands in for [param]
+  // segments: a literal `[reportId]` in a glob is a character class, not text.
   outputFileTracingIncludes: {
-    'app/api/tutoring/[reportId]/document/route': ['./lib/pdf/fonts/**'],
-    'app/api/courses/[courseId]/syllabus/route': ['./lib/pdf/fonts/**'],
-    'app/api/courses/[courseId]/sessions/[sessionId]/presentation/route': ['./lib/pdf/fonts/**'],
+    '/api/tutoring/*/document': ['./lib/pdf/fonts/**'],
+    '/api/courses/*/syllabus': ['./lib/pdf/fonts/**'],
+    '/api/courses/*/sessions/*/presentation': ['./lib/pdf/fonts/**'],
   },
   devIndicators: {
     position: 'bottom-right',

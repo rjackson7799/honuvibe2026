@@ -49,6 +49,10 @@ export function registerFonts(): void {
     family: 'DM Sans',
     fonts: [
       { src: src('DMSans-Regular.ttf', 'https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAopxhTg.ttf'), fontWeight: 400 },
+      // Italic is required: react-pdf resolves fontStyle strictly, so any style
+      // using fontStyle: 'italic' (e.g. report quotes) throws
+      // "Could not resolve font" if no italic source is registered.
+      { src: src('DMSans-Italic.ttf', 'https://fonts.gstatic.com/s/dmsans/v17/rP2rp2ywxg089UriCZaSExd86J3t9jz86Mvy4qCRAL19DksVat-JDW3z.ttf'), fontWeight: 400, fontStyle: 'italic' },
       { src: src('DMSans-SemiBold.ttf', 'https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAfJthTg.ttf'), fontWeight: 600 },
       { src: src('DMSans-Bold.ttf', 'https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwARZthTg.ttf'), fontWeight: 700 },
     ],
