@@ -64,7 +64,7 @@ export async function getMyInstructorCourses(
     .select(
       'course:courses(id, slug, title_en, description_en, level, status, is_published, price_usd, price_jpy, proposal_submitted_at, proposal_review_notes, created_at, updated_at)',
     )
-    .eq('instructor_profile_id', instructorProfileId);
+    .eq('instructor_id', instructorProfileId);
 
   if (taughtError) throw new Error(taughtError.message);
 
