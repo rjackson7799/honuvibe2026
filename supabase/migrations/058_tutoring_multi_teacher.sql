@@ -42,7 +42,14 @@ AS $$
       AND ip.user_id = auth.uid()
   );
 $$;
-REVOKE ALL ON FUNCTION public.is_instructor_for_course(uuid) FROM anon;
+-- No REVOKE: policy-helper functions must stay executable by every role that
+-- can query the tables whose policies call them (anon + authenticated), or
+-- those queries error with "permission denied for function" instead of
+-- filtering rows. Same treatment as is_admin() (001/002), is_partner_for()
+-- (029), is_event_invitee() (044). Security lives in the auth.uid() gate
+-- inside the function (false for anon), not in the ACL. The REVOKE-then-GRANT
+-- pattern in 048/057 is for RPC-only functions with a single caller — a
+-- different category.
 
 -- ----------------------------------------------------------------------------
 -- 2. is_instructor_of_student(student_id) — SECURITY DEFINER STABLE.
@@ -89,7 +96,7 @@ AS $$
       AND ip.user_id = auth.uid()
   );
 $$;
-REVOKE ALL ON FUNCTION public.is_instructor_of_student(uuid) FROM anon;
+-- No REVOKE — same policy-helper rationale as is_instructor_for_course() above.
 
 -- ----------------------------------------------------------------------------
 -- 3. SELECT-only instructor policies (report pipeline, 052_tutoring_1v1.sql).
