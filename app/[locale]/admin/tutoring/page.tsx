@@ -2,6 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { list1v1Courses } from '@/lib/tutoring/queries';
+import { getActiveInstructorOptions } from '@/lib/instructors/queries';
 import { NewTutoringEngagement } from '@/components/admin/NewTutoringEngagement';
 
 type Props = {
@@ -23,7 +24,11 @@ export default async function AdminTutoringPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const courses = await list1v1Courses();
+  const [courses, instructorOptions] = await Promise.all([
+    list1v1Courses(),
+    getActiveInstructorOptions(),
+  ]);
+  const teacherOptions = instructorOptions.map((o) => ({ id: o.id, name: o.display_name }));
 
   return (
     <div className="max-w-[1100px] space-y-6">
@@ -38,7 +43,7 @@ export default async function AdminTutoringPage({ params }: Props) {
             then publish it to the student&apos;s dashboard.
           </p>
         </div>
-        {courses.length > 0 && <NewTutoringEngagement />}
+        {courses.length > 0 && <NewTutoringEngagement options={teacherOptions} />}
       </div>
 
       {courses.length === 0 ? (
@@ -48,7 +53,7 @@ export default async function AdminTutoringPage({ params }: Props) {
             screen.
           </p>
           <div className="flex justify-center">
-            <NewTutoringEngagement />
+            <NewTutoringEngagement options={teacherOptions} />
           </div>
         </div>
       ) : (
@@ -58,6 +63,7 @@ export default async function AdminTutoringPage({ params }: Props) {
               <tr className="text-left text-[12px] uppercase tracking-[0.04em] text-fg-tertiary">
                 <th className="px-4 py-3 font-semibold">Engagement</th>
                 <th className="px-4 py-3 font-semibold">Student</th>
+                <th className="px-4 py-3 font-semibold">Teacher</th>
                 <th className="px-4 py-3 font-semibold">Reports</th>
                 <th className="px-4 py-3 font-semibold">Last session</th>
                 <th className="px-4 py-3 font-semibold sr-only">Open</th>
@@ -79,6 +85,7 @@ export default async function AdminTutoringPage({ params }: Props) {
                       <span className="text-fg-tertiary">No active enrollee</span>
                     )}
                   </td>
+                  <td className="px-4 py-3 text-fg-secondary">{c.teacherName ?? 'Unassigned'}</td>
                   <td className="px-4 py-3 tabular-nums text-fg-secondary">{c.reportCount}</td>
                   <td className="px-4 py-3 text-fg-secondary">{fmtDate(c.lastSessionDate)}</td>
                   <td className="px-4 py-3 text-right">

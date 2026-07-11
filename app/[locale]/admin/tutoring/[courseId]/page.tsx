@@ -7,7 +7,9 @@ import {
   getReportsForCourse,
   getPatternsForStudent,
 } from '@/lib/tutoring/queries';
+import { getActiveInstructorOptions, getInstructorsForCourse } from '@/lib/instructors/queries';
 import { TutoringCourseDashboard } from '@/components/admin/TutoringCourseDashboard';
+import { TutoringTeacherControl } from '@/components/admin/TutoringTeacherControl';
 
 type Props = {
   params: Promise<{ locale: string; courseId: string }>;
@@ -26,10 +28,14 @@ export default async function AdminTutoringCoursePage({ params }: Props) {
   const course = await getTutoringCourse(courseId);
   if (!course) notFound();
 
-  const [reports, patterns] = await Promise.all([
+  const [reports, patterns, teacherOptions, courseInstructors] = await Promise.all([
     getReportsForCourse(courseId),
     course.student ? getPatternsForStudent(courseId, course.student.id) : Promise.resolve([]),
+    getActiveInstructorOptions(),
+    getInstructorsForCourse(courseId),
   ]);
+
+  const lead = courseInstructors.find((ci) => ci.role === 'lead') ?? courseInstructors[0] ?? null;
 
   return (
     <div className="max-w-[1100px] space-y-6">
@@ -39,6 +45,14 @@ export default async function AdminTutoringCoursePage({ params }: Props) {
       >
         <ChevronLeft size={15} /> All 1v1 sessions
       </Link>
+
+      <TutoringTeacherControl
+        courseId={course.id}
+        current={
+          lead ? { profileId: lead.instructor_id, name: lead.instructor.display_name } : null
+        }
+        options={teacherOptions.map((o) => ({ id: o.id, name: o.display_name }))}
+      />
 
       <TutoringCourseDashboard
         course={{

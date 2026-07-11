@@ -55,6 +55,53 @@ async function revalidateForReport(
 }
 
 /**
+ * Single-teacher invariant for a 1v1 engagement: replace whatever is in
+ * course_instructors for this course with at most one 'lead' row, and sync
+ * the legacy courses.instructor_id / instructor_name columns that admin UI
+ * (list1v1Courses' teacherName, etc.) still reads. Deliberately NOT
+ * addInstructorToCourse (lib/instructors/actions.ts) — that models
+ * multi-instructor assignment with roles + revenue-share percentages, which
+ * don't apply to a 1-on-1 engagement. Shared by setTutoringTeacher and
+ * createTutoringCourse so the sync logic lives in exactly one place.
+ */
+async function assignTeacher(
+  admin: SupabaseClient,
+  courseId: string,
+  instructorProfileId: string | null,
+): Promise<void> {
+  let displayName: string | null = null;
+  if (instructorProfileId) {
+    const { data: profile, error: profileError } = await admin
+      .from('instructor_profiles')
+      .select('display_name, is_active')
+      .eq('id', instructorProfileId)
+      .maybeSingle();
+    if (profileError) throw new Error(profileError.message);
+    if (!profile || !profile.is_active) throw new Error('Instructor not found or inactive.');
+    displayName = profile.display_name;
+  }
+
+  const { error: delError } = await admin
+    .from('course_instructors')
+    .delete()
+    .eq('course_id', courseId);
+  if (delError) throw new Error(delError.message);
+
+  if (instructorProfileId) {
+    const { error: insError } = await admin
+      .from('course_instructors')
+      .insert({ course_id: courseId, instructor_id: instructorProfileId, role: 'lead' });
+    if (insError) throw new Error(insError.message);
+  }
+
+  const { error: courseError } = await admin
+    .from('courses')
+    .update({ instructor_id: instructorProfileId, instructor_name: displayName })
+    .eq('id', courseId);
+  if (courseError) throw new Error(courseError.message);
+}
+
+/**
  * Create a bare 1v1 engagement — a private, published `courses` shell with no
  * curriculum (the AI course wizard is wrong for this: it generates weeks/
  * sessions). After this, the engagement dashboard offers an inline enroll
@@ -65,6 +112,7 @@ export async function createTutoringCourse(input: {
   titleEn: string;
   titleJp?: string | null;
   instructorName?: string | null;
+  instructorProfileId?: string | null;
 }): Promise<{ courseId: string; slug: string }> {
   await requireAdmin();
   const titleEn = input.titleEn.trim();
@@ -98,7 +146,11 @@ export async function createTutoringCourse(input: {
       course_type: '1v1',
       title_en: titleEn,
       title_jp: input.titleJp?.trim() || null,
-      instructor_name: input.instructorName?.trim() || 'Ryan Jackson',
+      // instructor_name is synced by assignTeacher() below when a teacher is
+      // chosen up front; otherwise the engagement starts genuinely
+      // unassigned (the list page shows "Unassigned") rather than the old
+      // hardcoded 'Ryan Jackson' default.
+      instructor_name: input.instructorProfileId ? null : input.instructorName?.trim() || null,
       language: 'both',
       is_private: true,
       is_published: true,
@@ -110,8 +162,41 @@ export async function createTutoringCourse(input: {
     .single();
   if (error) throw new Error(error.message);
 
+  if (input.instructorProfileId) {
+    await assignTeacher(admin, data.id, input.instructorProfileId);
+  }
+
   revalidatePath('/admin/tutoring');
   return { courseId: data.id, slug: data.slug };
+}
+
+/**
+ * Admin-only: assign, change, or remove the single teacher for a 1v1
+ * engagement. See assignTeacher() above for the single-teacher invariant.
+ */
+export async function setTutoringTeacher(input: {
+  courseId: string;
+  instructorProfileId: string | null;
+}): Promise<void> {
+  await requireAdmin();
+  const admin = createAdminClient();
+
+  const { data: course, error: courseError } = await admin
+    .from('courses')
+    .select('id, course_type')
+    .eq('id', input.courseId)
+    .maybeSingle();
+  if (courseError) throw new Error(courseError.message);
+  if (!course || course.course_type !== '1v1') throw new Error('1v1 engagement not found.');
+
+  await assignTeacher(admin, input.courseId, input.instructorProfileId);
+
+  revalidatePath('/admin/tutoring');
+  revalidatePath(`/admin/tutoring/${input.courseId}`);
+  revalidatePath('/instructor/tutoring');
+  revalidatePath('/ja/admin/tutoring');
+  revalidatePath(`/ja/admin/tutoring/${input.courseId}`);
+  revalidatePath('/ja/instructor/tutoring');
 }
 
 export interface UpdateSessionReportInput {

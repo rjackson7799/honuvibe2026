@@ -5,11 +5,18 @@ import { useRouter } from 'next/navigation';
 import { Plus, Loader2 } from 'lucide-react';
 import { createTutoringCourse } from '@/lib/tutoring/actions';
 
-export function NewTutoringEngagement() {
+type TeacherOption = { id: string; name: string };
+
+type NewTutoringEngagementProps = {
+  options: TeacherOption[];
+};
+
+export function NewTutoringEngagement({ options }: NewTutoringEngagementProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [titleEn, setTitleEn] = useState('');
   const [titleJp, setTitleJp] = useState('');
+  const [instructorProfileId, setInstructorProfileId] = useState('');
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -35,6 +42,7 @@ export function NewTutoringEngagement() {
             const { courseId } = await createTutoringCourse({
               titleEn,
               titleJp: titleJp.trim() || null,
+              instructorProfileId: instructorProfileId || null,
             });
             router.push(`/admin/tutoring/${courseId}`);
           } catch (err) {
@@ -75,6 +83,26 @@ export function NewTutoringEngagement() {
           className="w-full rounded-lg border border-border-default bg-bg-primary px-3 py-2 text-fg-primary"
         />
       </label>
+
+      {options.length > 0 && (
+        <label className="block text-[13px]">
+          <span className="mb-1 block font-medium text-fg-secondary">
+            Teacher <span className="text-fg-tertiary">(optional)</span>
+          </span>
+          <select
+            value={instructorProfileId}
+            onChange={(e) => setInstructorProfileId(e.target.value)}
+            className="w-full rounded-lg border border-border-default bg-bg-primary px-3 py-2 text-fg-primary"
+          >
+            <option value="">Unassigned</option>
+            {options.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       {error && <p className="text-[13px] text-red-600">{error}</p>}
 
