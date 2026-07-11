@@ -33,10 +33,14 @@ export function TutoringCourseDashboard({
   course,
   initialReports,
   patterns,
+  basePath = '/admin/tutoring',
+  allowEnroll = true,
 }: {
   course: CourseProp;
   initialReports: SessionReport[];
   patterns: StudentPattern[];
+  basePath?: string;
+  allowEnroll?: boolean;
 }) {
   const router = useRouter();
 
@@ -209,7 +213,12 @@ export function TutoringCourseDashboard({
       <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
         <div className="space-y-6">
           {/* Enroll the (single) student when the seat is empty */}
-          {!course.student && <TutoringEnrollStudent courseId={course.id} />}
+          {!course.student && allowEnroll && <TutoringEnrollStudent courseId={course.id} />}
+          {!course.student && !allowEnroll && (
+            <div className="rounded-lg border border-dashed border-border-default bg-bg-secondary px-4 py-3 text-[13px] text-fg-tertiary">
+              No student enrolled yet — ask an admin to enroll the student.
+            </div>
+          )}
 
           {/* New report form */}
           {showForm && course.student && (
@@ -420,7 +429,7 @@ export function TutoringCourseDashboard({
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Link
-                          href={`/admin/tutoring/${course.id}/reports/${r.id}`}
+                          href={`${basePath}/${course.id}/reports/${r.id}`}
                           className="inline-flex items-center text-fg-tertiary hover:text-accent-teal"
                           aria-label="Open report"
                         >

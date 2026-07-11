@@ -161,10 +161,12 @@ export function SessionReportReviewPanel({
   courseId,
   studentName,
   report,
+  basePath = '/admin/tutoring',
 }: {
   courseId: string;
   studentName: string | null;
   report: ReportProp;
+  basePath?: string;
 }) {
   const router = useRouter();
 
@@ -281,7 +283,7 @@ export function SessionReportReviewPanel({
     startSave(async () => {
       try {
         await deleteSessionReport(report.id);
-        router.push(`/admin/tutoring/${courseId}`);
+        router.push(`${basePath}/${courseId}`);
       } catch {
         flash(false, 'Delete failed.');
         setBusy(null);
