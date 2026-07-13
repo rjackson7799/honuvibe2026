@@ -439,7 +439,9 @@ export function VaultEditor({
         </div>
       )}
 
-      <div className="items-start pt-6 lg:grid lg:grid-cols-[232px,minmax(0,1fr)] lg:gap-8">
+      {/* Arbitrary grid tracks are space-separated: use `_`, never `,` — a
+          comma emits invalid CSS and the whole grid silently collapses. */}
+      <div className="items-start pt-6 lg:grid lg:grid-cols-[232px_minmax(0,1fr)] lg:gap-8">
         <VaultEditorNav
           className="sticky top-[104px] hidden lg:block"
           steps={steps}
