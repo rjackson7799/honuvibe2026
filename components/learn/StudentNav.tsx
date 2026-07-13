@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useRouter as useI18nRouter, usePathname as useI18nPathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -46,40 +45,6 @@ const instructorNavItem: NavItem = {
   exact: false,
   ns: 'instructor',
 };
-
-function LangPills() {
-  const locale = useLocale();
-  const i18nPathname = useI18nPathname();
-  const i18nRouter = useI18nRouter();
-  const [isPending, startTransition] = useTransition();
-
-  const switchLocale = (newLocale: 'en' | 'ja') => {
-    if (newLocale === locale) return;
-    document.cookie = `NEXT_LOCALE=${newLocale};max-age=${60 * 60 * 24 * 30};path=/`;
-    startTransition(() => {
-      i18nRouter.replace(i18nPathname, { locale: newLocale });
-    });
-  };
-
-  const pillClass = (active: boolean) =>
-    cn(
-      'px-2.5 py-1 rounded-md text-xs font-semibold transition-colors duration-[var(--duration-fast)]',
-      active
-        ? 'bg-[color:var(--accent-teal)] text-white'
-        : 'text-fg-tertiary hover:text-fg-secondary',
-    );
-
-  return (
-    <div className={cn('flex items-center gap-1', isPending && 'opacity-50 pointer-events-none')}>
-      <button type="button" onClick={() => switchLocale('en')} className={pillClass(locale === 'en')}>
-        EN
-      </button>
-      <button type="button" onClick={() => switchLocale('ja')} className={pillClass(locale === 'ja')}>
-        日本語
-      </button>
-    </div>
-  );
-}
 
 export function StudentNav() {
   const pathname = usePathname();
@@ -170,11 +135,6 @@ export function StudentNav() {
         {/* Logo */}
         <div className="px-5 pt-5 pb-4 border-b border-border-default flex items-center">
           <HonuVibeWordmark />
-        </div>
-
-        {/* Lang pills */}
-        <div className="px-4 py-3 border-b border-border-default">
-          <LangPills />
         </div>
 
         {/* Main nav */}

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Bell } from 'lucide-react';
 import { AccountMenu } from './AccountMenu';
 import { FeedbackButton } from './FeedbackButton';
+import { LangPills } from './LangPills';
 
 type MemberTopBarProps = {
   initial: string;
@@ -17,9 +18,10 @@ type MemberTopBarProps = {
 };
 
 /**
- * Persistent member-area top bar: a Feedback pill, the notification bell (with
- * unread badge), and the account avatar (which opens a dropdown). Rendered once
- * by StudentDashboardLayout so it appears identically on every member page.
+ * Persistent member-area top bar: the EN/日本語 language pills, a Feedback pill, the
+ * notification bell (with unread badge), and the account avatar (which opens a
+ * dropdown). Rendered once by StudentDashboardLayout so it appears identically on
+ * every member page — and, unlike the desktop-only sidebar, on mobile too.
  */
 export function MemberTopBar({
   initial,
@@ -35,6 +37,7 @@ export function MemberTopBar({
 }: MemberTopBarProps) {
   return (
     <div className="sticky top-0 z-20 flex items-center justify-end gap-2.5 h-14 px-5 sm:px-7 md:px-8 bg-bg-primary border-b border-border-default">
+      <LangPills />
       <FeedbackButton />
       <Link
         href={notificationsHref}
