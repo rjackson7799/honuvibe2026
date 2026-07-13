@@ -42,6 +42,27 @@ export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string 
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  await deleteCommentAsAuthor(supabase, id);
-  return NextResponse.json({ ok: true });
+  // App-side authorship gate: authors have no DELETE RLS policy, so the physical
+  // delete runs via the service-role client. This is the authorization check.
+  const { data: existing, error: fetchErr } = await supabase
+    .from('community_comments')
+    .select('author_id')
+    .eq('id', id)
+    .maybeSingle();
+  if (fetchErr) throw fetchErr;
+  if (!existing) return NextResponse.json({ error: 'not_found' }, { status: 404 });
+  if (existing.author_id !== user.id) {
+    return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  }
+
+  try {
+    await deleteCommentAsAuthor(id);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    if (err instanceof CommunityError) {
+      const status = err.code === 'not_found' ? 404 : 400;
+      return NextResponse.json({ error: err.code }, { status });
+    }
+    throw err;
+  }
 }

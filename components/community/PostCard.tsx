@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { Heart, MessageCircle, Pin } from 'lucide-react';
+import { MessageCircle, Pin } from 'lucide-react';
 import { CommunityMarkdown } from '@/lib/community/markdown';
+import { LikeButton } from './LikeButton';
 import type { Post } from '@/lib/community/types';
 
 function timeAgo(iso: string, locale: string): string {
@@ -22,16 +23,29 @@ function truncate(s: string, max = 320): { text: string; truncated: boolean } {
   return { text: s.slice(0, max).replace(/\s+\S*$/, '') + '…', truncated: true };
 }
 
-export async function PostCard({ post, locale }: { post: Post; locale: string }) {
+export async function PostCard({
+  post,
+  locale,
+  partnerScope,
+}: {
+  post: Post;
+  locale: string;
+  partnerScope: string;
+}) {
   const t = await getTranslations('community');
   const { text, truncated } = truncate(post.body_md);
   const isPinned = post.pinned_at !== null;
+  const authorName = post.author?.full_name ?? 'Member';
 
   return (
-    <Link
-      href={`/learn/dashboard/community/${post.id}`}
-      className="block rounded-[14px] bg-bg-secondary border border-border-default p-5 hover:border-border-hover hover:shadow-[var(--shadow-md)] transition-all"
-    >
+    <div className="relative rounded-[14px] bg-bg-secondary border border-border-default p-5 hover:border-border-hover hover:shadow-[var(--shadow-md)] transition-all">
+      <Link
+        href={`/learn/dashboard/community/${post.id}`}
+        className="absolute inset-0 z-[1] rounded-[14px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-teal)]"
+      >
+        <span className="sr-only">{t('open_post_by', { name: authorName })}</span>
+      </Link>
+
       {isPinned && (
         <div className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] font-semibold text-[color:var(--accent-teal)] mb-2">
           <Pin size={11} />
@@ -51,9 +65,7 @@ export async function PostCard({ post, locale }: { post: Post; locale: string })
           <div className="w-8 h-8 rounded-full bg-bg-tertiary" />
         )}
         <div className="flex items-center gap-2 text-[13px] min-w-0">
-          <span className="font-semibold text-fg-primary truncate">
-            {post.author?.full_name ?? 'Member'}
-          </span>
+          <span className="font-semibold text-fg-primary truncate">{authorName}</span>
           <span className="text-fg-tertiary">·</span>
           <span className="text-fg-tertiary">{timeAgo(post.created_at, locale)}</span>
           <span className="text-fg-tertiary">·</span>
@@ -93,15 +105,19 @@ export async function PostCard({ post, locale }: { post: Post; locale: string })
       )}
 
       <div className="flex items-center gap-4 mt-4 text-[12.5px] text-fg-tertiary">
-        <span className="inline-flex items-center gap-1.5">
-          <Heart size={13} />
-          {post.like_count}
+        <span className="relative z-[2]">
+          <LikeButton
+            postId={post.id}
+            initialLiked={post.liked_by_me ?? false}
+            initialCount={post.like_count}
+            partnerScope={partnerScope}
+          />
         </span>
         <span className="inline-flex items-center gap-1.5">
           <MessageCircle size={13} />
           {post.comment_count}
         </span>
       </div>
-    </Link>
+    </div>
   );
 }

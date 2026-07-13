@@ -55,6 +55,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     partnerId: scope.partnerId,
     category,
     cursor,
+    userId,
   });
 
   const t = await getTranslations('community');
@@ -83,7 +84,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
       ) : (
         <div className="space-y-3">
           {page.posts.map((post) => (
-            <PostCard key={post.id} post={post} locale={locale} />
+            <PostCard
+              key={post.id}
+              post={post}
+              locale={locale}
+              partnerScope={scope.partner?.slug ?? 'main'}
+            />
           ))}
         </div>
       )}

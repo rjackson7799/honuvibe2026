@@ -25,6 +25,7 @@ export async function listFeed(
     category?: Category;
     cursor?: string;
     limit?: number;
+    userId?: string | null;
   },
 ): Promise<FeedPage> {
   const limit = opts.limit ?? 20;
@@ -49,6 +50,20 @@ export async function listFeed(
   const rows = (data ?? []) as unknown as Post[];
   const hasMore = rows.length > limit;
   const posts = rows.slice(0, limit);
+
+  if (opts.userId && posts.length > 0) {
+    const { data: likes, error: likeErr } = await supabase
+      .from('community_post_likes')
+      .select('post_id')
+      .eq('user_id', opts.userId)
+      .in('post_id', posts.map((p) => p.id));
+    if (likeErr) throw likeErr;
+    const liked = new Set((likes ?? []).map((l) => l.post_id as string));
+    posts.forEach((p) => {
+      p.liked_by_me = liked.has(p.id);
+    });
+  }
+
   const nextCursor = hasMore ? posts[posts.length - 1].created_at : null;
   return { posts, nextCursor };
 }

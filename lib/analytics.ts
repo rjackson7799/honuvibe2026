@@ -75,9 +75,14 @@ export function trackCommunityPostLiked(props: { partner_scope: 'main' | string 
 
 export function trackCommunityPostReported(props: {
   partner_scope: 'main' | string;
+  target_type: 'post' | 'comment';
   reason: string;
 }) {
-  trackEvent('community_post_reported', props);
+  trackEvent('community_post_reported', {
+    partner_scope: props.partner_scope,
+    target_type: props.target_type,
+    reason: props.reason,
+  });
 }
 
 export function trackCommunityPaywallViewed(props: { referrer_path: string }) {

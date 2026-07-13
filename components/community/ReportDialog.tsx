@@ -49,7 +49,7 @@ export function ReportDialog({
         setSubmitting(false);
         return;
       }
-      trackCommunityPostReported({ partner_scope: partnerScope, reason });
+      trackCommunityPostReported({ partner_scope: partnerScope, target_type: targetType, reason });
       setSubmitted(true);
       setSubmitting(false);
       setTimeout(() => {

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/server';
 import { EDIT_WINDOW_MS, MAX_COMMENT_LEN, MAX_POST_BODY_LEN, type Category } from './constants';
 import type { Comment, LinkPreview, Post } from './types';
 
@@ -161,15 +162,20 @@ export async function updateCommentBody(
   return data as Comment;
 }
 
-export async function deleteCommentAsAuthor(
-  supabase: SupabaseClient,
-  commentId: string,
-): Promise<void> {
-  const { error } = await supabase
+// Physical delete via the service-role client: authors have an UPDATE but no
+// DELETE RLS policy, and only a real DELETE fires the ON DELETE CASCADE (replies)
+// and the AFTER DELETE count trigger. The caller performs the app-side authorship
+// check before invoking this.
+export async function deleteCommentAsAuthor(commentId: string): Promise<void> {
+  const { data, error } = await createAdminClient()
     .from('community_comments')
-    .update({ status: 'deleted' })
-    .eq('id', commentId);
+    .delete()
+    .eq('id', commentId)
+    .select('id');
   if (error) throw error;
+  if (!data || data.length === 0) {
+    throw new CommunityError('not_found', 'comment not found');
+  }
 }
 
 // --- Likes ----------------------------------------------------------------

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { MoreHorizontal } from 'lucide-react';
 import { ReportDialog } from './ReportDialog';
@@ -29,10 +29,12 @@ export function PostMenu({
   authorIdForBan,
   isPinned,
   status,
-  withinEditWindow: _withinEditWindow,
+  withinEditWindow,
 }: PostMenuProps) {
   const t = useTranslations('community');
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -48,6 +50,13 @@ export function PostMenu({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
+
+  function openEditor() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('edit', '1');
+    router.replace(`${pathname}?${params.toString()}`);
+    setOpen(false);
+  }
 
   async function deleteAsAuthor() {
     if (!confirm('Delete this post?')) return;
@@ -109,7 +118,7 @@ export function PostMenu({
           e.stopPropagation();
           setOpen((v) => !v);
         }}
-        className="p-1.5 rounded-full text-fg-tertiary hover:text-fg-primary hover:bg-bg-tertiary transition-colors"
+        className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-full text-fg-tertiary hover:text-fg-primary hover:bg-bg-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-teal)] transition-colors"
         aria-label="Post menu"
       >
         <MoreHorizontal size={16} />
@@ -128,6 +137,19 @@ export function PostMenu({
               className="w-full text-left px-3 py-2 text-fg-primary hover:bg-bg-tertiary transition-colors"
             >
               {t('menu_report')}
+            </button>
+          )}
+          {isAuthor && withinEditWindow && status === 'published' && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openEditor();
+              }}
+              className="w-full text-left px-3 py-2 text-fg-primary hover:bg-bg-tertiary transition-colors"
+            >
+              {t('menu_edit')}
             </button>
           )}
           {isAuthor && (

@@ -53,9 +53,10 @@ export function LikeButton({
       onClick={() => void toggle()}
       disabled={busy}
       className={
-        liked
-          ? 'inline-flex items-center gap-1.5 text-[13px] font-medium text-[color:var(--accent-coral,#dc2626)]'
-          : 'inline-flex items-center gap-1.5 text-[13px] text-fg-tertiary hover:text-fg-primary transition-colors'
+        'inline-flex items-center justify-center gap-1.5 min-h-[44px] px-2 -mx-2 rounded-full text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent-teal)] ' +
+        (liked
+          ? 'font-medium text-[color:var(--accent-coral,#dc2626)]'
+          : 'text-fg-tertiary hover:text-fg-primary')
       }
       aria-pressed={liked}
     >

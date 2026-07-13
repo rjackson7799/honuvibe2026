@@ -9,6 +9,10 @@ export async function GET(req: Request) {
   const scope = await getCommunityScope(supabase);
   if (!scope) return NextResponse.json({ error: 'paywall' }, { status: 402 });
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const url = new URL(req.url);
   const cursor = url.searchParams.get('cursor') ?? undefined;
   const categoryParam = url.searchParams.get('category');
@@ -21,6 +25,7 @@ export async function GET(req: Request) {
     partnerId: scope.partnerId,
     category,
     cursor,
+    userId: user?.id ?? null,
   });
   return NextResponse.json(page);
 }

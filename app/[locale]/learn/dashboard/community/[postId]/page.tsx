@@ -13,9 +13,11 @@ import { CommentItem } from '@/components/community/CommentItem';
 import { LikeButton } from '@/components/community/LikeButton';
 import { CommentComposer } from '@/components/community/CommentComposer';
 import { PostMenu } from '@/components/community/PostMenu';
+import { PostEditor } from '@/components/community/PostEditor';
 
 type Props = {
   params: Promise<{ locale: string; postId: string }>;
+  searchParams: Promise<{ edit?: string }>;
 };
 
 function timeAgo(iso: string, locale: string): string {
@@ -31,8 +33,9 @@ function timeAgo(iso: string, locale: string): string {
   return locale === 'ja' ? `${mo}ヶ月前` : `${mo}mo`;
 }
 
-export default async function PostDetailPage({ params }: Props) {
+export default async function PostDetailPage({ params, searchParams }: Props) {
   const { locale, postId } = await params;
+  const { edit } = await searchParams;
   setRequestLocale(locale);
 
   const supabase = await createClient();
@@ -79,6 +82,11 @@ export default async function PostDetailPage({ params }: Props) {
   const isModerator = await canModeratePartner(supabase, post.partner_id);
   const withinEditWindow =
     Date.now() - new Date(post.created_at).getTime() < EDIT_WINDOW_MS;
+  const editing =
+    edit === '1' &&
+    userId === post.author_id &&
+    withinEditWindow &&
+    post.status === 'published';
 
   // Group comments: top-level + their direct replies (one level deep only)
   const topLevel = comments.filter((c) => !c.parent_comment_id);
@@ -147,9 +155,13 @@ export default async function PostDetailPage({ params }: Props) {
           )}
         </div>
 
-        <div className="prose max-w-none text-fg-primary [&_a]:text-[color:var(--accent-teal)] [&_pre]:bg-bg-tertiary [&_pre]:p-3 [&_pre]:rounded-[8px]">
-          <CommunityMarkdown body={post.body_md} />
-        </div>
+        {editing ? (
+          <PostEditor postId={post.id} initialBody={post.body_md} />
+        ) : (
+          <div className="prose max-w-none text-fg-primary [&_a]:text-[color:var(--accent-teal)] [&_pre]:bg-bg-tertiary [&_pre]:p-3 [&_pre]:rounded-[8px]">
+            <CommunityMarkdown body={post.body_md} />
+          </div>
+        )}
 
         {post.link_preview && (
           <a
@@ -214,13 +226,24 @@ export default async function PostDetailPage({ params }: Props) {
           <div className="space-y-1 rounded-[14px] bg-bg-secondary border border-border-default p-4 divide-y divide-border-default">
             {topLevel.map((c) => (
               <div key={c.id}>
-                <CommentItem comment={c} locale={locale} />
+                <CommentItem
+                  comment={c}
+                  locale={locale}
+                  createdLabel={timeAgo(c.created_at, locale)}
+                  currentUserId={userId}
+                  partnerScope={partnerScope}
+                  canComment={!isBanned && !!userId}
+                />
                 {(repliesByParent.get(c.id) ?? []).map((reply) => (
                   <CommentItem
                     key={reply.id}
                     comment={reply}
                     locale={locale}
                     isReply
+                    createdLabel={timeAgo(reply.created_at, locale)}
+                    currentUserId={userId}
+                    partnerScope={partnerScope}
+                    canComment={!isBanned && !!userId}
                   />
                 ))}
               </div>
