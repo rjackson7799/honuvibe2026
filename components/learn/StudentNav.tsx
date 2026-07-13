@@ -13,11 +13,8 @@ import {
   FlaskConical,
   Route,
   Users,
-  CreditCard,
-  UserCircle,
   GraduationCap,
   CalendarDays,
-  Bell,
   Shield,
   LogOut,
 } from 'lucide-react';
@@ -40,9 +37,6 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/paths', labelKey: 'nav_study_paths', icon: Route, exact: false },
   { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
-  { href: '/learn/dashboard/notifications', labelKey: 'nav_notifications', icon: Bell, exact: false },
-  { href: '/learn/dashboard/billing', labelKey: 'nav_billing', icon: CreditCard, exact: false },
-  { href: '/learn/dashboard/settings', labelKey: 'nav_profile', icon: UserCircle, exact: false },
 ];
 
 const instructorNavItem: NavItem = {
@@ -137,21 +131,12 @@ export function StudentNav() {
     ? [...baseNavItems.slice(0, 4), instructorNavItem, ...baseNavItems.slice(4)]
     : baseNavItems;
 
-  // Mobile bottom bar: cap at 6 slots and always pin Settings last — it's the
-  // only mobile route to account settings + sign-out, and the instructor entry
-  // would otherwise push it off the end.
-  const settingsItem = navItems.find((i) => i.href === '/learn/dashboard/settings');
-  const mobilePrimary = navItems.filter(
-    (i) =>
-      i.href !== '/learn/dashboard/events' &&
-      i.href !== '/learn/dashboard/community' &&
-      i.href !== '/learn/dashboard/notifications' &&
-      i.href !== '/learn/dashboard/billing' &&
-      i.href !== '/learn/dashboard/settings',
-  );
-  const mobileItems = settingsItem
-    ? [...mobilePrimary.slice(0, 5), settingsItem]
-    : mobilePrimary.slice(0, 6);
+  // Mobile bottom bar: show the primary destinations only (events/community live in
+  // the full sidebar). Profile/Billing/Notifications/Sign-out are reachable from the
+  // top bar, which renders on mobile too.
+  const mobileItems = navItems
+    .filter((i) => i.href !== '/learn/dashboard/events' && i.href !== '/learn/dashboard/community')
+    .slice(0, 6);
 
   // Most-specific match wins, so a parent entry (Vault) doesn't stay highlighted
   // when a nested entry (Workbench at /learn/vault/workbench) is the active one.
