@@ -8,6 +8,17 @@ export interface ContactEmailData {
   message: string;
 }
 
+export interface FeedbackEmailData {
+  category: 'general' | 'idea' | 'problem';
+  message: string;
+  /** Submitter's email, if available — used as replyTo + shown to admin. */
+  email?: string;
+  /** Submitter's display name, if available. */
+  name?: string;
+  /** Page the feedback was submitted from. */
+  pagePath?: string;
+}
+
 export interface NewsletterAdminNotifyData {
   locale: Locale;
   email: string;

@@ -5,6 +5,7 @@ import type {
   StudentDetail,
   Application,
   PartnershipInquiry,
+  Feedback,
   StudioLead,
   StudioLeadDetail,
   RevenueStats,
@@ -239,6 +240,32 @@ export async function getPartnershipInquiries(
   }
   if (error) throw error;
   return data ?? [];
+}
+
+export async function getFeedback(status?: string): Promise<Feedback[]> {
+  const supabase = await createClient();
+
+  // Disambiguate the embed: `feedback` has TWO FKs to users (user_id and
+  // reviewed_by), so an unqualified `users(...)` embed errors with PGRST201.
+  // The `!user_id` hint selects the submitter relationship.
+  let query = supabase
+    .from('feedback')
+    .select('*, users!user_id(full_name, email)')
+    .order('created_at', { ascending: false });
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+
+  const { data, error } = await query;
+  if (error?.code === 'PGRST205' && error.message?.includes("table 'public.feedback'")) {
+    console.error(
+      '[getFeedback] feedback table is missing. Apply supabase/migrations/059_feedback.sql to restore the admin inbox.',
+    );
+    return [];
+  }
+  if (error) throw error;
+  return (data ?? []) as unknown as Feedback[];
 }
 
 export async function getStudioLeads(status?: string): Promise<StudioLead[]> {

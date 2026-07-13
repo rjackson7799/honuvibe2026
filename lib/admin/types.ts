@@ -61,6 +61,23 @@ export interface PartnershipInquiry {
   reviewed_at: string | null;
 }
 
+export type FeedbackStatus = 'new' | 'reviewing' | 'resolved' | 'archived';
+export type FeedbackCategory = 'general' | 'idea' | 'problem';
+
+export interface Feedback {
+  id: string;
+  created_at: string;
+  user_id: string | null;
+  category: FeedbackCategory;
+  message: string;
+  page_path: string | null;
+  status: FeedbackStatus;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  // Embedded from public.users for the admin inbox.
+  users?: { full_name: string | null; email: string | null } | null;
+}
+
 export type StudioLeadStatus =
   | 'new'
   | 'qualified'

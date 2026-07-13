@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Handshake,
   Inbox,
+  MessageSquare,
   UserPlus,
   FileEdit,
   Wallet,
@@ -64,6 +65,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/partners', label: 'Partners', icon: Handshake },
       { href: '/admin/applications', label: 'Applications', icon: FileText },
       { href: '/admin/partnership-inquiries', label: 'Partnership Inquiries', icon: Inbox },
+      { href: '/admin/feedback', label: 'Feedback', icon: MessageSquare },
     ],
   },
   {

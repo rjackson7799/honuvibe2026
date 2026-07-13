@@ -24,7 +24,6 @@ import { SectionHeading } from '@/components/learn/SectionHeading';
 import { getMyUpcomingEvents } from '@/lib/events/queries';
 import { DashboardUpcomingEvents } from '@/components/events/DashboardUpcomingEvents';
 import { getUserPaths } from '@/lib/paths/queries';
-import { getUnreadCount } from '@/lib/notifications/queries';
 import { PathCard } from '@/components/learn/PathCard';
 
 type Props = {
@@ -65,14 +64,13 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     .eq('id', user.id)
     .single();
 
-  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse, upcomingEvents, studyPaths, unreadCount] = await Promise.all([
+  const [dashboardData, vaultRecommendations, instructorProfile, featuredCourse, upcomingEvents, studyPaths] = await Promise.all([
     getStudentDashboardData(user.id),
     getVaultCourseRecommendations(user.id, 6),
     getInstructorByUserId(user.id),
     getCourseBySlug('ai-essentials'),
     getMyUpcomingEvents(3),
     getUserPaths(user.id).catch(() => []),
-    getUnreadCount(user.id),
   ]);
   const activeStudyPaths = studyPaths.filter((p) => p.status === 'active');
 
@@ -93,7 +91,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     (profile?.full_name && profile.full_name.trim()) ||
     user.email?.split('@')[0] ||
     '';
-  const initial = displayName.trim().charAt(0).toUpperCase() || '?';
 
   if (!profile?.onboarded || sp.welcome === 'true') {
     return (
@@ -141,12 +138,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       <DashboardWelcomeHeader
         overlineDate={overlineDate}
         welcomeLabel={t('welcome_back', { name: displayName })}
-        displayName={displayName}
-        initial={initial}
-        settingsHref="/learn/dashboard/settings"
-        notificationsHref="/learn/dashboard/notifications"
-        notificationsLabel={t('nav_notifications')}
-        unreadCount={unreadCount}
       />
 
       {sp.enrolled === 'true' && (

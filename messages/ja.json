@@ -1103,6 +1103,22 @@
     "switch_to_light": "ライトモードに切り替え",
     "switch_to_dark": "ダークモードに切り替え"
   },
+  "feedback": {
+    "button": "フィードバック",
+    "title": "フィードバックを送る",
+    "subtitle": "不具合やご要望はありませんか？すべて拝見しています。",
+    "category_label": "種類",
+    "category_general": "一般",
+    "category_idea": "アイデア",
+    "category_problem": "問題",
+    "message_label": "フィードバック内容",
+    "message_placeholder": "良かった点、気になった点、ご要望などをお聞かせください…",
+    "submit": "送信する",
+    "submitting": "送信中…",
+    "success_title": "ありがとうございます！",
+    "success_body": "いただいたご意見はHonuVibeの改善に活用いたします。",
+    "error": "エラーが発生しました。もう一度お試しください。"
+  },
   "common": {
     "loading": "読み込み中...",
     "error": "エラーが発生しました",
@@ -2092,6 +2108,7 @@
     "subscribe_vault": "The Vaultに登録する",
     "subscribe_community": "コミュニティに登録",
     "manage_subscription": "サブスクリプション管理",
+    "portal_error": "請求ポータルを開けませんでした。もう一度お試しいただくか、サポートにお問い合わせください。",
     "update_payment": "お支払い方法を変更",
     "next_billing": "次回請求日: {date}",
     "payment_history": "お支払い履歴",
@@ -3422,7 +3439,7 @@
     "menu_hide": "非表示",
     "menu_unhide": "再表示",
     "menu_ban_author": "投稿者を制限",
-    "report_dialog_title": "この投稿を報告",
+    "report_dialog_title": "このコンテンツを報告",
     "report_reason_spam": "スパム",
     "report_reason_harassment": "ハラスメント",
     "report_reason_off_topic": "話題違い",
@@ -3454,7 +3471,14 @@
     "line_join_cta": "LINEで参加",
     "course_channels_strip_label": "コース別チャンネル",
     "back_to_feed": "フィードに戻る",
-    "comments_heading": "コメント"
+    "comments_heading": "コメント",
+    "edit_save": "保存",
+    "edit_cancel": "キャンセル",
+    "error_generic": "エラーが発生しました。",
+    "error_network": "ネットワークエラー。",
+    "error_edit_window": "編集可能な時間を過ぎました。",
+    "confirm_delete_comment": "このコメントを削除しますか？",
+    "open_post_by": "{name}さんの投稿を開く"
   },
   "tutoring": {
     "reports_tab": "1v1 レポート",

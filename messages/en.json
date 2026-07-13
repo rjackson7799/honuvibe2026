@@ -1103,6 +1103,22 @@
     "switch_to_light": "Switch to light mode",
     "switch_to_dark": "Switch to dark mode"
   },
+  "feedback": {
+    "button": "Feedback",
+    "title": "Share feedback",
+    "subtitle": "Spot a bug or have an idea? We read everything.",
+    "category_label": "Type",
+    "category_general": "General",
+    "category_idea": "Idea",
+    "category_problem": "Problem",
+    "message_label": "Your feedback",
+    "message_placeholder": "What's working, what's not, what you'd love to see…",
+    "submit": "Send feedback",
+    "submitting": "Sending…",
+    "success_title": "Thank you!",
+    "success_body": "Your feedback helps us make HonuVibe better.",
+    "error": "Something went wrong. Please try again."
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",
@@ -2092,6 +2108,7 @@
     "subscribe_vault": "Subscribe to The Vault",
     "subscribe_community": "Subscribe to Community",
     "manage_subscription": "Manage Subscription",
+    "portal_error": "Couldn't open the billing portal. Please try again or contact support.",
     "update_payment": "Update Payment Method",
     "next_billing": "Next billing date: {date}",
     "payment_history": "Payment History",
@@ -3422,7 +3439,7 @@
     "menu_hide": "Hide",
     "menu_unhide": "Unhide",
     "menu_ban_author": "Ban author",
-    "report_dialog_title": "Report this post",
+    "report_dialog_title": "Report this content",
     "report_reason_spam": "Spam",
     "report_reason_harassment": "Harassment",
     "report_reason_off_topic": "Off-topic",
@@ -3454,7 +3471,14 @@
     "line_join_cta": "Join on LINE",
     "course_channels_strip_label": "Your course channels",
     "back_to_feed": "Back to feed",
-    "comments_heading": "Comments"
+    "comments_heading": "Comments",
+    "edit_save": "Save",
+    "edit_cancel": "Cancel",
+    "error_generic": "Something went wrong.",
+    "error_network": "Network error.",
+    "error_edit_window": "The edit window has passed.",
+    "confirm_delete_comment": "Delete this comment?",
+    "open_post_by": "Open post by {name}"
   },
   "tutoring": {
     "reports_tab": "1v1 Reports",

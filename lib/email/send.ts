@@ -12,6 +12,7 @@ import { buildEventIcs } from '@/lib/events/ics';
 import { STUDIO_URL } from '@/lib/constants/urls';
 import type {
   ContactEmailData,
+  FeedbackEmailData,
   NewsletterAdminNotifyData,
   EventConfirmRequestData,
   EventRsvpConfirmationData,
@@ -130,6 +131,33 @@ export async function sendContactAdminNotification(data: ContactEmailData): Prom
   await sendEmail({
     to: adminEmail,
     subject: `[Contact] ${data.subject} — from ${data.name}`,
+    html: baseLayout({ locale: 'en', body }),
+    replyTo: data.email,
+  });
+}
+
+// ─── 1b. Member Feedback Admin Notification ─────────────────
+
+export async function sendFeedbackAdminNotification(data: FeedbackEmailData): Promise<void> {
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return;
+
+  const body = [
+    accentBanner('New Member Feedback'),
+    detailsTable([
+      { label: 'Category', value: data.category },
+      { label: 'From', value: escapeHtml(data.name ?? '') },
+      { label: 'Email', value: escapeHtml(data.email ?? '') },
+      { label: 'Page', value: escapeHtml(data.pagePath ?? '') },
+    ]),
+    divider(),
+    heading('Feedback'),
+    paragraph(escapeHtml(data.message)),
+  ].join('');
+
+  await sendEmail({
+    to: adminEmail,
+    subject: `[Feedback] ${data.category}${data.name ? ` — from ${data.name}` : ''}`,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
   });
