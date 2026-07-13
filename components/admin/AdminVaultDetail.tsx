@@ -738,21 +738,25 @@ export function AdminVaultDetail({
               Card Image (16:9)
             </label>
             {item ? (
-              <AiImageUploader
-                entityId={item.id}
-                idField="itemId"
-                imageType="thumbnail"
-                currentUrl={item.thumbnail_url}
-                generateEndpoint="/api/admin/vault/generate-image"
-                uploadEndpoint="/api/admin/vault/upload-image"
-                aspectClass="aspect-[16/9]"
-                maxSizeBytes={2 * 1024 * 1024}
-                onUploadComplete={() => router.refresh()}
-                onRemove={async () => {
-                  await updateVaultItem(item.id, { thumbnail_url: null });
-                  router.refresh();
-                }}
-              />
+              // Cap the preview near the real card width so it doesn't dominate
+              // the editor — the stored image (1536x864) is unchanged.
+              <div className="max-w-md">
+                <AiImageUploader
+                  entityId={item.id}
+                  idField="itemId"
+                  imageType="thumbnail"
+                  currentUrl={item.thumbnail_url}
+                  generateEndpoint="/api/admin/vault/generate-image"
+                  uploadEndpoint="/api/admin/vault/upload-image"
+                  aspectClass="aspect-[16/9]"
+                  maxSizeBytes={2 * 1024 * 1024}
+                  onUploadComplete={() => router.refresh()}
+                  onRemove={async () => {
+                    await updateVaultItem(item.id, { thumbnail_url: null });
+                    router.refresh();
+                  }}
+                />
+              </div>
             ) : (
               <p className="text-xs text-fg-tertiary">
                 Save the content first, then manage the card image.
