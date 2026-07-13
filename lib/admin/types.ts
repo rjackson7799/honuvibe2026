@@ -121,6 +121,55 @@ export interface StudioLeadDetail extends StudioLead {
   updated_at: string;
 }
 
+export type LeadAuditStatus = 'generating' | 'completed' | 'partial' | 'failed';
+
+export interface LeadAuditFinding {
+  id: string;
+  category: 'security' | 'seo' | 'mobile' | 'conversion' | 'freshness' | 'accessibility';
+  severity: 'critical' | 'warn' | 'info' | 'pass';
+  title: string;
+  evidence: string;
+}
+
+// One website-audit run against a lead's current site (migration 060). The
+// background job fills scores/findings/tech/psi (deterministic) and, when the
+// Claude call succeeds, narrative — else the row is `partial` with narrative null.
+export interface LeadAudit {
+  id: string;
+  lead_id: string;
+  created_at: string;
+  updated_at: string;
+  status: LeadAuditStatus;
+  audited_url: string;
+  scores: {
+    overall: number;
+    categories: Record<LeadAuditFinding['category'], number>;
+  } | null;
+  findings: LeadAuditFinding[] | null;
+  tech: Record<string, unknown> | null;
+  psi: {
+    strategy: 'mobile';
+    categories: {
+      performance: number | null;
+      accessibility: number | null;
+      best_practices: number | null;
+      seo: number | null;
+    };
+    metrics?: Record<string, number | null>;
+  } | null;
+  narrative: {
+    one_liner: string;
+    current_state_md: string;
+    opportunities_md: string;
+    competitive_md: string;
+    next_steps_md: string;
+  } | null;
+  summary_md: string | null;
+  model_id: string | null;
+  generation_error: string | null;
+  completed_at: string | null;
+}
+
 export interface DashboardStats {
   active_courses: number;
   total_enrolled: number;

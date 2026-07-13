@@ -10,6 +10,7 @@ const coralPill = 'bg-[color:var(--accent-coral-subtle)] text-[color:var(--accen
 const grayPill = 'bg-[rgba(26,43,51,0.06)] text-fg-secondary';
 const mutedPill = 'bg-[rgba(26,43,51,0.04)] text-fg-tertiary';
 const dangerPill = 'bg-red-500/10 text-red-500';
+const goldPill = 'bg-[color:var(--accent-gold-subtle)] text-[color:var(--accent-gold)]';
 
 const statusStyles: Record<string, string> = {
   // Course statuses
@@ -43,6 +44,8 @@ const statusStyles: Record<string, string> = {
   generating: coralPill,
   review: coralPill,
   failed: dangerPill,
+  // Lead-audit partial (heuristics saved, narrative failed) — amber from the gold token
+  partial: goldPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -70,6 +73,7 @@ const statusLabels: Record<string, string> = {
   generating: 'Generating',
   review: 'In Review',
   failed: 'Failed',
+  partial: 'Partial',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

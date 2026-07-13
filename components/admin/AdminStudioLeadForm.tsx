@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { createLead, updateLead } from '@/lib/studio/lead-actions';
 import { StudioLeadOutreachPanel } from './StudioLeadOutreachPanel';
+import { StudioLeadAuditPanel } from './StudioLeadAuditPanel';
 import type { StudioLeadDetail, StudioLeadStatus } from '@/lib/admin/types';
 
 const inputCls =
@@ -317,6 +318,7 @@ export function AdminStudioLeadForm({ lead }: { lead: StudioLeadDetail | null })
       </div>
 
       {!isCreate && lead && <StudioLeadOutreachPanel lead={lead} />}
+      {!isCreate && lead && <StudioLeadAuditPanel lead={lead} />}
     </div>
   );
 }

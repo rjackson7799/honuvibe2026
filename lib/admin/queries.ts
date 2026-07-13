@@ -8,6 +8,7 @@ import type {
   Feedback,
   StudioLead,
   StudioLeadDetail,
+  LeadAudit,
   RevenueStats,
   TransactionRecord,
 } from './types';
@@ -327,6 +328,40 @@ export async function getStudioLeadById(
   if (error || !data) return null;
   // Same concatenated-select cast rationale as getStudioLeads above.
   return data as unknown as StudioLeadDetail;
+}
+
+// Website audits for a lead (migration 060). Uses createClient() (session/RLS)
+// to match getStudioLeadById — the GET route holds an admin session and
+// lead_audits_admin_all lets it through. Errors are THROWN, never swallowed: an
+// RLS error / missing migration / dropped connection must surface as a logged
+// 500, not a silent "no audits yet". Only a successful empty result is [].
+export type LeadAuditSummary =
+  Pick<LeadAudit, 'id' | 'created_at' | 'status'> & { overall: number | null };
+
+export async function getLeadAudits(leadId: string, limit = 20): Promise<LeadAudit[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('lead_audits')
+    .select('*')
+    .eq('lead_id', leadId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as unknown as LeadAudit[];
+}
+
+// Lightweight single-row read for the ~5s poll (no full-history JSONB churn).
+export async function getLatestLeadAudit(leadId: string): Promise<LeadAudit | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('lead_audits')
+    .select('*')
+    .eq('lead_id', leadId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as LeadAudit | null;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {
