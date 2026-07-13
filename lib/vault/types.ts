@@ -306,7 +306,7 @@ export interface VaultItemCreateInput {
   url?: string;
   source?: VaultContentSource;
   embed_url?: string;
-  thumbnail_url?: string;
+  thumbnail_url?: string | null;
   duration_minutes?: number;
   author_name?: string;
   publish_date?: string;

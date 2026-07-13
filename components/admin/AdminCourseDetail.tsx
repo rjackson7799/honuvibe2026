@@ -10,7 +10,7 @@ import { SessionEditor } from './SessionEditor';
 import { BonusSessionEditor } from './BonusSessionEditor';
 import { ManualEnrollForm } from './ManualEnrollForm';
 import { publishCourse, unpublishCourse, archiveCourse, deleteCourse, updateCourse, createBonusSession } from '@/lib/courses/actions';
-import { CourseImageUploader } from './course-image-uploader';
+import { AiImageUploader } from './ai-image-uploader';
 import { InstructorAssignControl } from './InstructorAssignControl';
 import { ESLAdminDashboard } from './ESLAdminDashboard';
 import { CourseRevenueSplitEditor } from './CourseRevenueSplitEditor';
@@ -331,10 +331,15 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                 <label className="block text-xs text-fg-tertiary mb-2">
                   Thumbnail (16:9, max 2MB)
                 </label>
-                <CourseImageUploader
-                  courseId={course.id}
+                <AiImageUploader
+                  entityId={course.id}
+                  idField="courseId"
                   imageType="thumbnail"
                   currentUrl={course.thumbnail_url}
+                  generateEndpoint="/api/admin/courses/generate-image"
+                  uploadEndpoint="/api/admin/courses/upload-image"
+                  aspectClass="aspect-[16/9]"
+                  maxSizeBytes={2 * 1024 * 1024}
                   onUploadComplete={() => router.refresh()}
                   onRemove={async () => {
                     await updateCourse(course.id, { thumbnail_url: null });
@@ -346,10 +351,15 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                 <label className="block text-xs text-fg-tertiary mb-2">
                   Hero Image (21:9, max 5MB)
                 </label>
-                <CourseImageUploader
-                  courseId={course.id}
+                <AiImageUploader
+                  entityId={course.id}
+                  idField="courseId"
                   imageType="hero"
                   currentUrl={course.hero_image_url}
+                  generateEndpoint="/api/admin/courses/generate-image"
+                  uploadEndpoint="/api/admin/courses/upload-image"
+                  aspectClass="aspect-[21/9]"
+                  maxSizeBytes={5 * 1024 * 1024}
                   onUploadComplete={() => router.refresh()}
                   onRemove={async () => {
                     await updateCourse(course.id, { hero_image_url: null });

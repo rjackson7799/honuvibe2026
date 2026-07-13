@@ -15,6 +15,7 @@ import {
   deleteVaultDownload,
 } from '@/lib/vault/actions';
 import { VaultRelatedPicker } from './VaultRelatedPicker';
+import { AiImageUploader } from './ai-image-uploader';
 import type {
   VaultContentItem,
   VaultTag,
@@ -731,16 +732,30 @@ export function AdminVaultDetail({
             </div>
           </div>
 
-          {/* Thumbnail */}
+          {/* Thumbnail / card image */}
           <div>
-            <label className="block text-xs text-fg-tertiary mb-1">Thumbnail</label>
-            {isCreate ? (
-              <p className="text-xs text-fg-tertiary">
-                Save the content first, then manage the thumbnail.
-              </p>
+            <label className="block text-xs text-fg-tertiary mb-1">
+              Card Image (16:9)
+            </label>
+            {item ? (
+              <AiImageUploader
+                entityId={item.id}
+                idField="itemId"
+                imageType="thumbnail"
+                currentUrl={item.thumbnail_url}
+                generateEndpoint="/api/admin/vault/generate-image"
+                uploadEndpoint="/api/admin/vault/upload-image"
+                aspectClass="aspect-[16/9]"
+                maxSizeBytes={2 * 1024 * 1024}
+                onUploadComplete={() => router.refresh()}
+                onRemove={async () => {
+                  await updateVaultItem(item.id, { thumbnail_url: null });
+                  router.refresh();
+                }}
+              />
             ) : (
-              <p className="text-sm text-fg-secondary">
-                {item.thumbnail_url ? item.thumbnail_url : 'No thumbnail'}
+              <p className="text-xs text-fg-tertiary">
+                Save the content first, then manage the card image.
               </p>
             )}
           </div>

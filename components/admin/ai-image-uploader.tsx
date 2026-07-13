@@ -5,27 +5,41 @@ import { Upload, ImageIcon, RefreshCw, Trash2, Loader2, Sparkles } from 'lucide-
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-type CourseImageUploaderProps = {
-  courseId: string;
-  imageType: 'thumbnail' | 'hero';
+type AiImageUploaderProps = {
+  /** The entity's id (a course id, a vault item id, …). */
+  entityId: string;
+  /** The form/JSON field name the routes expect for the id (e.g. 'courseId', 'itemId'). */
+  idField: string;
+  /** Distinguishes multiple images on one entity ('thumbnail', 'hero', …). Sent to the routes. */
+  imageType: string;
   currentUrl: string | null;
+  /** POST JSON `{ [idField]: entityId, imageType }` → `{ url }`. */
+  generateEndpoint: string;
+  /** POST FormData `file` + `[idField]` + `imageType` → `{ url }`. */
+  uploadEndpoint: string;
   onUploadComplete: (url: string) => void;
   onRemove: () => void;
+  /** Tailwind aspect class for the preview/drop zone. Defaults to 16:9. */
+  aspectClass?: string;
+  /** Max upload size in bytes. Defaults to 5MB. */
+  maxSizeBytes?: number;
 };
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
-const MAX_SIZE = {
-  thumbnail: 2 * 1024 * 1024,
-  hero: 5 * 1024 * 1024,
-};
+const DEFAULT_MAX_SIZE = 5 * 1024 * 1024;
 
-export function CourseImageUploader({
-  courseId,
+export function AiImageUploader({
+  entityId,
+  idField,
   imageType,
   currentUrl,
+  generateEndpoint,
+  uploadEndpoint,
   onUploadComplete,
   onRemove,
-}: CourseImageUploaderProps) {
+  aspectClass = 'aspect-[16/9]',
+  maxSizeBytes = DEFAULT_MAX_SIZE,
+}: AiImageUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -40,8 +54,7 @@ export function CourseImageUploader({
     };
   }, [preview]);
 
-  const maxMB = MAX_SIZE[imageType] / (1024 * 1024);
-  const aspectClass = imageType === 'thumbnail' ? 'aspect-[16/9]' : 'aspect-[21/9]';
+  const maxMB = maxSizeBytes / (1024 * 1024);
   const displayUrl = preview || currentUrl;
 
   const validateFile = useCallback(
@@ -49,12 +62,12 @@ export function CourseImageUploader({
       if (!ALLOWED_TYPES.includes(file.type)) {
         return 'File must be JPEG, PNG, WebP, or AVIF';
       }
-      if (file.size > MAX_SIZE[imageType]) {
+      if (file.size > maxSizeBytes) {
         return `File exceeds ${maxMB}MB limit`;
       }
       return null;
     },
-    [imageType, maxMB],
+    [maxSizeBytes, maxMB],
   );
 
   const uploadFile = useCallback(
@@ -75,10 +88,10 @@ export function CourseImageUploader({
       try {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('courseId', courseId);
+        formData.append(idField, entityId);
         formData.append('imageType', imageType);
 
-        const res = await fetch('/api/admin/courses/upload-image', {
+        const res = await fetch(uploadEndpoint, {
           method: 'POST',
           body: formData,
         });
@@ -101,7 +114,7 @@ export function CourseImageUploader({
         setUploading(false);
       }
     },
-    [courseId, imageType, validateFile, onUploadComplete],
+    [entityId, idField, imageType, uploadEndpoint, validateFile, onUploadComplete],
   );
 
   const generateImage = useCallback(async () => {
@@ -109,10 +122,10 @@ export function CourseImageUploader({
     setGenerating(true);
 
     try {
-      const res = await fetch('/api/admin/courses/generate-image', {
+      const res = await fetch(generateEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ courseId, imageType }),
+        body: JSON.stringify({ [idField]: entityId, imageType }),
       });
 
       const data = await res.json();
@@ -127,7 +140,7 @@ export function CourseImageUploader({
     } finally {
       setGenerating(false);
     }
-  }, [courseId, imageType, onUploadComplete]);
+  }, [entityId, idField, imageType, generateEndpoint, onUploadComplete]);
 
   const busy = uploading || generating;
 
@@ -152,7 +165,7 @@ export function CourseImageUploader({
         <div className={cn('relative rounded-lg overflow-hidden bg-bg-tertiary', aspectClass)}>
           <img
             src={displayUrl}
-            alt={`Course ${imageType}`}
+            alt={`${imageType} image`}
             className="w-full h-full object-cover"
           />
 
