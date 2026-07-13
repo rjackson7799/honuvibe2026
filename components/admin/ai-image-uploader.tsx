@@ -28,6 +28,35 @@ type AiImageUploaderProps = {
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const DEFAULT_MAX_SIZE = 5 * 1024 * 1024;
 
+/**
+ * Parse a route response that is expected to be JSON, but may be a non-JSON
+ * platform error page (e.g. a Vercel function timeout returns plain text, which
+ * would otherwise throw "Unexpected token 'A'..." on res.json()). Returns the
+ * generated `url` or throws a readable error.
+ */
+async function readImageResponse(res: Response): Promise<string> {
+  const raw = await res.text();
+  let data: { url?: string; error?: string } | null = null;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    // Non-JSON body — surface a trimmed snippet + status instead of a parse error.
+    const snippet = raw.trim().slice(0, 140);
+    throw new Error(
+      snippet
+        ? `Request failed (${res.status}): ${snippet}`
+        : `Request failed (${res.status})`,
+    );
+  }
+  if (!res.ok) {
+    throw new Error(data?.error || `Request failed (${res.status})`);
+  }
+  if (!data?.url) {
+    throw new Error('No image URL returned');
+  }
+  return data.url;
+}
+
 export function AiImageUploader({
   entityId,
   idField,
@@ -96,16 +125,12 @@ export function AiImageUploader({
           body: formData,
         });
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Upload failed');
-        }
+        const url = await readImageResponse(res);
 
         // Clear local preview since we now have a real URL
         URL.revokeObjectURL(objectUrl);
         setPreview(null);
-        onUploadComplete(data.url);
+        onUploadComplete(url);
       } catch (err) {
         URL.revokeObjectURL(objectUrl);
         setPreview(null);
@@ -128,13 +153,8 @@ export function AiImageUploader({
         body: JSON.stringify({ [idField]: entityId, imageType }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Generation failed');
-      }
-
-      onUploadComplete(data.url);
+      const url = await readImageResponse(res);
+      onUploadComplete(url);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Generation failed');
     } finally {

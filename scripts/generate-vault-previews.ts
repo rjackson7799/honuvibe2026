@@ -91,7 +91,7 @@ function buildPrompt(entry: Entry): string {
 }
 
 async function cropToWide(pngBuffer: Buffer): Promise<Buffer> {
-  // gpt-image-2 returns 1536x1024 (3:2). Crop to ~2.4:1 (1536x640) to match
+  // gpt-image-1 returns 1536x1024 (3:2). Crop to ~2.4:1 (1536x640) to match
   // the 140px-tall card art frame in vertice.css.
   const targetHeight = 640;
   const top = Math.floor((1024 - targetHeight) / 2);
@@ -102,10 +102,10 @@ async function cropToWide(pngBuffer: Buffer): Promise<Buffer> {
 }
 
 async function generateOne(client: OpenAI, entry: Entry): Promise<void> {
-  process.stdout.write(`[${entry.slug}] generating with gpt-image-2 (60s+)...\n`);
+  process.stdout.write(`[${entry.slug}] generating with gpt-image-1 (60s+)...\n`);
 
   const result = await client.images.generate({
-    model: 'gpt-image-2',
+    model: 'gpt-image-1',
     prompt: buildPrompt(entry),
     size: '1536x1024',
     quality: 'high',

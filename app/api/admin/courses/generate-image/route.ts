@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import sharp from 'sharp';
 import { createClient } from '@/lib/supabase/server';
 
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 function getLevelMood(level: string | null): string {
   switch (level) {
@@ -141,10 +141,12 @@ export async function POST(request: NextRequest) {
 
     const prompt = buildImagePrompt(course, imageType);
 
-    // Generate via OpenAI gpt-image-1 (1536x1024 landscape, high quality)
-    const openai = new OpenAI({ apiKey });
+    // Generate via OpenAI gpt-image-1 (1536x1024 landscape, high quality).
+    // maxRetries: 1 caps the retry latency — a retryable 5xx must not stack up
+    // past maxDuration, or the function is killed and returns a non-JSON error.
+    const openai = new OpenAI({ apiKey, maxRetries: 1 });
     const result = await openai.images.generate({
-      model: 'gpt-image-2',
+      model: 'gpt-image-1',
       prompt,
       size: '1536x1024',
       quality: 'high',

@@ -97,7 +97,7 @@ async function generateOne(client: OpenAI, entry: Entry): Promise<void> {
   process.stdout.write(`[${entry.slug}] generating with gpt-image-1 (60s+)...\n`);
 
   const result = await client.images.edit({
-    model: 'gpt-image-2',
+    model: 'gpt-image-1',
     image: photoFile,
     prompt: buildPrompt(entry),
     size: '1536x1024',
