@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getVaultItemById, getVaultTags, getVaultAdminSeriesList, getVaultDownloads, getVaultItemPickerList, getVaultArticleBody, getVaultPrompts } from '@/lib/vault/queries';
 import { getAdminCourses } from '@/lib/courses/queries';
 import { createAdminClient } from '@/lib/supabase/server';
-import { AdminVaultDetail } from '@/components/admin/AdminVaultDetail';
+import { VaultEditor } from '@/components/admin/vault-editor/vault-editor';
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -39,7 +39,7 @@ export default async function AdminVaultDetailPage({ params }: Props) {
 
   if (id === 'new') {
     return (
-      <AdminVaultDetail
+      <VaultEditor
         item={null}
         tags={tags}
         seriesOptions={seriesOptions}
@@ -60,7 +60,7 @@ export default async function AdminVaultDetailPage({ params }: Props) {
   ]);
 
   return (
-    <AdminVaultDetail
+    <VaultEditor
       item={item}
       tags={tags}
       seriesOptions={seriesOptions}

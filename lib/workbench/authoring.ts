@@ -156,6 +156,7 @@ async function callAuthoringModel(
   system: string,
   messages: AnthropicMessage[],
   temperature: number,
+  limits?: { maxTokens?: number; timeoutMs?: number },
 ): Promise<AnthropicResult> {
   const apiKey = process.env[AUTHORING_MODEL.envVar];
   if (!apiKey) {
@@ -166,7 +167,10 @@ async function callAuthoringModel(
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), AUTHORING_MODEL.timeoutMs);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    limits?.timeoutMs ?? AUTHORING_MODEL.timeoutMs,
+  );
   let response: Response;
   try {
     response = await fetch(ANTHROPIC_MESSAGES_URL, {
@@ -179,7 +183,7 @@ async function callAuthoringModel(
       },
       body: JSON.stringify({
         model: AUTHORING_MODEL.apiId,
-        max_tokens: AUTHORING_MODEL.maxTokens,
+        max_tokens: limits?.maxTokens ?? AUTHORING_MODEL.maxTokens,
         temperature,
         system,
         messages,
@@ -214,19 +218,32 @@ function assistantText(result: AnthropicResult): string {
   );
 }
 
-/** Call the model, parse JSON with one corrective retry, validate with `schema`. */
-async function runAuthoringCall<S extends z.ZodTypeAny>(
+/**
+ * Call the model, parse JSON with one corrective retry, validate with `schema`.
+ * Exported for reuse by other admin authoring assists (e.g. the Vault
+ * translate assist in lib/vault/translate.ts). `maxTokens`/`timeoutMs`
+ * default to AUTHORING_MODEL's values when omitted.
+ */
+export async function runAuthoringCall<S extends z.ZodTypeAny>(
   system: string,
   userContent: string,
   schema: S,
-  opts: { contextLabel: string; temperature: number },
+  opts: {
+    contextLabel: string;
+    temperature: number;
+    maxTokens?: number;
+    timeoutMs?: number;
+  },
 ): Promise<z.infer<S>> {
   let messages: AnthropicMessage[] = [{ role: 'user', content: userContent }];
   let raw: unknown;
   let parseError: Error | undefined;
 
   for (let attempt = 0; attempt < 2; attempt++) {
-    const result = await callAuthoringModel(system, messages, opts.temperature);
+    const result = await callAuthoringModel(system, messages, opts.temperature, {
+      maxTokens: opts.maxTokens,
+      timeoutMs: opts.timeoutMs,
+    });
     try {
       raw = parseJsonFromClaude<unknown>(result, {
         contextLabel: opts.contextLabel,

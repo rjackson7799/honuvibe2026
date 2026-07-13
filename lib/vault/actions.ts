@@ -148,6 +148,7 @@ export async function createVaultItem(
       presenter_name: data.presenter_name ?? null,
       tool_widget_key: data.tool_widget_key ?? null,
       tool_widget_config: data.tool_widget_config ?? null,
+      is_featured: data.is_featured ?? false,
       is_published: false,
     })
     .select('id, slug')

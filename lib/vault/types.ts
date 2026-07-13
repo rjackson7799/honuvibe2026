@@ -325,6 +325,7 @@ export interface VaultItemCreateInput {
   presenter_name?: string;
   tool_widget_key?: string;
   tool_widget_config?: Record<string, unknown>;
+  is_featured?: boolean;
   // Article body (persisted to vault_article_bodies, not content_items)
   article_body_en?: string;
   article_body_jp?: string;
@@ -333,7 +334,6 @@ export interface VaultItemCreateInput {
 export interface VaultItemUpdateInput extends Partial<VaultItemCreateInput> {
   freshness_status?: VaultFreshnessStatus;
   is_published?: boolean;
-  is_featured?: boolean;
 }
 
 export interface VaultSeriesCreateInput {

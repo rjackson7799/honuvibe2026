@@ -21,9 +21,20 @@ export function parseJsonFromClaude<T>(
 
   let jsonStr = textBlock.text.trim();
 
+  // A raw-JSON reply parses as-is — return it before any cleanup heuristics,
+  // which can corrupt valid JSON whose string values contain ``` fences or
+  // ",}" sequences (e.g. translated Markdown article bodies).
+  try {
+    return JSON.parse(jsonStr) as T;
+  } catch {
+    // fall through to fence/brace cleanup
+  }
+
+  // Greedy fence match (first opening to last closing fence) so inner code
+  // fences inside the JSON payload don't truncate the extraction.
   const fenceMatch =
-    jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/) ||
-    jsonStr.match(/~~~(?:json)?\s*([\s\S]*?)~~~/);
+    jsonStr.match(/```(?:json)?\s*([\s\S]*)```/) ||
+    jsonStr.match(/~~~(?:json)?\s*([\s\S]*)~~~/);
   if (fenceMatch) jsonStr = fenceMatch[1].trim();
 
   const start = jsonStr.indexOf('{');
