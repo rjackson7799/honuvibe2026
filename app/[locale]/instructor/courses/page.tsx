@@ -33,13 +33,21 @@ export default async function InstructorCoursesPage({ params }: Props) {
               Propose new courses, track approval, and view your published catalog.
             </p>
           </div>
-          <Link
-            href="/instructor/courses/new"
-            className="flex items-center gap-2 px-4 py-2 bg-accent-teal text-white rounded-lg text-sm font-medium hover:bg-accent-teal/90 transition-colors"
-          >
-            <PlusCircle size={16} />
-            Propose a course
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/instructor/tutoring"
+              className="text-sm text-fg-tertiary hover:text-accent-teal"
+            >
+              1v1 Tutoring
+            </Link>
+            <Link
+              href="/instructor/courses/new"
+              className="flex items-center gap-2 px-4 py-2 bg-accent-teal text-white rounded-lg text-sm font-medium hover:bg-accent-teal/90 transition-colors"
+            >
+              <PlusCircle size={16} />
+              Propose a course
+            </Link>
+          </div>
         </div>
 
         <InstructorCourseList courses={courses} />
