@@ -10,6 +10,7 @@ const routes = [
   '',
   '/honuhub',
   '/explore',
+  '/sandbox',
   '/build',
   '/about',
   '/community',

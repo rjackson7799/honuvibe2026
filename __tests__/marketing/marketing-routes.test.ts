@@ -18,6 +18,8 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/', true],
     ['/learn', true],
     ['/explore', true],
+    ['/sandbox', true],
+    ['/sandbox/', true],
     ['/partnerships', true],
     ['/organizations', true],
     ['/free-lesson', true],
@@ -53,6 +55,11 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/learn/auth', false],
     ['/learn/some-course-slug', false],
     ['/learn/some-course-slug/checkout', false],
+    // Demo routes under /sandbox are standalone root layouts (Phases B/C),
+    // NOT marketing pages — /sandbox is exact-match only.
+    ['/sandbox/miles-chaser', false],
+    ['/sandbox/health-hub', false],
+    ['/sandboxish', false],
     // Other non-marketing routes
     ['/admin', false],
     ['/admin/courses', false],
@@ -81,12 +88,14 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     // Marketing routes prefixed with /ja
     ['/ja/learn', true],
     ['/ja/explore', true],
+    ['/ja/sandbox', true],
     ['/ja/partnerships', true],
     ['/ja/about', true],
     ['/ja/contact', true],
     // EN versions (no prefix) still match
     ['/learn', true],
     ['/explore', true],
+    ['/sandbox', true],
     ['/partnerships', true],
     ['/about', true],
     ['/contact', true],

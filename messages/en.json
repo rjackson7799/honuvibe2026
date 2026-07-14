@@ -103,6 +103,7 @@
     "home": "Home",
     "honuhub": "HonuHub",
     "exploration": "Explore",
+    "sandbox": "Sandbox",
     "learn": "Learn",
     "blog": "Blog",
     "community": "Community",
@@ -2797,6 +2798,52 @@
       "subhead": "Every build in this issue came out of HonuVibe Studio. Bring us your project — or start learning and put your own work in the next one.",
       "studio_cta": "Build with our Studio",
       "secondary_cta": "Start learning"
+    }
+  },
+  "sandbox": {
+    "meta": {
+      "title": "Sandbox — Demos you can touch | HonuVibe",
+      "description": "Live, interactive demos of real HonuVibe app builds — running entirely on simulated data. Open one, click around, break nothing."
+    },
+    "hero": {
+      "eyebrow": "The Sandbox",
+      "headline_line_1": "Don't just see the work.",
+      "headline_line_2": "Get your hands on it.",
+      "subhead": "The Sandbox is where you can explore live demos of real apps we've built — right in your browser, no sign-up needed. Every demo runs on 100% simulated data, so click anything.",
+      "note_simulated": "100% simulated data",
+      "note_no_signup": "No sign-up",
+      "note_real_code": "Real product code"
+    },
+    "grid": {
+      "headline": "The demos",
+      "subhead": "Each demo is a working slice of a real product build — the first two are in the works now."
+    },
+    "demos": {
+      "miles_chaser": {
+        "name": "MilesChaser",
+        "tagline": "A travel-rewards dashboard that tracks trips and elite-status progress, with projections that update as you add flights.",
+        "alt": "MilesChaser dashboard showing elite-status progress bars and monthly pacing targets"
+      },
+      "health_hub": {
+        "name": "Clinic CEO Dashboard",
+        "tagline": "An executive dashboard for a private medical practice — P&L at a glance, what-if scenario planning, and AI-assisted analysis.",
+        "alt": "Executive dashboard for a fictional medical practice showing financial charts and scenario controls"
+      }
+    },
+    "card": {
+      "launch": "Launch demo",
+      "coming_soon": "Coming soon",
+      "simulated": "Simulated data",
+      "en_only": "English only"
+    },
+    "method": {
+      "overline": "How the Sandbox works",
+      "real_builds_title": "Ported from real builds",
+      "real_builds_body": "Every demo is a working slice of an app we actually built and shipped — same code, same interactions, same charts.",
+      "simulated_data_title": "100% simulated data",
+      "simulated_data_body": "Names, numbers, and records are all fictional. Nothing you see comes from a real customer, patient, or account.",
+      "safe_to_break_title": "Safe to break",
+      "safe_to_break_body": "Your clicks stay in your browser and reset when you leave. Try every button — you can't damage anything."
     }
   },
   "about": {

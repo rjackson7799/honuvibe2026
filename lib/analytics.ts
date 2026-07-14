@@ -45,6 +45,18 @@ export function trackEventRsvp(props: {
   trackEvent('event_rsvp', props);
 }
 
+// --- Sandbox events ---------------------------------------------------------
+// Demo LAUNCHES are deliberately not click-tracked: landing → demo is a full
+// document load (separate root layouts), so the demo's own pageview is the
+// launch signal. Only coming-soon interest is a client-side event.
+
+export function trackSandboxDemoInterest(props: {
+  demo_slug: string;
+  locale: string;
+}) {
+  trackEvent('sandbox_demo_interest', props);
+}
+
 // --- Community feed events ------------------------------------------------
 // All values stringified because Plausible only accepts string-valued props.
 

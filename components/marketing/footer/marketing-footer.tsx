@@ -61,6 +61,7 @@ export function MarketingFooter() {
             <div className="flex flex-col gap-2.5">
               <Link href="/learn" className={linkClass}>{nav('learn')}</Link>
               <Link href="/explore" className={linkClass}>{nav('exploration')}</Link>
+              <Link href="/sandbox" className={linkClass}>{nav('sandbox')}</Link>
               <Link href="/partnerships" className={linkClass}>{nav('partnerships')}</Link>
               <Link href="/about" className={linkClass}>{nav('about')}</Link>
               <Link href="/contact" className={linkClass}>{nav('contact')}</Link>

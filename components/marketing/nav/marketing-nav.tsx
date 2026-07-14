@@ -4,6 +4,7 @@ import { MarketingNavClient } from './marketing-nav-client';
 const navLinks = [
   { href: '/learn', key: 'learn' },
   { href: '/explore', key: 'exploration' },
+  { href: '/sandbox', key: 'sandbox' },
   { href: '/partnerships', key: 'partnerships' },
   { href: '/about', key: 'about' },
   { href: '/contact', key: 'contact' },
