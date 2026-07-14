@@ -3,7 +3,7 @@
 // Ported from MilesChaser src/components/ui/Modal.tsx with dialog a11y the
 // source lacked: role/aria-modal/labelledby, initial focus, focus trap, and
 // focus return to the trigger on close.
-import { useEffect, useCallback, useId, useRef, ReactNode } from 'react';
+import { useEffect, useId, useRef, ReactNode } from 'react';
 import Button from './Button';
 
 interface ModalProps {
@@ -32,10 +32,20 @@ export default function Modal({
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  // Callers pass inline onClose closures — track the latest via a ref so the
+  // open/close effect depends ONLY on `open`. Re-running it per render would
+  // re-capture previousFocusRef mid-open (as an element inside the dialog,
+  // unmounted by close) and break focus return to the trigger.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+  useEffect(() => {
+    if (!open) return;
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current();
       // Minimal focus trap: keep Tab cycling inside the dialog.
       if (e.key === 'Tab' && dialogRef.current) {
         const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
@@ -53,28 +63,21 @@ export default function Modal({
           first.focus();
         }
       }
-    },
-    [onClose]
-  );
-
-  useEffect(() => {
-    if (open) {
-      previousFocusRef.current = document.activeElement as HTMLElement | null;
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-      // Initial focus moves into the dialog (its first focusable control).
-      const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-      focusables?.[0]?.focus();
-    }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    // Initial focus moves into the dialog (its first focusable control).
+    const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    focusables?.[0]?.focus();
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
       // Focus returns to the trigger on close.
       previousFocusRef.current?.focus();
     };
-  }, [open, handleKeyDown]);
+  }, [open]);
 
   if (!open) return null;
 
