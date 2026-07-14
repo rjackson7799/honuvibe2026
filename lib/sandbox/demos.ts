@@ -32,7 +32,7 @@ export const SANDBOX_DEMOS: readonly SandboxDemo[] = [
     key: 'miles_chaser',
     image: '/sandbox/miles-chaser.webp',
     stack: ['Next.js', 'Tailwind CSS', 'SWR', 'Recharts'],
-    status: 'coming_soon',
+    status: 'live',
   },
   {
     slug: 'health-hub',
