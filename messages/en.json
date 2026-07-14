@@ -2661,6 +2661,32 @@
       "title": "Explore — Real projects, real outcomes | HonuVibe",
       "description": "See what happens when AI education meets real-world application. Featured client work, community builds, and our pro-bono partnerships."
     },
+    "chart": {
+      "eyebrow": "Exploration log · The work, charted",
+      "headline_1": "The Wayfinding",
+      "headline_2": "Chart",
+      "lede": "Every project is a crossing — open water at the start, a fixed point on the map at the end. Here's the route we've charted so far, plotted in the order we sailed it.",
+      "legend_crossings": "crossings",
+      "legend_industries": "industries",
+      "legend_fog": "under fog",
+      "coords": "21°18′N · 157°49′W",
+      "route_label": "The route",
+      "route_caption": "Plotted in the order we sailed — newest crossings last.",
+      "route_terminus": "End of charted water — the next waypoint is yours",
+      "status_live": "Live",
+      "status_in_progress": "In progress",
+      "status_confidential": "Confidential",
+      "visit_label": "Visit site",
+      "stack_label": "Built with",
+      "fog_name": "Hidden in the fog",
+      "fog_brief": "An active crossing we can't chart in public yet. Details available on request."
+    },
+    "route_cta": {
+      "overline": "Chart a new crossing",
+      "heading": "Have a destination in mind? That's what HonuVibe Studio is for.",
+      "body": "Bring us the where — a website, an internal tool, an AI workflow — and we'll plot the course and sail it with you. Transparent tiers from $500.",
+      "cta": "Visit HonuVibe Studio"
+    },
     "reel_hero": {
       "now_playing_label": "Now Playing",
       "scene_label": "Scene {n} · Take 1",
@@ -2745,8 +2771,8 @@
       }
     },
     "method": {
-      "chapter_label": "Ch. III · How we build",
-      "headline": "Method",
+      "chapter_label": "How we navigate",
+      "headline": "Three stars we steer by",
       "discovery_title": "Discovery",
       "discovery_body": "We start by understanding your goals, your audience, and what success looks like. No assumptions.",
       "discovery_artifact": "Discovery brief · 30-page competitive audit",
@@ -2775,7 +2801,7 @@
       "link": "Interested in a community or nonprofit collaboration? Get in touch"
     },
     "questions": {
-      "chapter_label": "Ch. VI · Notes for the reader",
+      "chapter_label": "Soundings · Before you set sail",
       "headline": "Questions",
       "note_label": "Note {n}",
       "q_1_q": "What's the smallest project you take?",
@@ -2790,12 +2816,12 @@
       "q_5_a": "Bilingual EN/JP is core to how HonuVibe operates. Every project can ship with JP-native typography, layout, and copy reviewed by a native speaker — not machine translation."
     },
     "next_issue": {
-      "meta_left": "End of issue",
-      "meta_center": "— Fin —",
-      "meta_right": "Next issue · Spring MMXXVII",
-      "headline_1": "Want to be in the",
-      "headline_2": "next issue?",
-      "subhead": "Every build in this issue came out of HonuVibe Studio. Bring us your project — or start learning and put your own work in the next one.",
+      "meta_left": "Bearing set",
+      "meta_center": "21°18′N · 157°49′W",
+      "meta_right": "Next crossing",
+      "headline_1": "Chart your next",
+      "headline_2": "voyage.",
+      "subhead": "Every waypoint on this chart began as a conversation. Bring us your destination and we'll plot the course — or start learning and put your own work on the map.",
       "studio_cta": "Build with our Studio",
       "secondary_cta": "Start learning"
     }

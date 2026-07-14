@@ -2661,6 +2661,32 @@
       "title": "探検 — 本物のプロジェクト、本物の成果 | HonuVibe",
       "description": "AI教育が実践と出会うとき、何が生まれるのか。クライアントワーク、コミュニティビルド、プロボノ・パートナーシップの事例をご紹介します。"
     },
+    "chart": {
+      "eyebrow": "探検ログ · 仕事を、海図に",
+      "headline_1": "航海の",
+      "headline_2": "海図",
+      "lede": "プロジェクトは、ひとつの航海です。始まりは大海原、終わりは地図上の確かな一点。これまで私たちが描いてきた航路を、進んだ順にご紹介します。",
+      "legend_crossings": "航海",
+      "legend_industries": "領域",
+      "legend_fog": "霧の中",
+      "coords": "北緯21°18′ · 西経157°49′",
+      "route_label": "航路",
+      "route_caption": "進んだ順に。新しい航海ほど後ろに。",
+      "route_terminus": "海図はここまで — 次の寄港地はあなたの番",
+      "status_live": "公開中",
+      "status_in_progress": "進行中",
+      "status_confidential": "非公開",
+      "visit_label": "サイトを見る",
+      "stack_label": "技術",
+      "fog_name": "霧の中の航海",
+      "fog_brief": "まだ公にはできない進行中の航海です。詳細はお問い合わせください。"
+    },
+    "route_cta": {
+      "overline": "新しい航海を描く",
+      "heading": "目指す先はありますか？そのためのHonuVibe Studioです。",
+      "body": "行き先を教えてください — ウェブサイト、社内ツール、AIワークフロー。私たちが航路を描き、一緒に漕ぎ出します。明朗な料金プランは$500から。",
+      "cta": "HonuVibe Studioを見る"
+    },
     "reel_hero": {
       "now_playing_label": "再生中",
       "scene_label": "シーン {n} · テイク 1",
@@ -2745,8 +2771,8 @@
       }
     },
     "method": {
-      "chapter_label": "第III章 · つくり方",
-      "headline": "Method",
+      "chapter_label": "航海のしかた",
+      "headline": "指針とする三つの星",
       "discovery_title": "ディスカバリー",
       "discovery_body": "まずはゴール、対象、成功の定義を理解することから。前提を置かずにスタートします。",
       "discovery_artifact": "ディスカバリーブリーフ · 30ページの競合監査",
@@ -2775,7 +2801,7 @@
       "link": "コミュニティやNPOとの協働にご興味のある方はお気軽にどうぞ"
     },
     "questions": {
-      "chapter_label": "第VI章 · 読者への注釈",
+      "chapter_label": "出航前に · よくある質問",
       "headline": "Questions",
       "note_label": "ノート {n}",
       "q_1_q": "最小規模の案件は？",
@@ -2790,12 +2816,12 @@
       "q_5_a": "バイリンガルEN/JPはHonuVibeの根幹です。すべてのプロジェクトで、ネイティブによるレビュー前提のJPタイポグラフィ・レイアウト・コピーで出荷可能です。機械翻訳ではありません。"
     },
     "next_issue": {
-      "meta_left": "号末",
-      "meta_center": "— Fin —",
-      "meta_right": "次号 · 2027年春",
-      "headline_1": "次号に",
-      "headline_2": "載りませんか？",
-      "subhead": "この号に載っているプロジェクトはすべて、HonuVibe Studio が手がけたものです。プロジェクトをお任せいただくか、学びを始めて、次号にあなたの作品を載せてください。",
+      "meta_left": "針路、定まる",
+      "meta_center": "北緯21°18′ · 西経157°49′",
+      "meta_right": "次の航海へ",
+      "headline_1": "次の",
+      "headline_2": "航海へ。",
+      "subhead": "この海図のすべての寄港地は、一つの会話から始まりました。行き先を教えてください、私たちが航路を描きます — あるいは学びを始めて、あなたの作品をこの地図に。",
       "studio_cta": "スタジオで制作する",
       "secondary_cta": "学びを始める"
     }

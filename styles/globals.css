@@ -519,6 +519,68 @@
 }
 
 /* ============================================
+   EXPLORE — "The Wayfinding Chart" ocean zone
+   Remaps the light --m-* tokens to a deep-ocean
+   surface so the Explore <main> reads dark end to
+   end WITHOUT editing every reused section (same
+   mechanism as .dark-zone). Surfaces go transparent
+   so the single depth gradient below shows through
+   the opaque sections. --m-accent-teal is left at
+   #0FA9A0 (≈5.5:1 on this surface — AA pass) so the
+   CTAs stay identical to the rest of the site.
+   ============================================ */
+[data-shell="marketing"] .explore-ocean {
+  /* Surfaces → transparent/near-transparent: the depth gradient is the surface */
+  --m-canvas: transparent;
+  --m-sand: rgba(255, 255, 255, 0.022);
+  --m-sand-warm: rgba(255, 255, 255, 0.032);
+
+  /* Ink → light-on-dark */
+  --m-ink-primary: rgba(255, 255, 255, 0.94);
+  --m-ink-secondary: rgba(255, 255, 255, 0.68);
+  --m-ink-tertiary: rgba(255, 255, 255, 0.55);
+
+  /* Borders → hairline light */
+  --m-border-soft: rgba(255, 255, 255, 0.10);
+  --m-border-default: rgba(255, 255, 255, 0.15);
+  --m-border-strong: rgba(255, 255, 255, 0.22);
+
+  position: relative;
+  isolation: isolate;
+  color: rgba(255, 255, 255, 0.94);
+  /* Surface → depth: a shallow teal near the top (the guiding-star glow) down
+     into the abyss at the closing band. */
+  background:
+    radial-gradient(135% 68% at 50% -6%, rgba(15, 169, 160, 0.12), transparent 55%),
+    linear-gradient(180deg, #0C302C 0%, #0A2624 44%, #071F1D 80%, #051918 100%);
+}
+
+/* Charted bearing line running down the route (the signature element). */
+[data-shell="marketing"] .wf-route-line {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(15, 169, 160, 0.55),
+    rgba(15, 169, 160, 0.12)
+  );
+}
+
+/* Slow twinkle on waypoint stars — a guiding-star nod. */
+@keyframes wf-star-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.18); }
+}
+[data-shell="marketing"] .wf-star {
+  animation: wf-star-pulse 3.8s var(--ease-out) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-shell="marketing"] .wf-star {
+    animation: none;
+    opacity: 0.9;
+    transform: none;
+  }
+}
+
+/* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */
 

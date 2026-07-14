@@ -4,8 +4,9 @@ import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
 import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
-  ExploreReelHero,
-  ExploreIndex,
+  WayfindingHero,
+  WayfindingRoute,
+  ExploreRouteCta,
   ExploreMethod,
   ExploreAlohaStandard,
   ExploreQuestions,
@@ -33,9 +34,10 @@ export default async function ExplorationPage({ params }: Props) {
   return (
     <MarketingShell>
       <MarketingNav />
-      <main>
-        <ExploreReelHero />
-        <ExploreIndex />
+      <main className="explore-ocean">
+        <WayfindingHero />
+        <WayfindingRoute />
+        <ExploreRouteCta />
         <ExploreMethod />
         <ExploreAlohaStandard />
         <ExploreQuestions />

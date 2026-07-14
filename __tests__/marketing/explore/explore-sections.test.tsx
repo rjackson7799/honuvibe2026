@@ -3,8 +3,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
 import { STUDIO_URL } from '@/lib/constants/urls';
 import {
-  ExploreReelHero,
-  ExploreIndex,
+  WayfindingHero,
+  WayfindingRoute,
+  ExploreRouteCta,
   ExploreMethod,
   ExploreAlohaStandard,
   ExploreQuestions,
@@ -74,30 +75,50 @@ describe('Explore page sections', () => {
     errorSpy.mockRestore();
   });
 
-  it('ReelHero shows Now Playing, the first project heading, and frame counter', () => {
-    render(<ExploreReelHero />);
-    expect(screen.getByText(/Now Playing/i)).toBeInTheDocument();
+  it('WayfindingHero shows the eyebrow, the charted headline, and the lede', () => {
+    render(<WayfindingHero />);
+    expect(
+      screen.getByRole('heading', { name: /The Wayfinding\s*Chart/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Exploration log/i)).toBeInTheDocument();
+    expect(screen.getByText(/Every project is a crossing/i)).toBeInTheDocument();
+  });
+
+  it('WayfindingRoute plots live projects, the in-progress one, and the fog waypoints', () => {
+    render(<WayfindingRoute />);
+    expect(screen.getByRole('heading', { name: /^The route/ })).toBeInTheDocument();
+    // Expanded (live) waypoints
     expect(
       screen.getByRole('heading', { name: 'KwameBrathwaite.com' }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Frame 01 \/ 02/)).toBeInTheDocument();
-    expect(screen.getByLabelText('Next project')).toBeInTheDocument();
-  });
-
-  it('Index renders the editorial headline, both live projects, and the end-of-index rule', () => {
-    render(<ExploreIndex />);
     expect(
-      screen.getByRole('heading', { name: /^Index/ }),
+      screen.getByRole('heading', { name: 'HCI Medical Group' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('KwameBrathwaite.com')).toBeInTheDocument();
-    expect(screen.getByText('HCI Medical Group')).toBeInTheDocument();
-    expect(screen.getByText(/End of index/i)).toBeInTheDocument();
+    // Compact (in-progress) waypoint
+    expect(
+      screen.getByRole('heading', { name: 'Vertice Society' }),
+    ).toBeInTheDocument();
+    // Two confidential rows read as fog
+    expect(screen.getAllByText(/Hidden in the fog/i).length).toBeGreaterThanOrEqual(2);
+    // A live waypoint links out to its real site
+    const visitToKwame = screen
+      .getAllByRole('link')
+      .some((l) => l.getAttribute('href') === 'https://kwamebrathwaite.com');
+    expect(visitToKwame).toBe(true);
   });
 
-  it('Method renders the chapter label and three numbered step titles', () => {
+  it('ExploreRouteCta is a mid-page Studio nudge that opens Studio in a new tab', () => {
+    render(<ExploreRouteCta />);
+    const link = screen.getByRole('link', { name: /HonuVibe Studio/i });
+    expect(link).toHaveAttribute('href', STUDIO_URL);
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('Method renders the "three stars" headline and three step titles', () => {
     render(<ExploreMethod />);
     expect(
-      screen.getByRole('heading', { name: /^Method/ }),
+      screen.getByRole('heading', { name: /Three stars we steer by/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: 'Discovery' }),
@@ -108,7 +129,6 @@ describe('Explore page sections', () => {
     expect(
       screen.getByRole('heading', { name: 'Launch & Support' }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/How we build/i)).toBeInTheDocument();
   });
 
   it('AlohaStandard renders the two-line Aloha headline and a /partnerships link', () => {
@@ -141,16 +161,14 @@ describe('Explore page sections', () => {
     expect(
       screen.getByRole('link', { name: /Start learning/i }),
     ).toHaveAttribute('href', '/learn#vault');
-    expect(
-      screen.queryByRole('link', { name: /Tell us about your project/i }),
-    ).toBeNull();
   });
 
   it('renders every Explore section without console.error', () => {
     render(
       <>
-        <ExploreReelHero />
-        <ExploreIndex />
+        <WayfindingHero />
+        <WayfindingRoute />
+        <ExploreRouteCta />
         <ExploreMethod />
         <ExploreAlohaStandard />
         <ExploreQuestions />

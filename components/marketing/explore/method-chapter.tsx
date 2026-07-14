@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import { Star } from 'lucide-react';
 import { Container, Section } from '@/components/marketing/primitives';
 
 const STEPS = ['discovery', 'design_build', 'launch_support'] as const;
@@ -30,12 +31,20 @@ export function ExploreMethod() {
               key={key}
               className="grid gap-y-4 py-8 md:grid-cols-[80px_1fr_1.4fr_180px] md:gap-x-8 md:gap-y-0 md:py-10"
             >
-              <span
-                className="font-serif italic leading-none text-[var(--m-accent-teal)]"
-                style={{ fontSize: 'clamp(40px, 4.5vw, 56px)' }}
-              >
-                {String(i + 1).padStart(2, '0')}
-              </span>
+              <div className="flex items-center gap-3 md:flex-col md:items-start md:gap-2.5">
+                <Star
+                  size={18}
+                  strokeWidth={1.5}
+                  className="fill-[var(--m-accent-teal)] text-[var(--m-accent-teal)]"
+                  aria-hidden
+                />
+                <span
+                  className="font-serif italic leading-none text-[var(--m-accent-teal)]"
+                  style={{ fontSize: 'clamp(40px, 4.5vw, 56px)' }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+              </div>
 
               <div>
                 <h3 className="text-[22px] font-bold tracking-[-0.01em] text-[var(--m-ink-primary)]">

@@ -34,7 +34,11 @@ export function BrowserFrame({
           <span className="h-2.5 w-2.5 rounded-full bg-[#FFBD2E]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#28CA42]" />
         </div>
-        <div className="flex h-[22px] flex-1 items-center rounded-[5px] bg-[rgba(26,43,51,0.07)] pl-2.5 text-[11px] text-[var(--m-ink-tertiary)]">
+        {/* Chrome bar is always a light surface (hardcoded cream), so the chip
+            text is pinned to the light-mode ink-tertiary literal rather than the
+            themeable token — otherwise a dark zone (e.g. Explore's .explore-ocean)
+            remaps --m-ink-tertiary to white and the URL goes white-on-cream. */}
+        <div className="flex h-[22px] flex-1 items-center rounded-[5px] bg-[rgba(26,43,51,0.07)] pl-2.5 text-[11px] text-[#8B9499]">
           {secure && <span className="mr-1">🔒</span>}
           {url}
         </div>

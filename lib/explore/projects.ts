@@ -1,9 +1,11 @@
 /**
- * Source of truth for projects shown on /explore.
- * Consumed by ExploreReelHero (featured carousel) and ExploreIndex (table).
+ * Source of truth for projects shown on /explore ("The Wayfinding Chart").
+ * Consumed by WayfindingRoute: projects present in REEL_PROJECTS render as
+ * expanded waypoints (screenshot + quote + stats), the rest as compact ones.
  *
  * Copy lives in messages/{en,ja}.json under explore.reel_hero.projects.<key>
- * and explore.index.projects.<key>. This file owns structure, not text.
+ * (rich) and explore.index.projects.<key> (compact). This file owns structure,
+ * not text.
  */
 
 export type ProjectStatus = 'live' | 'in_progress' | 'confidential';
