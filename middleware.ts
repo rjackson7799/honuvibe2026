@@ -122,6 +122,17 @@ export default async function middleware(request: NextRequest) {
     // Local/preview: fall through so devs can preview /app-site directly.
   }
 
+  // ── Sandbox demos are EN-only, outside the locale tree ────────────────
+  // /sandbox/<demo> is excluded from this middleware by the matcher, but
+  // /ja/sandbox/<demo> still matches (starts with ja/). Canonicalize it so
+  // the fourth URL case is designed, not accidental. clone() keeps the
+  // query string; only the pathname changes.
+  if (pathname.startsWith('/ja/sandbox/')) {
+    const dest = request.nextUrl.clone();
+    dest.pathname = pathname.slice('/ja'.length);
+    return NextResponse.redirect(dest, 308);
+  }
+
   // Supabase auth: catch code param from email links (password reset, signup confirm, etc.)
   // Supabase PKCE flow redirects to redirectTo URL with ?code=xxx — forward to our auth callback
   const code = request.nextUrl.searchParams.get('code');
@@ -251,5 +262,8 @@ export const config = {
   // allowing /studio-site/* through so the guard above can run on the main domain.
   // Non-capturing group is required — Next's route-source parser rejects
   // capturing groups in the matcher.
-  matcher: '/((?!api|trpc|_next|_vercel|studio(?:$|/)|.*\\..*).*)',
+  // `sandbox/` (trailing slash) excludes the demo apps at /sandbox/<slug>/*
+  // while the /sandbox LANDING still gets intl handling. This namespace is
+  // reserved for demos — no future *marketing* child pages under /sandbox/<x>.
+  matcher: '/((?!api|trpc|_next|_vercel|studio(?:$|/)|sandbox/|.*\\..*).*)',
 };

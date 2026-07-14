@@ -86,6 +86,13 @@ const nextConfig: NextConfig = {
         source: '/previews/:path*',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
+      {
+        // Sandbox demo routes only (:path+ requires ≥1 segment — the /sandbox
+        // landing itself stays indexable). Defense in depth alongside the
+        // per-demo-layout robots meta tag.
+        source: '/sandbox/:path+',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
+      },
     ];
   },
   images: {
