@@ -12,8 +12,8 @@ HonuVibe.AI is a bilingual (EN/JP) platform for AI education, consulting, and co
 
 ## Tech Stack
 
-- **Framework:** Next.js 14+ with App Router, TypeScript strict mode
-- **Styling:** Tailwind CSS v3.4+ with custom design tokens (CSS variables)
+- **Framework:** Next.js 16 with App Router, React 19, TypeScript strict mode
+- **Styling:** Tailwind CSS v4 (CSS-first `@theme` in styles/globals.css — no tailwind.config) with custom design tokens (CSS variables)
 - **Database:** PostgreSQL via Supabase (row-level security enabled)
 - **Auth:** Supabase Auth — email/password + Google OAuth (Phase 2)
 - **Payments:** Stripe — USD + JPY, Checkout Sessions (Phase 2)
