@@ -37,6 +37,12 @@ export type StoreOptions = {
 };
 
 const clone = <T,>(v: T): T => structuredClone(v);
+// The source GET routes sort each trip's segments by segment_order before
+// returning — mirror that on every trip read.
+const sortSegments = (t: TripWithSegments): TripWithSegments => ({
+  ...t,
+  trip_segments: [...t.trip_segments].sort((a, b) => a.segment_order - b.segment_order),
+});
 const newId = () =>
   globalThis.crypto?.randomUUID?.() ?? `mc-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 const seedTrips = () => clone(mockTrips) as TripWithSegments[];
@@ -182,14 +188,14 @@ export function createStore(opts?: StoreOptions): MilesChaserStore {
       const total = trips.length;
       const offset = num(params.get('offset')) ?? 0;
       const limit = Math.min(num(params.get('limit')) ?? 20, 100); // source clamps at 100
-      trips = trips.slice(offset, offset + limit);
+      trips = trips.slice(offset, offset + limit).map(sortSegments);
       return { data: trips, pagination: { limit, offset, total } };
     }
     if (pathname.startsWith('/api/trips/')) {
       const id = pathname.slice('/api/trips/'.length);
       const trip = state.trips.find((t) => t.id === id);
       if (!trip) throw new Error('Trip not found');
-      return { data: clone(trip) };
+      return { data: sortSegments(clone(trip)) };
     }
 
     if (pathname.startsWith('/api/projection/')) {
@@ -238,13 +244,30 @@ export function createStore(opts?: StoreOptions): MilesChaserStore {
 
   async function createTrip(input: Record<string, unknown>): Promise<TripWithSegments> {
     await wait();
+    const rawSegments = (input.segments as Array<Record<string, unknown>>) ?? [];
+    // The source API validated input with zod (createTripSchema); the demo
+    // keeps a minimal required-field check so a blank form submission can't
+    // create a junk "` → `" trip (stricter-only contract stance). TripForm's
+    // existing catch renders this message inline.
+    if (rawSegments.length === 0) {
+      throw new Error('At least one flight segment is required');
+    }
+    for (const s of rawSegments) {
+      if (!s.origin || !s.destination || !s.departure_date || !s.airline_code) {
+        throw new Error(
+          'Origin, destination, departure date, and airline code are required for every segment',
+        );
+      }
+    }
     const id = newId();
     const now = new Date().toISOString();
-    const rawSegments = (input.segments as Array<Record<string, unknown>>) ?? [];
     // Explicit normalization — every TripSegment column gets a value.
     // Defaults reconciled against types/database.ts + the source
-    // segmentSchema (is_partner_flight/segment_order defaults); the form
-    // supplies origin/destination/departure_date/airline_code + estimates.
+    // segmentSchema (is_partner_flight/segment_order defaults). The form
+    // supplies origin/destination/departure_date/airline_code but — like the
+    // source form/schema — NO earning estimates, so form-created trips move
+    // the projection by segments only (0 QM / 1 QS / 0 QD per segment); the
+    // micro-vacation booking flow is the caller that sends real estimates.
     const segments = rawSegments.map((s, i): TripSegment => ({
       return_date: null,
       marketing_carrier: null,

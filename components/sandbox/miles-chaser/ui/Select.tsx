@@ -1,6 +1,6 @@
 'use client';
 
-import { SelectHTMLAttributes, forwardRef } from 'react';
+import { SelectHTMLAttributes, forwardRef, useId } from 'react';
 
 interface SelectOption {
   value: string;
@@ -16,7 +16,10 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, options, placeholder, id, className = '', ...props }, ref) => {
-    const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+    // The source derived ids from label text, which duplicates ids across
+    // repeated fieldsets (multi-segment TripForm) and mis-associates labels.
+    const autoId = useId();
+    const selectId = id ?? autoId;
 
     return (
       <div className="w-full">

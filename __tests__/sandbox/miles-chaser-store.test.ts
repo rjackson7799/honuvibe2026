@@ -85,6 +85,41 @@ describe('miles-chaser client store', () => {
     await expect(s.read('/api/trips/nope')).rejects.toThrow('Trip not found');
   });
 
+  it('createTrip rejects blank/incomplete segments (the source API validated with zod)', async () => {
+    const s = store();
+    await expect(s.createTrip({ is_earning_flight: false, segments: [] })).rejects.toThrow(
+      'At least one flight segment is required',
+    );
+    await expect(
+      s.createTrip({
+        is_earning_flight: false,
+        segments: [{ origin: '', destination: '', departure_date: '', airline_code: '' }],
+      }),
+    ).rejects.toThrow('required for every segment');
+    const list = (await s.read('/api/trips')) as TripsBody;
+    expect(list.pagination.total).toBe(mockTrips.length); // nothing was created
+  });
+
+  it('trip reads return segments sorted by segment_order (source route behavior)', async () => {
+    const s = store();
+    const created = await s.createTrip({
+      ...newTripInput,
+      segments: [
+        { ...newTripInput.segments[0], segment_order: 2, origin: 'HNL', destination: 'SEA' },
+        { ...newTripInput.segments[0], segment_order: 1 },
+      ],
+    });
+    const detail = (await s.read(`/api/trips/${created.id}`)) as Body<{
+      trip_segments: Array<{ segment_order: number }>;
+    }>;
+    expect(detail.data.trip_segments.map((x) => x.segment_order)).toEqual([1, 2]);
+    const list = (await s.read('/api/trips')) as TripsBody;
+    const inList = list.data.find((t) => t.id === created.id) as unknown as {
+      trip_segments: Array<{ segment_order: number }>;
+    };
+    expect(inList.trip_segments.map((x) => x.segment_order)).toEqual([1, 2]);
+  });
+
   it('createTrip returns a routable id, preserves enrollment_id, appears in list', async () => {
     const s = store();
     const created = await s.createTrip(newTripInput);

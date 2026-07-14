@@ -13,8 +13,9 @@ interface LoadingSpinnerProps {
 
 export default function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerProps) {
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div role="status" aria-label="Loading" className={`flex items-center justify-center ${className}`}>
       <svg
+        aria-hidden
         className={`animate-spin text-blue-600 dark:text-blue-400 ${sizeClasses[size]}`}
         fill="none"
         viewBox="0 0 24 24"

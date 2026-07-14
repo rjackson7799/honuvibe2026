@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { FlaskConical, X } from 'lucide-react';
 
 type Props = {
@@ -21,6 +21,16 @@ type Props = {
 export function DemoChrome({ demoName, stateNote }: Props) {
   const [tipOpen, setTipOpen] = useState(false);
   const tipId = useId();
+
+  // WCAG 1.4.13: hover-opened tooltip content must be dismissable without
+  // moving the pointer — the button's own onKeyDown only fires while it has
+  // focus, so listen document-wide while the tooltip is open.
+  useEffect(() => {
+    if (!tipOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setTipOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [tipOpen]);
 
   return (
     <div className="sticky top-0 z-[500] flex h-11 items-stretch gap-3 border-b border-white/10 bg-[#0d1220] px-4 text-white print:hidden">
