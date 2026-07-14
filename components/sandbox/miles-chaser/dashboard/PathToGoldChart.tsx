@@ -19,7 +19,7 @@ const TIER_NAMES: Record<string, string> = {
   silver: 'Silver',
   gold: 'Gold',
   platinum: 'Platinum',
-  mvp_gold: 'MVP Gold 100K',
+  '100k': 'Platinum 100K',
 };
 
 interface PathToGoldChartProps {

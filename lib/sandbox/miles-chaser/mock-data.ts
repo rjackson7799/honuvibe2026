@@ -1,6 +1,9 @@
 /**
- * Ported from MilesChaser src/lib/devMockData.ts (fictional demo data only —
- * "Demo User", "Alaska Airlines Atmos") — trimmed to the sandbox slice.
+ * Ported from MilesChaser src/lib/devMockData.ts (fictional demo data only)
+ * — trimmed to the sandbox slice. Brand strings were replaced with the fully
+ * fictional "HonuAir Miles" program (carrier code HN, made-up partners and
+ * tier names) per Ryan 2026-07-14: no real airline names, codes, or tier
+ * brands may appear in the public demo.
  * Skipped: mockProjection (recomputed live by the store), mockSubscription,
  * mockNotifications, mockHelpArticles, mockAuditRecords, getMockResponse.
  *
@@ -29,14 +32,14 @@ export type EnrollmentWithProgram = UserProgramEnrollment & {
 
 const rawProgram: LoyaltyProgram = {
   id: MOCK_PROGRAM_ID,
-  program_key: 'alaska_atmos',
-  display_name: 'Alaska Airlines Atmos',
+  program_key: 'honuair_miles',
+  display_name: 'HonuAir Miles',
   qualification_year_type: 'calendar',
   tiers: [
-    { key: 'silver', name: 'MVP', qm: 20000, qs: 15, qd: 2000 },
-    { key: 'gold', name: 'MVP Gold', qm: 40000, qs: 30, qd: 4000 },
-    { key: 'platinum', name: 'MVP Gold 75K', qm: 75000, qs: 60, qd: 7500 },
-    { key: '100k', name: 'MVP Gold 100K', qm: 100000, qs: 75, qd: 12000 },
+    { key: 'silver', name: 'Silver', qm: 20000, qs: 15, qd: 2000 },
+    { key: 'gold', name: 'Gold', qm: 40000, qs: 30, qd: 4000 },
+    { key: 'platinum', name: 'Platinum', qm: 75000, qs: 60, qd: 7500 },
+    { key: '100k', name: 'Platinum 100K', qm: 100000, qs: 75, qd: 12000 },
   ],
   earning_rules: {
     default_earning_rate: 1.0,
@@ -44,7 +47,7 @@ const rawProgram: LoyaltyProgram = {
     qd_per_dollar_spent: 1.0,
     qs_per_segment: 1,
   },
-  partner_airlines: ['AA', 'BA', 'CX', 'JL', 'QF'],
+  partner_airlines: ['KOA', 'NUI', 'LEI'],
   rules_version: '2026.1',
   rules_updated_at: '2026-01-01T00:00:00Z',
   is_active: true,
@@ -98,9 +101,9 @@ const rawTrips: TripWithSegments[] = [
         destination: 'SFO',
         departure_date: '2026-01-15',
         return_date: null,
-        airline_code: 'AS',
+        airline_code: 'HN',
         marketing_carrier: null,
-        flight_number: 'AS 234',
+        flight_number: '234',
         fare_class: 'Y',
         is_partner_flight: false,
         estimated_qualifying_miles: 680,
@@ -119,9 +122,9 @@ const rawTrips: TripWithSegments[] = [
         destination: 'SEA',
         departure_date: '2026-01-18',
         return_date: null,
-        airline_code: 'AS',
+        airline_code: 'HN',
         marketing_carrier: null,
-        flight_number: 'AS 471',
+        flight_number: '471',
         fare_class: 'Y',
         is_partner_flight: false,
         estimated_qualifying_miles: 680,
@@ -156,9 +159,9 @@ const rawTrips: TripWithSegments[] = [
         destination: 'LAX',
         departure_date: '2026-01-31',
         return_date: null,
-        airline_code: 'AS',
+        airline_code: 'HN',
         marketing_carrier: null,
-        flight_number: 'AS 512',
+        flight_number: '512',
         fare_class: 'B',
         is_partner_flight: false,
         estimated_qualifying_miles: 955,
@@ -177,9 +180,9 @@ const rawTrips: TripWithSegments[] = [
         destination: 'SEA',
         departure_date: '2026-02-02',
         return_date: null,
-        airline_code: 'AS',
+        airline_code: 'HN',
         marketing_carrier: null,
-        flight_number: 'AS 543',
+        flight_number: '543',
         fare_class: 'B',
         is_partner_flight: false,
         estimated_qualifying_miles: 955,
@@ -214,9 +217,9 @@ const rawTrips: TripWithSegments[] = [
         destination: 'JFK',
         departure_date: '2026-03-10',
         return_date: null,
-        airline_code: 'AS',
+        airline_code: 'HN',
         marketing_carrier: null,
-        flight_number: 'AS 18',
+        flight_number: '18',
         fare_class: 'Y',
         is_partner_flight: false,
         estimated_qualifying_miles: 2422,
@@ -235,9 +238,9 @@ const rawTrips: TripWithSegments[] = [
         destination: 'SEA',
         departure_date: '2026-03-14',
         return_date: null,
-        airline_code: 'AS',
+        airline_code: 'HN',
         marketing_carrier: null,
-        flight_number: 'AS 19',
+        flight_number: '19',
         fare_class: 'Y',
         is_partner_flight: false,
         estimated_qualifying_miles: 2422,

@@ -14,7 +14,7 @@ const tierVariants: Record<string, BadgeVariant> = {
   silver: 'gray',
   gold: 'yellow',
   platinum: 'purple',
-  mvp_gold: 'yellow',
+  '100k': 'purple',
 };
 
 const statusVariants: Record<string, BadgeVariant> = {

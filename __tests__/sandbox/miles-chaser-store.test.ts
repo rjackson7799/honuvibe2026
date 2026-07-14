@@ -24,7 +24,7 @@ const newTripInput = {
   segments: [
     {
       origin: 'SEA', destination: 'HNL', departure_date: '2031-08-01',
-      airline_code: 'AS', fare_class: 'M', is_partner_flight: false,
+      airline_code: 'HN', fare_class: 'M', is_partner_flight: false,
       estimated_qualifying_miles: 2677, estimated_qualifying_segments: 1,
       estimated_qualifying_dollars: 350,
     },

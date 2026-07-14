@@ -92,7 +92,7 @@ export default function SegmentFields({ index, segment, onChange, onRemove, erro
       <div className="grid grid-cols-2 gap-3">
         <Input
           label="Airline Code"
-          placeholder="AS"
+          placeholder="HN"
           maxLength={3}
           value={segment.airline_code}
           onChange={(e) => onChange(index, 'airline_code', e.target.value.toUpperCase())}
