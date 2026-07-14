@@ -6,7 +6,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 import { createClient } from '@/lib/supabase/server';
-import { getPartnershipInquiries } from './queries';
+import { getPartnershipInquiries, getProspects } from './queries';
 
 function buildPartnershipInquiryClientMock({
   data = [],
@@ -70,5 +70,81 @@ describe('getPartnershipInquiries', () => {
 
     expect(client.from).toHaveBeenCalledWith('partnership_inquiries');
     expect(chain.eq).toHaveBeenCalledWith('status', 'received');
+  });
+});
+
+function buildProspectsClientMock({
+  data = [],
+  error = null,
+}: {
+  data?: unknown[];
+  error?: { code?: string; message?: string } | null;
+}) {
+  const chain: Record<string, unknown> = { data, error };
+  for (const method of ['select', 'order', 'limit', 'eq', 'neq', 'or']) {
+    chain[method] = vi.fn(() => chain);
+  }
+  return { chain, client: { from: vi.fn(() => chain) } };
+}
+
+describe('getProspects', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('excludes dismissed rows by default', async () => {
+    const { client, chain } = buildProspectsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await getProspects();
+    expect(chain.neq).toHaveBeenCalledWith('status', 'dismissed');
+    expect(chain.eq).not.toHaveBeenCalled();
+    expect(chain.limit).toHaveBeenCalledWith(200);
+  });
+
+  it('an explicit status filter replaces the dismissed exclusion', async () => {
+    const { client, chain } = buildProspectsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await getProspects({ status: 'dismissed' });
+    expect(chain.eq).toHaveBeenCalledWith('status', 'dismissed');
+    expect(chain.neq).not.toHaveBeenCalled();
+  });
+
+  it('sanitizes the search to [\\w\\s-] before interpolating into .or()', async () => {
+    const { client, chain } = buildProspectsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    // Commas, parens, quotes, %, _ are PostgREST filter syntax — all stripped.
+    await getProspects({ search: "foo,bar(baz)%_'" });
+    expect(chain.or).toHaveBeenCalledWith(
+      'name.ilike.%foobarbaz_%,industry.ilike.%foobarbaz_%,location.ilike.%foobarbaz_%',
+    );
+  });
+
+  it('a punctuation-heavy business name still matches on its word characters', async () => {
+    const { client, chain } = buildProspectsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await getProspects({ search: "Bob's Plumbing & Sons!" });
+    expect(chain.or).toHaveBeenCalledWith(
+      'name.ilike.%Bobs Plumbing  Sons%,industry.ilike.%Bobs Plumbing  Sons%,location.ilike.%Bobs Plumbing  Sons%',
+    );
+  });
+
+  it('skips .or() entirely when the sanitized search is empty', async () => {
+    const { client, chain } = buildProspectsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await getProspects({ search: "',()%" });
+    expect(chain.or).not.toHaveBeenCalled();
+  });
+
+  it('throws on a query error (never [])', async () => {
+    const error = { code: '42501', message: 'permission denied' };
+    const { client } = buildProspectsClientMock({ error });
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await expect(getProspects()).rejects.toBe(error);
   });
 });

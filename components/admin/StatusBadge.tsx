@@ -46,6 +46,13 @@ const statusStyles: Record<string, string> = {
   failed: dangerPill,
   // Lead-audit partial (heuristics saved, narrative failed) — amber from the gold token
   partial: goldPill,
+  // Prospect statuses ('new' shared above)
+  scoring: coralPill,
+  scored: tealPill,
+  no_website: goldPill,
+  score_failed: dangerPill,
+  converted: grayPill,
+  dismissed: mutedPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -74,6 +81,12 @@ const statusLabels: Record<string, string> = {
   review: 'In Review',
   failed: 'Failed',
   partial: 'Partial',
+  scoring: 'Scoring',
+  scored: 'Scored',
+  no_website: 'No Website',
+  score_failed: 'Score Failed',
+  converted: 'Converted',
+  dismissed: 'Dismissed',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

@@ -170,6 +170,41 @@ export interface LeadAudit {
   completed_at: string | null;
 }
 
+export type ProspectStatus =
+  | 'new'
+  | 'scoring'
+  | 'scored'
+  | 'score_failed'
+  | 'no_website'
+  | 'converted'
+  | 'dismissed';
+
+// One Google Places result the Prospect Finder has seen (migration 061).
+// Repeat searches refresh the Places columns on place_id; converted/dismissed
+// statuses survive the refresh. Higher score = worse website = more opportunity.
+export interface Prospect {
+  id: string;
+  created_at: string;
+  place_id: string;
+  name: string;
+  website: string | null;
+  phone: string | null;
+  address: string | null;
+  rating: number | null;
+  review_count: number | null;
+  industry: string;
+  location: string;
+  search_query: string;
+  status: ProspectStatus;
+  score: number | null;
+  score_breakdown: { id: string; label: string; points: number }[] | null;
+  tech: Record<string, unknown> | null;
+  converted_lead_id: string | null;
+  dismissed_from: string | null;
+  scored_at: string | null;
+  scoring_started_at: string | null;
+}
+
 export interface DashboardStats {
   active_courses: number;
   total_enrolled: number;

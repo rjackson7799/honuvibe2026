@@ -9,6 +9,8 @@ import type {
   StudioLead,
   StudioLeadDetail,
   LeadAudit,
+  Prospect,
+  ProspectStatus,
   RevenueStats,
   TransactionRecord,
 } from './types';
@@ -362,6 +364,48 @@ export async function getLatestLeadAudit(leadId: string): Promise<LeadAudit | nu
     .maybeSingle();
   if (error) throw error;
   return (data ?? null) as unknown as LeadAudit | null;
+}
+
+// Prospect Finder (migration 061). Same throw-on-error rule as getLeadAudits:
+// a query error is a logged 500, never a silent []. Top 200 by opportunity
+// score; dismissed rows are EXCLUDED unless explicitly requested via the
+// status filter. `search` is sanitized to [\w\s-] (max 80) before interpolation
+// into .or() — PostgREST filter grammar treats commas, parens, and quotes as
+// syntax, so stripping only %/_ is not enough.
+export async function getProspects(filters?: {
+  status?: ProspectStatus;
+  search?: string;
+  limit?: number; // default 200
+}): Promise<Prospect[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from('prospects')
+    .select('*')
+    .order('score', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
+    .limit(filters?.limit ?? 200);
+  if (filters?.status) query = query.eq('status', filters.status);
+  else query = query.neq('status', 'dismissed');
+  const s = filters?.search?.replace(/[^\w\s-]/g, '').trim().slice(0, 80);
+  if (s) {
+    query = query.or(`name.ilike.%${s}%,industry.ilike.%${s}%,location.ilike.%${s}%`);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as unknown as Prospect[];
+}
+
+// Unfiltered in-flight count — the panel's poll-completion signal. Independent
+// of list filters/limit so polling can never stop early because active rows
+// fell outside the visible top-200 or a filter hid them.
+export async function getScoringCount(): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from('prospects')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'scoring');
+  if (error) throw error;
+  return count ?? 0;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {

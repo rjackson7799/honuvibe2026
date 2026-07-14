@@ -27,6 +27,7 @@ import {
   FlaskConical,
   Quote,
   Briefcase,
+  Radar,
   UserRound,
   type LucideIcon,
 } from 'lucide-react';
@@ -72,6 +73,7 @@ const navGroups: NavGroup[] = [
     label: 'Studio',
     items: [
       { href: '/admin/studio/leads', label: 'Studio Leads', icon: Briefcase },
+      { href: '/admin/prospects', label: 'Prospects', icon: Radar },
     ],
   },
   {
