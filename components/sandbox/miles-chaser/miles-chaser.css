@@ -1,0 +1,28 @@
+/* Scoped MilesChaser demo styles — everything under body.demo-miles-chaser.
+   Ports the source :root/body vars + Tailwind v3 compat defaults. */
+.demo-miles-chaser {
+  --background: #ffffff;
+  --foreground: #171717;
+  color: var(--foreground);
+  background: var(--background);
+}
+@media (prefers-color-scheme: dark) {
+  .demo-miles-chaser {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+/* Tailwind v3 preflight defaulted border-color to gray-200; v4 uses
+   currentColor. Restore v3 behavior inside the demo only. */
+.demo-miles-chaser *,
+.demo-miles-chaser *::before,
+.demo-miles-chaser *::after {
+  border-color: rgb(229 231 235);
+}
+@media (prefers-color-scheme: dark) {
+  .demo-miles-chaser *,
+  .demo-miles-chaser *::before,
+  .demo-miles-chaser *::after {
+    border-color: rgb(55 65 81); /* gray-700 — matches source dark borders */
+  }
+}
