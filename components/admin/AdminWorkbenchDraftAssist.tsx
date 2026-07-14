@@ -74,7 +74,7 @@ export function AdminWorkbenchDraftAssist({ hasExistingContent, onApply }: Props
         Describe the scenario in one line — the assistant drafts the English
         brief, expert prompt, expert output, and dimensions for you to edit.
       </p>
-      <div className="grid sm:grid-cols-[1fr,150px,150px] gap-3">
+      <div className="grid sm:grid-cols-[1fr_150px_150px] gap-3">
         <input
           className={inputCls}
           value={idea}

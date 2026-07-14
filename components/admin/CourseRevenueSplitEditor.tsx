@@ -180,7 +180,7 @@ export function CourseRevenueSplitEditor({
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[220px,1fr]">
+      <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
         <div className="space-y-2">
           <label className="block text-xs font-medium uppercase tracking-wide text-fg-tertiary">
             Instructor Pool %

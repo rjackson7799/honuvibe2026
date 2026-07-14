@@ -342,7 +342,7 @@ export function AdminWorkbenchScenarioForm({
         </div>
       )}
 
-      <div className="grid lg:grid-cols-[1fr,320px] gap-6 items-start">
+      <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
         <div className="space-y-6">
           {isCreate && (
             <AdminWorkbenchDraftAssist
