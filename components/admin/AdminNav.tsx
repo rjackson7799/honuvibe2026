@@ -134,7 +134,7 @@ export function AdminNav() {
       {/* Desktop sidebar */}
       <nav className="hidden md:flex flex-col shrink-0 w-56 h-screen sticky top-0 bg-bg-secondary border-r border-border-default">
         {/* Logo */}
-        <div className="px-5 pt-5 pb-4 border-b border-border-default flex items-center">
+        <div className="px-5 h-14 border-b border-border-default flex items-center">
           <HonuVibeWordmark />
         </div>
 
