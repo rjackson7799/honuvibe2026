@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SectionCard } from '@/components/admin/editor-shell/section-card';
+import { inputClass } from '@/components/admin/editor-shell/field-classes';
 
 export type PartnerAdminRow = {
   user_id: string;
@@ -90,20 +92,17 @@ export function PartnerAdminManager({ partnerId, initialAdmins }: Props) {
   }
 
   return (
-    <section className="rounded-lg border border-border-default bg-bg-secondary p-5 space-y-5">
-      <div>
-        <h2 className="font-serif text-xl text-fg-primary">Portal access</h2>
-        <p className="mt-1 text-sm text-fg-tertiary">
-          Users listed here can sign in and see this partner&apos;s aggregate metrics at
-          <code className="mx-1 rounded bg-bg-tertiary px-1.5 py-0.5 text-xs">/partner/</code>.
-          They cannot see individual student data.
-        </p>
-      </div>
+    <SectionCard id="portal-access" number={5} title="Portal access">
+      <p className="text-sm text-fg-tertiary">
+        Users listed here can sign in and see this partner&apos;s aggregate metrics at
+        <code className="mx-1 rounded bg-bg-tertiary px-1.5 py-0.5 text-xs">/partner/</code>.
+        They cannot see individual student data.
+      </p>
 
       {admins.length === 0 ? (
         <p className="text-sm text-fg-tertiary italic">No portal admins yet.</p>
       ) : (
-        <ul className="divide-y divide-border-default rounded border border-border-default">
+        <ul className="divide-y divide-border-default rounded-lg border border-border-default bg-bg-tertiary">
           {admins.map((a) => (
             <li
               key={a.user_id}
@@ -118,7 +117,7 @@ export function PartnerAdminManager({ partnerId, initialAdmins }: Props) {
               <button
                 type="button"
                 onClick={() => revoke(a.user_id, a.email)}
-                className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-fg-tertiary hover:bg-bg-tertiary hover:text-fg-primary"
+                className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-fg-tertiary transition-colors hover:bg-bg-secondary hover:text-fg-primary"
                 aria-label={`Revoke access for ${a.email ?? a.user_id}`}
               >
                 <X size={14} /> Revoke
@@ -136,7 +135,7 @@ export function PartnerAdminManager({ partnerId, initialAdmins }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={submitting}
-          className="flex-1 rounded border border-border-default bg-bg-primary px-3 py-2 text-sm text-fg-primary placeholder:text-fg-tertiary focus:border-accent-teal focus:outline-none"
+          className={`flex-1 ${inputClass}`}
         />
         <Button type="submit" disabled={submitting || !email.trim()} variant="primary" size="sm" icon={UserPlus}>
           {submitting ? 'Granting…' : 'Grant access'}
@@ -149,6 +148,6 @@ export function PartnerAdminManager({ partnerId, initialAdmins }: Props) {
         The user must sign up at <code>/learn/auth</code> first. Granting access promotes their role
         to <code>partner</code>.
       </p>
-    </section>
+    </SectionCard>
   );
 }

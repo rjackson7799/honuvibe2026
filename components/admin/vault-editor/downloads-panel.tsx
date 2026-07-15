@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Download, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { uploadVaultDownload, deleteVaultDownload } from '@/lib/vault/actions';
-import { labelClass } from './field-classes';
+import { labelClass } from '@/components/admin/editor-shell/field-classes';
 import type { VaultAccessTier, VaultDownload } from '@/lib/vault/types';
 
 const ACCESS_TIERS: VaultAccessTier[] = ['free', 'premium'];

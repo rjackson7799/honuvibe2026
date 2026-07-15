@@ -2,7 +2,7 @@
 
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SectionCard } from './section-card';
+import { SectionCard } from '@/components/admin/editor-shell/section-card';
 import type { VaultTag } from '@/lib/vault/types';
 
 const TAG_CATEGORIES = ['topic', 'tool', 'skill', 'industry', 'format'] as const;

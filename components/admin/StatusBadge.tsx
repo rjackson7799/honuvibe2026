@@ -23,6 +23,7 @@ const statusStyles: Record<string, string> = {
   rejected: dangerPill,
   // Enrollment statuses
   active: tealPill,
+  inactive: mutedPill,
   cancelled: dangerPill,
   refunded: mutedPill,
   // Application statuses
@@ -64,6 +65,7 @@ const statusLabels: Record<string, string> = {
   archived: 'Archived',
   rejected: 'Rejected',
   active: 'Active',
+  inactive: 'Inactive',
   cancelled: 'Cancelled',
   refunded: 'Refunded',
   received: 'Received',

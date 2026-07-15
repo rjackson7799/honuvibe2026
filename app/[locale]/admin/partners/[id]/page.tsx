@@ -1,8 +1,9 @@
 import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
-import { AdminPartnerForm, type PartnerFormData, type CourseOption } from '@/components/admin/AdminPartnerForm';
-import { PartnerAdminManager, type PartnerAdminRow } from '@/components/admin/PartnerAdminManager';
+import { PartnerEditor } from '@/components/admin/partner-editor/partner-editor';
+import type { PartnerFormData, CourseOption } from '@/components/admin/partner-editor/types';
+import type { PartnerAdminRow } from '@/components/admin/PartnerAdminManager';
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -92,14 +93,12 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="max-w-[1100px] space-y-6">
-      <AdminPartnerForm
-        partner={formData}
-        featuredCourseIds={featuredCourseIds}
-        courseOptions={courseOptions}
-        enrollmentCount={enrollmentRows?.length ?? 0}
-      />
-      <PartnerAdminManager partnerId={partner.id} initialAdmins={initialAdmins} />
-    </div>
+    <PartnerEditor
+      partner={formData}
+      featuredCourseIds={featuredCourseIds}
+      courseOptions={courseOptions}
+      enrollmentCount={enrollmentRows?.length ?? 0}
+      initialAdmins={initialAdmins}
+    />
   );
 }

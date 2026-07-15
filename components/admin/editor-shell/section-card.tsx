@@ -10,9 +10,9 @@ type SectionCardProps = {
 };
 
 /**
- * Numbered card shell for the Vault editor's 5-step layout. `scroll-mt-28`
- * keeps anchor scrolls clear of the sticky header; the `id` doubles as the
- * scroll-spy target.
+ * Numbered card shell for the stepped admin editors (Vault, Partners).
+ * `scroll-mt-28` keeps anchor scrolls clear of the sticky header; the `id`
+ * doubles as the scroll-spy target.
  */
 export function SectionCard({ id, number, title, meta, children }: SectionCardProps) {
   return (

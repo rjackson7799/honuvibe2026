@@ -1,6 +1,6 @@
-// Shared field styling for the Vault editor sections — identical to the
-// classes the previous single-file form used, hoisted so each section file
-// stays readable.
+// Shared field styling for the stepped admin editors (Vault, Partners), so
+// their inputs stay visually identical. Hoisted out of the section files to
+// keep each one readable.
 
 export const labelClass = 'block text-xs text-fg-tertiary mb-1';
 

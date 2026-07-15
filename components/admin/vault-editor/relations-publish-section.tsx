@@ -6,8 +6,8 @@ import { Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { VaultRelatedPicker } from '../VaultRelatedPicker';
 import { updateVaultItem } from '@/lib/vault/actions';
-import { SectionCard } from './section-card';
-import { labelClass, selectClass, textareaClass } from './field-classes';
+import { SectionCard } from '@/components/admin/editor-shell/section-card';
+import { labelClass, selectClass, textareaClass } from '@/components/admin/editor-shell/field-classes';
 import type {
   VaultContentItem,
   VaultDownload,

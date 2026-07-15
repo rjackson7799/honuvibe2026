@@ -25,7 +25,7 @@ import type {
 } from '@/lib/vault/types';
 import { VaultEditorHeader } from './vault-editor-header';
 import { VaultEditorNav, type EditorStep } from './vault-editor-nav';
-import { useScrollSpy } from './use-scroll-spy';
+import { useScrollSpy } from '@/components/admin/editor-shell/use-scroll-spy';
 import { CoreInfoSection } from './core-info-section';
 import { ContentMediaSection } from './content-media-section';
 import { ClassificationSection } from './classification-section';

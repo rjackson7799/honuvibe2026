@@ -1,8 +1,8 @@
 'use client';
 
 import { Languages } from 'lucide-react';
-import { SectionCard } from './section-card';
-import { inputClass, labelClass, textareaClass } from './field-classes';
+import { SectionCard } from '@/components/admin/editor-shell/section-card';
+import { inputClass, labelClass, textareaClass } from '@/components/admin/editor-shell/field-classes';
 import type { MachineField } from './machine-filled';
 
 type CoreInfoSectionProps = {

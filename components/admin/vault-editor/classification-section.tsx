@@ -1,7 +1,7 @@
 'use client';
 
-import { SectionCard } from './section-card';
-import { labelClass, selectClass } from './field-classes';
+import { SectionCard } from '@/components/admin/editor-shell/section-card';
+import { labelClass, selectClass } from '@/components/admin/editor-shell/field-classes';
 import type {
   VaultAccessTier,
   VaultDifficulty,

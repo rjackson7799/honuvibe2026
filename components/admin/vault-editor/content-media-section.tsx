@@ -4,8 +4,8 @@ import dynamic from 'next/dynamic';
 import { Languages } from 'lucide-react';
 import { AiImageUploader } from '../ai-image-uploader';
 import { VaultPromptListEditor } from '../VaultPromptListEditor';
-import { SectionCard } from './section-card';
-import { hintClass, inputClass, labelClass, selectClass } from './field-classes';
+import { SectionCard } from '@/components/admin/editor-shell/section-card';
+import { hintClass, inputClass, labelClass, selectClass } from '@/components/admin/editor-shell/field-classes';
 import { getRegisteredToolKeys } from '@/lib/vault/tools/registry';
 import type {
   VaultContentItem,
