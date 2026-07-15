@@ -248,3 +248,39 @@ export async function toggleAssignmentComplete(
 
   return { completed };
 }
+
+/**
+ * Record that the current user opened a session's external link (Zoom / replay),
+ * so the dashboard's resume hero knows where they were last. One row per
+ * user/session — re-opening refreshes opened_at.
+ *
+ * Takes sessionId only: the course is resolved server-side, which makes a
+ * mismatched course/session pair structurally impossible.
+ *
+ * Deliberately does NOT revalidate — an open is not a progress change, and
+ * revalidating on every link click would be wasteful. Callers fire this after
+ * window.open() and swallow the rejection: tracking must never block the link.
+ */
+export async function recordSessionOpen(sessionId: string): Promise<void> {
+  const { supabase, userId } = await requireAuth();
+
+  const { courseId } = await resolveItemCourse(
+    supabase,
+    'course_sessions',
+    sessionId,
+  );
+  await requireEnrollment(supabase, userId, courseId);
+
+  // opened_at is set explicitly: the column DEFAULT only fires on insert, not on
+  // the conflict-update path.
+  const { error } = await supabase.from('course_session_opens').upsert(
+    {
+      user_id: userId,
+      course_id: courseId,
+      session_id: sessionId,
+      opened_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id,session_id' },
+  );
+  if (error) throw new Error(error.message);
+}
