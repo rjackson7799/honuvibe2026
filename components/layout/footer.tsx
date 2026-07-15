@@ -62,7 +62,6 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-6 pt-4 border-t border-border-secondary flex items-center justify-between">
           <p className="text-xs text-fg-tertiary">&copy; {new Date().getFullYear()} HonuVibe.AI. All rights reserved.</p>
-          <p className="text-xs text-fg-tertiary italic">Made in Hawaii with Aloha</p>
         </div>
       </Container>
     </footer>

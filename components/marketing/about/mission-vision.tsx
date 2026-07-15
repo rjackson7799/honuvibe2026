@@ -29,7 +29,7 @@ export function AboutMissionVision() {
               03
             </span>
             <h2
-              className="font-serif italic leading-[0.96] tracking-[-0.02em] text-[var(--m-ink-primary)]"
+              className="font-serif leading-[0.96] tracking-[-0.02em] text-[var(--m-ink-primary)]"
               style={{ fontSize: 'clamp(36px, 4.5vw, 56px)' }}
             >
               {t('headline_1')}

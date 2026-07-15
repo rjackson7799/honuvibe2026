@@ -7,7 +7,7 @@ import {
   WayfindingRoute,
   ExploreRouteCta,
   ExploreMethod,
-  ExploreAlohaStandard,
+  ExploreGivingBack,
   ExploreQuestions,
   ExploreNextIssue,
 } from '@/components/marketing/explore';
@@ -131,10 +131,10 @@ describe('Explore page sections', () => {
     ).toBeInTheDocument();
   });
 
-  it('AlohaStandard renders the two-line Aloha headline and a /partnerships link', () => {
-    render(<ExploreAlohaStandard />);
-    expect(screen.getByText('Built with')).toBeInTheDocument();
-    expect(screen.getByText('Aloha.')).toBeInTheDocument();
+  it('GivingBack renders the two-line pro-bono headline and a /partnerships link', () => {
+    render(<ExploreGivingBack />);
+    expect(screen.getByText('Work we')).toBeInTheDocument();
+    expect(screen.getByText("don't invoice.")).toBeInTheDocument();
     const cta = screen.getByRole('link', {
       name: /Interested in a community or nonprofit collaboration/i,
     });
@@ -170,7 +170,7 @@ describe('Explore page sections', () => {
         <WayfindingRoute />
         <ExploreRouteCta />
         <ExploreMethod />
-        <ExploreAlohaStandard />
+        <ExploreGivingBack />
         <ExploreQuestions />
         <ExploreNextIssue />
       </>,

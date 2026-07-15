@@ -4,8 +4,8 @@ import { Container, Section } from '@/components/marketing/primitives';
 
 const STATS = ['capacity', 'partners', 'ratio'] as const;
 
-export function ExploreAlohaStandard() {
-  const t = useTranslations('explore.aloha');
+export function ExploreGivingBack() {
+  const t = useTranslations('explore.giving_back');
 
   return (
     <Section variant="sand" spacing="default" className="bg-[var(--m-sand-warm,var(--m-sand))]">

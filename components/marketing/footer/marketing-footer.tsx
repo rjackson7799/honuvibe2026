@@ -113,9 +113,6 @@ export function MarketingFooter() {
           <p className="text-[13px] text-white/40">
             &copy; {new Date().getFullYear()} HonuVibe.AI &middot; All rights reserved
           </p>
-          <p className="text-[13px] italic text-white/40">
-            Made in Hawaii with Aloha
-          </p>
         </div>
       </div>
     </footer>

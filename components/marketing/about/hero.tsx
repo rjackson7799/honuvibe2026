@@ -13,8 +13,18 @@ export function AboutHero() {
   const t = useTranslations('about.hero');
 
   return (
-    <Section variant="navy" spacing="hero" className="relative overflow-hidden">
-      <Container>
+    <Section variant="canvas" spacing="hero" className="relative overflow-hidden">
+      {/* Guiding glow, upper right (decorative) — the shallow teal of the crossing */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-24 -top-24 h-[440px] w-[440px] rounded-full opacity-70 blur-3xl"
+        style={{
+          background:
+            'radial-gradient(circle, rgba(15,169,160,0.22), transparent 65%)',
+        }}
+      />
+
+      <Container className="relative">
         {/* Issue meta strip */}
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/55 md:mb-14">
           <span>{t('meta_left')}</span>
@@ -31,7 +41,9 @@ export function AboutHero() {
             >
               {t('headline_1')}
               <br />
-              {t('headline_2')}
+              <span className="text-[var(--m-accent-teal)]">
+                {t('headline_2')}
+              </span>
               <span className="text-[var(--m-accent-teal)]">.</span>
             </h1>
           </div>

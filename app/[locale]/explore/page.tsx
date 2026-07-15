@@ -8,7 +8,7 @@ import {
   WayfindingRoute,
   ExploreRouteCta,
   ExploreMethod,
-  ExploreAlohaStandard,
+  ExploreGivingBack,
   ExploreQuestions,
   ExploreNextIssue,
 } from '@/components/marketing/explore';
@@ -39,7 +39,7 @@ export default async function ExplorationPage({ params }: Props) {
         <WayfindingRoute />
         <ExploreRouteCta />
         <ExploreMethod />
-        <ExploreAlohaStandard />
+        <ExploreGivingBack />
         <ExploreQuestions />
         <ExploreNextIssue />
       </main>

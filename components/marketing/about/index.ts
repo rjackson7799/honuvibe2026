@@ -1,5 +1,9 @@
 export { AboutHero } from './hero';
 export { AboutOriginStory } from './origin-story';
+export { AboutPrinciples } from './principles';
+export { AboutPacific } from './pacific';
+export { AboutWays } from './ways';
 export { AboutTeam } from './team';
+export { AboutMilestones } from './milestones';
 export { AboutMissionVision } from './mission-vision';
 export { AboutFinalCta } from './about-final-cta';

@@ -1,10 +1,15 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
+import { STUDIO_URL } from '@/lib/constants/urls';
 import {
   AboutHero,
   AboutOriginStory,
+  AboutPrinciples,
+  AboutPacific,
+  AboutWays,
   AboutTeam,
+  AboutMilestones,
   AboutMissionVision,
   AboutFinalCta,
 } from '@/components/marketing/about';
@@ -74,11 +79,11 @@ describe('About page sections', () => {
     errorSpy.mockRestore();
   });
 
-  it('Hero renders the navy headline, lede, and three chapter chips', () => {
+  it('Hero renders the "returning to" headline, lede, and three chapter chips', () => {
     const { container } = render(<AboutHero />);
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1.textContent).toContain('Practical AI education,');
-    expect(h1.textContent).toContain('made personal');
+    expect(h1.textContent).toContain('A place worth');
+    expect(h1.textContent).toContain('returning to');
     // Chapter chips link to anchors
     expect(container.querySelector('a[href="#origin"]')).toBeTruthy();
     expect(container.querySelector('a[href="#crew"]')).toBeTruthy();
@@ -86,6 +91,54 @@ describe('About page sections', () => {
     // Fact strip
     expect(screen.getByText('EN / 日本語')).toBeInTheDocument();
     expect(screen.getByText('2024')).toBeInTheDocument();
+  });
+
+  it('Principles renders the overline and all four operating principles', () => {
+    render(<AboutPrinciples />);
+    expect(screen.getByText(/WHAT WE BELIEVE · 04 PRINCIPLES/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Senior instruction, always' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Bilingual by default' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Community over content' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'We build what we teach' }),
+    ).toBeInTheDocument();
+  });
+
+  it('Pacific renders the three hub cities under the where-we-work overline', () => {
+    render(<AboutPacific />);
+    expect(screen.getByText(/WHERE WE WORK/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Honolulu' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Tokyo' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Los Angeles' })).toBeInTheDocument();
+  });
+
+  it('Ways splits Academy (→ /learn) and Studio (→ Studio, new tab)', () => {
+    render(<AboutWays />);
+    expect(screen.getByText(/TWO WAYS WE WORK/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /Explore the Academy/i }),
+    ).toHaveAttribute('href', '/learn');
+    const studio = screen.getByRole('link', { name: /Visit HonuVibe Studio/i });
+    expect(studio).toHaveAttribute('href', STUDIO_URL);
+    expect(studio).toHaveAttribute('target', '_blank');
+    expect(studio).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('Milestones renders the log with founding and the returning-community entry', () => {
+    render(<AboutMilestones />);
+    expect(screen.getByText(/THE STORY SO FAR/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'HonuVibe is founded' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'A community that returns' }),
+    ).toBeInTheDocument();
   });
 
   it('OriginStory renders the chapter overline, headline, and CTA (no founder tile)', () => {
@@ -148,7 +201,11 @@ describe('About page sections', () => {
         <AboutHero />
         <ProofBand vaultTotalCount={42} />
         <AboutOriginStory />
+        <AboutPrinciples />
+        <AboutPacific />
+        <AboutWays />
         <AboutTeam />
+        <AboutMilestones />
         <AboutMissionVision />
         <AboutFinalCta />
       </>,

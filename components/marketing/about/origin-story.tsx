@@ -39,7 +39,7 @@ export function AboutOriginStory() {
               01
             </span>
             <h2
-              className="font-serif italic leading-[0.96] tracking-[-0.02em] text-[var(--m-ink-primary)]"
+              className="font-serif leading-[0.96] tracking-[-0.02em] text-[var(--m-ink-primary)]"
               style={{ fontSize: 'clamp(40px, 5.2vw, 68px)' }}
             >
               {t('headline_1')}

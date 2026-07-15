@@ -308,7 +308,7 @@
     },
     "about": {
       "overline": "What is HonuHub?",
-      "heading": "Where Learning Meets Aloha",
+      "heading": "Where Learning Happens in Person",
       "description": "HonuHub is the physical heart of HonuVibe.AI — a premium learning space in Waikiki that functions as a classroom, conference room, and innovation lab. Whether you're joining in person or streaming from anywhere in the world, HonuHub brings the energy of Hawaii to every learning experience.",
       "description_2": "Equipped with professional AV equipment, high-speed internet, and a collaborative atmosphere, HonuHub is designed to make AI education tangible, social, and inspiring."
     },
@@ -598,7 +598,7 @@
       },
       "pro": {
         "title": "Pro-Bono & Nonprofit",
-        "description": "Giving back is core to the Aloha Standard. Featured projects for organizations making a difference.",
+        "description": "Giving back is core to how we operate. Featured projects for organizations making a difference.",
         "projects": {
           "coral_watch": {
             "title": "CoralWatch Hawaii",
@@ -651,7 +651,7 @@
       "auto_title": "Automations & Workflows",
       "auto_desc": "Intelligent workflows that eliminate repetitive tasks and unlock capacity. Zapier, N8N, AI-powered pipelines — connecting your tools into a seamless system.",
       "pro_title": "Pro-Bono & Nonprofit",
-      "pro_desc": "Giving back is core to the Aloha Standard. Featured projects for organizations making a difference — same quality, same commitment, no invoice.",
+      "pro_desc": "Giving back is core to how we operate. Featured projects for organizations making a difference — same quality, same commitment, no invoice.",
       "see_examples": "See examples"
     },
     "tech": {
@@ -756,95 +756,11 @@
     "advisory_link": "Looking for strategic advisory, board participation, or a high-impact partnership?",
     "advisory_cta": "Apply for Strategic Engagement"
   },
-  "about_page": {
-    "hero": {
-      "overline": "About Us",
-      "heading": "A Whole New Vibe for AI",
-      "sub": "In Hawaiian culture, the honu (green sea turtle) is a symbol of wisdom, endurance, and safe passage through unknown waters. HonuVibe carries that spirit — guiding curious minds through the vast ocean of AI with patience, purpose, and aloha."
-    },
-    "mission": {
-      "overline": "Our Purpose",
-      "heading": "Mission & Vision",
-      "description": "The honu navigates thousands of miles across open ocean, always finding its way home. We believe that same quiet determination lives in every builder and entrepreneur reaching for something new. HonuVibe exists to be the current that carries them forward — bridging Hawaii and Japan to make cutting-edge AI accessible to everyone.",
-      "mission_title": "Our Mission",
-      "mission_text": "To make cutting-edge AI education approachable, actionable, and community-driven — for Hawaii's local business community, ambitious entrepreneurs across the US, and Japanese learners eager to access emerging AI technologies from the source. Like the honu, we move with intention: steady progress over hype, real skills over shortcuts.",
-      "vision_title": "Our Vision",
-      "vision_text": "A world where every entrepreneur, regardless of technical background or geography, has the tools and community they need to build with AI. The honu thrives because it belongs to both land and sea — and HonuVibe thrives at the intersection of cultures, from Waikiki to Tokyo, creating a new standard for practitioner-focused education."
-    },
-    "aloha_standard": {
-      "overline": "Our Values",
-      "heading": "The Aloha Standard",
-      "sub": "Aloha is not a marketing tagline — it is the actual operating standard for how HonuVibe shows up in every interaction.",
-      "principles": {
-        "give_generously": {
-          "title": "Give Generously",
-          "description": "Free content, free community access, transparent information. We trust that generosity compounds."
-        },
-        "pro_bono": {
-          "title": "Pro-Bono Is Real Work",
-          "description": "When a nonprofit or community organization comes to HonuVibe, they receive the same quality of attention as any paying client."
-        },
-        "celebrate_community": {
-          "title": "Celebrate the Community",
-          "description": "Member wins — launched apps, grown businesses, shipped projects — are HonuVibe moments. We make space for those stories."
-        },
-        "never_fear": {
-          "title": "Never Fear-Based",
-          "description": "We don't use urgency tactics or 'AI is coming for your job' framing. Ever. We lead with curiosity, not anxiety."
-        }
-      }
-    },
-    "competencies": {
-      "overline": "What We Do",
-      "heading": "Core Competencies",
-      "sub": "From rapid prototyping to full curriculum development, HonuVibe brings practitioner expertise to every engagement.",
-      "items": {
-        "prototyping": {
-          "title": "AI Prototyping",
-          "description": "Rapid AI prototype building and product development. From concept to working demo in days, not months."
-        },
-        "micro_saas": {
-          "title": "Micro-SaaS Design",
-          "description": "Design and deploy focused SaaS products that solve real problems. Purpose-built, lean, and revenue-ready."
-        },
-        "integration": {
-          "title": "AI Integration",
-          "description": "Integrate AI into existing organizations and workflows. We meet businesses where they are and build from there."
-        },
-        "education": {
-          "title": "AI Education",
-          "description": "Training, curriculum development, and community-driven learning. Bilingual EN/JP education designed by practitioners."
-        }
-      },
-      "cta_heading": "Selective by Design",
-      "cta_description": "We take on a small number of passion projects and high-impact engagements each year. If you want to work together, we'd love to hear from you.",
-      "cta_button": "Get in Touch"
-    },
-    "founder": {
-      "overline": "The Founder",
-      "heading": "Ryan Jackson",
-      "role": "Director of AI Education | HonuVibe.AI",
-      "location": "Waikiki, Honolulu, Hawaii",
-      "bio_p1": "Ryan is the founder of HonuVibe.AI and brings a unique combination of business strategy, international market experience, and hands-on AI expertise. With deep roots in both the California entrepreneurial ecosystem and the Japanese business community, Ryan bridges the gap between American AI innovation and the needs of international professionals.",
-      "bio_p2": "Ryan works daily with the latest AI platforms — Claude, ChatGPT, and a wide range of professional AI tools — and brings that practitioner experience directly into the classroom. His teaching style is hands-on and jargon-free: every session is built around doing, not just watching.",
-      "bio_p3": "As a leader in the AI education space, Ryan is actively involved in the entrepreneurial, AI, and venture capital communities across Hawaii and California — bringing real-world insights on how AI is transforming American businesses into every lesson.",
-      "education_title": "Education",
-      "education_1": "MBA, International Business — USC Marshall School of Business",
-      "education_2": "BS, Business/Corporate Communications and Economics — Northwestern University"
-    },
-    "social": {
-      "overline": "Connect",
-      "heading": "Follow the Journey",
-      "tiktok": "TikTok",
-      "instagram": "Instagram",
-      "youtube": "YouTube"
-    }
-  },
   "community_page": {
     "hero": {
       "overline": "The Community",
       "heading": "Better Together",
-      "sub": "A global community of entrepreneurs, builders, and curious minds — united by AI and aloha."
+      "sub": "A global community of entrepreneurs, builders, and curious minds — united by AI and a shared curiosity."
     },
     "about": {
       "overline": "What We Do",
@@ -888,9 +804,9 @@
       }
     },
     "probono": {
-      "overline": "Aloha Standard",
+      "overline": "Giving Back",
       "heading": "Giving Back",
-      "description": "Every quarter, the HonuVibe community takes on a pro-bono project for a nonprofit or community organization. It's our way of practicing the Aloha Standard — using our skills to make a real difference.",
+      "description": "Every quarter, the HonuVibe community takes on a pro-bono project for a nonprofit or community organization. It's our way of giving back — using our skills to make a real difference.",
       "featured": "Featured: CoralWatch Hawaii — helping volunteer teams monitor coral reef health with a custom data collection app."
     },
     "tiers": {
@@ -1123,7 +1039,6 @@
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong",
-    "made_in_hawaii": "Made in Hawaii with Aloha",
     "language": "Language",
     "en": "EN",
     "ja": "日本語"
@@ -1358,7 +1273,7 @@
     },
     "enrolled": {
       "heading": "You're in.",
-      "body": "Aloha — your seat is confirmed, and your course hub is open right now. Settle in, say hello in the community, and we'll see you when class begins.",
+      "body": "Your seat is confirmed, and your course hub is open right now. Settle in, say hello in the community, and we'll see you when class begins.",
       "next_cta": "Open course hub",
       "email_note": "A confirmation and your receipt are on the way to your inbox."
     },
@@ -2787,10 +2702,10 @@
       "launch_support_duration": "90 days included",
       "artifact_label": "Artifact"
     },
-    "aloha": {
+    "giving_back": {
       "chapter_label": "Ch. V · Colophon",
-      "headline_1": "Built with",
-      "headline_2": "Aloha.",
+      "headline_1": "Work we",
+      "headline_2": "don't invoice.",
       "body": "Giving back is core to how HonuVibe operates. We dedicate capacity each quarter to nonprofit and community projects — delivering the same quality and care as any commercial engagement.",
       "stat_capacity_value": "25%",
       "stat_capacity_label": "of quarterly capacity",
@@ -2881,10 +2796,10 @@
       "meta_left": "ABOUT · ISSUE 01",
       "meta_center": "EN EDITION",
       "meta_right": "2026",
-      "overline": "ABOUT HONUVIBE · ISSUE 01",
-      "headline_1": "Practical AI education,",
-      "headline_2": "made personal",
-      "lede": "For entrepreneurs, professionals, and organizations across the US and Japan.",
+      "overline": "WHO WE ARE · WHAT WE STAND FOR",
+      "headline_1": "A place worth",
+      "headline_2": "returning to",
+      "lede": "A small, senior team spanning Honolulu, Tokyo, and Los Angeles — teaching AI the way practitioners actually work, in English and Japanese. Not a course library. A community you come back to.",
       "chip_origin_label": "Origin",
       "chip_crew_label": "The Crew",
       "chip_mission_label": "Mission",
@@ -2949,6 +2864,72 @@
       "cadence_stat_2_value": "2030+",
       "cadence_stat_3_label": "Focus",
       "cadence_stat_3_value": "US + Japan"
+    },
+    "principles": {
+      "chapter_overline": "WHAT WE BELIEVE · 04 PRINCIPLES",
+      "chapter_meta_right": "HOW WE OPERATE",
+      "headline_1": "Four things we",
+      "headline_2": "don't compromise on",
+      "item_1_num": "01",
+      "item_1_title": "Senior instruction, always",
+      "item_1_body": "The people who design the program are the ones who teach it. No junior hand-offs, no script readers — you learn from working practitioners.",
+      "item_2_num": "02",
+      "item_2_title": "Bilingual by default",
+      "item_2_body": "English and Japanese, side by side — because our team lives on both sides of the Pacific. Never a machine-translated afterthought.",
+      "item_3_num": "03",
+      "item_3_title": "Community over content",
+      "item_3_body": "A Vault and a community you return to, not a course library that ships once and goes quiet. The best learning happens after the lesson ends.",
+      "item_4_num": "04",
+      "item_4_title": "We build what we teach",
+      "item_4_body": "Our Studio ships real AI work for real clients. The Academy teaches from it — what we show you in class, we did last week."
+    },
+    "pacific": {
+      "chapter_overline": "WHERE WE WORK",
+      "chapter_meta_right": "THREE CITIES · TWO LANGUAGES",
+      "headline_1": "We work across",
+      "headline_2": "the Pacific",
+      "lede": "HonuVibe isn't in one place. We work out of Honolulu, Tokyo, and Los Angeles — which is why the bilingual promise is real, not translated. The same team that teaches in English teaches in Japanese.",
+      "hub_1_city": "Honolulu",
+      "hub_1_region": "Hawaiʻi, USA",
+      "hub_1_note": "Our hub between East and West.",
+      "hub_2_city": "Tokyo",
+      "hub_2_region": "Japan",
+      "hub_2_note": "Native Japanese instruction, in-market.",
+      "hub_3_city": "Los Angeles",
+      "hub_3_region": "California, USA",
+      "hub_3_note": "US operations and hands-on AI work."
+    },
+    "ways": {
+      "chapter_overline": "TWO WAYS WE WORK",
+      "chapter_meta_right": "TEACH · BUILD",
+      "headline_1": "Learn it, or",
+      "headline_2": "have it built",
+      "academy_label": "HONUVIBE ACADEMY",
+      "academy_tagline": "We teach",
+      "academy_body": "Live cohorts, an always-on community, and a Vault of practical lessons — custom curriculum, bilingual delivery, senior instructors. For individuals and organizations learning to build with AI.",
+      "academy_cta": "Explore the Academy",
+      "studio_label": "HONUVIBE STUDIO",
+      "studio_tagline": "We build",
+      "studio_body": "Sites, apps, and hands-on AI strategy — delivered by the same senior team, at our design and development practice. For when you need it built or advised, not taught.",
+      "studio_cta": "Visit HonuVibe Studio"
+    },
+    "milestones": {
+      "chapter_overline": "THE STORY SO FAR",
+      "chapter_meta_right": "MILESTONES",
+      "headline_1": "The story",
+      "headline_2": "so far",
+      "item_1_year": "2024",
+      "item_1_title": "HonuVibe is founded",
+      "item_1_body": "A training company built on one belief: practical AI education, delivered with genuine care, in the language you think in.",
+      "item_2_year": "2024",
+      "item_2_title": "Bilingual from day one",
+      "item_2_body": "English and Japanese programs run side by side — the same senior team teaching in both, across the Pacific.",
+      "item_3_year": "2025",
+      "item_3_title": "HonuVibe Studio opens",
+      "item_3_body": "The practice arm — building sites, apps, and AI strategy for clients — so what we teach stays grounded in real, shipped work.",
+      "item_4_year": "Today",
+      "item_4_title": "A community that returns",
+      "item_4_body": "Learners, cohorts, and partners like Vertice Society keep coming back — and the Vault keeps growing."
     },
     "final_cta": {
       "eyebrow": "the next chapter",
@@ -3457,7 +3438,7 @@
     "hero": {
       "overline": "For teams & organizations",
       "headline": "Practical AI training for your whole team",
-      "subhead": "A branded learning program built and delivered with you — bilingual EN/JP, hands-on, and grounded in real work. You bring the people; we bring the curriculum, the delivery, and the aloha.",
+      "subhead": "A branded learning program built and delivered with you — bilingual EN/JP, hands-on, and grounded in real work. You bring the people; we bring the curriculum, the delivery, and the care.",
       "cta": "Plan training for my team"
     },
     "audience": {

@@ -585,6 +585,56 @@
 }
 
 /* ============================================
+   ABOUT — "The Return" dark-ocean zone
+   Same scoped token-remap mechanism as .explore-ocean:
+   redefines the light --m-* tokens on the About <main> so
+   every reused section renders dark end to end WITHOUT
+   editing each one. Kept separate from .explore-ocean so
+   the shipped Explore page carries zero regression risk.
+   Unlike Explore, About reuses white-card components (team,
+   mission/vision, proof-band), so --m-white is ALSO remapped
+   to a translucent glass. --m-accent-teal stays #0FA9A0
+   (≈5.5:1 on this surface — AA) so CTAs match the rest of
+   the site.
+   ============================================ */
+[data-shell="marketing"] .about-ocean {
+  /* Surfaces → transparent/near-transparent: the depth gradient is the surface */
+  --m-canvas: transparent;
+  --m-sand: rgba(255, 255, 255, 0.022);
+  --m-sand-warm: rgba(255, 255, 255, 0.032);
+  /* Card surfaces → translucent glass (About reuses --m-white cards) */
+  --m-white: rgba(255, 255, 255, 0.045);
+
+  /* Ink → light-on-dark */
+  --m-ink-primary: rgba(255, 255, 255, 0.94);
+  --m-ink-secondary: rgba(255, 255, 255, 0.68);
+  --m-ink-tertiary: rgba(255, 255, 255, 0.55);
+
+  /* Borders → hairline light */
+  --m-border-soft: rgba(255, 255, 255, 0.10);
+  --m-border-default: rgba(255, 255, 255, 0.15);
+  --m-border-strong: rgba(255, 255, 255, 0.22);
+
+  position: relative;
+  isolation: isolate;
+  color: rgba(255, 255, 255, 0.94);
+  /* Surface → depth: a shallow teal near the top (the hero glow) down into the
+     abyss at the closing band — the honu's crossing, top to bottom. */
+  background:
+    radial-gradient(135% 68% at 50% -6%, rgba(15, 169, 160, 0.12), transparent 55%),
+    linear-gradient(180deg, #0C302C 0%, #0A2624 44%, #071F1D 80%, #051918 100%);
+}
+
+/* Charted meridian line down the milestone log (echoes the wayfinding route). */
+[data-shell="marketing"] .about-meridian {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(15, 169, 160, 0.55),
+    rgba(15, 169, 160, 0.12)
+  );
+}
+
+/* ============================================
    FOR ORGANIZATIONS — "The Field Guide"
    Botanical dark bands for the partnerships hero,
    method ("five seasons") and closing CTA. A deep-

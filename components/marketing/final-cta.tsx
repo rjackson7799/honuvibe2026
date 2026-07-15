@@ -13,6 +13,7 @@ export function FinalCta({
   note,
   primary,
   links,
+  variant = 'navy',
 }: {
   eyebrow: string;
   headline: string;
@@ -20,9 +21,12 @@ export function FinalCta({
   note?: string;
   primary: FinalCtaLink;
   links: FinalCtaLink[];
+  /** 'navy' = solid dark band (light pages). 'canvas' = transparent, for a
+   *  page that already supplies a dark surface (e.g. the .about-ocean zone). */
+  variant?: 'navy' | 'canvas';
 }) {
   return (
-    <Section variant="navy">
+    <Section variant={variant}>
       <Container>
         <div className="mx-auto max-w-[760px] text-center">
           <p className="mb-4 inline-flex items-center gap-3 text-[11.5px] font-bold uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">

@@ -6,6 +6,7 @@ export function AboutFinalCta() {
 
   return (
     <FinalCta
+      variant="canvas"
       eyebrow={t('eyebrow')}
       headline={t('headline')}
       body={t('body')}

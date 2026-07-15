@@ -6,7 +6,11 @@ import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing
 import {
   AboutHero,
   AboutOriginStory,
+  AboutPrinciples,
+  AboutPacific,
+  AboutWays,
   AboutTeam,
+  AboutMilestones,
   AboutMissionVision,
   AboutFinalCta,
 } from '@/components/marketing/about';
@@ -36,11 +40,15 @@ export default async function AboutPage({ params }: Props) {
   return (
     <MarketingShell>
       <MarketingNav />
-      <main>
+      <main className="about-ocean">
         <AboutHero />
         <ProofBand vaultTotalCount={vaultTotalCount} />
         <AboutOriginStory />
+        <AboutPrinciples />
+        <AboutPacific />
+        <AboutWays />
         <AboutTeam />
+        <AboutMilestones />
         <AboutMissionVision />
         <AboutFinalCta />
       </main>
