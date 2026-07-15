@@ -418,6 +418,10 @@
   --m-accent-coral-soft: #FCEDE6;
   --m-accent-verdigris: #2C7A6B;
   --m-accent-verdigris-soft: #DCEAE6;
+  /* Harvest gold — decorative only (large numerals, borders, accent glyphs).
+     Not AA for body text on cream; never use for running text. */
+  --m-accent-gold: #B0812E;
+  --m-accent-gold-soft: rgba(176, 129, 46, 0.10);
 
   /* Vault lesson palette — reference-exact, scoped to the home Vault section */
   --m-seafoam: #4FA89C;
@@ -581,6 +585,43 @@
 }
 
 /* ============================================
+   FOR ORGANIZATIONS — "The Field Guide"
+   Botanical dark bands for the partnerships hero,
+   method ("five seasons") and closing CTA. A deep-
+   forest gradient (teal shallow → verdigris deep →
+   a warm gold glow at the harvest corner) layered
+   over the navy Section. Higher specificity than
+   the Tailwind bg utility, so it overrides the navy
+   surface while keeping white ink. Static — no
+   motion — so nothing to gate for reduced-motion.
+   ============================================ */
+[data-shell="marketing"] .fg-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(115% 80% at 88% -12%, rgba(15, 169, 160, 0.12), transparent 55%),
+    radial-gradient(90% 70% at 4% 112%, rgba(176, 129, 46, 0.09), transparent 60%),
+    linear-gradient(162deg, #123430 0%, #0F2A2A 55%, #0C2226 100%);
+}
+
+/* Faint concentric "growth rings" motif — a quiet nod to a cross-section of
+   a trunk / a seed spreading. Decorative, pointer-transparent, drawn with
+   layered radial rings so it needs no extra DOM beyond one span. */
+[data-shell="marketing"] .fg-rings {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle, transparent 0 28%, rgba(255, 255, 255, 0.05) 28% 29%, transparent 29%),
+    radial-gradient(circle, transparent 0 44%, rgba(255, 255, 255, 0.045) 44% 45%, transparent 45%),
+    radial-gradient(circle, transparent 0 62%, rgba(15, 169, 160, 0.10) 62% 63%, transparent 63%),
+    radial-gradient(circle, transparent 0 82%, rgba(255, 255, 255, 0.035) 82% 83%, transparent 83%);
+}
+
+/* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */
 
@@ -651,6 +692,8 @@
   --color-m-accent-coral-soft: var(--m-accent-coral-soft);
   --color-m-accent-verdigris: var(--m-accent-verdigris);
   --color-m-accent-verdigris-soft: var(--m-accent-verdigris-soft);
+  --color-m-accent-gold: var(--m-accent-gold);
+  --color-m-accent-gold-soft: var(--m-accent-gold-soft);
   --color-m-border-soft: var(--m-border-soft);
   --color-m-border-default: var(--m-border-default);
   --color-m-border-strong: var(--m-border-strong);

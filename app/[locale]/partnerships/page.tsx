@@ -5,7 +5,10 @@ import { MarketingFooter } from '@/components/marketing/footer/marketing-footer'
 import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
   PartnershipsEditorialHero,
+  PartnershipsGrowingCycle,
   PartnershipsCohortChapter,
+  PartnershipsMonetize,
+  PartnershipsMembersTeachers,
   PartnershipsStudioRouter,
   PartnershipsMethodTable,
   PartnershipsNextChapter,
@@ -33,7 +36,10 @@ export default async function PartnershipsPage({ params }: Props) {
       <MarketingNav />
       <main>
         <PartnershipsEditorialHero />
+        <PartnershipsGrowingCycle />
         <PartnershipsCohortChapter />
+        <PartnershipsMonetize />
+        <PartnershipsMembersTeachers />
         <PartnershipsStudioRouter />
         <PartnershipsMethodTable />
         <PartnershipsNextChapter />

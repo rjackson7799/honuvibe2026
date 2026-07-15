@@ -3,7 +3,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
 import {
   PartnershipsEditorialHero,
+  PartnershipsGrowingCycle,
   PartnershipsCohortChapter,
+  PartnershipsMonetize,
+  PartnershipsMembersTeachers,
   PartnershipsStudioRouter,
   PartnershipsMethodTable,
   PartnershipsNextChapter,
@@ -70,15 +73,15 @@ describe('Partnerships page sections', () => {
   it('EditorialHero renders the single-focus headline and one cohort anchor chip', () => {
     render(<PartnershipsEditorialHero />);
     const h1 = screen.getByRole('heading', { level: 1 });
-    expect(h1.textContent).toContain('AI programs');
-    expect(h1.textContent).toContain('built for your community');
+    expect(h1.textContent).toContain('Programs that take root');
+    expect(h1.textContent).toContain('in your community');
     expect(
       screen.getByText(/We design and run AI learning programs/i),
     ).toBeInTheDocument();
     const anchor = screen.getByRole('link', {
-      name: /How a cohort partnership works/i,
+      name: /How a community program grows/i,
     });
-    expect(anchor).toHaveAttribute('href', '#cohort');
+    expect(anchor).toHaveAttribute('href', '#grows');
     expect(screen.getAllByRole('link')).toHaveLength(1);
     expect(
       screen.queryByRole('link', { name: /Building out your project/i }),
@@ -102,6 +105,40 @@ describe('Partnerships page sections', () => {
     expect(proofLink).toHaveAttribute('href', '/partners/vertice-society');
   });
 
+  it('GrowingCycle shows the seed → tend → harvest triptych', () => {
+    render(<PartnershipsGrowingCycle />);
+    expect(
+      screen.getByRole('heading', { name: /How a community grows/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Seed — custom curriculum')).toBeInTheDocument();
+    expect(screen.getByText('Tend — co-branded delivery')).toBeInTheDocument();
+    expect(screen.getByText('Harvest — monetize')).toBeInTheDocument();
+  });
+
+  it('Monetize spells out the three revenue models', () => {
+    render(<PartnershipsMonetize />);
+    expect(
+      screen.getByRole('heading', {
+        name: /Turn your community into a program that pays/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Revenue share')).toBeInTheDocument();
+    expect(screen.getByText('Flat license')).toBeInTheDocument();
+    expect(screen.getByText('Sponsor-funded')).toBeInTheDocument();
+  });
+
+  it('MembersTeachers frames members growing into paid teachers, with no wired link', () => {
+    render(<PartnershipsMembersTeachers />);
+    expect(
+      screen.getByRole('heading', {
+        name: /Your best members can become teachers/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Grown from within')).toBeInTheDocument();
+    // Teachers story is framed generically for now — no apply flow wired yet.
+    expect(screen.queryAllByRole('link')).toHaveLength(0);
+  });
+
   it('StudioRouter links out to the Studio site in a new tab', () => {
     render(<PartnershipsStudioRouter />);
     expect(
@@ -116,7 +153,7 @@ describe('Partnerships page sections', () => {
   it('MethodTable renders the five-phase cohort lifecycle without the cut columns', () => {
     render(<PartnershipsMethodTable />);
     expect(
-      screen.getByRole('heading', { name: /^Method/ }),
+      screen.getByRole('heading', { name: /^Five seasons/ }),
     ).toBeInTheDocument();
     expect(screen.getByText('How a cohort partnership runs')).toBeInTheDocument();
     expect(screen.getByText('Audience deep-dive')).toBeInTheDocument();
@@ -203,7 +240,10 @@ describe('Partnerships page sections', () => {
     render(
       <>
         <PartnershipsEditorialHero />
+        <PartnershipsGrowingCycle />
         <PartnershipsCohortChapter />
+        <PartnershipsMonetize />
+        <PartnershipsMembersTeachers />
         <PartnershipsStudioRouter />
         <PartnershipsMethodTable />
         <PartnershipsNextChapter />

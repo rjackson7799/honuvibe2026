@@ -1,5 +1,8 @@
 export { PartnershipsEditorialHero } from './editorial-hero';
+export { PartnershipsGrowingCycle } from './growing-cycle';
 export { PartnershipsCohortChapter } from './cohort-chapter';
+export { PartnershipsMonetize } from './monetize';
+export { PartnershipsMembersTeachers } from './members-teachers';
 export { PartnershipsProjectChapter } from './project-chapter';
 export { PartnershipsConsultingChapter } from './consulting-chapter';
 export { PartnershipsStudioRouter } from './studio-router';

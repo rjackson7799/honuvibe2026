@@ -3,15 +3,14 @@ import { ArrowRight } from 'lucide-react';
 import { Container, Section } from '@/components/marketing/primitives';
 
 const CADENCE = ['from', 'duration', 'audience'] as const;
-const OUTCOMES = ['curriculum', 'cobranded', 'revenue'] as const;
 
 export function PartnershipsCohortChapter() {
   const t = useTranslations('partnerships.cohort');
 
   return (
-    <Section id="cohort" variant="canvas" spacing="default">
+    <Section id="cohort" variant="sand" spacing="default">
       <Container>
-        {/* Chapter header */}
+        {/* Specimen header */}
         <div className="mb-10 flex flex-wrap items-end justify-between gap-3 border-b border-[var(--m-border-soft)] pb-5">
           <p className="font-mono text-[11.5px] uppercase tracking-[0.18em] text-[var(--m-accent-teal)]">
             {t('overline')}
@@ -22,31 +21,23 @@ export function PartnershipsCohortChapter() {
         </div>
 
         <div className="grid gap-12 md:grid-cols-[1fr_1.05fr] md:gap-16">
-          {/* Left: headline + chapter number + lede */}
+          {/* Left: headline + lede + vitals + quote */}
           <div>
-            <div className="flex items-start gap-6">
-              <span
-                className="font-serif italic leading-none text-[var(--m-accent-teal)]"
-                style={{ fontSize: 'clamp(56px, 7vw, 88px)' }}
-              >
-                01
-              </span>
-              <h2
-                className="font-serif italic leading-[0.96] tracking-[-0.02em] text-[var(--m-ink-primary)]"
-                style={{ fontSize: 'clamp(40px, 5.2vw, 68px)' }}
-              >
-                {t('headline_1')}
-                <br />
-                {t('headline_2')}
-                <span className="text-[var(--m-accent-teal)]">.</span>
-              </h2>
-            </div>
+            <h2
+              className="font-serif italic leading-[0.98] tracking-[-0.02em] text-[var(--m-ink-primary)]"
+              style={{ fontSize: 'clamp(40px, 5.2vw, 68px)' }}
+            >
+              {t('headline_1')}
+              <br />
+              {t('headline_2')}
+              <span className="text-[var(--m-accent-teal)]">.</span>
+            </h2>
 
-            <p className="mt-8 max-w-[58ch] text-[16.5px] leading-[1.7] text-[var(--m-ink-secondary)]">
+            <p className="mt-8 max-w-[54ch] text-[16.5px] leading-[1.7] text-[var(--m-ink-secondary)]">
               {t('lede')}
             </p>
 
-            {/* Cadence row */}
+            {/* Vitals row */}
             <div className="mt-10 grid grid-cols-3 gap-5 border-t border-[var(--m-border-soft)] pt-7">
               {CADENCE.map((k) => (
                 <div key={k}>
@@ -59,27 +50,6 @@ export function PartnershipsCohortChapter() {
                 </div>
               ))}
             </div>
-
-            {/* Outcome bullets */}
-            <ul className="mt-8 flex flex-col gap-3.5">
-              {OUTCOMES.map((k) => (
-                <li
-                  key={k}
-                  className="flex items-start gap-3 text-[15.5px] leading-[1.55] text-[var(--m-ink-secondary)]"
-                >
-                  <span
-                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--m-accent-teal)]"
-                    aria-hidden
-                  />
-                  <span>
-                    <span className="font-semibold text-[var(--m-ink-primary)]">
-                      {t(`outcome_${k}_title`)}
-                    </span>{' '}
-                    — {t(`outcome_${k}_body`)}
-                  </span>
-                </li>
-              ))}
-            </ul>
 
             {/* Quote */}
             <blockquote className="mt-10 border-l-2 border-[var(--m-accent-teal)] pl-5">

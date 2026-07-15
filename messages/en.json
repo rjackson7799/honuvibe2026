@@ -3016,33 +3016,38 @@
       "description": "AI learning programs for organizations and communities — bilingual cohorts co-designed with your team. Hawaii-rooted, Japan-fluent."
     },
     "editorial_hero": {
-      "meta_left": "VOL. 01 · PARTNERSHIPS",
+      "meta_left": "THE FIELD GUIDE",
       "meta_center": "MMXXVI",
       "meta_right": "EN · 日本語",
       "overline": "For organizations & communities",
-      "headline_1": "AI programs,",
-      "headline_2": "built for your community",
-      "lede": "We design and run AI learning programs with organizations — the curriculum, the community space, and the cohort cycles your members actually return to. Senior instruction. Bilingual delivery. Hawaii-rooted.",
-      "anchor_label": "How a cohort partnership works"
+      "headline_1": "Programs that take root",
+      "headline_2": "in your community",
+      "lede": "We design and run AI learning programs with organizations — the curriculum, the community space, and the cohort cycles your members actually return to. You bring the community; we bring the platform, the instruction, and a way to make it pay.",
+      "anchor_label": "How a community program grows"
+    },
+    "growing_cycle": {
+      "overline": "The growing cycle",
+      "heading": "How a community grows",
+      "lede": "Three seasons take a community from a blank page to a program that sustains itself — and pays for itself.",
+      "seed_title": "Seed — custom curriculum",
+      "seed_body": "Designed around your members' skill level, industry, and goals. Never a generic syllabus pulled off a shelf.",
+      "tend_title": "Tend — co-branded delivery",
+      "tend_body": "Your brand, your community, our platform and instruction. Live sessions, recordings, and permanent Vault access.",
+      "harvest_title": "Harvest — monetize",
+      "harvest_body": "Your community becomes a program that pays — through revenue share, a flat license, or sponsorship. Motivated members can even grow into teachers."
     },
     "cohort": {
-      "overline": "Ch. 01 · Community & organizational learning",
+      "overline": "Featured specimen",
       "meta_right": "For networks, associations, member orgs",
-      "headline_1": "Programs",
-      "headline_2": "built for your community",
-      "lede": "Always-on learning communities co-designed with your team — the curriculum, the community space, and the cohort cycles your members will actually return to. We bring the platform and the instruction; you bring the people. Bilingual delivery available when you need it.",
+      "headline_1": "A community",
+      "headline_2": "in season",
+      "lede": "Here's one already growing. A founding-member cohort, co-designed with the community it serves and run live and bilingual — with a Vault the community keeps long after the season ends.",
       "cadence_from_label": "Model",
       "cadence_from_value": "Flexible",
       "cadence_duration_label": "Format",
       "cadence_duration_value": "Ongoing community + cohorts",
       "cadence_audience_label": "Audience",
       "cadence_audience_value": "5–500+ members",
-      "outcome_curriculum_title": "Custom curriculum",
-      "outcome_curriculum_body": "Designed around your members' skill level, industry, and goals — not a generic syllabus.",
-      "outcome_cobranded_title": "Co-branded delivery",
-      "outcome_cobranded_body": "Your brand, your community, our infrastructure and instruction. Live sessions, recordings, and Vault access.",
-      "outcome_revenue_title": "Help your community monetize",
-      "outcome_revenue_body": "Flexible revenue models — share of program revenue, flat license, or sponsor-funded. We size the model to your community and goals during discovery.",
       "quote": "We didn't want a syllabus that had been used somewhere else first. HonuVibe built the program for our members — and our members can tell the difference.",
       "quote_attr": "— [Principal Name], Vertice Society · placeholder",
       "proof_overline": "Featured cohort",
@@ -3060,6 +3065,30 @@
       "also_label": "Also active:",
       "also_value": "A bilingual healthcare archive · A photography collective rebuild · TBD with Ryan",
       "cta": "Apply for a cohort partnership"
+    },
+    "monetize": {
+      "overline": "The harvest",
+      "heading": "Turn your community into a program that pays.",
+      "lede": "Learning is the root; revenue is the harvest. We design a model that fits your community and size it with you during discovery — so the program funds itself and then some.",
+      "model_share_title": "Revenue share",
+      "model_share_body": "Split program revenue with us. Your community earns as it grows, with no upfront risk to carry.",
+      "model_license_title": "Flat license",
+      "model_license_body": "License the program for a fixed fee and keep everything you make on top of it.",
+      "model_sponsor_title": "Sponsor-funded",
+      "model_sponsor_body": "Underwrite the program through partners or sponsors so your members can join free.",
+      "footnote": "We size the model to your community and goals during discovery."
+    },
+    "members_teachers": {
+      "overline": "Grown from within",
+      "heading": "Your best members can become teachers.",
+      "body": "The most motivated people in your community don't just finish the program — they can grow into paid teachers inside it, building courses and earning a share of what they ship. Your community becomes its own faculty, and the knowledge keeps compounding long after the first cohort ends.",
+      "point_teach_title": "They teach",
+      "point_teach_body": "Members who've done the work lead the next cohort, in your voice and your context.",
+      "point_earn_title": "They earn",
+      "point_earn_body": "A transparent share of what their course brings in — real revenue, not exposure.",
+      "point_compound_title": "It compounds",
+      "point_compound_body": "Every season adds teachers, courses, and Vault material your community keeps.",
+      "cta_note": "Ask us how during discovery — we'll shape it to your community."
     },
     "studio_router": {
       "overline": "Not a learning program?",
@@ -3128,9 +3157,9 @@
       "cta": "Book a consulting intro call"
     },
     "method": {
-      "headline": "Method",
+      "headline": "Five seasons of a cohort",
       "chapter_label": "How a cohort partnership runs",
-      "footnote": "One operating system, shaped around your community.",
+      "footnote": "One growing season, shaped around your community.",
       "row_discover_phase": "Audience deep-dive",
       "row_discover_body": "1–2 weeks. Surveys, member interviews, language preferences — we learn who your members are before we design anything.",
       "row_design_phase": "Co-design",
@@ -3143,11 +3172,11 @@
       "row_outcome_body": "Cohort engagement, completion, and a bilingual Vault library your community keeps."
     },
     "next_chapter": {
-      "meta_left": "END · VOL. 01",
+      "meta_left": "END OF SEASON",
       "meta_center": "PARTNERSHIPS",
-      "meta_right": "NEXT ISSUE",
-      "headline_1": "Let's write the",
-      "headline_2": "next chapter.",
+      "meta_right": "PLANT THE NEXT",
+      "headline_1": "Let's plant the",
+      "headline_2": "next season.",
       "lede": "Tell us about your community and the program you're imagining. We respond to every inquiry personally within five business days.",
       "cta_primary": "Apply for a cohort partnership",
       "cta_secondary": "Visit HonuVibe Studio"
