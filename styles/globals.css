@@ -672,6 +672,83 @@
 }
 
 /* ============================================
+   RESUME HERO — the dashboard's one focal band
+   Same token-remap mechanism as .explore-ocean /
+   .about-ocean, but it CANNOT reuse them: those are
+   scoped to [data-shell="marketing"] and remap the
+   marketing --m-* tokens, while the dashboard runs on
+   the app's own bg / fg / border token set. So the app
+   tokens are remapped here instead, and every primitive
+   inside (Card, BadgePill, ProgressBar) goes dark
+   without being touched.
+   Pinned dark in BOTH themes on purpose: this is the
+   single primary action, and it must read as a focal
+   band rather than a fifth grey card. --accent-teal is
+   lifted to #0FA9A0 (the marketing ocean's teal, ~5.5:1
+   here) because the app's #5eaaa8 does not clear AA on
+   this surface. Static — nothing to gate for
+   reduced-motion.
+   ============================================ */
+.resume-ocean {
+  /* Surfaces → translucent glass over the gradient below */
+  --bg-secondary: rgba(255, 255, 255, 0.045);
+  --bg-tertiary: rgba(255, 255, 255, 0.06);
+
+  /* Ink → light-on-dark */
+  --fg-primary: rgba(255, 255, 255, 0.94);
+  --fg-secondary: rgba(255, 255, 255, 0.68);
+  --fg-tertiary: rgba(255, 255, 255, 0.55);
+  --fg-muted: rgba(255, 255, 255, 0.42);
+
+  /* Borders → hairline light */
+  --border-primary: rgba(255, 255, 255, 0.14);
+  --border-secondary: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.22);
+
+  /* Accents → the AA-safe pair used by the marketing ocean */
+  --accent-teal: #0fa9a0;
+  --accent-teal-hover: #14c3b8;
+  --accent-teal-subtle: rgba(15, 169, 160, 0.16);
+  --accent-coral: #ff8c6b;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.94);
+  background:
+    radial-gradient(135% 68% at 50% -6%, rgba(15, 169, 160, 0.12), transparent 55%),
+    linear-gradient(180deg, #0c302c 0%, #0a2624 44%, #071f1d 80%, #051918 100%);
+}
+
+/* ============================================
+   RESUME DEEP-LINK — highlight the session card the
+   ?session= link scrolled to, so a sighted user sees
+   where they landed (keyboard users also get the focus
+   ring). One-shot teal glow; gated for reduced-motion.
+   ============================================ */
+@keyframes session-land-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(94, 170, 168, 0.55);
+    border-color: var(--accent-teal);
+  }
+  60% {
+    box-shadow: 0 0 0 4px rgba(94, 170, 168, 0.28);
+    border-color: var(--accent-teal);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(94, 170, 168, 0);
+  }
+}
+.session-highlight {
+  animation: session-land-glow 1.8s var(--ease-out) 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .session-highlight {
+    animation: none;
+  }
+}
+
+/* ============================================
    TAILWIND v4 THEME TOKENS
    ============================================ */
 

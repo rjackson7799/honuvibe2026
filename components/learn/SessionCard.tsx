@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Video, Play, Clock, ExternalLink, Lock, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SessionCompletionToggle } from './SessionCompletionToggle';
+import { recordSessionOpen } from '@/lib/progress/actions';
 import type { CourseSession } from '@/lib/courses/types';
 
 type SessionCardProps = {
@@ -36,6 +37,20 @@ export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = 
   const t = useTranslations('learn');
   const locale = useLocale();
 
+  // Open the link FIRST, synchronously inside the click handler — awaiting the
+  // action first would break the user gesture chain and let popup blockers eat
+  // the window. Tracking is fire-and-forget with an explicit catch: a failed or
+  // unauthorized write must never stop a student reaching their lesson.
+  //
+  // Only the lesson itself counts (join live / watch replay). Transcript and
+  // slide-deck downloads are reference material, not attending the lesson.
+  function openTracked(url: string) {
+    window.open(url, '_blank');
+    if (isEnrolled) {
+      void recordSessionOpen(session.id).catch(() => {});
+    }
+  }
+
   const title = locale === 'ja' && session.title_jp ? session.title_jp : session.title_en;
   const state = getSessionState(session);
 
@@ -57,8 +72,13 @@ export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = 
 
   return (
     <div
+      id={`session-${session.id}`}
+      // Focusable so the ?session= deep link can move focus here; -1 keeps it out
+      // of the tab order. scroll-mt clears the sticky top bar when scrolled to.
+      tabIndex={-1}
       className={cn(
-        'border border-border-default rounded-lg p-4 space-y-3',
+        'border border-border-default rounded-lg p-4 space-y-3 scroll-mt-24',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--accent-teal)]',
         showLock && 'opacity-60',
         state === 'live' && canAccessContent && 'border-accent-teal bg-accent-teal/5',
         state === 'live-soon' && canAccessContent && 'border-accent-gold bg-accent-gold/5',
@@ -129,7 +149,7 @@ export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = 
               variant="primary"
               size="sm"
               icon={Video}
-              onClick={() => window.open(session.zoom_link!, '_blank')}
+              onClick={() => openTracked(session.zoom_link!)}
             >
               {t('join_live')}
             </Button>
@@ -139,7 +159,7 @@ export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = 
               variant="primary"
               size="sm"
               icon={Video}
-              onClick={() => window.open(session.zoom_link!, '_blank')}
+              onClick={() => openTracked(session.zoom_link!)}
             >
               {t('join_zoom')}
             </Button>
@@ -149,7 +169,7 @@ export function SessionCard({ session, isUnlocked, isFree = false, isLoggedIn = 
               variant="ghost"
               size="sm"
               icon={Play}
-              onClick={() => window.open(session.replay_url!, '_blank')}
+              onClick={() => openTracked(session.replay_url!)}
             >
               {t('watch_replay')}
             </Button>

@@ -8,13 +8,6 @@ import type {
   ResourceType,
 } from '@/lib/courses/types';
 
-export interface StudentStats {
-  active_courses: number;
-  completed_courses: number;
-  upcoming_sessions_count: number;
-  sessions_completed: number;
-}
-
 export interface UpcomingSessionItem {
   id: string;
   title_en: string;
@@ -39,6 +32,8 @@ export interface PendingAssignmentItem {
   description_jp: string | null;
   assignment_type: AssignmentType;
   due_date: string | null;
+  /** Authoring order within the week — the action band's tie-breaker. */
+  sort_order: number;
   week_number: number;
   course_title_en: string;
   course_title_jp: string | null;
@@ -49,7 +44,6 @@ export interface StudentDashboardData {
   enrollments: EnrollmentWithCourse[];
   upcomingSessions: UpcomingSessionItem[];
   pendingAssignments: PendingAssignmentItem[];
-  stats: StudentStats;
   /** Real sessions-completed percent per active course, keyed by course id. */
   coursesProgress: Map<string, number>;
 }

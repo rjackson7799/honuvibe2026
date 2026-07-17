@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { createClient as createAnonClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
+import { hawaiiWeekStartUtc } from '@/lib/dates';
 import type {
   VaultContentItem,
   VaultContentItemWithPartner,
@@ -1397,5 +1398,59 @@ export async function getVaultSeriesSlugs(): Promise<string[]> {
     return (data ?? []).map((d) => d.slug).filter(Boolean) as string[];
   } catch {
     return [];
+  }
+}
+
+/**
+ * How many Vault items the user has saved, for the dashboard tile.
+ *
+ * Counts bookmark_type 'bookmark' only — the column is overloaded ('bookmark' |
+ * 'watch_later' | 'completed'), and lumping them together would inflate "saved".
+ * Joined through to content_items with an inner join filtered to is_published, so
+ * a bookmark whose item was later unpublished stops counting rather than padding
+ * a number the user can no longer act on.
+ *
+ * Returns null (not 0) on failure: this count feeds the resume hero's rail, which
+ * hides an unknown count rather than showing a fabricated 0 — a real 0 and a
+ * failed read must not look the same to the student. Never throws.
+ */
+export async function getVaultBookmarkCount(userId: string): Promise<number | null> {
+  try {
+    const supabase = await createClient();
+    const { count, error } = await supabase
+      .from('vault_bookmarks')
+      .select('id, content_items!inner(id)', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('bookmark_type', 'bookmark')
+      .eq('content_items.is_published', true);
+
+    if (error) return null;
+    return count ?? 0;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Published Vault items added since the start of the current week.
+ *
+ * Uses the SAME Hawaii week boundary as the hero's "lessons done this week"
+ * (lib/dates) — the two numbers sit on one screen, so they must not be able to
+ * mean different weeks. `now` is injectable for tests. Returns null on failure
+ * (see getVaultBookmarkCount); never throws.
+ */
+export async function getVaultNewThisWeekCount(now: Date = new Date()): Promise<number | null> {
+  try {
+    const supabase = await createClient();
+    const { count, error } = await supabase
+      .from('content_items')
+      .select('id', { count: 'exact', head: true })
+      .eq('is_published', true)
+      .gte('created_at', hawaiiWeekStartUtc(now).toISOString());
+
+    if (error) return null;
+    return count ?? 0;
+  } catch {
+    return null;
   }
 }

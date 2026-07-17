@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
@@ -94,12 +94,50 @@ export function CourseHub({
   const validTabKeys = is1v1
     ? ['reports', 'overview', 'community']
     : ['overview', 'weekly_plan', 'esl', 'resources', 'community'];
+  // The resume hero deep-links ?session={id}. A hash anchor cannot work here:
+  // WeekCard only mounts its sessions while open, so a collapsed week has no
+  // target node in the DOM to scroll to. Resolving the session to its week lets
+  // us open that week via defaultOpen, then scroll once it has mounted.
+  const sessionParam = searchParams.get('session');
+  const resumeWeekId = sessionParam
+    ? (course.weeks.find((w) => w.sessions.some((s) => s.id === sessionParam))?.id ?? null)
+    : null;
+
   const [activeTab, setActiveTab] = useState(
-    tabParam && validTabKeys.includes(tabParam) ? tabParam : is1v1 ? 'reports' : 'weekly_plan',
+    tabParam && validTabKeys.includes(tabParam)
+      ? tabParam
+      : // A ?session= link is a request to see the weekly plan, whatever the
+        // course type's default tab would otherwise be.
+        resumeWeekId && !is1v1
+        ? 'weekly_plan'
+        : is1v1
+          ? 'reports'
+          : 'weekly_plan',
   );
   const [showWelcome, setShowWelcome] = useState(
     searchParams.get('enrolled') === 'true',
   );
+
+  // Scroll to the deep-linked session and move focus to it, so keyboard and
+  // screen-reader users land on the lesson rather than the top of the page.
+  // Runs after WeekCard has mounted its sessions (defaultOpen opened the week).
+  useEffect(() => {
+    if (!sessionParam || !resumeWeekId) return;
+    const node = document.getElementById(`session-${sessionParam}`);
+    if (!node) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    node.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    node.focus({ preventScroll: true });
+
+    // Brief teal glow so a sighted user sees which card they landed on. The
+    // CSS gates the animation itself for reduced-motion; remove the class after
+    // it plays so a later navigation can replay it.
+    node.classList.add('session-highlight');
+    const onEnd = () => node.classList.remove('session-highlight');
+    node.addEventListener('animationend', onEnd, { once: true });
+    return () => node.removeEventListener('animationend', onEnd);
+  }, [sessionParam, resumeWeekId]);
 
   const title = displayLocale === 'ja' && course.title_jp ? course.title_jp : course.title_en;
   const description = displayLocale === 'ja' && course.description_jp ? course.description_jp : course.description_en;
@@ -415,7 +453,10 @@ export function CourseHub({
                   key={week.id}
                   week={week}
                   state={state}
-                  defaultOpen={state === 'current'}
+                  // The week holding the deep-linked session must open, even when
+                  // it isn't the "current" one — otherwise the hero's CTA lands
+                  // on a collapsed accordion with nothing to scroll to.
+                  defaultOpen={state === 'current' || week.id === resumeWeekId}
                   isEnrolled
                   completedSessionIds={completedSessionIds}
                   completedAssignmentIds={completedAssignmentIds}

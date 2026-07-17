@@ -47,3 +47,25 @@ export async function getUnreadCount(userId: string): Promise<number> {
   }
   return count ?? 0;
 }
+
+/**
+ * Unread community replies, for the dashboard's Community tile.
+ *
+ * Note this only ever fires for replies to the user's OWN posts — it is not a
+ * general "unread activity in the feed" count, and the tile copy must not imply
+ * one. Best-effort: 0 on error, so a tile never takes the dashboard down.
+ */
+export async function getUnreadCommunityReplies(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('type', 'community_reply')
+    .is('read_at', null);
+  if (error) {
+    console.error('[notifications] getUnreadCommunityReplies failed:', error.message);
+    return 0;
+  }
+  return count ?? 0;
+}

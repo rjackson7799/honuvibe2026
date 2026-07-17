@@ -183,3 +183,48 @@ export async function getTodayUsage(): Promise<{ runs: number; scores: number }>
     scores: (data?.evaluations_count as number | undefined) ?? 0,
   };
 }
+
+export interface WorkbenchSummary {
+  /** Distinct scenarios the caller has attempted. */
+  scenariosPracticed: number;
+  /** A published scenario to offer when they haven't practised yet. */
+  featured: Pick<WorkbenchScenario, 'slug' | 'title_en' | 'title_jp'> | null;
+}
+
+/**
+ * Dashboard tile summary: how many distinct scenarios the caller has practised,
+ * plus a featured scenario to offer when they haven't started.
+ *
+ * Reports practice count only — deliberately NOT a best score. A low score on the
+ * dashboard home would greet the student with their worst result every visit, on
+ * the one surface meant to pull them forward. Scores stay on the Workbench, in
+ * context. (This is also why unscored attempts need no special handling: an
+ * attempt counts as practice whether or not it was ever scored.)
+ *
+ * RLS scopes both reads to the caller, matching this module's convention.
+ */
+export async function getWorkbenchSummary(): Promise<WorkbenchSummary> {
+  const supabase = await createClient();
+
+  const [attemptsRes, featuredRes] = await Promise.all([
+    supabase.from('workbench_attempts').select('scenario_id'),
+    supabase
+      .from('workbench_scenarios')
+      .select('slug, title_en, title_jp')
+      .eq('is_published', true)
+      .order('is_featured', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const scenarioIds = new Set(
+    (attemptsRes.data ?? []).map((a) => a.scenario_id as string),
+  );
+
+  return {
+    scenariosPracticed: scenarioIds.size,
+    featured:
+      (featuredRes.data as WorkbenchSummary['featured'] | null) ?? null,
+  };
+}

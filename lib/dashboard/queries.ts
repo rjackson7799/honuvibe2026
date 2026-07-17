@@ -1,72 +1,44 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserEnrollments } from '@/lib/enrollments/queries';
-import {
-  getSessionsCompletedCount,
-  getCoursesProgressMap,
-} from '@/lib/progress/queries';
+import { getCoursesProgressMap } from '@/lib/progress/queries';
 import type {
   StudentDashboardData,
   UpcomingSessionItem,
   PendingAssignmentItem,
-  StudentStats,
   CommunityLink,
   ContentItemForStudent,
   ContentCollectionForStudent,
 } from './types';
 import type { UserProfile } from '@/lib/admin/types';
 
+/**
+ * The dashboard's core bundle: the student's courses, their next sessions and
+ * their outstanding work.
+ *
+ * No longer computes the four-tile stat row — the resume hero carries the only
+ * numbers the page shows now, and counting lifetime sessions/completed courses
+ * for tiles that no longer exist cost two round-trips per load for nothing.
+ */
 export async function getStudentDashboardData(
   userId: string,
 ): Promise<StudentDashboardData> {
-  const [
-    enrollments,
-    upcomingSessions,
-    pendingAssignments,
-    sessionsCompleted,
-    completedCoursesCount,
-  ] = await Promise.all([
+  const [enrollments, upcomingSessions, pendingAssignments] = await Promise.all([
     getUserEnrollments(userId),
     getUpcomingSessionsForStudent(userId),
     getPendingAssignmentsForStudent(userId),
-    getSessionsCompletedCount(userId),
-    getCompletedCoursesCount(userId),
   ]);
 
-  // getUserEnrollments returns active enrollments only, so its length is the
-  // active count. Completed enrollments are counted separately (they drop out
-  // of the active-only query once §2 flips their status).
   const coursesProgress = await getCoursesProgressMap(
     userId,
     enrollments.map((e) => e.course_id),
   );
 
-  const stats: StudentStats = {
-    active_courses: enrollments.length,
-    completed_courses: completedCoursesCount,
-    upcoming_sessions_count: upcomingSessions.length,
-    sessions_completed: sessionsCompleted,
-  };
-
   return {
     enrollments,
     upcomingSessions,
     pendingAssignments,
-    stats,
     coursesProgress,
   };
-}
-
-/** Lifetime count of the user's completed-course enrollments. */
-async function getCompletedCoursesCount(userId: string): Promise<number> {
-  const supabase = await createClient();
-
-  const { count } = await supabase
-    .from('enrollments')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'completed');
-
-  return count ?? 0;
 }
 
 export async function getUpcomingSessionsForStudent(
@@ -209,6 +181,7 @@ export async function getPendingAssignmentsForStudent(
         description_jp: a.description_jp,
         assignment_type: a.assignment_type,
         due_date: a.due_date,
+        sort_order: a.sort_order ?? 0,
         week_number: week?.week_number ?? 0,
         course_title_en: course?.title_en ?? '',
         course_title_jp: course?.title_jp ?? null,
