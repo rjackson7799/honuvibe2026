@@ -6,7 +6,6 @@ import { GraduationCap, Lock, Users, ArrowRight } from 'lucide-react';
 import { markOnboarded } from '@/lib/students/actions';
 import { CourseCard } from '@/components/learn/CourseCard';
 import { SetPasswordCard } from '@/components/auth/SetPasswordCard';
-import { DashboardBackdrop } from '@/components/learn/DashboardBackdrop';
 import type { Course } from '@/lib/courses/types';
 
 type Props = {
@@ -75,7 +74,6 @@ export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet
   if (step === 'password') {
     return (
       <div className="relative min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">
-        <DashboardBackdrop />
         <div className="text-center mb-10 max-w-xl">
           <h1 className="text-3xl font-serif text-fg-primary mb-3">
             {isJP ? `${displayName}さん、ようこそ！` : `Welcome to HonuVibe, ${displayName}`}
@@ -92,7 +90,6 @@ export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet
 
   return (
     <div className="relative min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">
-      <DashboardBackdrop />
       {/* Heading */}
       <div className="text-center mb-12 max-w-xl">
         <h1 className="text-3xl font-serif text-fg-primary mb-3">

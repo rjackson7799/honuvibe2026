@@ -12,7 +12,6 @@ import { getInstructorByUserId } from '@/lib/instructors/queries';
 import { InstructorTeachingBanner } from '@/components/learn/InstructorTeachingBanner';
 import { WelcomeScreen } from '@/components/learn/WelcomeScreen';
 import { SetPasswordBanner } from '@/components/learn/SetPasswordBanner';
-import { DashboardBackdrop } from '@/components/learn/DashboardBackdrop';
 import { NextSessionCard } from '@/components/learn/NextSessionCard';
 import { Card } from '@/components/ui/card';
 import { ProgressBar } from '@/components/ui/progress-bar';
@@ -213,7 +212,6 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
   return (
     <div className="relative space-y-7 max-w-[1100px]">
-      <DashboardBackdrop />
       <DashboardWelcomeHeader
         overlineDate={overlineDate}
         welcomeLabel={t('welcome_back', { name: displayName })}
