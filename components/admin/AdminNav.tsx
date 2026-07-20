@@ -29,6 +29,7 @@ import {
   Briefcase,
   Radar,
   UserRound,
+  Settings,
   type LucideIcon,
 } from 'lucide-react';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -96,6 +97,12 @@ const navGroups: NavGroup[] = [
     label: 'Finance',
     items: [
       { href: '/admin/payouts/instructors', label: 'Payouts', icon: Wallet },
+    ],
+  },
+  {
+    label: 'Settings',
+    items: [
+      { href: '/admin/settings', label: 'Site Settings', icon: Settings },
     ],
   },
 ];

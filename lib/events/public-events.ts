@@ -14,16 +14,16 @@
  * event *content* still lives here (hand-authored); only the attendee list is
  * in the database.
  *
- * To feature an event in the site-wide strip, set `active: true`. Keep at most
- * one active at a time — `featuredEvent()` returns the first active entry.
+ * Which event (if any) appears in the site-wide strip is controlled from the
+ * admin at /admin/settings (table: site_settings) — NOT by a flag here. The
+ * strip resolves its event by slug in components/marketing/nav/marketing-nav.tsx.
+ * The entries below are simply the pool an admin can choose to feature.
  */
 
 import type { EventLocale } from './types';
 
 export type PublicEvent = {
   slug: string;
-  /** When true, this event drives the site-wide announcement strip. */
-  active: boolean;
   /** ISO 8601 start instant. Rendered via formatEventDateTime in this dir. */
   startsAt: string;
   /** Optional ISO 8601 end instant — drives the displayed time range. */
@@ -62,7 +62,6 @@ export type PublicEvent = {
 export const PUBLIC_EVENTS: PublicEvent[] = [
   {
     slug: 'ai-prompting-jumpstart',
-    active: true,
     startsAt: '2026-07-09T18:00:00-10:00',
     endsAt: '2026-07-09T19:00:00-10:00',
     timezone: 'Pacific/Honolulu',
@@ -100,16 +99,9 @@ export const PUBLIC_EVENTS: PublicEvent[] = [
   },
 ];
 
-/** The single event currently featured in the site-wide strip, if any. */
-export function featuredEvent(): PublicEvent | null {
-  return PUBLIC_EVENTS.find((e) => e.active) ?? null;
-}
-
 /**
- * Look up a public event by slug. Returns ANY known event regardless of `active`
- * — `active` only controls strip-featuring (see `featuredEvent`). Past/inactive
- * events stay routable so their pages render a "registration closed" state
- * instead of 404ing.
+ * Look up a public event by slug. Past events stay routable so their pages
+ * render a "registration closed" state instead of 404ing.
  */
 export function publicEventBySlug(slug: string): PublicEvent | null {
   return PUBLIC_EVENTS.find((e) => e.slug === slug) ?? null;

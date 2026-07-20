@@ -8,6 +8,7 @@ import { MarketingLangToggle } from './marketing-lang-toggle';
 import { MarketingUserMenu, type MarketingUserMenuLabels } from './marketing-user-menu';
 import { MarketingMobileMenu, type MobileNavLink } from './marketing-mobile-menu';
 import { MarketingEventStrip } from '../event-strip';
+import type { PublicEvent } from '@/lib/events/public-events';
 
 type Props = {
   links: MobileNavLink[];
@@ -15,6 +16,8 @@ type Props = {
   showGetStarted: boolean;
   getStartedLabel: string;
   userMenuLabels: MarketingUserMenuLabels;
+  /** Featured announcement-strip event, resolved server-side. null hides the strip. */
+  bannerEvent: PublicEvent | null;
 };
 
 export function MarketingNavClient({
@@ -22,6 +25,7 @@ export function MarketingNavClient({
   showGetStarted,
   getStartedLabel,
   userMenuLabels,
+  bannerEvent,
 }: Props) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -56,7 +60,7 @@ export function MarketingNavClient({
 
   return (
     <>
-      <MarketingEventStrip />
+      <MarketingEventStrip event={bannerEvent} />
       <nav
         className={cn(
           'fixed inset-x-0 top-[var(--m-strip-h)] z-[200] h-[68px] bg-[var(--m-canvas)]',

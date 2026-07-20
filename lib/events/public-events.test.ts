@@ -8,7 +8,6 @@ import {
 function mk(overrides: Partial<PublicEvent>): PublicEvent {
   return {
     slug: 't',
-    active: true,
     startsAt: '2026-07-09T18:00:00-10:00',
     timezone: 'Pacific/Honolulu',
     titleEn: 'T',

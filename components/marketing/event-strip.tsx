@@ -5,9 +5,10 @@ import { CalendarDays, ArrowRight, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import {
-  featuredEvent,
+  eventRegistrationState,
   publicEventBlurb,
   publicEventTitle,
+  type PublicEvent,
 } from '@/lib/events/public-events';
 import { formatEventDateTime } from '@/lib/events/format';
 
@@ -15,8 +16,11 @@ import { formatEventDateTime } from '@/lib/events/format';
  * Site-wide announcement strip for the currently-featured free/public event.
  *
  * Mounted once inside MarketingNavClient, so it renders on every marketing page
- * (each marketing page renders <MarketingNav/>). Content is manually curated in
- * lib/events/public-events.ts — NOT the invite-only live_events DB table.
+ * (each marketing page renders <MarketingNav/>). The event *content* is manually
+ * curated in lib/events/public-events.ts (NOT the invite-only live_events DB
+ * table); which event shows — and whether it shows at all — is resolved
+ * server-side in MarketingNav from the site_settings banner toggle and passed in
+ * as the `event` prop (null hides the strip). Admins control it at /admin/settings.
  *
  * Layout: the marketing nav is fixed at top-0. Rather than edit every hero's
  * top padding, the strip publishes its measured height to the `--m-strip-h` CSS
@@ -28,8 +32,7 @@ const STRIP_VAR = '--m-strip-h';
 
 const dismissKey = (slug: string) => `honuvibe-event-strip-dismissed:${slug}`;
 
-export function MarketingEventStrip() {
-  const event = featuredEvent();
+export function MarketingEventStrip({ event }: { event: PublicEvent | null }) {
   const t = useTranslations('public_events');
   const locale = useLocale();
   const lang = locale === 'ja' ? 'ja' : 'en';
@@ -38,18 +41,28 @@ export function MarketingEventStrip() {
   // (same pattern as components/learn/SetPasswordBanner.tsx).
   const [visible, setVisible] = useState(false);
 
+  // Safety net: never surface an event that has already ended, even if the admin
+  // leaves the banner enabled after the date passes.
+  const active = event && eventRegistrationState(event) !== 'ended' ? event : null;
+
   useEffect(() => {
-    if (!event) return;
-    const dismissed = localStorage.getItem(dismissKey(event.slug)) === '1';
+    if (!active) return;
+    const dismissed = localStorage.getItem(dismissKey(active.slug)) === '1';
     setVisible(!dismissed);
-  }, [event]);
+  }, [active]);
+
+  // Whether the strip actually renders. Gate the layout effect on this (not just
+  // `visible`): `active` can flip to null mid-session when an event ends without
+  // `visible` changing, and if the effect didn't re-run on that, --m-strip-h
+  // would stay frozen at the old height, leaving a permanent gap at page top.
+  const shouldShow = Boolean(active) && visible;
 
   // Keep --m-strip-h in sync with the actual rendered height (handles wrapping
   // on narrow viewports). Reset to 0px whenever the strip is hidden/unmounted.
   useLayoutEffect(() => {
     const root = document.documentElement;
     const reset = () => root.style.setProperty(STRIP_VAR, '0px');
-    if (!visible || !ref.current) {
+    if (!shouldShow || !ref.current) {
       reset();
       return reset;
     }
@@ -62,16 +75,16 @@ export function MarketingEventStrip() {
       ro.disconnect();
       reset();
     };
-  }, [visible]);
+  }, [shouldShow]);
 
-  if (!event || !visible) return null;
+  if (!shouldShow || !active) return null;
 
-  const title = publicEventTitle(event, lang);
-  const blurb = publicEventBlurb(event, lang);
-  const when = formatEventDateTime(event.startsAt, event.timezone, lang);
+  const title = publicEventTitle(active, lang);
+  const blurb = publicEventBlurb(active, lang);
+  const when = formatEventDateTime(active.startsAt, active.timezone, lang);
 
   function handleDismiss() {
-    if (event) localStorage.setItem(dismissKey(event.slug), '1');
+    if (active) localStorage.setItem(dismissKey(active.slug), '1');
     setVisible(false);
   }
 
@@ -84,7 +97,7 @@ export function MarketingEventStrip() {
     >
       <div className="mx-auto flex max-w-[1200px] items-center gap-2 px-5 md:px-8">
         <Link
-          href={`/events/${event.slug}`}
+          href={`/events/${active.slug}`}
           className="group flex min-w-0 flex-1 items-center gap-2.5 py-2.5"
         >
           <CalendarDays
