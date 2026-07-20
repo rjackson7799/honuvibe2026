@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { StudioLeadCard } from './StudioLeadCard';
+import { StudioLeadRow } from './StudioLeadRow';
 import type { StudioLead, StudioLeadStatus } from '@/lib/admin/types';
 
 type Props = {
@@ -16,6 +16,14 @@ const statusFilters: (StudioLeadStatus | 'all')[] = [
   'won',
   'lost',
 ];
+
+const HEADERS = ['Name', 'Status', 'Company', 'Email', 'Source', 'Created'];
+
+const chipBase =
+  'px-3.5 py-1.5 rounded-full text-[12.5px] font-semibold capitalize border transition-all whitespace-nowrap';
+const chipActive = 'bg-[color:var(--accent-teal)] text-white border-[color:var(--accent-teal)]';
+const chipInactive =
+  'bg-bg-secondary text-fg-secondary border-border-default hover:border-border-hover hover:text-fg-primary';
 
 export function AdminStudioLeadsList({ leads }: Props) {
   const [filter, setFilter] = useState<StudioLeadStatus | 'all'>('all');
@@ -33,18 +41,15 @@ export function AdminStudioLeadsList({ leads }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-1 overflow-x-auto">
+    <div className="space-y-8">
+      {/* Filter chips */}
+      <div className="flex gap-2 overflow-x-auto">
         {statusFilters.map((s) => (
           <button
             key={s}
             type="button"
             onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-colors ${
-              filter === s
-                ? 'bg-accent-teal/10 text-accent-teal'
-                : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
-            }`}
+            className={`${chipBase} ${filter === s ? chipActive : chipInactive}`}
           >
             {s === 'all' ? `All (${counts.all})` : `${s} (${counts[s]})`}
           </button>
@@ -52,14 +57,31 @@ export function AdminStudioLeadsList({ leads }: Props) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-fg-tertiary text-center py-8">
-          No studio leads found.
-        </p>
+        <div className="py-10 px-4 rounded-[14px] border border-dashed border-border-default bg-bg-tertiary text-center">
+          <p className="text-sm text-fg-tertiary">No studio leads found.</p>
+        </div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((lead) => (
-            <StudioLeadCard key={lead.id} lead={lead} />
-          ))}
+        <div className="overflow-x-auto bg-bg-secondary border border-border-default rounded-[14px] shadow-[var(--shadow-md)]">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-border-default bg-bg-tertiary">
+                {HEADERS.map((h) => (
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-[11.5px] font-bold text-fg-tertiary uppercase tracking-[0.06em]"
+                  >
+                    {h}
+                  </th>
+                ))}
+                <th className="w-8" aria-hidden />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border-secondary">
+              {filtered.map((lead) => (
+                <StudioLeadRow key={lead.id} lead={lead} />
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
