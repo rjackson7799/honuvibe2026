@@ -8,6 +8,28 @@ import {
 } from '@/components/marketing/learn';
 import { ProofBand } from '@/components/marketing/proof-band';
 
+// ProofBand is a shared marketing band and is now an async server component
+// (it awaits getTranslations + the governed logo rows).
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async (ns: string) => {
+    const base =
+      (en as unknown as Record<string, Record<string, string>>)[ns] ?? {};
+    return (key: string, vars?: Record<string, unknown>) => {
+      const raw = base[key];
+      if (typeof raw !== 'string') return key;
+      if (!vars) return raw;
+      return Object.entries(vars).reduce<string>(
+        (acc, [k, v]) => acc.replace(`{${k}}`, String(v)),
+        raw,
+      );
+    };
+  }),
+}));
+
+vi.mock('@/lib/proof/queries', () => ({
+  getPublishedLogos: vi.fn(async () => []),
+}));
+
 vi.mock('next-intl', () => {
   function getNs(ns: string): Record<string, unknown> {
     return ns.split('.').reduce<unknown>((o, k) => {
@@ -90,16 +112,16 @@ describe('Learn page sections', () => {
     expect(secondary).toHaveAttribute('href', '#courses');
   });
 
-  it('ProofBand renders the numbers strip with learner + lesson counts', () => {
-    render(<ProofBand vaultTotalCount={42} />);
+  it('ProofBand renders the numbers strip with learner + lesson counts', async () => {
+    render(await ProofBand({ vaultTotalCount: 42 }));
     expect(screen.getByText('1,400+')).toBeInTheDocument();
     expect(screen.getByText('learners')).toBeInTheDocument();
     expect(screen.getByText('42')).toBeInTheDocument();
     expect(screen.getByText('bilingual lessons')).toBeInTheDocument();
   });
 
-  it('ProofBand hides the lesson stat when the count is zero', () => {
-    render(<ProofBand vaultTotalCount={0} />);
+  it('ProofBand hides the lesson stat when the count is zero', async () => {
+    render(await ProofBand({ vaultTotalCount: 0 }));
     expect(screen.getByText('1,400+')).toBeInTheDocument();
     expect(screen.queryByText('bilingual lessons')).not.toBeInTheDocument();
   });
@@ -148,11 +170,12 @@ describe('Learn page sections', () => {
     ).toHaveAttribute('href', '/partnerships');
   });
 
-  it('renders every reworked section without console.error', () => {
+  it('renders every reworked section without console.error', async () => {
+    const proofBand = await ProofBand({ vaultTotalCount: 42 });
     render(
       <>
         <LearnHero locale="en" />
-        <ProofBand vaultTotalCount={42} />
+        {proofBand}
         <LearnChapterVault locale="en" vaultTotalCount={42} />
         <LearnStartTonight />
       </>,

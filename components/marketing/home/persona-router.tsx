@@ -2,6 +2,7 @@ import { useTranslations } from 'next-intl';
 import { ArrowRight } from 'lucide-react';
 import { Section, Container } from '@/components/marketing/primitives';
 import { STUDIO_URL } from '@/lib/constants/urls';
+import { cn } from '@/lib/utils';
 
 type PersonaKey = 'solo' | 'org' | 'build';
 
@@ -38,8 +39,15 @@ export function HomePersonaRouter() {
 
         <div className="grid gap-5 md:grid-cols-3">
           {PERSONAS.map(({ key, href, accent, external }) => {
-            const accentVar =
-              accent === 'coral' ? 'var(--m-accent-coral)' : 'var(--m-accent-teal)';
+            // The Studio card ('build') gets a dark surface with light ink — a
+            // deliberate contrast against the two cream lesson/partnership cards,
+            // using the existing marketing palette greens.
+            const isDark = key === 'build';
+            const accentVar = isDark
+              ? 'var(--m-seafoam-light)'
+              : accent === 'coral'
+                ? 'var(--m-accent-coral)'
+                : 'var(--m-accent-teal)';
             return (
               <a
                 key={key}
@@ -47,9 +55,19 @@ export function HomePersonaRouter() {
                 {...(external
                   ? { target: '_blank', rel: 'noopener noreferrer' }
                   : {})}
-                className="group flex flex-col rounded-[16px] border border-[var(--m-border-default)] bg-[var(--m-white)] p-6 transition-all hover:-translate-y-0.5 hover:border-[var(--m-border-strong)] hover:shadow-[0_8px_24px_rgba(26,43,51,0.06)]"
+                className={cn(
+                  'group flex flex-col rounded-[16px] border p-6 transition-all hover:-translate-y-0.5',
+                  isDark
+                    ? 'border-[var(--m-teal-dark-2)] bg-[var(--m-teal-deep)] hover:border-[var(--m-seafoam)] hover:shadow-[0_12px_30px_rgba(10,41,41,0.28)]'
+                    : 'border-[var(--m-border-default)] bg-[var(--m-white)] hover:border-[var(--m-border-strong)] hover:shadow-[0_8px_24px_rgba(26,43,51,0.06)]',
+                )}
               >
-                <p className="text-[13px] font-medium text-[var(--m-ink-tertiary)]">
+                <p
+                  className={cn(
+                    'text-[13px] font-medium',
+                    isDark ? 'text-[var(--m-white)]/55' : 'text-[var(--m-ink-tertiary)]',
+                  )}
+                >
                   {t(`${key}_intent` as 'solo_intent')}
                 </p>
                 <p
@@ -58,7 +76,12 @@ export function HomePersonaRouter() {
                 >
                   {t(`${key}_path` as 'solo_path')}
                 </p>
-                <p className="mt-2.5 flex-1 text-[14.5px] leading-[1.55] text-[var(--m-ink-secondary)]">
+                <p
+                  className={cn(
+                    'mt-2.5 flex-1 text-[14.5px] leading-[1.55]',
+                    isDark ? 'text-[var(--m-white)]/75' : 'text-[var(--m-ink-secondary)]',
+                  )}
+                >
                   {t(`${key}_desc` as 'solo_desc')}
                 </p>
                 <span

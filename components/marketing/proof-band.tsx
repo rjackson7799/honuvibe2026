@@ -1,14 +1,47 @@
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
+import Image from 'next/image';
 import { Container, Section } from '@/components/marketing/primitives';
+import { getPublishedLogos } from '@/lib/proof/queries';
+import type { PublicProofArtifact } from '@/lib/proof/types';
 import { TOTAL_LEARNERS } from '@/lib/constants/social';
-import { cn } from '@/lib/utils';
 
-export function ProofBand({
+/**
+ * A renderable logo row: only rows that carry BOTH a permissioned logo_url and
+ * a non-empty org name qualify (the org name is the image's alt text / label —
+ * a nameless logo can't be described accessibly).
+ */
+type LogoRow = PublicProofArtifact & { org: string; logo_url: string };
+
+const SUPABASE_PUBLIC_PATH = '/storage/v1/object/public/';
+
+/**
+ * True only for the configured Supabase Storage public-object host+path that
+ * next.config.ts already allow-lists in images.remotePatterns. Any other host
+ * would make next/image throw at runtime, so those fall back to a Monogram.
+ * Server-side check — no client onError needed.
+ */
+function isSupabasePublicUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return (
+      u.protocol === 'https:' &&
+      u.hostname.endsWith('.supabase.co') &&
+      u.pathname.startsWith(SUPABASE_PUBLIC_PATH)
+    );
+  } catch {
+    return false;
+  }
+}
+
+export async function ProofBand({
   vaultTotalCount = 0,
 }: {
   vaultTotalCount?: number;
 }) {
-  const t = useTranslations('proof_band');
+  const [t, logos] = await Promise.all([
+    getTranslations('proof_band'),
+    getPublishedLogos(),
+  ]);
 
   const stats = [
     {
@@ -27,14 +60,23 @@ export function ProofBand({
       value: t('stat_languages_value'),
       label: t('stat_languages_label'),
     },
+    {
+      value: t('stat_membership_value'),
+      label: t('stat_membership_label'),
+    },
+    {
+      value: t('stat_price_value'),
+      label: t('stat_price_label'),
+    },
   ];
 
-  const entries = [
-    { name: t('vertice_name'), href: '/partners/vertice-society', placeholder: false },
-    { name: t('placeholder_1'), placeholder: true },
-    { name: t('placeholder_2'), placeholder: true },
-    { name: t('placeholder_3'), placeholder: true },
-  ];
+  const renderable = logos.filter(
+    (l): l is LogoRow =>
+      l.org != null &&
+      l.org.trim() !== '' &&
+      l.logo_url != null &&
+      l.logo_url.trim() !== '',
+  );
 
   return (
     <Section variant="sand" spacing="tight">
@@ -42,7 +84,7 @@ export function ProofBand({
         <div className="mb-12 flex flex-wrap items-start justify-center gap-x-14 gap-y-8 sm:gap-x-20">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
-              <p className="text-[34px] font-bold leading-none tracking-[-0.02em] text-[var(--m-ink-primary)] md:text-[42px]">
+              <p className="whitespace-nowrap text-[34px] font-bold leading-none tracking-[-0.02em] text-[var(--m-ink-primary)] md:text-[42px]">
                 {stat.value}
               </p>
               <p className="mt-2 text-[12.5px] font-semibold uppercase tracking-[0.1em] text-[var(--m-ink-secondary)]">
@@ -56,18 +98,15 @@ export function ProofBand({
           {t('label')}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 md:gap-x-14">
-          {entries.map((entry) =>
-            entry.placeholder || !entry.href ? (
-              <Monogram key={entry.name} name={entry.name} muted={entry.placeholder} comingSoon={t('coming_soon')} />
-            ) : (
-              <a
-                key={entry.name}
-                href={entry.href}
-                className="transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--m-accent-teal)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--m-sand)] rounded-md"
-              >
-                <Monogram name={entry.name} muted={false} />
-              </a>
-            ),
+          {renderable.length > 0 ? (
+            renderable.map((logo) => <LogoEntry key={logo.id} logo={logo} />)
+          ) : (
+            <a
+              href="/partners/vertice-society"
+              className="rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--m-accent-teal)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--m-sand)]"
+            >
+              <Monogram name={t('vertice_name')} />
+            </a>
           )}
         </div>
       </Container>
@@ -75,15 +114,39 @@ export function ProofBand({
   );
 }
 
-function Monogram({
-  name,
-  muted,
-  comingSoon,
-}: {
-  name: string;
-  muted: boolean;
-  comingSoon?: string;
-}) {
+function LogoEntry({ logo }: { logo: LogoRow }) {
+  const inner = isSupabasePublicUrl(logo.logo_url) ? (
+    <Image
+      src={logo.logo_url}
+      alt={logo.org}
+      width={160}
+      height={40}
+      className="h-10 w-auto max-w-[160px] object-contain"
+    />
+  ) : (
+    <Monogram name={logo.org} />
+  );
+
+  const linkable =
+    logo.organization_url != null && logo.organization_url.startsWith('https:');
+
+  if (linkable) {
+    return (
+      <a
+        href={logo.organization_url as string}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-md transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--m-accent-teal)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--m-sand)]"
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return <div>{inner}</div>;
+}
+
+function Monogram({ name }: { name: string }) {
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
@@ -95,31 +158,14 @@ function Monogram({
   return (
     <div className="flex items-center gap-3">
       <span
-        className={cn(
-          'inline-flex h-10 w-10 items-center justify-center rounded-full border text-[12px] font-bold tracking-[0.04em]',
-          muted
-            ? 'border-dashed border-[var(--m-border-strong)] text-[var(--m-ink-secondary)]'
-            : 'border-[var(--m-border-default)] bg-[var(--m-white)] text-[var(--m-ink-primary)]',
-        )}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--m-border-default)] bg-[var(--m-white)] text-[12px] font-bold tracking-[0.04em] text-[var(--m-ink-primary)]"
         aria-hidden
       >
         {initials}
       </span>
-      <div className="flex flex-col">
-        <span
-          className={cn(
-            'text-[15px] font-semibold tracking-[-0.01em]',
-            muted ? 'text-[var(--m-ink-secondary)]' : 'text-[var(--m-ink-primary)]',
-          )}
-        >
-          {name}
-        </span>
-        {muted && comingSoon && (
-          <span className="text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--m-ink-secondary)]">
-            {comingSoon}
-          </span>
-        )}
-      </div>
+      <span className="text-[15px] font-semibold tracking-[-0.01em] text-[var(--m-ink-primary)]">
+        {name}
+      </span>
     </div>
   );
 }

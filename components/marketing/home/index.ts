@@ -1,9 +1,10 @@
 export { HomeHero } from './hero';
 export { HomePersonaRouter } from './persona-router';
-export { HomeValueProps } from './value-props';
-export { HomeVaultSection } from './vault-section';
+export { HomeMembershipBento } from './membership-bento';
 export { HomeFeaturedCourses } from './featured-courses';
 export { HomeOrgSection } from './org-section';
+export { HomeFounderNote } from './founder-note';
 export { HomeTestimonials } from './testimonials';
 export { ProofStories } from './proof-stories';
+export { HomeFaq } from './home-faq';
 export { HomeFinalCta } from './home-final-cta';

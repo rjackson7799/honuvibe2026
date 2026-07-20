@@ -1,17 +1,15 @@
+import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import en from '@/messages/en.json';
 import {
   HomeHero,
   HomePersonaRouter,
-  HomeValueProps,
-  HomeVaultSection,
   HomeFeaturedCourses,
   HomeOrgSection,
   HomeTestimonials,
   HomeFinalCta,
 } from '@/components/marketing/home';
-import { ProofBand } from '@/components/marketing/proof-band';
 
 vi.mock('next-intl', () => {
   function getNs(ns: string): Record<string, unknown> {
@@ -36,6 +34,7 @@ vi.mock('next-intl', () => {
         flattened,
       );
     }
+    t.raw = (key: string): unknown => (base as Record<string, unknown>)[key] ?? key;
     t.rich = (
       key: string,
       values?: Record<
@@ -45,8 +44,6 @@ vi.mock('next-intl', () => {
     ): React.ReactNode => {
       const msg = (base as Record<string, unknown>)[key];
       if (typeof msg !== 'string') return key;
-      // interpolate scalar values ({count} etc.) before resolving rich tags,
-      // mirroring next-intl's mixed values-and-tags object
       let raw: string = msg;
       const tags: Record<string, (chunks: React.ReactNode) => React.ReactNode> =
         {};
@@ -57,14 +54,10 @@ vi.mock('next-intl', () => {
           raw = raw.replace(`{${k}}`, String(v));
         }
       }
-      // Resolve <name>inner</name> tags by calling tags[name](inner). Untagged
-      // text is returned as-is. This does not handle nesting beyond one level —
-      // sufficient for our current rich messages.
       const parts: React.ReactNode[] = [];
       const re = /<([a-zA-Z][\w-]*)>([\s\S]*?)<\/\1>/g;
       let lastIndex = 0;
       let match: RegExpExecArray | null;
-      let i = 0;
       while ((match = re.exec(raw)) !== null) {
         if (match.index > lastIndex) {
           parts.push(raw.slice(lastIndex, match.index));
@@ -73,16 +66,9 @@ vi.mock('next-intl', () => {
         const fn = tags?.[name];
         parts.push(fn ? fn(inner) : inner);
         lastIndex = match.index + match[0].length;
-        i += 1;
       }
       if (lastIndex < raw.length) parts.push(raw.slice(lastIndex));
-      return parts.map((node, idx) =>
-        typeof node === 'string' || typeof node === 'number' ? (
-          <span key={idx}>{node}</span>
-        ) : (
-          <span key={idx}>{node}</span>
-        ),
-      );
+      return parts.map((node, idx) => <span key={idx}>{node}</span>);
     };
     return t;
   }
@@ -117,16 +103,7 @@ describe('Home page sections', () => {
     expect(primary).toHaveAttribute('href', '/learn#vault');
     const secondary = screen.getByRole('link', { name: /For Organizations/i });
     expect(secondary).toHaveAttribute('href', '/partnerships');
-    // social_proof interpolates TOTAL_LEARNERS into the <strong> tag
     expect(screen.getByText('1,400+')).toBeInTheDocument();
-  });
-
-  it('ProofBand renders the numbers strip with learner + lesson counts', () => {
-    render(<ProofBand vaultTotalCount={42} />);
-    expect(screen.getByText('1,400+')).toBeInTheDocument();
-    expect(screen.getByText('learners')).toBeInTheDocument();
-    expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByText('bilingual lessons')).toBeInTheDocument();
   });
 
   it('PersonaRouter routes all three personas to the right funnels', () => {
@@ -144,45 +121,6 @@ describe('Home page sections', () => {
     expect(studio).toHaveAttribute('href', studioUrl);
     expect(studio).toHaveAttribute('target', '_blank');
     expect(studio).toHaveAttribute('rel', 'noopener noreferrer');
-  });
-
-  it('ValueProps shows the merged section heading + all three card headlines + JP badge', () => {
-    render(<HomeValueProps />);
-    expect(screen.getByText('How HonuVibe Works')).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', {
-        name: 'Practical, bilingual, and always in reach.',
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: /Practical, not theoretical/ }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: /Bilingual by design/ }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('日本語対応')).toBeInTheDocument();
-    expect(screen.getByText('Members only')).toBeInTheDocument();
-  });
-
-  it('VaultSection shows headline, chips, Vault CTA, and the lesson mockup', () => {
-    render(<HomeVaultSection />);
-    expect(
-      screen.getByRole('heading', {
-        name: /A learning library that\s*grows\s*with you\./,
-      }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Always-on access')).toBeInTheDocument();
-    expect(screen.getByText('Prompt libraries')).toBeInTheDocument();
-    expect(screen.getByText('Real-world workflows')).toBeInTheDocument();
-    const cta = screen.getByRole('link', { name: /Join the Vault/i });
-    expect(cta).toHaveAttribute('href', '/learn#vault');
-    expect(
-      screen.getByRole('heading', {
-        name: /Building a\s*Customer Research\s*Agent with Claude/,
-      }),
-    ).toBeInTheDocument();
-    expect(screen.getByText("What you'll build")).toBeInTheDocument();
-    expect(screen.getByText('Synthesize')).toBeInTheDocument();
   });
 
   it('FeaturedCourses shows three course titles, the TRACK ribbon, and routes CTAs to /learn#courses', () => {
@@ -209,7 +147,7 @@ describe('Home page sections', () => {
     expect(cta).toHaveAttribute('href', '/partnerships');
   });
 
-  it('Testimonials shows all three quotes', () => {
+  it('Testimonials (dev-only fallback) shows all three quotes', () => {
     render(<HomeTestimonials />);
     expect(
       screen.getByRole('heading', { name: 'What People Are Saying' }),
@@ -219,7 +157,7 @@ describe('Home page sections', () => {
     expect(screen.getByText('Sarah L.')).toBeInTheDocument();
   });
 
-  it('FinalCta ends the page on a single Vault CTA + two router links', () => {
+  it('FinalCta ends the page on a single Vault CTA + two router links + shared refund policy', () => {
     render(<HomeFinalCta />);
     const cta = screen.getByRole('link', { name: /Join the Vault/i });
     expect(cta).toHaveAttribute('href', '/learn#vault');
@@ -229,16 +167,17 @@ describe('Home page sections', () => {
     expect(
       screen.getByRole('link', { name: /Train your team/i }),
     ).toHaveAttribute('href', '/partnerships');
+    // note now comes from the shared billing_policy namespace
+    expect(
+      screen.getByText('Not for you? Full refund within 14 days.'),
+    ).toBeInTheDocument();
   });
 
-  it('renders every section without console.error', () => {
+  it('renders the unchanged sync sections without console.error', () => {
     render(
       <>
         <HomeHero />
-        <ProofBand vaultTotalCount={42} />
         <HomePersonaRouter />
-        <HomeValueProps />
-        <HomeVaultSection />
         <HomeFeaturedCourses />
         <HomeOrgSection />
         <HomeTestimonials />
@@ -246,5 +185,28 @@ describe('Home page sections', () => {
       </>,
     );
     expect(errorSpy).not.toHaveBeenCalled();
+  });
+
+  it('composes the homepage sections in the redesigned order', () => {
+    const src = readFileSync('app/[locale]/page.tsx', 'utf8');
+    const main = src.slice(src.indexOf('<main>'), src.indexOf('</main>'));
+    const order = [
+      'HomeHero',
+      'ProofBand',
+      'HomePersonaRouter',
+      'HomeMembershipBento',
+      'HomeFeaturedCourses',
+      'HomeOrgSection',
+      'HomeFounderNote',
+      'ProofStories',
+      'HomeFaq',
+      'HomeFinalCta',
+    ];
+    const positions = order.map((tag) => main.indexOf(`<${tag}`));
+    positions.forEach((p) => expect(p).toBeGreaterThan(-1));
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+    // the two retired sections must be gone from the page
+    expect(main).not.toContain('<HomeValueProps');
+    expect(main).not.toContain('<HomeVaultSection');
   });
 });

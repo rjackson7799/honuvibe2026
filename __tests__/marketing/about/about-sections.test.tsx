@@ -15,6 +15,28 @@ import {
 } from '@/components/marketing/about';
 import { ProofBand } from '@/components/marketing/proof-band';
 
+// ProofBand is a shared marketing band and is now an async server component
+// (it awaits getTranslations + the governed logo rows).
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async (ns: string) => {
+    const base =
+      (en as unknown as Record<string, Record<string, string>>)[ns] ?? {};
+    return (key: string, vars?: Record<string, unknown>) => {
+      const raw = base[key];
+      if (typeof raw !== 'string') return key;
+      if (!vars) return raw;
+      return Object.entries(vars).reduce<string>(
+        (acc, [k, v]) => acc.replace(`{${k}}`, String(v)),
+        raw,
+      );
+    };
+  }),
+}));
+
+vi.mock('@/lib/proof/queries', () => ({
+  getPublishedLogos: vi.fn(async () => []),
+}));
+
 vi.mock('next-intl', () => {
   function getNs(ns: string): Record<string, unknown> {
     return ns.split('.').reduce<unknown>((o, k) => {
@@ -195,11 +217,12 @@ describe('About page sections', () => {
     ).toHaveAttribute('href', '/partnerships');
   });
 
-  it('renders every About section without console.error', () => {
+  it('renders every About section without console.error', async () => {
+    const proofBand = await ProofBand({ vaultTotalCount: 42 });
     const { container } = render(
       <>
         <AboutHero />
-        <ProofBand vaultTotalCount={42} />
+        {proofBand}
         <AboutOriginStory />
         <AboutPrinciples />
         <AboutPacific />

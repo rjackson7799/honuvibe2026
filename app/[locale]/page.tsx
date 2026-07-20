@@ -6,11 +6,12 @@ import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing
 import {
   HomeHero,
   HomePersonaRouter,
-  HomeValueProps,
-  HomeVaultSection,
+  HomeMembershipBento,
   HomeFeaturedCourses,
   HomeOrgSection,
+  HomeFounderNote,
   ProofStories,
+  HomeFaq,
   HomeFinalCta,
 } from '@/components/marketing/home';
 import { ProofBand } from '@/components/marketing/proof-band';
@@ -35,11 +36,12 @@ export default async function HomePage({ params }: Props) {
         <HomeHero />
         <ProofBand vaultTotalCount={vaultTotalCount} />
         <HomePersonaRouter />
-        <HomeValueProps />
-        <HomeVaultSection />
+        <HomeMembershipBento />
         <HomeFeaturedCourses />
         <HomeOrgSection />
+        <HomeFounderNote />
         <ProofStories />
+        <HomeFaq />
         <HomeFinalCta />
       </main>
       <MarketingNewsletter />
