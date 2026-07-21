@@ -97,7 +97,7 @@ describe('Home page sections', () => {
     render(<HomeHero />);
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1.textContent).toContain('Learn AI tonight.');
-    expect(h1.textContent).toContain('Use it at work');
+    expect(h1.textContent).toContain('Put it to work');
     expect(h1.textContent).toContain('tomorrow.');
     const primary = screen.getByRole('link', { name: /Join the Vault/i });
     expect(primary).toHaveAttribute('href', '/learn#vault');
