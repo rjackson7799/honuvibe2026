@@ -32,7 +32,9 @@ export const SANDBOX_DEMOS: readonly SandboxDemo[] = [
     key: 'miles_chaser',
     image: '/sandbox/miles-chaser.webp',
     stack: ['Next.js', 'Tailwind CSS', 'SWR', 'Recharts'],
-    status: 'live',
+    // Held at coming_soon for launch — the demo tree ships but is not yet
+    // publicly linked (Ryan 2026-07-20: MilesChaser not ready for public).
+    status: 'coming_soon',
   },
   {
     slug: 'health-hub',
