@@ -2067,7 +2067,10 @@
     "course_purchase": "Course Purchase",
     "vault_subscription": "Vault Subscription",
     "vault_renewal": "Vault Renewal",
-    "subscribed_success": "Welcome to The Vault!"
+    "subscribed_success": "Welcome to The Vault!",
+    "vault_sponsored": "Sponsored by {partner}",
+    "vault_sponsored_until": "Sponsored access through {date}",
+    "vault_sponsored_note": "Your organization covers this Vault access, so there's no subscription to manage here."
   },
   "admin_revenue": {
     "title": "Revenue",
@@ -3584,5 +3587,41 @@
     "list_intro": "Your session reports, newest first. Tap one to open it.",
     "list_empty": "Your session reports will appear here after your next session.",
     "session_on": "Session on {date}"
+  },
+  "join": {
+    "overline": "Partner invitation",
+    "title": "Join {partner} on HonuVibe",
+    "body": "You've been given a code to join this partner community. Sign in — or create your account — and you're in.",
+    "body_sponsored": "This code comes with a sponsored Vault seat: premium walkthroughs, templates, and the Apply-It Workbench, paid for by your organization.",
+    "cta_join": "Join {partner}",
+    "cta_sign_in": "Sign in to continue",
+    "sign_in_hint": "We'll email you a sign-in link and bring you straight back here.",
+    "joining": "Joining…",
+    "continue_to_dashboard": "Continue to your dashboard",
+    "browse_courses": "Browse courses instead",
+    "retry": "Try again",
+    "error_generic": "Something went wrong on our side. Please try again.",
+    "invalid_title": "This link isn't valid",
+    "invalid_body": "The code is unknown, no longer active, or was mistyped. Ask whoever shared it for a fresh link.",
+    "expired_title": "This link has expired",
+    "outcome_joined": "You're in. Welcome aboard.",
+    "outcome_joined_no_seat": "You're a member now — but a sponsored Vault seat isn't available to you yet. You still have full community access, and we'll add your seat automatically as soon as one is. Just open this link again.",
+    "outcome_already_member": "You're already a member of this community.",
+    "outcome_seat_revoked_previously": "You're in this community. Your previous sponsored seat was released, though, and isn't restored automatically — ask your organization's admin if you need it back.",
+    "outcome_conflict": "Your account already belongs to another partner community. You can only be in one at a time — manage this in your account settings, or contact us for help.",
+    "outcome_invalid": "This link isn't valid. Ask whoever shared it for a fresh one.",
+    "outcome_expired": "This link has expired. Ask whoever shared it for a fresh one.",
+    "outcome_exhausted": "Every place on this code has been claimed. Ask your organization's admin for a new one.",
+    "invite_title": "{partner} invited you to HonuVibe",
+    "invite_body": "This invitation is tied to your email address. Accept it and you'll join the community straight away.",
+    "invite_cta_accept": "Accept invitation",
+    "invite_sign_in_hint": "Sign in as {email} — this invitation is tied to that address.",
+    "invite_invalid_title": "This invitation isn't valid",
+    "invite_invalid_body": "It may have been withdrawn or already used. Ask whoever invited you to send a new one.",
+    "invite_expired_body": "Invitations are only good for a limited time. Ask whoever invited you to send a new one.",
+    "invite_wrong_account_title": "Wrong account",
+    "invite_wrong_account_body": "This invitation was sent to {email}. Sign out and sign back in with that address to accept it.",
+    "invite_switch_account": "Go to account settings",
+    "error_rate_limited": "Too many attempts from your network right now. Please wait a few minutes and try again."
   }
 }

@@ -8,6 +8,8 @@ describe('isSafeInternalRedirect', () => {
     expect(isSafeInternalRedirect('/ja/learn/dashboard/billing')).toBe(true);
     expect(isSafeInternalRedirect('/api/stripe/subscribe?tier=community')).toBe(true);
     expect(isSafeInternalRedirect('/api/stripe/subscribe?tier=vault&locale=ja')).toBe(true);
+    expect(isSafeInternalRedirect('/join/ABCD2345')).toBe(true);
+    expect(isSafeInternalRedirect('/ja/join/invite/deadbeef')).toBe(true);
   });
 
   it('rejects protocol-relative URLs', () => {

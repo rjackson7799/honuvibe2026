@@ -93,6 +93,18 @@ const nextConfig: NextConfig = {
         source: '/sandbox/:path+',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
       },
+      // Partner entry pages carry a bearer join code or an invite token in the
+      // URL. Never cache them, never leak the URL through a referer, never
+      // index them. Both locales are listed because next-intl passes the full
+      // path (including the /ja prefix) through to the header matcher.
+      ...['/join/:path*', '/ja/join/:path*'].map((source) => ({
+        source,
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, max-age=0' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      })),
     ];
   },
   images: {

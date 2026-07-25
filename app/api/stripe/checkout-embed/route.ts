@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import {
+  resolveCheckoutDiscount,
+  isCouponRejection,
+  logBenefitCouponFailure,
+} from '@/lib/partners/benefits';
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,19 +78,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check Vertice Society membership for automatic discount
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('is_vertice_member')
-      .eq('id', user.id)
-      .single();
-
-    const verticeCouponId = process.env.STRIPE_VERTICE_COUPON_ID;
-    const isVerticeMember = userProfile?.is_vertice_member === true;
-    const discounts =
-      isVerticeMember && verticeCouponId
-        ? [{ coupon: verticeCouponId }]
-        : undefined;
+    // Partner benefits — see app/api/stripe/checkout/route.ts for the full
+    // resolution order. Service role: partner_benefits is not member-readable.
+    const adminSupabase = createAdminClient();
+    const discount = await resolveCheckoutDiscount(adminSupabase, user.id);
+    const discounts = discount.couponId
+      ? [{ coupon: discount.couponId }]
+      : undefined;
 
     // Determine currency and price based on locale, falling back to USD if no JPY price set
     const isJapanese = locale === 'ja';
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     const localePrefix = isJapanese ? '/ja' : '';
 
     // Create Stripe Embedded Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const baseParams: Stripe.Checkout.SessionCreateParams = {
       ui_mode: 'embedded',
       mode: 'payment',
       customer_email: user.email ?? undefined,
@@ -150,12 +150,32 @@ export async function POST(request: NextRequest) {
         currency,
         locale,
       },
-      // Apply Vertice Society discount if applicable.
-      // Note: discounts and allow_promotion_codes are mutually exclusive in Stripe.
-      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       return_url: `${origin}${localePrefix}/learn/${course.slug}/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       locale: isJapanese ? 'ja' : 'en',
-    });
+    };
+
+    // Note: discounts and allow_promotion_codes are mutually exclusive in Stripe.
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        ...baseParams,
+        ...(discounts ? { discounts } : { allow_promotion_codes: true }),
+      });
+    } catch (error) {
+      // Stale coupon → retry once at full price + audit, so checkout never blocks.
+      if (!discounts || !isCouponRejection(error)) throw error;
+
+      await logBenefitCouponFailure(adminSupabase, {
+        partnerId: discount.partnerId,
+        couponId: discount.couponId!,
+        reason: error instanceof Error ? error.message : 'Stripe rejected the coupon',
+      });
+
+      session = await stripe.checkout.sessions.create({
+        ...baseParams,
+        allow_promotion_codes: true,
+      });
+    }
 
     return NextResponse.json({ clientSecret: session.client_secret });
   } catch (error) {

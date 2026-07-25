@@ -2067,7 +2067,10 @@
     "course_purchase": "コース購入",
     "vault_subscription": "Vaultサブスクリプション",
     "vault_renewal": "Vault更新",
-    "subscribed_success": "The Vaultへようこそ！"
+    "subscribed_success": "The Vaultへようこそ！",
+    "vault_sponsored": "{partner} 提供",
+    "vault_sponsored_until": "{date} までスポンサー提供",
+    "vault_sponsored_note": "このVaultアクセスは所属組織が負担しています。こちらで管理するサブスクリプションはありません。"
   },
   "admin_revenue": {
     "title": "収益",
@@ -3584,5 +3587,41 @@
     "list_intro": "セッションレポート（新しい順）。タップして開きます。",
     "list_empty": "次回のセッション後、ここにレポートが表示されます。",
     "session_on": "{date} のセッション"
+  },
+  "join": {
+    "overline": "パートナー招待",
+    "title": "{partner} のコミュニティに参加",
+    "body": "このパートナーコミュニティに参加するためのコードです。ログイン（またはアカウント作成）すれば、すぐに参加できます。",
+    "body_sponsored": "このコードにはスポンサー提供のVault席が含まれます。プレミアム解説動画、テンプレート、Apply-It Workbench を、所属組織の負担でご利用いただけます。",
+    "cta_join": "{partner} に参加する",
+    "cta_sign_in": "ログインして続ける",
+    "sign_in_hint": "ログイン用リンクをメールでお送りし、このページに戻ります。",
+    "joining": "参加処理中…",
+    "continue_to_dashboard": "ダッシュボードへ進む",
+    "browse_courses": "講座を見る",
+    "retry": "もう一度試す",
+    "error_generic": "サーバー側で問題が発生しました。もう一度お試しください。",
+    "invalid_title": "このリンクは無効です",
+    "invalid_body": "コードが存在しないか、すでに無効になっているか、入力に誤りがあります。共有した方に新しいリンクをご依頼ください。",
+    "expired_title": "このリンクの有効期限が切れています",
+    "outcome_joined": "参加が完了しました。ようこそ。",
+    "outcome_joined_no_seat": "メンバー登録は完了しましたが、スポンサー提供のVault席はまだご利用いただけません。コミュニティ機能はご利用いただけます。席が利用可能になり次第、このリンクを再度開いていただければ自動的に付与されます。",
+    "outcome_already_member": "すでにこのコミュニティのメンバーです。",
+    "outcome_seat_revoked_previously": "このコミュニティのメンバーです。ただし以前のスポンサー席は解除済みで、自動では復元されません。必要な場合は所属組織の管理者にご連絡ください。",
+    "outcome_conflict": "このアカウントはすでに別のパートナーコミュニティに所属しています。同時に所属できるのは1つだけです。アカウント設定でご確認いただくか、サポートまでご連絡ください。",
+    "outcome_invalid": "このリンクは無効です。共有した方に新しいリンクをご依頼ください。",
+    "outcome_expired": "このリンクの有効期限が切れています。共有した方に新しいリンクをご依頼ください。",
+    "outcome_exhausted": "このコードの利用枠はすべて埋まりました。所属組織の管理者に新しいコードをご依頼ください。",
+    "invite_title": "{partner} から HonuVibe への招待が届いています",
+    "invite_body": "この招待はご登録のメールアドレスに紐づいています。承認すると、すぐにコミュニティに参加できます。",
+    "invite_cta_accept": "招待を承認する",
+    "invite_sign_in_hint": "{email} でログインしてください。この招待はそのアドレスに紐づいています。",
+    "invite_invalid_title": "この招待は無効です",
+    "invite_invalid_body": "取り消されたか、すでに使用されている可能性があります。招待した方に再送をご依頼ください。",
+    "invite_expired_body": "招待の有効期間は限られています。招待した方に再送をご依頼ください。",
+    "invite_wrong_account_title": "アカウントが一致しません",
+    "invite_wrong_account_body": "この招待は {email} 宛です。一度ログアウトし、そのアドレスでログインし直してください。",
+    "invite_switch_account": "アカウント設定へ",
+    "error_rate_limited": "ネットワークからのリクエストが多すぎます。数分お待ちのうえ、もう一度お試しください。"
   }
 }

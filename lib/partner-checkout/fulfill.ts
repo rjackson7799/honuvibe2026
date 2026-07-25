@@ -22,6 +22,7 @@ import type Stripe from 'stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { findOrCreateUserByEmail } from '@/lib/auth/find-or-create';
+import { resolvePartnerIdBySlug } from '@/lib/partner-attribution';
 import {
   COHORT_REGISTRY,
   getCohortBundleWindow,
@@ -31,6 +32,52 @@ import { sendStudentWelcomeEmail } from '@/lib/email/send';
 import { stripe } from '@/lib/stripe/client';
 
 type Locale = 'en' | 'ja';
+
+/**
+ * Create (or repair) partner membership for an explicit partner checkout.
+ *
+ * MEMBERSHIP IS ONLY EVER CREATED IN EXPLICIT PARTNER CONTEXTS — a partner
+ * landing-page checkout (trusted Stripe metadata) or a cohort purchase carrying
+ * a partner_slug. A generic course checkout with an `hv_partner` attribution
+ * cookie records attribution ONLY: a referral is not a tenant election.
+ *
+ * Idempotency is DB-enforced inside `fulfill_partner_membership` keyed on the
+ * Checkout Session id, so this is safe to call on every webhook delivery —
+ * which is exactly why it runs BEFORE any "already fulfilled" early return: a
+ * retry must be able to repair the "enrollment exists, membership missing" case.
+ *
+ * Never throws: a membership failure must not fail the payment webhook and
+ * cause Stripe to retry a completed enrollment.
+ */
+async function fulfillPartnerMembership(
+  supabase: SupabaseClient,
+  params: { userId: string; partnerSlug: string | null; sessionId: string },
+): Promise<void> {
+  const { userId, partnerSlug, sessionId } = params;
+  if (!partnerSlug) return;
+
+  try {
+    const partnerId = await resolvePartnerIdBySlug(supabase, partnerSlug);
+    if (!partnerId) {
+      console.error('[fulfill] Unknown/inactive partner_slug, skipping membership:', partnerSlug);
+      return;
+    }
+
+    const { data, error } = await supabase.rpc('fulfill_partner_membership', {
+      p_user_id: userId,
+      p_partner_id: partnerId,
+      p_stripe_ref: sessionId,
+    });
+
+    if (error) {
+      console.error('[fulfill] fulfill_partner_membership failed:', error.message);
+      return;
+    }
+    console.log('[fulfill] partner membership outcome:', JSON.stringify(data));
+  } catch (err) {
+    console.error('[fulfill] fulfill_partner_membership threw:', err);
+  }
+}
 
 function getLocaleFromMetadata(value: string | undefined): Locale {
   return value === 'ja' ? 'ja' : 'en';
@@ -80,7 +127,18 @@ export async function fulfillCohortCheckout(
     return;
   }
 
-  // Idempotency: skip if this session was already fulfilled.
+  // 1. Find or create user (idempotent — safe to run on every retry).
+  const user = await findOrCreateUserByEmail(supabase, email, name, locale);
+
+  // 2. Partner membership, BEFORE the "already fulfilled" guard below, so a
+  //    webhook retry repairs a missing membership on an existing enrollment.
+  await fulfillPartnerMembership(supabase, {
+    userId: user.id,
+    partnerSlug,
+    sessionId: session.id,
+  });
+
+  // Idempotency: skip the rest if this session was already fulfilled.
   const { data: existing } = await supabase
     .from('cohort_enrollments')
     .select('id')
@@ -92,10 +150,7 @@ export async function fulfillCohortCheckout(
     return;
   }
 
-  // 1. Find or create user.
-  const user = await findOrCreateUserByEmail(supabase, email, name, locale);
-
-  // 2. Attach Stripe customer ID if Stripe created/used one for this session.
+  // 3. Attach Stripe customer ID if Stripe created/used one for this session.
   const customerId =
     typeof session.customer === 'string'
       ? session.customer
@@ -107,7 +162,7 @@ export async function fulfillCohortCheckout(
       .eq('id', user.id);
   }
 
-  // 3. Insert cohort_enrollments row.
+  // 4. Insert cohort_enrollments row.
   const window = getCohortBundleWindow(cohortId);
   const paymentIntentId =
     typeof session.payment_intent === 'string'
@@ -131,7 +186,7 @@ export async function fulfillCohortCheckout(
     throw insertError; // Stripe will retry.
   }
 
-  // 4. Mirror the purchase into payments for the unified billing history view.
+  // 5. Mirror the purchase into payments for the unified billing history view.
   await supabase.from('payments').insert({
     user_id: user.id,
     type: 'cohort_purchase',
@@ -143,7 +198,9 @@ export async function fulfillCohortCheckout(
     description: COHORT_REGISTRY[cohortId].displayName,
   });
 
-  // 5. Mark as Vertice member (preserves existing 40%-off course coupon perk).
+  // 6. Mark as Vertice member (preserves existing 40%-off course coupon perk).
+  //    EXPAND PHASE: this legacy flag is written alongside the generalized
+  //    partner_members row above. The contract deploy removes it.
   if (partnerSlug === 'vertice-society' && !user.is_vertice_member) {
     await supabase
       .from('users')
@@ -151,7 +208,7 @@ export async function fulfillCohortCheckout(
       .eq('id', user.id);
   }
 
-  // 6. Send welcome email with magic link (fire-and-forget).
+  // 7. Send welcome email with magic link (fire-and-forget).
   const magicLink = await generateMagicLink(supabase, email, locale);
   if (magicLink) {
     try {
@@ -191,6 +248,14 @@ export async function fulfillSubscriptionCheckout(
 
   // 1. Find or create user (idempotent).
   const user = await findOrCreateUserByEmail(supabase, email, name, locale);
+
+  // 1b. Partner membership — explicit partner-landing checkout, so the partner
+  //     intent comes from trusted Stripe metadata, not a referral cookie.
+  await fulfillPartnerMembership(supabase, {
+    userId: user.id,
+    partnerSlug,
+    sessionId: session.id,
+  });
 
   // 2. Attach Stripe customer ID so handleSubscriptionCreated can match by it
   //    if it fires after we've created the user here. (Out-of-order resilience

@@ -96,6 +96,13 @@ export async function handleCheckoutCompleted(
   // Partner attribution — resolve slug from checkout metadata to partner_id.
   // Attribution is non-critical: a resolve failure logs and continues with
   // partner_id = null so enrollment itself never fails because of it.
+  //
+  // ATTRIBUTION ONLY — deliberately no membership write here. A generic course
+  // checkout carrying an `hv_partner` referral cookie records who referred the
+  // purchase (enrollments.partner_id + the revenue-split snapshot); it does NOT
+  // elect a tenant. Membership is created only in explicit partner contexts
+  // (partner-landing checkout / a cohort purchase with partner_slug), which run
+  // through fulfill_partner_membership in lib/partner-checkout/fulfill.ts.
   const cookiePartnerId = await resolvePartnerIdBySlug(
     supabase,
     session.metadata?.partner_slug,

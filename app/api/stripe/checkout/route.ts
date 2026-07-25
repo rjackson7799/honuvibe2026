@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getAttributedPartnerSlug } from '@/lib/partner-attribution';
+import {
+  resolveCheckoutDiscount,
+  isCouponRejection,
+  logBenefitCouponFailure,
+} from '@/lib/partners/benefits';
 import {
   trackServerEvent,
   serverEventContextFromRequest,
@@ -77,19 +83,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check Vertice Society membership for automatic discount
-    const { data: userProfile } = await supabase
-      .from('users')
-      .select('is_vertice_member')
-      .eq('id', user.id)
-      .single();
-
-    const verticeCouponId = process.env.STRIPE_VERTICE_COUPON_ID;
-    const isVerticeMember = userProfile?.is_vertice_member === true;
-    const discounts =
-      isVerticeMember && verticeCouponId
-        ? [{ coupon: verticeCouponId }]
-        : undefined;
+    // Partner benefits — the member's active partner supplies the coupon
+    // (Vertice env fallback + legacy is_vertice_member flag still honored
+    // during the expand phase). Service role: partner_benefits is not readable
+    // by the member's own session under RLS.
+    const adminSupabase = createAdminClient();
+    const discount = await resolveCheckoutDiscount(adminSupabase, user.id);
+    const discounts = discount.couponId
+      ? [{ coupon: discount.couponId }]
+      : undefined;
 
     // Determine currency and price based on locale
     const isJapanese = locale === 'ja';
@@ -119,7 +121,7 @@ export async function POST(request: NextRequest) {
     const partnerSlug = await getAttributedPartnerSlug();
 
     // Create Stripe Checkout Session
-    const session = await stripe.checkout.sessions.create({
+    const baseParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'payment',
       customer_email: user.email ?? undefined,
       line_items: [
@@ -135,9 +137,6 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      // Apply Vertice Society discount if applicable.
-      // Note: discounts and allow_promotion_codes are mutually exclusive in Stripe.
-      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       metadata: {
         user_id: user.id,
         course_id: courseId,
@@ -149,7 +148,33 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}${localePrefix}/learn/dashboard/${course.slug}?enrolled=true`,
       cancel_url: `${origin}${localePrefix}/learn/${course.slug}`,
       locale: isJapanese ? 'ja' : 'en',
-    });
+    };
+
+    // Note: discounts and allow_promotion_codes are mutually exclusive in Stripe.
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        ...baseParams,
+        ...(discounts ? { discounts } : { allow_promotion_codes: true }),
+      });
+    } catch (error) {
+      // Stale coupon (deleted / expired / inapplicable): retry ONCE at full
+      // price so checkout never blocks, and audit the failure so an admin can
+      // fix the partner's coupon. The member pays full price rather than being
+      // unable to buy at all.
+      if (!discounts || !isCouponRejection(error)) throw error;
+
+      await logBenefitCouponFailure(adminSupabase, {
+        partnerId: discount.partnerId,
+        couponId: discount.couponId!,
+        reason: error instanceof Error ? error.message : 'Stripe rejected the coupon',
+      });
+
+      session = await stripe.checkout.sessions.create({
+        ...baseParams,
+        allow_promotion_codes: true,
+      });
+    }
 
     // Funnel: checkout initiated (server-side, captures abandons too).
     await trackServerEvent('checkout_started', {

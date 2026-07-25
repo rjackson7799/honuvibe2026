@@ -2,7 +2,13 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { createAdminClient } from '@/lib/supabase/server';
 import { PartnerEditor } from '@/components/admin/partner-editor/partner-editor';
-import type { PartnerFormData, CourseOption } from '@/components/admin/partner-editor/types';
+import type {
+  PartnerFormData,
+  CourseOption,
+  SeatBlockRow,
+  JoinCodeRow,
+  PartnerBenefitsRow,
+} from '@/components/admin/partner-editor/types';
 import type { PartnerAdminRow } from '@/components/admin/PartnerAdminManager';
 
 type Props = {
@@ -32,6 +38,9 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
     { data: allCourses },
     { data: enrollmentRows },
     { data: adminRows },
+    { data: seatBlockRows },
+    { data: joinCodeRows },
+    { data: benefitsRow },
   ] = await Promise.all([
     supabase
       .from('partner_courses')
@@ -51,7 +60,64 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       .select('user_id, created_at, users:user_id ( email, full_name )')
       .eq('partner_id', id)
       .order('created_at', { ascending: true }),
+    supabase
+      .from('partner_seat_blocks')
+      .select(
+        'id, label, seats_total, granted_tier, access_starts_at, access_ends_at, source, notes, is_active, created_at',
+      )
+      .eq('partner_id', id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('partner_join_codes')
+      .select('id, code, seat_block_id, max_uses, expires_at, is_active, created_at')
+      .eq('partner_id', id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('partner_benefits')
+      .select('course_discount_pct, stripe_coupon_id, included_tier')
+      .eq('partner_id', id)
+      .maybeSingle(),
   ]);
+
+  // Usage counts come from the live rows — grants for seats, ledger rows for
+  // codes. Nothing in this system keeps a mutable counter.
+  const blockIds = (seatBlockRows ?? []).map((b) => b.id);
+  const codeIds = (joinCodeRows ?? []).map((c) => c.id);
+
+  const [{ data: grantRows }, { data: redemptionRows }] = await Promise.all([
+    blockIds.length
+      ? supabase
+          .from('partner_seat_grants')
+          .select('seat_block_id')
+          .in('seat_block_id', blockIds)
+          .is('revoked_at', null)
+      : Promise.resolve({ data: [] as { seat_block_id: string }[] }),
+    codeIds.length
+      ? supabase
+          .from('partner_code_redemptions')
+          .select('code_id')
+          .in('code_id', codeIds)
+      : Promise.resolve({ data: [] as { code_id: string }[] }),
+  ]);
+
+  const seatsUsed = new Map<string, number>();
+  for (const row of grantRows ?? []) {
+    seatsUsed.set(row.seat_block_id, (seatsUsed.get(row.seat_block_id) ?? 0) + 1);
+  }
+  const codeUses = new Map<string, number>();
+  for (const row of redemptionRows ?? []) {
+    codeUses.set(row.code_id, (codeUses.get(row.code_id) ?? 0) + 1);
+  }
+
+  const initialSeatBlocks: SeatBlockRow[] = (seatBlockRows ?? []).map((b) => ({
+    ...(b as Omit<SeatBlockRow, 'seats_used'>),
+    seats_used: seatsUsed.get(b.id) ?? 0,
+  }));
+  const initialJoinCodes: JoinCodeRow[] = (joinCodeRows ?? []).map((c) => ({
+    ...(c as Omit<JoinCodeRow, 'uses'>),
+    uses: codeUses.get(c.id) ?? 0,
+  }));
+  const initialBenefits = (benefitsRow ?? null) as PartnerBenefitsRow | null;
 
   type AdminRow = {
     user_id: string;
@@ -99,6 +165,9 @@ export default async function AdminPartnerDetailPage({ params }: Props) {
       courseOptions={courseOptions}
       enrollmentCount={enrollmentRows?.length ?? 0}
       initialAdmins={initialAdmins}
+      initialSeatBlocks={initialSeatBlocks}
+      initialJoinCodes={initialJoinCodes}
+      initialBenefits={initialBenefits}
     />
   );
 }

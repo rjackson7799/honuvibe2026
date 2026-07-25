@@ -38,12 +38,19 @@ export default async function BillingPage({ params }: Props) {
   // Fetch user subscription data
   const { data: profile } = await supabase
     .from('users')
-    .select('subscription_status, subscription_expires_at')
+    .select('subscription_status, subscription_expires_at, stripe_customer_id')
     .eq('id', user.id)
     .single();
 
   const vaultAccess = await checkVaultAccess(user.id);
   const payments = await getUserPayments(user.id);
+
+  // Sponsor label for a partner-seat account. JP falls back to the EN name when
+  // the partner has no name_jp.
+  const sponsorName =
+    locale === 'ja'
+      ? (vaultAccess.sponsor?.nameJp ?? vaultAccess.sponsor?.nameEn ?? null)
+      : (vaultAccess.sponsor?.nameEn ?? null);
 
   return (
     <div className="space-y-6 max-w-[880px]">
@@ -55,6 +62,9 @@ export default async function BillingPage({ params }: Props) {
         vaultSource={vaultAccess.source}
         activeCourseName={vaultAccess.activeCourseName}
         hasAccess={vaultAccess.hasAccess}
+        hasBillingAccount={Boolean(profile?.stripe_customer_id)}
+        sponsorName={sponsorName}
+        sponsorAccessEndsAt={vaultAccess.sponsor?.accessEndsAt ?? null}
       />
 
       <Card variant="learn" padding="lg">

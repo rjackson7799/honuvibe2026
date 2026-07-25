@@ -4,7 +4,11 @@ import type { CommunityScope } from './types';
 
 /**
  * Returns the user's community scope, or null if they have no access.
- * Mirrors the Postgres community_scope_for() + has_community_access() functions.
+ *
+ * This does NOT re-implement the membership lookup in TypeScript — it calls the
+ * Postgres helpers directly, so the `partner_members.status = 'active'` filter
+ * added in migration 064 applies here automatically. Keep it that way: a local
+ * copy of the rule would be one more thing to drift.
  */
 export async function getCommunityScope(
   supabase: SupabaseClient,

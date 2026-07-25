@@ -74,10 +74,16 @@ export default async function LocaleLayout({ children, params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
         />
         {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN && (
+          // script.exclusions.js + data-exclude, NOT plain script.js: Plausible
+          // sends the full URL with every pageview, and /join/* carries a bearer
+          // join code or a raw invite token in its path. Those credentials must
+          // never reach a third party. Keep this list in sync with the
+          // no-store / no-referrer / noindex headers for /join/* in next.config.ts.
           <script
             defer
             data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
-            src="https://plausible.io/js/script.js"
+            data-exclude="/join/*, /join/*/**, /ja/join/*, /ja/join/*/**"
+            src="https://plausible.io/js/script.exclusions.js"
           />
         )}
       </head>

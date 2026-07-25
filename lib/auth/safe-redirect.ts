@@ -13,6 +13,10 @@ const ALLOWLIST_PREFIXES = [
   '/api/stripe/subscribe',
   '/learn',
   '/ja/learn',
+  // Partner entry pages: the magic-link round trip has to land back on the
+  // join/invite page so the code or token is still in hand after sign-in.
+  '/join',
+  '/ja/join',
 ] as const;
 
 export function isSafeInternalRedirect(

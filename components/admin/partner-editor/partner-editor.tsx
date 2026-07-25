@@ -13,7 +13,16 @@ import { IdentitySection } from './identity-section';
 import { BrandingSection } from './branding-section';
 import { VisibilitySection } from './visibility-section';
 import { FeaturedCoursesSection } from './featured-courses-section';
-import type { CourseOption, PartnerFormData } from './types';
+import { SeatBlocksSection } from './seat-blocks-section';
+import { JoinCodesSection } from './join-codes-section';
+import { BenefitsSection } from './benefits-section';
+import type {
+  CourseOption,
+  JoinCodeRow,
+  PartnerBenefitsRow,
+  PartnerFormData,
+  SeatBlockRow,
+} from './types';
 
 type Props = {
   partner: PartnerFormData;
@@ -21,6 +30,9 @@ type Props = {
   courseOptions: CourseOption[];
   enrollmentCount: number;
   initialAdmins: PartnerAdminRow[];
+  initialSeatBlocks: SeatBlockRow[];
+  initialJoinCodes: JoinCodeRow[];
+  initialBenefits: PartnerBenefitsRow | null;
 };
 
 const STEPS = [
@@ -29,6 +41,9 @@ const STEPS = [
   { id: 'visibility', label: 'Visibility' },
   { id: 'featured-courses', label: 'Featured courses' },
   { id: 'portal-access', label: 'Portal access' },
+  { id: 'seat-blocks', label: 'Seat blocks' },
+  { id: 'join-codes', label: 'Join codes' },
+  { id: 'benefits', label: 'Benefits' },
 ] as const;
 
 const STEP_IDS = STEPS.map((s) => s.id);
@@ -39,6 +54,9 @@ export function PartnerEditor({
   courseOptions,
   enrollmentCount,
   initialAdmins,
+  initialSeatBlocks,
+  initialJoinCodes,
+  initialBenefits,
 }: Props) {
   const router = useRouter();
   const [form, setForm] = useState<PartnerFormData>(partner);
@@ -171,6 +189,13 @@ export function PartnerEditor({
             onMove={moveCourse}
           />
           <PartnerAdminManager partnerId={form.id} initialAdmins={initialAdmins} />
+          <SeatBlocksSection partnerId={form.id} initialBlocks={initialSeatBlocks} />
+          <JoinCodesSection
+            partnerId={form.id}
+            initialCodes={initialJoinCodes}
+            seatBlocks={initialSeatBlocks}
+          />
+          <BenefitsSection partnerId={form.id} initialBenefits={initialBenefits} />
 
           <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border-default pt-4">
             <Link
