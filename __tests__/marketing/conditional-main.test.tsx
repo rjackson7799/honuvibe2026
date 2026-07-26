@@ -63,6 +63,12 @@ describe('ConditionalMain padding gate', () => {
     '/ja/learn/paths/new',
     '/admin',
     '/admin/courses',
+    // /join/* is chromeless like /learn/auth: the JoinShell card carries its own
+    // branding, so the legacy dark Nav (and its padding) must not render.
+    '/join/7K3NZFC7PX',
+    '/ja/join/7K3NZFC7PX',
+    '/join/invite/deadbeef',
+    '/ja/join/invite/deadbeef',
   ])(
     'omits dark-Nav padding on auth-shell route %s',
     (pathname) => {
