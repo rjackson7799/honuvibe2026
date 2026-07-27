@@ -6,6 +6,8 @@ import { GraduationCap, Lock, Users, ArrowRight } from 'lucide-react';
 import { markOnboarded } from '@/lib/students/actions';
 import { CourseCard } from '@/components/learn/CourseCard';
 import { SetPasswordCard } from '@/components/auth/SetPasswordCard';
+import { PartnerIdentity } from '@/components/learn/PartnerIdentity';
+import type { ActivePartnerContext } from '@/lib/partners/active-partner';
 import type { Course } from '@/lib/courses/types';
 
 type Props = {
@@ -13,9 +15,42 @@ type Props = {
   locale: string;
   featuredCourse?: Course | null;
   passwordSet?: boolean;
+  // A brand-new user redeeming a join code lands here before ever seeing the
+  // dashboard, so this is where partner identity has to appear first.
+  partner?: Pick<ActivePartnerContext, 'name' | 'logoUrl' | 'accent'> | null;
 };
 
-export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet = true }: Props) {
+/**
+ * The shell both welcome steps share.
+ *
+ * Extracted so the partner strip is carried by construction rather than by two
+ * parallel edits — the password step and the chooser step are separate returns,
+ * and it would be easy to brand one and forget the other. Module-level on
+ * purpose: a component defined inside WelcomeScreen would get a fresh identity
+ * on every render and remount SetPasswordCard, discarding a typed password.
+ */
+function WelcomeFrame({
+  partner,
+  children,
+}: {
+  partner: Pick<ActivePartnerContext, 'name' | 'logoUrl' | 'accent'> | null;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">
+      {partner && <PartnerIdentity partner={partner} className="mb-8" />}
+      {children}
+    </div>
+  );
+}
+
+export function WelcomeScreen({
+  displayName,
+  locale,
+  featuredCourse,
+  passwordSet = true,
+  partner = null,
+}: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   // Step 1: password set (only if !passwordSet). Step 2: tile chooser.
@@ -73,7 +108,7 @@ export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet
 
   if (step === 'password') {
     return (
-      <div className="relative min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">
+      <WelcomeFrame partner={partner}>
         <div className="text-center mb-10 max-w-xl">
           <h1 className="text-3xl font-serif text-fg-primary mb-3">
             {isJP ? `${displayName}さん、ようこそ！` : `Welcome to HonuVibe, ${displayName}`}
@@ -84,12 +119,12 @@ export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet
           onSuccess={handlePasswordDone}
           onSkip={handleSkipPassword}
         />
-      </div>
+      </WelcomeFrame>
     );
   }
 
   return (
-    <div className="relative min-h-[80vh] flex flex-col items-center justify-center py-16 px-4">
+    <WelcomeFrame partner={partner}>
       {/* Heading */}
       <div className="text-center mb-12 max-w-xl">
         <h1 className="text-3xl font-serif text-fg-primary mb-3">
@@ -144,6 +179,6 @@ export function WelcomeScreen({ displayName, locale, featuredCourse, passwordSet
           <CourseCard course={featuredCourse} variant="dashboard" />
         </div>
       )}
-    </div>
+    </WelcomeFrame>
   );
 }

@@ -24,6 +24,15 @@ import { getResumePoint, getLessonsCompletedThisWeek, type ResumePoint } from '@
 import { getWorkbenchSummary, type WorkbenchSummary } from '@/lib/workbench/queries';
 import { getUnreadCommunityReplies } from '@/lib/notifications/queries';
 import { listFeed } from '@/lib/community/queries';
+import { getCommunityScopeId } from '@/lib/community/scope';
+import { getActivePartnerContext } from '@/lib/partners/active-partner';
+import {
+  getPartnerCatalog,
+  enrichWithEnrollment,
+  PARTNER_ENROLLMENT_STATUSES,
+} from '@/lib/partners/catalog';
+import { getUserEnrollments } from '@/lib/enrollments/queries';
+import { PartnerHomeModule } from '@/components/learn/PartnerHomeModule';
 import type { Post } from '@/lib/community/types';
 import { ResumeHero } from '@/components/learn/ResumeHero';
 import { ActionItemsBand } from '@/components/learn/ActionItemsBand';
@@ -83,6 +92,19 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     user.email?.split('@')[0] ||
     '';
 
+  // Resolved ABOVE the welcome-screen branch: a brand-new user redeeming a join
+  // code lands there first, and it needs the identity strip too.
+  //
+  // Two SEPARATE reads on purpose. Branding requires partners.is_active; feed
+  // scope comes from community_scope_for, which does not check it. Deriving one
+  // from the other would send a deactivated partner's members to the global feed
+  // while RLS still expects partner scope.
+  const partnerLocale = locale === 'ja' ? 'ja' : 'en';
+  const [partner, communityScopeId] = await Promise.all([
+    getActivePartnerContext(supabase, user.id, partnerLocale),
+    getCommunityScopeId(supabase, user.id),
+  ]);
+
   // Branch BEFORE fetching. The welcome screen needs only the featured course, so
   // a brand-new user should not pay for the entire dashboard bundle and throw it
   // away.
@@ -94,6 +116,7 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         locale={locale}
         featuredCourse={featuredCourse}
         passwordSet={profile?.password_set ?? true}
+        partner={partner}
       />
     );
   }
@@ -116,20 +139,30 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     workbenchResult,
     unreadReplies,
     communityFeed,
+    partnerCatalog,
+    partnerEnrollments,
   ] = await Promise.all([
     // getUserEnrollments (inside this bundle) throws on a Supabase error, and it
     // has no error boundary above it — so catch here to safe defaults. The page
     // then renders the hero + empty obligation states rather than 500ing the
     // whole dashboard on one transient read.
-    getStudentDashboardData(user.id).catch((e) => {
-      console.error('[dashboard] getStudentDashboardData failed:', e);
-      return {
-        enrollments: [],
-        upcomingSessions: [],
-        pendingAssignments: [],
-        coursesProgress: new Map<string, number>(),
-      };
-    }),
+    //
+    // The `ok` flag matters: the catch returns enrollments: [], which is
+    // indistinguishable from "genuinely not enrolled". Without it a transient
+    // failure renders "View course" to a paying enrolled member on the partner
+    // rail.
+    getStudentDashboardData(user.id)
+      .then((d) => ({ ok: true as const, ...d }))
+      .catch((e) => {
+        console.error('[dashboard] getStudentDashboardData failed:', e);
+        return {
+          ok: false as const,
+          enrollments: [],
+          upcomingSessions: [],
+          pendingAssignments: [],
+          coursesProgress: new Map<string, number>(),
+        };
+      }),
     getResumePoint(user.id).then<ResumePoint | null>((r) => r).catch((e) => {
       console.error('[dashboard] getResumePoint failed:', e);
       return null;
@@ -149,9 +182,24 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       return null;
     }),
     getUnreadCommunityReplies(user.id).catch(() => 0),
-    listFeed(supabase, { partnerId: null, limit: 2, userId: user.id })
+    // The scope RLS actually grants, not a hardcoded global feed: cp_scope_read
+    // serves a member only posts matching community_scope_for(auth.uid()).
+    listFeed(supabase, { partnerId: communityScopeId, limit: 2, userId: user.id })
       .then((page) => page.posts)
       .catch<Post[]>(() => []),
+    partner
+      ? getPartnerCatalog(supabase, partner.partnerId, partnerLocale)
+      : Promise.resolve(null),
+    // Partner-only, and separate from the bundle on purpose: the bundle is
+    // active-only, so a completed partner course would read as "not enrolled"
+    // and offer "View course" to the member who finished it. Widening the bundle
+    // would change My Courses for everyone.
+    partner
+      ? getUserEnrollments(user.id, [...PARTNER_ENROLLMENT_STATUSES]).catch((e) => {
+          console.error('[dashboard] partner enrollments failed:', e);
+          return null;
+        })
+      : Promise.resolve(null),
   ]);
 
   const activeStudyPaths = studyPaths.filter((p) => p.status === 'active');
@@ -210,11 +258,34 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
   const showMyCourses = enrollments.length > 1;
 
+  const partnerCatalogEnriched =
+    partnerCatalog && partnerCatalog.status !== 'error'
+      ? {
+          ...partnerCatalog,
+          items: enrichWithEnrollment(
+            partnerCatalog.items,
+            partnerEnrollments ?? [],
+            coursesProgress,
+            // Both reads must have succeeded: a failed enrollment read would
+            // read as "not enrolled", and a failed bundle would show 0% on a
+            // course the member has progressed through.
+            dashboardData.ok && partnerEnrollments !== null,
+          ),
+        }
+      : partnerCatalog;
+
+  // Label the tile ONLY when the feed being shown is provably this partner's.
+  // A deactivated partner still scopes the feed but gets no branding, so it
+  // keeps the generic label rather than claiming a brand the page isn't wearing.
+  const communityPartnerName =
+    partner && communityScopeId === partner.partnerId ? partner.name : null;
+
   return (
     <div className="relative space-y-7 max-w-[1100px]">
       <DashboardWelcomeHeader
         overlineDate={overlineDate}
         welcomeLabel={t('welcome_back', { name: displayName })}
+        partner={partner}
       />
 
       {sp.enrolled === 'true' && (
@@ -251,6 +322,12 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
       {/* 2 — the only time-bound obligations */}
       <ActionItemsBand items={pendingAssignments} locale={locale} now={now} />
+
+      {/* Partner home — dated obligations stay above it; sitting directly on top
+          of My Courses makes the two read as one block. */}
+      {partner && partnerCatalogEnriched && (
+        <PartnerHomeModule partner={partner} catalog={partnerCatalogEnriched} locale={locale} />
+      )}
 
       {/* My Courses — only when the hero doesn't already cover it. With one
           course the hero IS the course card, so a one-row list would repeat it. */}
@@ -339,7 +416,12 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
       {/* 5 — Community | Vault */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <CommunityTile unreadReplies={unreadReplies} posts={communityFeed} locale={locale} />
+        <CommunityTile
+          unreadReplies={unreadReplies}
+          posts={communityFeed}
+          locale={locale}
+          partnerName={communityPartnerName}
+        />
         <VaultTile
           items={vaultRecommendations}
           saved={vaultSaved}

@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { Bell } from 'lucide-react';
+import { PartnerIdentity } from '@/components/learn/PartnerIdentity';
+import type { ActivePartnerContext } from '@/lib/partners/active-partner';
 
 type DashboardWelcomeHeaderProps = {
   overlineDate: string;
   welcomeLabel: string;
+  // Optional and defaulted: members of an active partner get an identity strip
+  // above the greeting; everyone else — including the admin dashboard, which
+  // renders this same header — is unchanged.
+  partner?: Pick<ActivePartnerContext, 'name' | 'logoUrl' | 'accent'> | null;
   // The right-side bell/avatar cluster is optional. Member pages leave these unset
   // (the shared MemberTopBar renders the cluster instead); the admin dashboard —
   // which uses a different shell with no top bar — still passes them to keep its
@@ -19,6 +25,7 @@ type DashboardWelcomeHeaderProps = {
 export function DashboardWelcomeHeader({
   overlineDate,
   welcomeLabel,
+  partner = null,
   initial,
   displayName,
   settingsHref,
@@ -29,6 +36,7 @@ export function DashboardWelcomeHeader({
   return (
     <div className="flex items-start justify-between gap-4">
       <div>
+        {partner && <PartnerIdentity partner={partner} className="mb-2.5" />}
         <p className="text-[12px] font-semibold tracking-[0.05em] text-fg-tertiary mb-1">
           {overlineDate}
         </p>

@@ -65,7 +65,14 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-5 max-w-[820px]">
-      <DashboardPageHeader icon={Users} title={scope.partner?.name_en ?? t('page_title')} />
+      <DashboardPageHeader
+        icon={Users}
+        title={
+          scope.partner
+            ? (locale === 'ja' && scope.partner.name_jp) || scope.partner.name_en
+            : t('page_title')
+        }
+      />
 
       {locale === 'ja' && lineUrl && (
         <LineJoinCard url={lineUrl} partnerScope={scope.partner?.slug ?? 'main'} />

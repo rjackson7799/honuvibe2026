@@ -1667,7 +1667,18 @@
     "tile_events_cta": "See all events",
     "path_invite_title": "Build a study path around your goal",
     "path_invite_body": "Tell us what you want to be able to do, and we'll assemble a path from the Vault.",
-    "path_invite_cta": "Build a path"
+    "path_invite_cta": "Build a path",
+    "partner_home_overline": "Your partner space",
+    "partner_home_title": "{partner} home",
+    "partner_home_empty": "Courses from {partner} are on the way. We'll show them here as soon as they're published.",
+    "partner_home_partial": "Some courses couldn't be loaded just now. Reload to try again.",
+    "partner_home_error": "We couldn't load these courses just now. Reload to try again.",
+    "partner_home_browse_all": "Browse all HonuVibe courses",
+    "partner_community_cta": "{partner} community",
+    "partner_course_continue": "Continue",
+    "partner_course_review": "Review",
+    "partner_course_view": "View course",
+    "partner_course_open": "Open course"
   },
   "instructor": {
     "my_classes": "My Classes",

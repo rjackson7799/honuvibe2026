@@ -6,6 +6,7 @@ export interface CommunityScope {
     id: string;
     slug: string;
     name_en: string;
+    name_jp: string | null;
     primary_color: string | null;
     line_url: string | null;
   } | null;

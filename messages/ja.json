@@ -1667,7 +1667,18 @@
     "tile_events_cta": "すべてのイベントを見る",
     "path_invite_title": "目標に合わせた学習パスを作る",
     "path_invite_body": "できるようになりたいことを教えてください。Vaultからパスを組み立てます。",
-    "path_invite_cta": "パスを作る"
+    "path_invite_cta": "パスを作る",
+    "partner_home_overline": "あなたのパートナースペース",
+    "partner_home_title": "{partner}のホーム",
+    "partner_home_empty": "{partner}のコースは準備中です。公開され次第、ここに表示されます。",
+    "partner_home_partial": "一部のコースを読み込めませんでした。再読み込みしてお試しください。",
+    "partner_home_error": "コースを読み込めませんでした。再読み込みしてお試しください。",
+    "partner_home_browse_all": "HonuVibeのすべてのコースを見る",
+    "partner_community_cta": "{partner}のコミュニティ",
+    "partner_course_continue": "続ける",
+    "partner_course_review": "復習する",
+    "partner_course_view": "コースを見る",
+    "partner_course_open": "コースをひらく"
   },
   "instructor": {
     "my_classes": "担当クラス",

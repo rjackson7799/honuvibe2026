@@ -14,6 +14,16 @@
 const DARK_SURFACE = '#0d1220';
 const LIGHT_SURFACE = '#ffffff';
 
+/**
+ * The surfaces `.learn-zone` actually paints (`styles/globals.css:326-327`).
+ *
+ * The member dashboard is a light-only palette and never paints `#0d1220`, so
+ * judging a partner accent against the dark join card there would strip the
+ * accent from dark-branded partners for no reason — a brand near `#1a2b33` is
+ * ~14:1 on white and ~1.1:1 on the dark card.
+ */
+export const LEARN_ZONE_SURFACES = ['#ffffff', '#f0ebe3'] as const;
+
 /** WCAG AA for non-text UI components and graphical objects. */
 const MIN_ACCENT_CONTRAST = 3;
 
@@ -56,17 +66,42 @@ export function contrastRatio(a: string, b: string): number | null {
 }
 
 /**
- * The partner color if it is safe to paint on both themes, otherwise null.
+ * The partner color if it clears 3:1 against EVERY given surface, otherwise null.
  * Callers substitute `var(--accent-teal)` for null.
  */
-export function safeAccentColor(value: string | null | undefined): string | null {
+export function safeAccentColorOn(
+  value: string | null | undefined,
+  surfaces: readonly string[],
+): string | null {
   const rgb = parseHexColor(value);
   if (!rgb) return null;
   const hex = `#${rgb.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
 
-  const onDark = contrastRatio(hex, DARK_SURFACE);
-  const onLight = contrastRatio(hex, LIGHT_SURFACE);
-  if (onDark === null || onLight === null) return null;
+  for (const surface of surfaces) {
+    const ratio = contrastRatio(hex, surface);
+    if (ratio === null || ratio < MIN_ACCENT_CONTRAST) return null;
+  }
+  return hex;
+}
 
-  return onDark >= MIN_ACCENT_CONTRAST && onLight >= MIN_ACCENT_CONTRAST ? hex : null;
+/**
+ * The partner color if it is safe to paint on both themes, otherwise null.
+ * Callers substitute `var(--accent-teal)` for null.
+ */
+export function safeAccentColor(value: string | null | undefined): string | null {
+  return safeAccentColorOn(value, [DARK_SURFACE, LIGHT_SURFACE]);
+}
+
+/**
+ * `#rrggbb` + alpha as an `rgba()` string, or null if unparseable.
+ *
+ * Used for the decorative module wash. Chosen over `color-mix` so the clamp is
+ * unit-testable; the CSS-layer equivalent is already in use at
+ * `WelcomeScreen.tsx:118`.
+ */
+export function withAlpha(hex: string | null | undefined, alpha: number): string | null {
+  const rgb = parseHexColor(hex);
+  if (!rgb) return null;
+  const clamped = Math.min(1, Math.max(0, alpha));
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${clamped})`;
 }

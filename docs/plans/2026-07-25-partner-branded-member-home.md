@@ -283,16 +283,26 @@ appears in any log line this unit adds.
 
 ## 2. Community scope and label (D11) -- repairs a live bug
 
-**Verified current behavior.** `dashboard/page.tsx:152` calls
-`listFeed(supabase, { partnerId: null, ... })`, which resolves to
-`.is('partner_id', null)` (`lib/community/queries.ts:41`) -- the global feed. But
-`cp_scope_read` (`042_community_feed.sql:302`) requires
+**Mechanism (policy text), and an UNCONFIRMED claim about today's behavior.**
+`dashboard/page.tsx:152` calls `listFeed(supabase, { partnerId: null, ... })`,
+which resolves to `.is('partner_id', null)` (`lib/community/queries.ts:41`) -- the
+global feed. `cp_scope_read` (`042_community_feed.sql:302`) requires
 `partner_id IS NOT DISTINCT FROM community_scope_for(auth.uid())`, and for a member
-that returns their partner id. **Global posts are unreadable by partner members,
-so the tile has returned zero rows for every Vertice member since 042.** There is
-no leak risk -- RLS makes it impossible for global posts to appear under a partner
-label. The defect is that the tile is permanently empty for exactly the users this
-unit is about.
+that returns their partner id. On that reading, global posts are unreadable by
+partner members and the tile would be empty for them.
+
+> **Not established.** An earlier revision asserted the tile "has returned zero
+> rows for every Vertice member since 042". A production check contradicted it,
+> but was made on an admin account -- and `cp_admin_all`
+> (`042_community_feed.sql:323`) is `USING (is_admin() OR is_partner_for(partner_id))`,
+> so an admin bypasses `cp_scope_read` entirely. The claim is therefore unproven
+> in **both** directions and is withdrawn from the commit message and the rollout
+> note. It is not load-bearing: the change below is correct regardless of what
+> today's behavior turns out to be. Pinning it down needs a plain-member account
+> (`users.role != 'admin'`, not in `partner_admins`).
+
+There is no leak risk either way -- RLS makes it impossible for global posts to
+appear under a partner label.
 
 **Scope is resolved from the SQL rule, not from branding.** `community_scope_for`
 filters only `partner_members.status = 'active'`; it does **not** check
@@ -529,22 +539,49 @@ reads. It shapes Unit 3's roster UI.
 
 ## Verification
 
-- [ ] `pnpm verify` clean (`NODE_OPTIONS=--max-old-space-size=8192`)
-- [ ] `pnpm test:rls` clean (temp-rename duplicate migrations 022/025 first, restore after) -- for the added RLS test, not for schema
-- [ ] **Pure** catalog tests: owned-only; featured-only; both (dedup, featured order wins); featured with NULL `display_order` ranks between numbered-featured and owned; owned-only after featured; ties -> title -> id; enrichment maps active/completed/not_enrolled; `available = false` -> every item `unknown`
-- [ ] **Mocked-query** catalog tests: `.eq('is_published', true)` on both sources; **`!inner` embed on the featured query so an unpublished course excludes its parent row rather than yielding a null embed**; `.order('display_order', nullsFirst:false)` + `.order('course_id')` on featured; `.order('title_en')` + `.order('id')` on owned; `.limit(51)` on both; one-source failure -> `partial`; **failure + surviving source with zero rows -> `partial`, not empty-state**; both fail -> `error`; 51 unique -> `truncated: true` + log carrying partner **id** and returned counts, **no slug**; 50 -> `truncated: false`
-- [ ] **Mocked-client** chokepoint tests: filters applied; `is_active` present in the selected columns so the contingency path needs no shape change; no membership -> null; removed -> null; inactive partner -> null; embedded partner returned as **object** and as **array** both parse; thrown client -> null (not a rejected promise); `/ja` picks `name_jp`, falls back to `name_en`
-- [ ] **Image pattern** tests: allowed host + disallowed pathname -> rejected; `http:` on an allowed host -> rejected; allowed host + allowed path -> accepted; `a.b.supabase.co` and bare `supabase.co` -> rejected; URL with credentials -> rejected; explicit port -> rejected; malformed URL -> rejected; **root-relative `/logo.svg` -> rejected per D12**; protocol-relative `//host/path` -> rejected; **drift assertion that the named `nextConfig` export and the shared module carry identical patterns**
-- [ ] Contrast tests: `safeAccentColor` unchanged (`__tests__/lib/partners/join.test.ts` green untouched); `safeAccentColorOn` accepts dark navy on learn-zone surfaces, rejects near-white; unparseable -> null -> teal
-- [ ] Component tests: EN + JA; ok/empty/partial/error use distinct copy; all four card states render their section-6 row; unsafe accent -> teal fallback; **`PartnerIdentity` paints the partner accent with NO module ancestor present** (header/welcome case, section 3); **no partner -> module absent, dashboard tree otherwise identical**; partner tokens do NOT leak to the `?enrolled=true` banner or any sibling; `DashboardWelcomeHeader` without a partner renders exactly as today (admin regression); **`WelcomeScreen` shows the identity in the `passwordSet = false` step AND the chooser step**
-- [ ] Community: partner member's tile queries the scope id, not null; label applied only when `scopeId === partner.partnerId`; **deactivated-partner member gets the partner feed with the generic label**; non-member still queries null
+> **Every scope-related item below must be exercised as a PLAIN MEMBER**
+> (`users.role != 'admin'` and not present in `partner_admins`). `cp_admin_all`
+> (`042_community_feed.sql:323`) is `USING (is_admin() OR is_partner_for(partner_id))`
+> and RLS policies are OR'd, so a HonuVibe admin reads every post platform-wide
+> and a partner admin reads all of their own partner's -- both bypass
+> `cp_scope_read` completely. Verifying scoping from either account produces a
+> green checkbox over unverified behavior. In the RLS suite the correct fixture is
+> `vertice_member` / `smashhaus_member`, never `honuvibe_admin` or
+> `vertice_partner_admin`.
+
+- [x] `pnpm verify` clean (`NODE_OPTIONS=--max-old-space-size=8192`)
+- [x] `pnpm test:rls` clean (temp-rename duplicate migrations 022/025 first, restore after) -- for the added RLS test, not for schema
+- [x] **Pure** catalog tests: owned-only; featured-only; both (dedup, featured order wins); featured with NULL `display_order` ranks between numbered-featured and owned; owned-only after featured; ties -> title -> id; enrichment maps active/completed/not_enrolled; `available = false` -> every item `unknown`
+- [x] **Mocked-query** catalog tests: `.eq('is_published', true)` on both sources; **`!inner` embed on the featured query so an unpublished course excludes its parent row rather than yielding a null embed**; `.order('display_order', nullsFirst:false)` + `.order('course_id')` on featured; `.order('title_en')` + `.order('id')` on owned; `.limit(51)` on both; one-source failure -> `partial`; **failure + surviving source with zero rows -> `partial`, not empty-state**; both fail -> `error`; 51 unique -> `truncated: true` + log carrying partner **id** and returned counts, **no slug**; 50 -> `truncated: false`
+- [x] **Mocked-client** chokepoint tests: filters applied; `is_active` present in the selected columns so the contingency path needs no shape change; no membership -> null; removed -> null; inactive partner -> null; embedded partner returned as **object** and as **array** both parse; thrown client -> null (not a rejected promise); `/ja` picks `name_jp`, falls back to `name_en`
+- [x] **Image pattern** tests: allowed host + disallowed pathname -> rejected; `http:` on an allowed host -> rejected; allowed host + allowed path -> accepted; `a.b.supabase.co` and bare `supabase.co` -> rejected; URL with credentials -> rejected; explicit port -> rejected; malformed URL -> rejected; **root-relative `/logo.svg` -> rejected per D12**; protocol-relative `//host/path` -> rejected; **drift assertion that the named `nextConfig` export and the shared module carry identical patterns**
+- [x] Contrast tests: `safeAccentColor` unchanged (`__tests__/lib/partners/join.test.ts` green untouched); `safeAccentColorOn` accepts dark navy on learn-zone surfaces, rejects near-white; unparseable -> null -> teal
+- [x] Component tests: EN + JA; ok/empty/partial/error use distinct copy; all four card states render their section-6 row; unsafe accent -> teal fallback; **`PartnerIdentity` paints the partner accent with NO module ancestor present** (header/welcome case, section 3); **no partner -> module absent, dashboard tree otherwise identical**; partner tokens do NOT leak to the `?enrolled=true` banner or any sibling; `DashboardWelcomeHeader` without a partner renders exactly as today (admin regression); **`WelcomeScreen` shows the identity in the `passwordSet = false` step AND the chooser step**
+- [x] Community: partner member's tile queries the scope id, not null; label applied only when `scopeId === partner.partnerId`; **deactivated-partner member gets the partner feed with the generic label**; non-member still queries null
 - [ ] Accessibility, rendered state: partner-colored elements are non-text/graphical; focus rings visible with tokens overridden; monogram text readable on its chip; logo has meaningful alt text and fixed dimensions; `accentWash` does not read as an interactive boundary
-- [ ] i18n parity green; no missing-translation warnings; JA committed as UTF-8
-- [ ] RLS: active member reads their own partner row including `is_public = false` (the section 8 tripwire); a member cannot read another user's `partner_members` row; a removed member has no active row
+      > Status: NOT RUN -- needs a browser. Static posture is in place (accent only on
+      > non-text elements, `aria-hidden` on the rule/monogram, logo `alt={partner.name}`
+      > with fixed 28x28 dimensions, min-h-[44px] on every rail CTA), but focus-ring
+      > visibility and rendered contrast were not observed.
+- [x] i18n parity green; no missing-translation warnings; JA committed as UTF-8
+- [x] RLS: active member reads their own partner row including `is_public = false` (the section 8 tripwire); a member cannot read another user's `partner_members` row; a removed member has no active row
 - [ ] Browser EN + `/ja` as an active partner member: identity strip, module, partner feed in the tile, community page title localized; mobile 375px; keyboard focus order and visible ring; contrast against the rendered card
+      > Status: NOT RUN -- Ryan's call (automated gates only this session). Requires a
+      > seeded partner member; `.env.local` points at PROD, so this could not be done
+      > without writing prod data. **Sign in as a PLAIN MEMBER** (`users.role != 'admin'`,
+      > not in `partner_admins`) -- an admin bypasses `cp_scope_read` via `cp_admin_all`.
 - [ ] Browser smoke as a NON-partner member: dashboard visually identical to today
+      > Status: NOT RUN in a browser. Covered at unit level instead: `DashboardWelcomeHeader`
+      > renders byte-identical HTML with the prop absent vs `null`, and the module is gated
+      > behind `partner &&`. Visual confirmation still pending.
 - [ ] Browser smoke as a member of a deactivated partner: unbranded dashboard, partner feed, generic label
+      > Status: NOT RUN in a browser. The label guard is unit-tested via `CommunityTile`
+      > (partner label only when `partnerName` is supplied; generic otherwise). **Plain
+      > member account required.**
 - [ ] Browser smoke of the welcome screen as a newly code-redeemed member: identity strip present in both steps, EN + `/ja`
+      > Status: NOT RUN in a browser. Both steps are unit-tested (identity present in the
+      > `passwordSet=false` step AND the chooser step, absent in both without a partner).
+      > EN + `/ja` visual pass still pending.
 
 ## Rollout
 
@@ -566,8 +603,10 @@ reads. It shapes Unit 3's roster UI.
    applied to prod **before** the push (the Unit 1 ordering lesson).
 5. **Live-impact warning:** `vertice-society` is the only partner with real members
    today (the `042_community_feed.sql:46` backfill). On deploy every Vertice
-   member's dashboard gains the branded home, **and their community tile changes
-   from empty to showing the Vertice feed.**
+   member's dashboard gains the branded home. The tile also switches from global
+   scope to `community_scope_for`; what that changes on screen for a real member
+   is unconfirmed (section 2) and should be observed on a plain-member account
+   post-deploy rather than predicted here.
 6. Execution preflight (read-only, dashboard SQL editor on `zvfwtndbxshrtpwcwynw`):
    active `partner_members` count per partner; `partners.primary_color`,
    `secondary_color` and `logo_url` for `vertice-society`, checked against the
@@ -586,10 +625,9 @@ feat(partners): branded member home + scoped partner catalog
 Active partner members now land on a branded dashboard: partner identity in
 the header (and on the welcome screen, which the join-code path hits first),
 a "<Partner> home" module with that partner's courses (owned UNION featured,
-deduplicated, display_order then title), and a community tile that finally
-queries the scope RLS actually grants -- it has returned zero rows for
-partner members since 042, because cp_scope_read walls global posts off from
-them while the tile asked for global scope.
+deduplicated, display_order then title), and a community tile that queries
+the scope community_scope_for grants the member, instead of hardcoding
+global scope.
 
 Feed scope comes from community_scope_for, not from the branding helper:
 the two rules differ on deactivated partners, so the tile is labeled only

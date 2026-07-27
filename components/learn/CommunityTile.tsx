@@ -10,6 +10,12 @@ type CommunityTileProps = {
   unreadReplies: number;
   posts: Post[];
   locale: string;
+  /**
+   * Set ONLY when the feed being shown is provably this partner's — i.e. the
+   * resolved community scope id equals the branded partner's id. The label is
+   * therefore about the feed, not about branding state.
+   */
+  partnerName?: string | null;
 };
 
 /**
@@ -17,7 +23,12 @@ type CommunityTileProps = {
  * about. Categories are the real DB enum values — never invented hashtags — and
  * there is no presence/online count because no presence model exists.
  */
-export async function CommunityTile({ unreadReplies, posts, locale }: CommunityTileProps) {
+export async function CommunityTile({
+  unreadReplies,
+  posts,
+  locale,
+  partnerName = null,
+}: CommunityTileProps) {
   const t = await getTranslations({ locale, namespace: 'dashboard' });
   const tCommunity = await getTranslations({ locale, namespace: 'community' });
   const prefix = locale === 'ja' ? '/ja' : '';
@@ -26,7 +37,11 @@ export async function CommunityTile({ unreadReplies, posts, locale }: CommunityT
   return (
     <Card variant="learn" padding="md">
       <SectionHeading
-        title={t('tile_community_title')}
+        title={
+          partnerName
+            ? t('partner_community_cta', { partner: partnerName })
+            : t('tile_community_title')
+        }
         icon={<Users size={15} className="text-[color:var(--accent-teal)]" />}
       />
 

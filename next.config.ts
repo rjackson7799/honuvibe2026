@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
+import { REMOTE_IMAGE_PATTERNS } from './lib/images/remote-patterns';
 
-const nextConfig: NextConfig = {
+export const nextConfig: NextConfig = {
   serverExternalPackages: ['@react-pdf/renderer'],
   // Keys are picomatch globs matched against the NORMALIZED route (leading
   // slash, no `app/` prefix, no trailing `/route` — see Next's
@@ -108,22 +109,7 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'cdn.sanity.io',
-        pathname: '/images/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-      },
-    ],
+    remotePatterns: [...REMOTE_IMAGE_PATTERNS],
   },
 };
 
