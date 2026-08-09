@@ -79,8 +79,8 @@ export default async function AdminBlueFillerIdeaPage({ params }: Props) {
 
       <BlueFillerIdeaOverview idea={idea} />
 
-      <section className="rounded-xl border border-border-primary bg-bg-secondary p-5">
-        <h2 className="text-base font-semibold text-fg-primary">Thesis</h2>
+      <section className="rounded-xl border border-border-default bg-bg-secondary p-4">
+        <h2 className="text-[14px] font-semibold text-fg-primary">Thesis</h2>
         <dl className="mt-4 space-y-3">
           {THESIS_FIELDS.map((field) => (
             <div key={field.key}>
@@ -108,16 +108,16 @@ export default async function AdminBlueFillerIdeaPage({ params }: Props) {
         </dl>
       </section>
 
-      <section className="rounded-xl border border-border-primary bg-bg-secondary p-5">
-        <h2 className="text-base font-semibold text-fg-primary">The pitch</h2>
+      <section className="rounded-xl border border-border-default bg-bg-secondary p-4">
+        <h2 className="text-[14px] font-semibold text-fg-primary">The pitch</h2>
         <div className="mt-3">
           <CommunityMarkdown body={idea.summary_md} />
         </div>
       </section>
 
       {idea.source_excerpt && (
-        <section className="rounded-xl border border-border-primary bg-bg-secondary p-5">
-          <h2 className="text-base font-semibold text-fg-primary">Seed source</h2>
+        <section className="rounded-xl border border-border-default bg-bg-secondary p-4">
+          <h2 className="text-[14px] font-semibold text-fg-primary">Seed source</h2>
           <p className="mt-3 text-sm text-fg-tertiary whitespace-pre-wrap">{idea.source_excerpt}</p>
         </section>
       )}

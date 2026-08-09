@@ -78,6 +78,22 @@ export const generatedIdeaSchema = z.strictObject({
 });
 export type GeneratedIdea = z.infer<typeof generatedIdeaSchema>;
 
+/**
+ * STRICT-MODE SCHEMA RULES (these tools all set `strict: true`).
+ *
+ * Strict mode is what guarantees `tool_use.input` actually validates — forced
+ * tool_choice only guarantees the tool is CALLED. Without it the model can and
+ * does omit whole required objects (observed: a response carrying every field
+ * except `thesis`), which zod then rejects and the route reports as a failure.
+ *
+ * The cost is that strict mode does NOT support numeric bounds (minimum /
+ * maximum / multipleOf) or array-length bounds (minItems / maxItems). Those
+ * constraints live in the field descriptions and in the zod schemas above
+ * instead — every object therefore also needs `additionalProperties: false`.
+ * Score ranges survive as an `enum`, which strict mode does support.
+ */
+const SCORE_VALUES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 const SCORE_TOOL_PROPERTIES = {
   type: 'object' as const,
   description:
@@ -85,15 +101,17 @@ const SCORE_TOOL_PROPERTIES = {
   properties: Object.fromEntries(
     SCORE_KEYS.map((key) => [
       key,
-      { type: 'integer' as const, minimum: 1, maximum: 10 },
+      { type: 'integer' as const, enum: SCORE_VALUES },
     ]),
   ),
   required: [...SCORE_KEYS],
+  additionalProperties: false as const,
 };
 
 export const IDEA_TOOL = {
   name: 'submit_blue_filler_idea',
   description: 'Submit exactly one Blue Filler opportunity.',
+  strict: true,
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -139,33 +157,26 @@ export const IDEA_TOOL = {
             properties: {
               assumed_multiple: {
                 type: 'number' as const,
-                minimum: EXIT_BOUNDS.assumed_multiple.min,
-                maximum: EXIT_BOUNDS.assumed_multiple.max,
-                description: 'ARR multiple a corporate acquirer would pay.',
+                description: `ARR multiple a corporate acquirer would pay. Must be between ${EXIT_BOUNDS.assumed_multiple.min} and ${EXIT_BOUNDS.assumed_multiple.max}.`,
               },
               price_point_monthly_usd: {
                 type: 'number' as const,
-                minimum: EXIT_BOUNDS.price_point_monthly_usd.min,
-                maximum: EXIT_BOUNDS.price_point_monthly_usd.max,
-                description: 'Monthly price per customer in USD.',
+                description: `Monthly price per customer in USD. Must be between ${EXIT_BOUNDS.price_point_monthly_usd.min} and ${EXIT_BOUNDS.price_point_monthly_usd.max}.`,
               },
               target_exit_usd: {
                 type: 'number' as const,
-                minimum: EXIT_BOUNDS.target_exit_usd.min,
-                maximum: EXIT_BOUNDS.target_exit_usd.max,
                 description:
-                  'Target exit value in USD. Aim for 20,000,000-30,000,000; if you go outside that band, justify it in summary_md.',
+                  'Target exit value in USD. Aim for 20,000,000-30,000,000; if you go outside that band, justify it in summary_md. Must be between 5,000,000 and 100,000,000.',
               },
             },
             required: ['assumed_multiple', 'price_point_monthly_usd', 'target_exit_usd'],
+            additionalProperties: false as const,
           },
           acquirer_hypothesis: {
             type: 'array' as const,
             items: { type: 'string' as const },
-            minItems: 1,
-            maxItems: 3,
             description:
-              'One to three named categories of corporate acquirer and why this is a tuck-in for them.',
+              'One to three named categories of corporate acquirer and why this is a tuck-in for them. Give at least one and no more than three.',
           },
         },
         required: [
@@ -179,6 +190,7 @@ export const IDEA_TOOL = {
           'exit_assumptions',
           'acquirer_hypothesis',
         ],
+        additionalProperties: false as const,
       },
       scores: SCORE_TOOL_PROPERTIES,
       industry_key: {
@@ -188,6 +200,7 @@ export const IDEA_TOOL = {
       },
     },
     required: ['title', 'one_liner', 'summary_md', 'thesis', 'scores', 'industry_key'],
+    additionalProperties: false as const,
   },
 };
 
@@ -207,15 +220,15 @@ export type GeneratedKillMemo = z.infer<typeof generatedKillMemoSchema>;
 export const KILL_MEMO_TOOL = {
   name: 'submit_blue_filler_kill_memo',
   description: 'Submit the adversarial kill memo for one idea.',
+  strict: true,
   input_schema: {
     type: 'object' as const,
     properties: {
       fatal_flaws: {
         type: 'array' as const,
         items: { type: 'string' as const },
-        minItems: 2,
-        maxItems: 5,
-        description: 'The two to five reasons this idea most likely fails. Specific, not generic.',
+        description:
+          'The reasons this idea most likely fails. Specific, not generic. Give at least two and no more than five.',
       },
       strongest_counterargument: {
         type: 'string' as const,
@@ -243,6 +256,7 @@ export const KILL_MEMO_TOOL = {
       'verdict_lean',
       'memo_md',
     ],
+    additionalProperties: false as const,
   },
 };
 
@@ -275,6 +289,7 @@ export type StructuredResearch = z.infer<typeof structuredResearchSchema>;
 export const RESEARCH_REPORT_TOOL = {
   name: 'submit_blue_filler_report',
   description: 'Structure the web research findings into a report and revised sub-scores.',
+  strict: true,
   input_schema: {
     type: 'object' as const,
     properties: {
@@ -312,6 +327,7 @@ export const RESEARCH_REPORT_TOOL = {
               SCORE_KEYS.map((key) => [key, { type: 'string' as const }]),
             ),
             required: [...SCORE_KEYS],
+            additionalProperties: false as const,
           },
         },
         required: [
@@ -322,10 +338,12 @@ export const RESEARCH_REPORT_TOOL = {
           'risks_md',
           'score_rationale',
         ],
+        additionalProperties: false as const,
       },
       revised_scores: SCORE_TOOL_PROPERTIES,
     },
     required: ['report', 'revised_scores'],
+    additionalProperties: false as const,
   },
 };
 

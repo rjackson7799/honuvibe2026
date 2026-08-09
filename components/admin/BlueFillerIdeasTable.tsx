@@ -38,17 +38,17 @@ export function BlueFillerIdeasTable({ ideas }: { ideas: BlueFillerIdea[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">
+      <div className="flex gap-1 overflow-x-auto" role="group" aria-label="Filter by status">
         {STATUS_FILTERS.map((filter) => (
           <button
             key={filter.value}
             type="button"
             aria-pressed={statusFilter === filter.value}
             onClick={() => setStatusFilter(filter.value)}
-            className={`min-h-[44px] px-4 rounded-full text-sm font-medium border transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
               statusFilter === filter.value
-                ? 'border-[color:var(--border-accent)] bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)]'
-                : 'border-border-primary text-fg-secondary hover:border-border-hover'
+                ? 'bg-accent-teal/10 text-accent-teal'
+                : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
             }`}
           >
             {filter.label}
@@ -57,34 +57,44 @@ export function BlueFillerIdeasTable({ ideas }: { ideas: BlueFillerIdea[] }) {
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-sm text-fg-tertiary">No ideas yet.</p>
+        <p className="text-fg-tertiary text-center py-8">
+          No ideas yet. Generate one above to get started.
+        </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {visible.map((idea) => {
             const industry = getIndustry(idea.industry_key);
             return (
               <li key={idea.id}>
                 <Link
                   href={`/admin/blue-filler/${idea.id}`}
-                  className="flex items-start gap-4 rounded-xl border border-border-primary bg-bg-secondary p-4 hover:border-border-hover transition-colors"
+                  className="flex items-start gap-4 rounded-xl border border-border-default bg-bg-secondary p-4 hover:border-border-hover transition-colors"
                 >
-                  <div className="shrink-0 text-center w-12">
-                    <div className={`text-2xl font-bold leading-none ${gradeColor(idea.grade)}`}>
-                      {idea.grade}
-                    </div>
-                    <div className="mt-1 text-[11px] text-fg-muted">{idea.composite}</div>
-                  </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 space-y-1.5">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-fg-primary">{idea.title}</span>
+                      <span className="text-[14px] font-semibold text-fg-primary">{idea.title}</span>
                       <StatusBadge status={idea.status} />
                       {idea.verdict && <StatusBadge status={idea.verdict} />}
                     </div>
-                    <p className="mt-1 text-sm text-fg-secondary line-clamp-2">{idea.one_liner}</p>
-                    <p className="mt-1.5 text-[11px] text-fg-muted">
-                      {industry?.label ?? idea.industry_key} · {idea.origin}
-                      {idea.kill_memo ? ' · kill memo' : ''}
-                    </p>
+                    <p className="text-[13px] text-fg-secondary line-clamp-2">{idea.one_liner}</p>
+                    <div className="flex items-center gap-3 text-[12px] text-fg-tertiary flex-wrap">
+                      <span>
+                        {industry?.label ?? idea.industry_key} · {idea.origin}
+                      </span>
+                      {idea.kill_memo && (
+                        <span className="px-2 py-0.5 rounded-full bg-bg-tertiary text-fg-tertiary text-[11px]">
+                          kill memo
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`text-[22px] font-bold leading-none ${gradeColor(idea.grade)}`}>
+                      {idea.composite}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-bg-tertiary text-fg-tertiary text-[11px] font-semibold">
+                      {idea.grade}
+                    </span>
                   </div>
                 </Link>
               </li>
@@ -94,7 +104,7 @@ export function BlueFillerIdeasTable({ ideas }: { ideas: BlueFillerIdea[] }) {
       )}
 
       {ideas.length >= IDEA_LIST_CAP && (
-        <p className="text-[11px] text-fg-muted">
+        <p className="text-[11px] text-fg-tertiary">
           Showing the top {IDEA_LIST_CAP} ideas by score. Older lower-scoring ideas are not listed.
         </p>
       )}

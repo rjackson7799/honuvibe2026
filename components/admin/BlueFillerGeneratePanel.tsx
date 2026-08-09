@@ -68,10 +68,10 @@ export function BlueFillerGeneratePanel({ priorsReviewedAt }: { priorsReviewedAt
   }
 
   return (
-    <div className="rounded-xl border border-border-primary bg-bg-secondary p-5 space-y-4">
+    <div className="rounded-xl border border-border-default bg-bg-secondary p-4 space-y-4">
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
-        <h2 className="text-base font-semibold text-fg-primary">Generate an idea</h2>
-        <p className="text-[11px] text-fg-muted">priors reviewed {priorsReviewedAt}</p>
+        <h2 className="text-[14px] font-semibold text-fg-primary">Generate an idea</h2>
+        <p className="text-[11px] text-fg-tertiary">priors reviewed {priorsReviewedAt}</p>
       </div>
 
       <div className="flex gap-2" role="group" aria-label="Generation mode">
@@ -81,10 +81,10 @@ export function BlueFillerGeneratePanel({ priorsReviewedAt }: { priorsReviewedAt
             type="button"
             aria-pressed={mode === value}
             onClick={() => setMode(value)}
-            className={`min-h-[44px] px-4 rounded-lg text-sm font-medium border transition-colors ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
               mode === value
-                ? 'border-[color:var(--border-accent)] bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)]'
-                : 'border-border-primary text-fg-secondary hover:border-border-hover'
+                ? 'bg-accent-teal/10 text-accent-teal'
+                : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
             }`}
           >
             {value === 'cold' ? 'Cold' : 'Acquirer-first'}
@@ -93,14 +93,14 @@ export function BlueFillerGeneratePanel({ priorsReviewedAt }: { priorsReviewedAt
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="bf-industry" className="block text-xs font-semibold text-fg-secondary">
+        <label htmlFor="bf-industry" className="block text-[12px] font-medium text-fg-secondary">
           Industry
         </label>
         <select
           id="bf-industry"
           value={industryKey}
           onChange={(event) => setIndustryKey(event.target.value)}
-          className="w-full min-h-[44px] text-base rounded-lg border border-border-primary bg-bg-primary px-3 text-fg-primary"
+          className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary focus:outline-none focus:border-accent-teal"
         >
           <option value="">Let Claude choose</option>
           {INDUSTRY_MAP.map((entry) => (
@@ -112,8 +112,8 @@ export function BlueFillerGeneratePanel({ priorsReviewedAt }: { priorsReviewedAt
       </div>
 
       <div className="space-y-1.5">
-        <label htmlFor="bf-seed" className="block text-xs font-semibold text-fg-secondary">
-          Seed from a source <span className="font-normal text-fg-muted">(optional)</span>
+        <label htmlFor="bf-seed" className="block text-[12px] font-medium text-fg-secondary">
+          Seed from a source <span className="text-fg-tertiary">(optional)</span>
         </label>
         <textarea
           id="bf-seed"
@@ -121,9 +121,9 @@ export function BlueFillerGeneratePanel({ priorsReviewedAt }: { priorsReviewedAt
           onChange={(event) => setSeed(event.target.value)}
           rows={4}
           placeholder="Paste an article, a transcript excerpt, or a note…"
-          className="w-full text-base rounded-lg border border-border-primary bg-bg-primary px-3 py-2 text-fg-primary"
+          className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
         />
-        <p className="text-[11px] text-fg-muted">
+        <p className="text-[11px] text-fg-tertiary">
           This text is sent to the Anthropic API and the first {SEED_EXCERPT_MAX} characters are
           stored on the idea. Do not paste secrets, credentials, client-confidential material, or
           regulated personal data.
@@ -135,15 +135,19 @@ export function BlueFillerGeneratePanel({ priorsReviewedAt }: { priorsReviewedAt
         )}
       </div>
 
-      {error && <p className="text-sm text-[color:var(--accent-coral)]">{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-[color:var(--accent-coral)]/40 bg-[color:var(--accent-coral-subtle)] px-4 py-2.5 text-[13px] text-fg-secondary">
+          {error}
+        </div>
+      )}
 
       <button
         type="button"
         onClick={() => void handleGenerate()}
         disabled={busy || seedTooShort}
-        className="inline-flex items-center gap-2 min-h-[44px] px-5 rounded-lg bg-[color:var(--accent-teal)] text-white text-sm font-semibold disabled:opacity-60"
+        className="inline-flex items-center justify-center gap-1.5 h-10 px-4 rounded-[10px] bg-[color:var(--accent-teal)] hover:bg-[color:var(--accent-teal-hover)] text-white text-[13px] font-semibold shadow-sm hover:shadow-md disabled:opacity-50 transition-all"
       >
-        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+        {busy ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
         {busy ? 'Generating…' : 'Generate idea'}
       </button>
     </div>

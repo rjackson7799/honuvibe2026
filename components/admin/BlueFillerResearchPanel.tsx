@@ -142,16 +142,16 @@ export function BlueFillerResearchPanel({ idea }: { idea: BlueFillerIdea }) {
   const generating = latest?.status === 'generating' || running;
 
   return (
-    <section className="rounded-xl border border-border-primary bg-bg-secondary p-5 space-y-4">
+    <section className="rounded-xl border border-border-default bg-bg-secondary p-4 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-base font-semibold text-fg-primary">Deep research</h2>
+        <h2 className="text-[14px] font-semibold text-fg-primary">Deep research</h2>
         <button
           type="button"
           onClick={() => void handleRun()}
           disabled={generating || archived}
-          className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg border border-border-primary text-sm font-semibold text-fg-primary hover:border-border-hover disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-bg-primary border border-border-default text-fg-secondary text-[12.5px] font-semibold hover:text-fg-primary hover:border-border-hover disabled:opacity-50 transition-colors"
         >
-          {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+          {generating ? <Loader2 size={13} className="animate-spin" /> : <Globe size={13} />}
           {generating ? 'Researching…' : latest ? 'Run again' : 'Run research'}
         </button>
       </div>
@@ -167,7 +167,11 @@ export function BlueFillerResearchPanel({ idea }: { idea: BlueFillerIdea }) {
         </p>
       )}
 
-      {error && <p className="text-sm text-[color:var(--accent-coral)]">{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-[color:var(--accent-coral)]/40 bg-[color:var(--accent-coral-subtle)] px-4 py-2.5 text-[13px] text-fg-secondary">
+          {error}
+        </div>
+      )}
 
       <div aria-live="polite">
         {loading ? (
@@ -218,8 +222,8 @@ export function BlueFillerResearchPanel({ idea }: { idea: BlueFillerIdea }) {
       </div>
 
       {history.length > 1 && (
-        <details className="pt-2 border-t border-border-primary">
-          <summary className="text-xs font-semibold text-fg-secondary cursor-pointer min-h-[44px] flex items-center">
+        <details className="pt-2 border-t border-border-default">
+          <summary className="text-xs font-semibold text-fg-secondary cursor-pointer py-1.5 flex items-center">
             Previous runs ({history.length - 1})
           </summary>
           <ul className="mt-2 space-y-1.5">

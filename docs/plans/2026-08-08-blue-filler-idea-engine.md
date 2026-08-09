@@ -14,6 +14,10 @@ Ryan met with an advisor (transcript retained by Ryan outside the repo; this sec
 
 ---
 
+> **Execution corrections (2026-08-09, found during the live smoke).** Two API facts in this plan were wrong and are corrected in the shipped code:
+> 1. **§6 web-search tool version.** The plan says `web_search_20260318`; no such version exists. The dynamic-filtering versions are `web_search_20260209` / `web_fetch_20260209`. The plan's string would have 400'd every research run.
+> 2. **§4/§5/§6 forced tool_use is not a schema guarantee.** Forced `tool_choice` only guarantees the tool is *called*; the model omitted the whole `thesis` object on a real call, which zod rejected and the route reported as a failure. All three tools now set `strict: true` with `additionalProperties: false` on every object. Strict mode forbids `minimum`/`maximum`/`minItems`/`maxItems`, so those bounds now live in the field descriptions and zod only; score ranges survive as an `enum`.
+
 ## 0. Execution contract (supersedes `_EXECUTION_TEMPLATE.md` where they conflict)
 
 - **New-feature build.** Creating every file in §9 is authorized; unlisted files require flagging in the completion report.

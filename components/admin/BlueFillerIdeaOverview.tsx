@@ -45,8 +45,8 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
   return (
     <div className="space-y-6">
       {/* Scores */}
-      <section className="rounded-xl border border-border-primary bg-bg-secondary p-5">
-        <h2 className="text-base font-semibold text-fg-primary">Scores</h2>
+      <section className="rounded-xl border border-border-default bg-bg-secondary p-4">
+        <h2 className="text-[14px] font-semibold text-fg-primary">Scores</h2>
         <ul className="mt-4 space-y-3">
           {SCORE_KEYS.map((key) => {
             const current = idea.current_scores[key];
@@ -96,9 +96,9 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
       </section>
 
       {/* Exit math */}
-      <section className="rounded-xl border border-border-primary bg-bg-secondary p-5">
+      <section className="rounded-xl border border-border-default bg-bg-secondary p-4">
         <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <h2 className="text-base font-semibold text-fg-primary">Exit math</h2>
+          <h2 className="text-[14px] font-semibold text-fg-primary">Exit math</h2>
           {idea.thesis.exit_in_thesis_band ? (
             <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-[color:var(--accent-teal)]">
               In thesis band
@@ -133,8 +133,8 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
       </section>
 
       {/* Taste Memory */}
-      <section className="rounded-xl border border-border-primary bg-bg-secondary p-5 space-y-4">
-        <h2 className="text-base font-semibold text-fg-primary">Your call</h2>
+      <section className="rounded-xl border border-border-default bg-bg-secondary p-4 space-y-4">
+        <h2 className="text-[14px] font-semibold text-fg-primary">Your call</h2>
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Idea status">
           {STATUSES.map((status) => (
@@ -144,10 +144,10 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
               aria-pressed={idea.status === status}
               disabled={pending}
               onClick={() => run(() => updateIdeaStatus(idea.id, status))}
-              className={`min-h-[44px] px-4 rounded-full text-sm font-medium border transition-colors disabled:opacity-60 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-50 ${
                 idea.status === status
-                  ? 'border-[color:var(--border-accent)] bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)]'
-                  : 'border-border-primary text-fg-secondary hover:border-border-hover'
+                  ? 'bg-accent-teal/10 text-accent-teal'
+                  : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
               }`}
             >
               {status === 'new' ? 'New' : status === 'shortlist' ? 'Shortlist' : 'Archive'}
@@ -165,7 +165,7 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
             onChange={(event) => setNote(event.target.value)}
             rows={2}
             maxLength={500}
-            className="w-full text-base rounded-lg border border-border-primary bg-bg-primary px-3 py-2 text-fg-primary"
+            className="w-full px-3 py-2 text-sm rounded-lg bg-bg-tertiary border border-border-default text-fg-primary placeholder:text-fg-tertiary focus:outline-none focus:border-accent-teal"
           />
           <div className="flex flex-wrap gap-2">
             <button
@@ -173,10 +173,10 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
               aria-pressed={idea.verdict === 'interested'}
               disabled={pending}
               onClick={() => run(() => updateIdeaVerdict(idea.id, 'interested', note))}
-              className={`min-h-[44px] px-4 rounded-full text-sm font-medium border transition-colors disabled:opacity-60 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-50 ${
                 idea.verdict === 'interested'
-                  ? 'border-[color:var(--border-accent)] bg-[color:var(--accent-teal-subtle)] text-[color:var(--accent-teal)]'
-                  : 'border-border-primary text-fg-secondary hover:border-border-hover'
+                  ? 'bg-accent-teal/10 text-accent-teal'
+                  : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
               }`}
             >
               Interested
@@ -186,10 +186,10 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
               aria-pressed={idea.verdict === 'pass'}
               disabled={pending}
               onClick={() => run(() => updateIdeaVerdict(idea.id, 'pass', note))}
-              className={`min-h-[44px] px-4 rounded-full text-sm font-medium border transition-colors disabled:opacity-60 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-50 ${
                 idea.verdict === 'pass'
-                  ? 'border-[color:var(--border-accent)] bg-[rgba(26,43,51,0.06)] text-fg-secondary'
-                  : 'border-border-primary text-fg-secondary hover:border-border-hover'
+                  ? 'bg-bg-tertiary text-fg-secondary'
+                  : 'text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary'
               }`}
             >
               Pass
@@ -202,7 +202,7 @@ export function BlueFillerIdeaOverview({ idea }: { idea: BlueFillerIdea }) {
                   setNote('');
                   run(() => updateIdeaVerdict(idea.id, null, null));
                 }}
-                className="min-h-[44px] px-4 rounded-full text-sm font-medium border border-border-primary text-fg-tertiary hover:border-border-hover disabled:opacity-60"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-fg-tertiary hover:text-fg-secondary hover:bg-bg-tertiary disabled:opacity-50 transition-colors"
               >
                 Clear verdict
               </button>

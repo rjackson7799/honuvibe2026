@@ -31,7 +31,16 @@ import type { ResearchCitation } from '../types';
 export const RESEARCH_MODEL = 'claude-opus-5';
 
 /**
- * Verified against live Anthropic docs 2026-08-08.
+ * The dynamic-filtering web search tool.
+ *
+ * CORRECTION TO THE PLAN: the plan specified `web_search_20260318`. No such tool
+ * version exists — the dynamic-filtering versions are `web_search_20260209` /
+ * `web_fetch_20260209` (Opus 5/4.8/4.7/4.6, Sonnet 5, Sonnet 4.6). Shipping the
+ * plan's string would have 400'd every research run.
+ *
+ * The standalone `code_execution` tool is deliberately NOT declared alongside
+ * this one — dynamic filtering already runs code execution under the hood, and a
+ * second execution environment confuses the model.
  *
  * `allowed_callers` is deliberately NOT set: leaving it off keeps dynamic
  * filtering on, which is correct while the org runs standard retention. Under
@@ -43,7 +52,7 @@ export const RESEARCH_MODEL = 'claude-opus-5';
  * consumed result blocks must stay in the response for citation harvesting.
  */
 export const WEB_SEARCH_TOOL = {
-  type: 'web_search_20260318',
+  type: 'web_search_20260209',
   name: 'web_search',
   max_uses: 12,
 } as const;

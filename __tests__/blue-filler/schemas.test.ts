@@ -172,6 +172,56 @@ describe('tool schemas', () => {
       expect(tool.name.startsWith('submit_blue_filler_')).toBe(true);
     }
   });
+
+  // Regression guard. Forced tool_choice only guarantees the tool is CALLED —
+  // without strict mode the model can omit a whole required object (observed
+  // live: an idea response carrying every field except `thesis`), which zod then
+  // rejects and the route surfaces as a generation failure.
+  it('every tool sets strict: true', () => {
+    for (const tool of [IDEA_TOOL, KILL_MEMO_TOOL, RESEARCH_REPORT_TOOL]) {
+      expect(tool.strict, `${tool.name} must be strict`).toBe(true);
+    }
+  });
+
+  it('every object in every tool schema sets additionalProperties: false', () => {
+    // Strict mode requires it on every object, at every depth.
+    const offenders: string[] = [];
+    const walk = (node: unknown, path: string) => {
+      if (!node || typeof node !== 'object') return;
+      const obj = node as Record<string, unknown>;
+      if (obj.type === 'object') {
+        if (obj.additionalProperties !== false) offenders.push(path);
+        const props = (obj.properties ?? {}) as Record<string, unknown>;
+        for (const [key, value] of Object.entries(props)) walk(value, `${path}.${key}`);
+      }
+      if (obj.type === 'array') walk(obj.items, `${path}[]`);
+    };
+    for (const tool of [IDEA_TOOL, KILL_MEMO_TOOL, RESEARCH_REPORT_TOOL]) {
+      walk(tool.input_schema, tool.name);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('uses no JSON-schema keyword that strict mode rejects', () => {
+    // minimum/maximum/multipleOf and minItems/maxItems are unsupported under
+    // strict mode; those bounds live in the descriptions and in zod instead.
+    const banned = ['minimum', 'maximum', 'multipleOf', 'minItems', 'maxItems', 'minLength', 'maxLength'];
+    for (const tool of [IDEA_TOOL, KILL_MEMO_TOOL, RESEARCH_REPORT_TOOL]) {
+      const serialized = JSON.stringify(tool.input_schema);
+      for (const keyword of banned) {
+        expect(serialized, `${tool.name} must not use ${keyword}`).not.toContain(`"${keyword}"`);
+      }
+    }
+  });
+
+  it('still constrains scores to 1-10 via enum, which strict mode does support', () => {
+    const scores = IDEA_TOOL.input_schema.properties.scores as {
+      properties: Record<string, { enum: number[] }>;
+    };
+    for (const key of SCORE_KEYS) {
+      expect(scores.properties[key].enum).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    }
+  });
 });
 
 describe('generatedKillMemoSchema', () => {

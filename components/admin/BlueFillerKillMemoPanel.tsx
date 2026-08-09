@@ -51,16 +51,16 @@ export function BlueFillerKillMemoPanel({ idea }: { idea: BlueFillerIdea }) {
   }
 
   return (
-    <section className="rounded-xl border border-border-primary bg-bg-secondary p-5 space-y-4">
+    <section className="rounded-xl border border-border-default bg-bg-secondary p-4 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-base font-semibold text-fg-primary">Kill memo</h2>
+        <h2 className="text-[14px] font-semibold text-fg-primary">Kill memo</h2>
         <button
           type="button"
           onClick={() => void handleRun()}
           disabled={busy || archived}
-          className="inline-flex items-center gap-2 min-h-[44px] px-4 rounded-lg border border-border-primary text-sm font-semibold text-fg-primary hover:border-border-hover disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-bg-primary border border-border-default text-fg-secondary text-[12.5px] font-semibold hover:text-fg-primary hover:border-border-hover disabled:opacity-50 transition-colors"
         >
-          {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Skull className="w-4 h-4" />}
+          {busy ? <Loader2 size={13} className="animate-spin" /> : <Skull size={13} />}
           {busy ? 'Writing…' : memo ? 'Regenerate' : 'Write kill memo'}
         </button>
       </div>
@@ -71,7 +71,11 @@ export function BlueFillerKillMemoPanel({ idea }: { idea: BlueFillerIdea }) {
         </p>
       )}
 
-      {error && <p className="text-sm text-[color:var(--accent-coral)]">{error}</p>}
+      {error && (
+        <div className="rounded-lg border border-[color:var(--accent-coral)]/40 bg-[color:var(--accent-coral-subtle)] px-4 py-2.5 text-[13px] text-fg-secondary">
+          {error}
+        </div>
+      )}
 
       {!memo ? (
         <p className="text-sm text-fg-tertiary">
@@ -114,7 +118,7 @@ export function BlueFillerKillMemoPanel({ idea }: { idea: BlueFillerIdea }) {
             <p className="mt-1 text-sm text-fg-secondary">{memo.cheapest_disproof}</p>
           </div>
 
-          <div className="pt-2 border-t border-border-primary">
+          <div className="pt-2 border-t border-border-default">
             <CommunityMarkdown body={memo.memo_md} />
           </div>
 

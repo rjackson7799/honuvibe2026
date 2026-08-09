@@ -18,7 +18,7 @@ import { CITATION_CAP, CITED_TEXT_MAX } from '@/lib/blue-filler/schemas';
 describe('WEB_SEARCH_TOOL', () => {
   it('pins the verified tool version, name and use cap', () => {
     expect(WEB_SEARCH_TOOL).toEqual({
-      type: 'web_search_20260318',
+      type: 'web_search_20260209',
       name: 'web_search',
       max_uses: 12,
     });
