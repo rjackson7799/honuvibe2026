@@ -25,6 +25,7 @@ import {
   ListChecks,
   Ticket,
   FlaskConical,
+  Lightbulb,
   Quote,
   Briefcase,
   Radar,
@@ -75,6 +76,7 @@ const navGroups: NavGroup[] = [
     items: [
       { href: '/admin/studio/leads', label: 'Studio Leads', icon: Briefcase },
       { href: '/admin/prospects', label: 'Prospects', icon: Radar },
+      { href: '/admin/blue-filler', label: 'Blue Filler', icon: Lightbulb },
     ],
   },
   {

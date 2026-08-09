@@ -54,6 +54,12 @@ const statusStyles: Record<string, string> = {
   score_failed: dangerPill,
   converted: grayPill,
   dismissed: mutedPill,
+  // Blue Filler idea statuses ('new' and 'archived' shared above) + verdicts
+  shortlist: tealPill,
+  interested: tealPill,
+  // grayPill, not mutedPill: a 'pass' verdict renders next to an 'archived'
+  // status on the detail page, and two identical grey pills read as one state.
+  pass: grayPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -89,6 +95,9 @@ const statusLabels: Record<string, string> = {
   score_failed: 'Score Failed',
   converted: 'Converted',
   dismissed: 'Dismissed',
+  shortlist: 'Shortlist',
+  interested: 'Interested',
+  pass: 'Pass',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
