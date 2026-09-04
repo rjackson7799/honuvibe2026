@@ -1,4 +1,6 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { findEngagementForLead } from '@/lib/studio/engagement/queries';
+import type { EngagementStage } from '@/lib/studio/engagement/stages';
 import type {
   DashboardStats,
   StudentListItem,
@@ -11,6 +13,11 @@ import type {
   LeadAudit,
   Prospect,
   ProspectStatus,
+  Engagement,
+  EngagementBrief,
+  EngagementEvent,
+  EngagementListItem,
+  EngagementRef,
   RevenueStats,
   TransactionRecord,
 } from './types';
@@ -286,7 +293,9 @@ export async function getStudioLeads(status?: string): Promise<StudioLead[]> {
       'id, created_at, full_name:name, company:business_name, ' +
         'project_type:tier_interest, status:sales_stage, email, industry, ' +
         'budget_range, timeline, referral_source, source_locale, message, ' +
-        'notes, phone, existing_url, source, reviewed_by, reviewed_at',
+        'notes, phone, existing_url, source, reviewed_by, reviewed_at, ' +
+        // The lead's engagement (067) for the list row's "Engaged" dot + link.
+        'engagement:engagements(id, lead_id, stage)',
     )
     .order('created_at', { ascending: false });
 
@@ -299,7 +308,13 @@ export async function getStudioLeads(status?: string): Promise<StudioLead[]> {
   // Cast: the aliased select maps leads → the StudioLead shape at the DB layer,
   // but the supabase-js type parser only infers string-literal selects (ours is
   // concatenated), so it can't see the aliases. Runtime shape is correct.
-  return (data ?? []) as unknown as StudioLead[];
+  // PostgREST returns a to-one embed as an object when it detects the UNIQUE
+  // on engagements.lead_id, and as an array otherwise — normalise both.
+  return ((data ?? []) as unknown as (StudioLead & { engagement: unknown })[]).map((row) => {
+    const raw = row.engagement;
+    const engagement = (Array.isArray(raw) ? raw[0] ?? null : raw ?? null) as EngagementRef | null;
+    return { ...row, engagement };
+  });
 }
 
 /**
@@ -406,6 +421,89 @@ export async function getScoringCount(): Promise<number> {
     .eq('status', 'scoring');
   if (error) throw error;
   return count ?? 0;
+}
+
+// Studio engagement spine (migration 067). Same throw-on-error rule as
+// getProspects: a query error is a logged 500, never a silent []. The list
+// reads the engagement_list view, which pre-aggregates the discovery progress
+// counts, last activity and open attention in SQL — no N+1 in the page.
+export async function getEngagements(filters?: {
+  stage?: EngagementStage;
+}): Promise<EngagementListItem[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from('engagement_list')
+    .select('*')
+    .order('last_activity_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false });
+  if (filters?.stage) query = query.eq('stage', filters.stage);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as unknown as EngagementListItem[];
+}
+
+/** One engagement for the workspace page; null when the row does not exist. */
+export async function getEngagementById(id: string): Promise<Engagement | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagements')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as Engagement | null;
+}
+
+/** The engagement a lead owns (for the lead workspace's frozen badge + Start button). */
+export async function getEngagementForLead(leadId: string): Promise<EngagementRef | null> {
+  const supabase = await createClient();
+  return findEngagementForLead(supabase, leadId);
+}
+
+export async function getEngagementEvents(
+  engagementId: string,
+  limit = 200,
+): Promise<EngagementEvent[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_events')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as unknown as EngagementEvent[];
+}
+
+export async function getEngagementBriefs(
+  engagementId: string,
+  limit = 20,
+): Promise<EngagementBrief[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_briefs')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as unknown as EngagementBrief[];
+}
+
+// Lightweight single-row read for the brief panel's poll (slice 2).
+export async function getLatestEngagementBrief(
+  engagementId: string,
+): Promise<EngagementBrief | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_briefs')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as EngagementBrief | null;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {

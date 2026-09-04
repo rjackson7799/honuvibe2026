@@ -1,9 +1,10 @@
 # Studio Engagement Spine + Client Discovery
 
-> **STATUS: APPROVED by Ryan 2026-09-04 (rev 2).** Not built — nothing in this plan has been
-> implemented. Per CLAUDE.md, execute in a **fresh session** (clean context prevents drift), and ship as
-> the two slices in "Build order" rather than one landing. Slice 1 first; do not start slice 2 until
-> slice 1 is pushed and 067 is applied on prod.
+> **STATUS: APPROVED by Ryan 2026-09-04 (rev 2). Slice 1 (the spine) SHIPPED 2026-09-04** — migration
+> 067 (covers both slices), `engagement_rls.test.ts`, the pure `lib/studio/engagement/*` modules, the
+> `lead-actions.ts` conditional-status fix, and the admin list / workspace / stage control / timeline.
+> **Slice 2 (discovery) is NOT built.** Per CLAUDE.md, execute it in a **fresh session**, and do not
+> start it until 067 has been applied on prod (manual, Supabase dashboard SQL editor).
 >
 > **Rev 2 (2026-09-04)** — incorporates external review round 1: submission is now one transaction
 > (lock → required check → snapshot → CAS → event → brief claim), one questionnaire per (engagement, kind) is

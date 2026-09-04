@@ -16,7 +16,12 @@ import { revalidatePath } from 'next/cache';
 import type { z } from 'zod';
 import { z as zod } from 'zod';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { findEngagementForLead } from '@/lib/studio/engagement/queries';
+import { salesStageFor } from '@/lib/studio/engagement/stages';
 import type { StudioLeadStatus } from '@/lib/admin/types';
+
+const STATUS_IS_ENGAGEMENT_DERIVED =
+  "This lead's sales stage is managed by its engagement — change the stage from the engagement workspace.";
 
 // ── Auth + parse helpers (copied from lib/workbench/actions.ts) ──────────────
 
@@ -116,7 +121,9 @@ const updateLeadSchema = zod.object({
   phone: optText(50),
   industry: optText(100),
   existing_url: optUrl,
-  status: zod.enum(STUDIO_LEAD_STATUSES),
+  // Optional: once an engagement exists, its stage drives sales_stage through
+  // the 067 mirror and the form omits status entirely (see updateLead).
+  status: zod.enum(STUDIO_LEAD_STATUSES).optional(),
   notes: optText(5000),
   preview_url: optUrl,
   preview_password: optText(200),
@@ -146,7 +153,8 @@ export type UpdateLeadInput = {
   phone?: string | null;
   industry?: string | null;
   existing_url?: string | null;
-  status: StudioLeadStatus;
+  /** Omit when the lead has an engagement — the engagement's stage owns it. */
+  status?: StudioLeadStatus;
   notes?: string | null;
   preview_url?: string | null;
   preview_password?: string | null;
@@ -226,11 +234,33 @@ export async function createLead(input: CreateLeadInput): Promise<{ id: string }
   return { id: data.id };
 }
 
-/** Update a lead's editable fields (identity/contact block, status, notes, preview). */
+/**
+ * Update a lead's editable fields (identity/contact block, status, notes, preview).
+ *
+ * STATUS IS ENGAGEMENT-DERIVED ONCE AN ENGAGEMENT EXISTS (migration 067): a
+ * DB trigger mirrors the engagement's stage onto leads.sales_stage and a guard
+ * RAISEs on any conflicting direct write — including by the service role. So
+ * (1) the `status` property is built CONDITIONALLY below: toLeadColumns decides
+ * by property presence, and an optional field that is merely `undefined` would
+ * still put `sales_stage: undefined` on the wire; and (2) a status CHANGE is
+ * refused when the lead is engaged — a value equal to what the mirror already
+ * holds (a tab opened before Start engagement) is not a change and is simply
+ * dropped, so the rest of the save still lands. The DB guard is the backstop
+ * for the race where an engagement starts between the lookup and the write.
+ */
 export async function updateLead(id: string, patch: UpdateLeadInput): Promise<void> {
   await requireAdmin();
   const parsed = parseInput(updateLeadSchema, patch);
   const admin = createAdminClient();
+
+  let status = parsed.status;
+  if (status !== undefined) {
+    const engagement = await findEngagementForLead(admin, id);
+    if (engagement) {
+      if (status !== salesStageFor(engagement.stage)) throw new Error(STATUS_IS_ENGAGEMENT_DERIVED);
+      status = undefined;
+    }
+  }
 
   const row = toLeadColumns({
     company: parsed.company,
@@ -239,14 +269,19 @@ export async function updateLead(id: string, patch: UpdateLeadInput): Promise<vo
     phone: parsed.phone,
     industry: parsed.industry,
     existing_url: parsed.existing_url,
-    status: parsed.status,
+    ...(status !== undefined ? { status } : {}),
     notes: parsed.notes,
     preview_url: parsed.preview_url,
     preview_password: parsed.preview_password,
   });
 
   const { error } = await admin.from('leads').update(row).eq('id', id);
-  if (error) throw error;
+  if (error) {
+    if (error.message?.includes('lead_sales_stage_is_engagement_derived')) {
+      throw new Error(STATUS_IS_ENGAGEMENT_DERIVED);
+    }
+    throw error;
+  }
 
   revalidateLeadPaths(id);
 }

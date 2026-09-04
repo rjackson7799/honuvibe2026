@@ -6,7 +6,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 import { createClient } from '@/lib/supabase/server';
-import { getPartnershipInquiries, getProspects } from './queries';
+import { getEngagements, getPartnershipInquiries, getProspects } from './queries';
 
 function buildPartnershipInquiryClientMock({
   data = [],
@@ -146,5 +146,51 @@ describe('getProspects', () => {
     (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
 
     await expect(getProspects()).rejects.toBe(error);
+  });
+});
+
+function buildEngagementsClientMock({
+  data = [],
+  error = null,
+}: {
+  data?: unknown[];
+  error?: { code?: string; message?: string } | null;
+}) {
+  const chain: Record<string, unknown> = { data, error };
+  for (const method of ['select', 'order', 'eq']) {
+    chain[method] = vi.fn(() => chain);
+  }
+  return { chain, client: { from: vi.fn(() => chain) } };
+}
+
+describe('getEngagements', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('reads the pre-aggregated engagement_list view, newest activity first', async () => {
+    const { client, chain } = buildEngagementsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await getEngagements();
+    expect(client.from).toHaveBeenCalledWith('engagement_list');
+    expect(chain.order).toHaveBeenCalledWith('last_activity_at', { ascending: false, nullsFirst: false });
+    expect(chain.eq).not.toHaveBeenCalled();
+  });
+
+  it('applies the optional stage filter', async () => {
+    const { client, chain } = buildEngagementsClientMock({});
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await getEngagements({ stage: 'build' });
+    expect(chain.eq).toHaveBeenCalledWith('stage', 'build');
+  });
+
+  it('throws on a query error (never [])', async () => {
+    const error = { code: '42501', message: 'permission denied' };
+    const { client } = buildEngagementsClientMock({ error });
+    (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
+
+    await expect(getEngagements()).rejects.toBe(error);
   });
 });

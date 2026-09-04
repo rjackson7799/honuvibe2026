@@ -9,12 +9,16 @@
 // at status 'new', and preview/outreach only make sense once a lead exists.
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { createLead, updateLead } from '@/lib/studio/lead-actions';
+import { startEngagement } from '@/lib/studio/engagement/engagement-actions';
+import { STAGE_LABELS } from '@/lib/studio/engagement/stages';
+import { StatusBadge } from './StatusBadge';
 import { StudioLeadOutreachPanel } from './StudioLeadOutreachPanel';
 import { StudioLeadAuditPanel } from './StudioLeadAuditPanel';
-import type { StudioLeadDetail, StudioLeadStatus } from '@/lib/admin/types';
+import type { EngagementRef, StudioLeadDetail, StudioLeadStatus } from '@/lib/admin/types';
 
 const inputCls =
   'w-full px-3 py-2 rounded-lg bg-bg-primary border border-border-default text-fg-primary text-sm focus:border-accent-teal outline-none';
@@ -56,7 +60,14 @@ function draftFromLead(lead: StudioLeadDetail | null): LeadDraft {
   };
 }
 
-export function AdminStudioLeadForm({ lead }: { lead: StudioLeadDetail | null }) {
+export function AdminStudioLeadForm({
+  lead,
+  engagement,
+}: {
+  lead: StudioLeadDetail | null;
+  /** The lead's engagement (067). When present it owns the sales stage. */
+  engagement: EngagementRef | null;
+}) {
   const router = useRouter();
   const isCreate = lead === null;
 
@@ -129,7 +140,10 @@ export function AdminStudioLeadForm({ lead }: { lead: StudioLeadDetail | null })
         phone: draft.phone,
         industry: draft.industry,
         existing_url: draft.existing_url,
-        status: draft.status,
+        // Once an engagement exists its stage drives sales_stage through the
+        // 067 mirror — the payload omits status entirely (updateLead also
+        // refuses a status change for an engaged lead, server-side).
+        ...(engagement ? {} : { status: draft.status }),
         notes: draft.notes,
         preview_url: draft.preview_url,
         preview_password: draft.preview_password,
@@ -139,6 +153,17 @@ export function AdminStudioLeadForm({ lead }: { lead: StudioLeadDetail | null })
       router.refresh();
     });
   }
+
+  async function handleStartEngagement() {
+    await run(async () => {
+      const { engagementId } = await startEngagement(lead!.id);
+      router.push(`/admin/studio/engagements/${engagementId}`);
+    });
+  }
+
+  // Start needs the SAVED status to be qualified (the RPC reads the row, not
+  // the draft), and no unsaved edits that navigating away would lose.
+  const canStartEngagement = !isCreate && lead!.status === 'qualified' && !dirty;
 
   function handleBack(e: React.MouseEvent) {
     if (dirty && !window.confirm('You have unsaved changes. Leave without saving?')) {
@@ -243,19 +268,38 @@ export function AdminStudioLeadForm({ lead }: { lead: StudioLeadDetail | null })
 
       {!isCreate && (
         <Section title="Pipeline & preview">
-          <Labeled label="Sales stage">
-            <select
-              className={inputCls}
-              value={draft.status}
-              onChange={(e) => set('status', e.target.value as StudioLeadStatus)}
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s} className="capitalize">
-                  {s}
-                </option>
-              ))}
-            </select>
-          </Labeled>
+          {engagement ? (
+            // Replaced, not hidden: the stage is engagement-derived now.
+            <div className="block">
+              <span className={labelCls}>Sales stage</span>
+              <div className="flex items-center gap-3 flex-wrap rounded-lg bg-bg-primary border border-border-default px-3 py-2.5 min-h-[44px]">
+                <StatusBadge status={lead!.status} />
+                <span className="text-[13px] text-fg-tertiary">
+                  Managed by the engagement (stage: {STAGE_LABELS[engagement.stage]})
+                </span>
+                <Link
+                  href={`/admin/studio/engagements/${engagement.id}`}
+                  className="text-[12px] font-semibold text-[color:var(--accent-teal)] hover:underline"
+                >
+                  Open engagement →
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <Labeled label="Sales stage">
+              <select
+                className={inputCls}
+                value={draft.status}
+                onChange={(e) => set('status', e.target.value as StudioLeadStatus)}
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s} className="capitalize">
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </Labeled>
+          )}
           <Labeled
             label={
               <span className="inline-flex items-center gap-2">
@@ -287,6 +331,43 @@ export function AdminStudioLeadForm({ lead }: { lead: StudioLeadDetail | null })
               onChange={(e) => set('preview_password', e.target.value)}
             />
           </Labeled>
+        </Section>
+      )}
+
+      {!isCreate && (
+        <Section title="Engagement">
+          {engagement ? (
+            <div className="flex items-center gap-3 flex-wrap">
+              <StatusBadge status={engagement.stage} />
+              <span className="text-[13px] text-fg-secondary">
+                This lead has an engagement — stages, discovery and the timeline live there.
+              </span>
+              <Link
+                href={`/admin/studio/engagements/${engagement.id}`}
+                className="inline-flex items-center justify-center h-10 px-4 rounded-[10px] bg-bg-primary border border-border-default text-fg-secondary text-[13px] font-semibold hover:text-fg-primary hover:border-border-hover transition-colors"
+              >
+                Open engagement →
+              </Link>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                type="button"
+                onClick={handleStartEngagement}
+                disabled={busy || !canStartEngagement}
+                className="inline-flex items-center justify-center h-10 px-5 rounded-[10px] bg-[color:var(--accent-teal)] hover:bg-[color:var(--accent-teal-hover)] text-white text-[13px] font-semibold shadow-sm hover:shadow-md disabled:opacity-50 disabled:pointer-events-none transition-all"
+              >
+                {busy ? 'Starting…' : 'Start engagement'}
+              </button>
+              <span className="text-[12px] text-fg-tertiary">
+                {lead!.status !== 'qualified'
+                  ? 'Mark this lead Qualified and save to start an engagement.'
+                  : dirty
+                    ? 'Save your changes first.'
+                    : 'Opens the engagement at Discovery; the lead’s stage is managed there from then on.'}
+              </span>
+            </div>
+          )}
         </Section>
       )}
 

@@ -60,6 +60,19 @@ const statusStyles: Record<string, string> = {
   // grayPill, not mutedPill: a 'pass' verdict renders next to an 'archived'
   // status on the detail page, and two identical grey pills read as one state.
   pass: grayPill,
+  // Engagement stages ('proposal' and 'lost' shared above). Discovery is the
+  // opening move (teal), build/launch are in-flight (coral/gold), care is the
+  // steady state (teal), closed is finished-amicably (grey — not a loss).
+  discovery: tealPill,
+  build: coralPill,
+  launch: goldPill,
+  care: tealPill,
+  closed: grayPill,
+  // Questionnaire statuses ('draft' shared above)
+  ready: tealPill,
+  sent: coralPill,
+  in_progress: coralPill,
+  submitted: tealPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -98,6 +111,15 @@ const statusLabels: Record<string, string> = {
   shortlist: 'Shortlist',
   interested: 'Interested',
   pass: 'Pass',
+  discovery: 'Discovery',
+  build: 'Build',
+  launch: 'Launch',
+  care: 'Care',
+  closed: 'Closed',
+  ready: 'Ready',
+  sent: 'Sent',
+  in_progress: 'In Progress',
+  submitted: 'Submitted',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

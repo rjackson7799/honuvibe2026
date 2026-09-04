@@ -1,5 +1,19 @@
 // Admin-specific types
 
+import type {
+  BriefStatus,
+  EngagementCurrency,
+  EngagementEventActor,
+  EngagementEventKind,
+  EngagementLocale,
+  EngagementStage,
+  EngagementTier,
+  QuestionnaireStatus,
+  TailoringStatus,
+} from '@/lib/studio/engagement/types';
+import type { AnswerSnapshot, QuestionnaireSection, EngagementQuestion } from '@/lib/studio/engagement/questions-schema';
+import type { EngagementRef } from '@/lib/studio/engagement/queries';
+
 export type UserRole = 'student' | 'admin' | 'instructor';
 export type SubscriptionTier = 'free' | 'community' | 'vault';
 export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'cancelled' | 'trialing';
@@ -108,6 +122,8 @@ export interface StudioLead {
   source: string;
   reviewed_by: string | null;
   reviewed_at: string | null;
+  /** The lead's engagement (migration 067), embedded by getStudioLeads; null when unengaged. */
+  engagement?: EngagementRef | null;
 }
 
 // The lead workspace (detail page) — StudioLead plus the workspace-only columns
@@ -203,6 +219,132 @@ export interface Prospect {
   dismissed_from: string | null;
   scored_at: string | null;
   scoring_started_at: string | null;
+}
+
+// ── Studio engagement spine (migration 067) ──────────────────────────────────
+// Row shapes for the admin surfaces. The enums live in
+// lib/studio/engagement/types.ts (stage vocabulary is parity-pinned to SQL).
+
+export type { EngagementRef };
+
+export interface Engagement {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  lead_id: string;
+  title: string;
+  locale: EngagementLocale;
+  client_contact_name: string | null;
+  client_contact_email: string | null;
+  stage: EngagementStage;
+  stage_entered_at: string;
+  tier: EngagementTier | null;
+  currency: EngagementCurrency;
+  contract_value: number | null; // minor units (USD cents / JPY yen)
+  care_mrr: number | null;
+  won_at: string | null;
+  care_started_at: string | null;
+  care_ended_at: string | null;
+  ended_at: string | null;
+  lost_reason: string | null;
+  next_action: string | null;
+  next_action_due_at: string | null;
+  notes: string | null;
+}
+
+export interface EngagementEvent {
+  id: string;
+  engagement_id: string;
+  created_at: string;
+  kind: EngagementEventKind;
+  actor: EngagementEventActor;
+  from_stage: EngagementStage | null;
+  to_stage: EngagementStage | null;
+  summary: string;
+  data: Record<string, unknown>;
+  needs_attention: boolean;
+  resolved_at: string | null;
+}
+
+export interface EngagementQuestionnaire {
+  id: string;
+  engagement_id: string;
+  created_at: string;
+  updated_at: string;
+  kind: 'discovery';
+  locale: EngagementLocale;
+  title: string;
+  intro_md: string | null;
+  template_key: string | null;
+  sections: QuestionnaireSection[];
+  questions: EngagementQuestion[];
+  questions_version: number;
+  status: QuestionnaireStatus;
+  tailoring_status: TailoringStatus;
+  tailoring_started_at: string | null;
+  tailored_at: string | null;
+  tailoring_error: string | null;
+  tailoring_model_id: string | null;
+  tailoring_pipeline_version: string | null;
+  access_token_hash: string | null;
+  token_issued_at: string | null;
+  token_expires_at: string | null;
+  token_revoked_at: string | null;
+  open_count: number;
+  first_opened_at: string | null;
+  last_opened_at: string | null;
+  sent_at: string | null;
+  submitted_at: string | null;
+  notification_sent_at: string | null;
+  answer_snapshot: AnswerSnapshot | null;
+}
+
+export interface EngagementBrief {
+  id: string;
+  engagement_id: string;
+  questionnaire_id: string | null;
+  created_at: string;
+  updated_at: string;
+  status: BriefStatus;
+  digest_md: string | null;
+  brief_md: string | null;
+  structured: Record<string, unknown> | null;
+  source_snapshot: Record<string, unknown> | null;
+  model_id: string | null;
+  pipeline_version: string | null;
+  build_sha: string | null;
+  generation_error: string | null;
+  completed_at: string | null;
+}
+
+// One row of the engagement_list view — the list page's pre-aggregated read.
+export interface EngagementListItem {
+  id: string;
+  lead_id: string;
+  title: string;
+  locale: EngagementLocale;
+  stage: EngagementStage;
+  stage_entered_at: string;
+  created_at: string;
+  updated_at: string;
+  tier: EngagementTier | null;
+  client_contact_name: string | null;
+  client_contact_email: string | null;
+  next_action: string | null;
+  next_action_due_at: string | null;
+  won_at: string | null;
+  ended_at: string | null;
+  discovery_id: string | null;
+  discovery_status: QuestionnaireStatus | null;
+  discovery_sent_at: string | null;
+  discovery_submitted_at: string | null;
+  discovery_token_expires_at: string | null;
+  discovery_token_revoked_at: string | null;
+  discovery_question_count: number;
+  discovery_answered_count: number;
+  latest_brief_status: BriefStatus | null;
+  last_activity_at: string | null;
+  open_attention_count: number;
 }
 
 export interface DashboardStats {

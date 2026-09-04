@@ -28,6 +28,7 @@ import {
   Lightbulb,
   Quote,
   Briefcase,
+  Milestone,
   Radar,
   UserRound,
   Settings,
@@ -75,6 +76,9 @@ const navGroups: NavGroup[] = [
     label: 'Studio',
     items: [
       { href: '/admin/studio/leads', label: 'Studio Leads', icon: Briefcase },
+      // Sibling prefix of /admin/studio/leads — the default startsWith match
+      // already disambiguates them, so no isItemActive special case.
+      { href: '/admin/studio/engagements', label: 'Engagements', icon: Milestone },
       { href: '/admin/prospects', label: 'Prospects', icon: Radar },
       { href: '/admin/blue-filler', label: 'Blue Filler', icon: Lightbulb },
     ],

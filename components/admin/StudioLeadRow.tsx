@@ -62,7 +62,19 @@ export function StudioLeadRow({ lead }: { lead: StudioLead }) {
         className="cursor-pointer hover:bg-bg-tertiary transition-colors duration-[var(--duration-fast)]"
       >
         <td className="px-4 py-3.5 text-[13.5px]">
-          <span className="text-fg-primary font-semibold">{displayName}</span>
+          <span className="inline-flex items-center gap-2">
+            <span className="text-fg-primary font-semibold">{displayName}</span>
+            {lead.engagement && (
+              // Engaged: the lead's status is now mirrored from its engagement.
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[color:var(--accent-teal)]"
+                title="Has an engagement"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--accent-teal)]" aria-hidden />
+                Engaged
+              </span>
+            )}
+          </span>
         </td>
         <td className="px-4 py-3.5">
           <StatusBadge status={lead.status} />
@@ -130,6 +142,14 @@ export function StudioLeadRow({ lead }: { lead: StudioLead }) {
                 >
                   Open workspace →
                 </Link>
+                {lead.engagement && (
+                  <Link
+                    href={`/admin/studio/engagements/${lead.engagement.id}`}
+                    className="text-xs font-semibold text-accent-teal hover:underline"
+                  >
+                    Open engagement →
+                  </Link>
+                )}
                 {lead.email && (
                   <a
                     href={`mailto:${lead.email}`}
