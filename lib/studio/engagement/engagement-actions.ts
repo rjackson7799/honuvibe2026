@@ -55,6 +55,26 @@ const noteSchema = z
   .min(1, 'Write something first')
   .max(4000, 'Keep the note under 4000 characters');
 
+// The client contact block (slice 2). '' -> null; the email is format-checked
+// only when present, matching lead-actions' optEmail.
+const optText = (max: number) =>
+  z
+    .string()
+    .max(max)
+    .nullish()
+    .transform((v) => {
+      const t = v?.trim() ?? '';
+      return t === '' ? null : t;
+    });
+const contactSchema = z.object({
+  client_contact_name: optText(200),
+  client_contact_email: optText(320).refine(
+    (v) => v === null || z.string().email().safeParse(v).success,
+    { message: 'Enter a valid email address' },
+  ),
+  locale: z.enum(['en', 'ja']),
+});
+
 function revalidateEngagementPaths(engagementId: string, leadId?: string | null): void {
   revalidatePath('/admin/studio/engagements');
   revalidatePath(`/admin/studio/engagements/${engagementId}`);
@@ -176,5 +196,36 @@ export async function resolveEngagementEvent(eventId: string): Promise<void> {
   if (!data) return; // already resolved, or not an attention item — nothing to do
 
   revalidatePath(`/admin/studio/engagements/${(data as { engagement_id: string }).engagement_id}`);
+  revalidatePath('/admin/studio/engagements');
+}
+
+/**
+ * Edit-in-place client contact (name + email + language). The engagement
+ * seeds these from the lead at start; sendQuestionnaire REQUIRES an email, so
+ * this is the one editor the engagement row gets this slice. Nothing else on
+ * the row is editable here.
+ */
+export async function updateEngagementContact(
+  engagementId: string,
+  input: { client_contact_name?: string | null; client_contact_email?: string | null; locale: string },
+): Promise<void> {
+  await requireAdmin();
+  const id = parseInput(uuidSchema, engagementId);
+  const patch = parseInput(contactSchema, input);
+
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from('engagements')
+    .update(patch)
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+  if (error) {
+    console.error('[engagement] updateEngagementContact failed:', error);
+    throw new Error('Failed to save the client contact.');
+  }
+  if (!data) throw new Error('Engagement not found.');
+
+  revalidatePath(`/admin/studio/engagements/${id}`);
   revalidatePath('/admin/studio/engagements');
 }

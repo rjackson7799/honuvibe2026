@@ -27,6 +27,11 @@ const CHROMELESS = [
   '/events/summer-meetup/survey',
   '/events/summer-meetup/survey/',
   '/ja/events/summer-meetup/survey',
+  // Client discovery questionnaire — chromeless, own wordmark, no LangToggle.
+  '/discovery',
+  '/discovery/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40',
+  '/discovery/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40/',
+  '/ja/discovery/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40',
 ];
 
 const KEEPS_NAV = [
@@ -49,6 +54,8 @@ const KEEPS_NAV = [
   '/joined',
   '/surveys/intro-to-ai',
   '/administration',
+  '/discoveries',
+  '/discovery-call',
 ];
 
 describe('isAuthShellRoute', () => {

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { setRequestLocale, getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { Analytics } from '@vercel/analytics/next';
+import { VercelAnalytics } from '@/components/analytics/vercel-analytics';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { dmSans, dmSerif, inter, jetbrainsMono, notoSansJP } from '@/app/fonts';
@@ -77,12 +77,15 @@ export default async function LocaleLayout({ children, params }: Props) {
           // script.exclusions.js + data-exclude, NOT plain script.js: Plausible
           // sends the full URL with every pageview, and /join/* carries a bearer
           // join code or a raw invite token in its path. Those credentials must
-          // never reach a third party. Keep this list in sync with the
-          // no-store / no-referrer / noindex headers for /join/* in next.config.ts.
+          // never reach a third party. /discovery/* is the client discovery
+          // questionnaire: the URL holds only a UUID, but WHICH client is
+          // filling one out, and when, is confidential. Keep this list in sync
+          // with the no-store / no-referrer / noindex headers for /join/* and
+          // /discovery/* in next.config.ts and with VercelAnalytics' beforeSend.
           <script
             defer
             data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
-            data-exclude="/join/*, /join/*/**, /ja/join/*, /ja/join/*/**"
+            data-exclude="/join/*, /join/*/**, /ja/join/*, /ja/join/*/**, /discovery/*, /discovery/*/**, /ja/discovery/*, /ja/discovery/*/**"
             src="https://plausible.io/js/script.exclusions.js"
           />
         )}
@@ -98,7 +101,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <ConditionalFooter />
           </NextIntlClientProvider>
         </ThemeProvider>
-        <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   );

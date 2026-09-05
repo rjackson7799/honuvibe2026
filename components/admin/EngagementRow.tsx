@@ -16,6 +16,33 @@ const TIER_LABELS: Record<string, string> = {
   ai_native: 'AI-native',
 };
 
+/**
+ * The Discovery column — six states from the view's discovery_* columns, no
+ * extra queries: — / Draft / Sent · 3d ago / 12 of 24 / Submitted ✓ / Brief ready.
+ */
+export function discoveryLabel(e: EngagementListItem): string {
+  if (!e.discovery_id || !e.discovery_status) return '—';
+  const linkDead =
+    !!e.discovery_token_revoked_at ||
+    (!!e.discovery_token_expires_at && new Date(e.discovery_token_expires_at).getTime() <= Date.now());
+  switch (e.discovery_status) {
+    case 'draft':
+      return 'Draft';
+    case 'ready':
+      return 'Ready to send';
+    case 'sent':
+      return `Sent · ${formatRelativeDays(e.discovery_sent_at)}${linkDead ? ' · link dead' : ''}`;
+    case 'in_progress':
+      return `${e.discovery_answered_count} of ${e.discovery_question_count}${linkDead ? ' · link dead' : ''}`;
+    case 'submitted':
+      if (e.latest_brief_status === 'completed' || e.latest_brief_status === 'partial') return 'Brief ready';
+      if (e.latest_brief_status === 'generating') return 'Submitted ✓ · brief…';
+      return 'Submitted ✓';
+    default:
+      return '—';
+  }
+}
+
 export function EngagementRow({ engagement }: { engagement: EngagementListItem }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -63,10 +90,7 @@ export function EngagementRow({ engagement }: { engagement: EngagementListItem }
           </span>
         </td>
         <td className="px-4 py-3.5 text-[13.5px] text-fg-secondary whitespace-nowrap">
-          {/* Slice 2 renders the questionnaire state here from the view's
-              discovery_* columns (— / Draft / Sent · 3d ago / 12 of 24 /
-              Submitted ✓ / Brief ready). Until then: nothing to show. */}
-          —
+          {discoveryLabel(engagement)}
         </td>
         <td className="px-4 py-3.5 text-[13.5px] text-fg-secondary whitespace-nowrap">
           {formatRelativeDays(engagement.last_activity_at ?? engagement.created_at)}

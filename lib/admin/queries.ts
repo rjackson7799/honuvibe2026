@@ -17,6 +17,7 @@ import type {
   EngagementBrief,
   EngagementEvent,
   EngagementListItem,
+  EngagementQuestionnaire,
   EngagementRef,
   RevenueStats,
   TransactionRecord,
@@ -475,6 +476,11 @@ export async function getEngagementEvents(
   return (data ?? []) as unknown as EngagementEvent[];
 }
 
+export type EngagementBriefSummary = Pick<
+  EngagementBrief,
+  'id' | 'created_at' | 'status' | 'questionnaire_id' | 'generation_error'
+>;
+
 export async function getEngagementBriefs(
   engagementId: string,
   limit = 20,
@@ -504,6 +510,26 @@ export async function getLatestEngagementBrief(
     .maybeSingle();
   if (error) throw error;
   return (data ?? null) as unknown as EngagementBrief | null;
+}
+
+/**
+ * The engagement's discovery questionnaire — ONE row per (engagement, kind)
+ * by UNIQUE constraint, so maybeSingle is exact. The row includes the token
+ * HASH (never the plaintext, which is never stored); the admin panel renders
+ * only its presence/expiry/revocation, never the value.
+ */
+export async function getEngagementQuestionnaire(
+  engagementId: string,
+): Promise<EngagementQuestionnaire | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_questionnaires')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .eq('kind', 'discovery')
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as EngagementQuestionnaire | null;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {
