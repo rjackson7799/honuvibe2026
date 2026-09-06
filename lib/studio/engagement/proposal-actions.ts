@@ -18,8 +18,14 @@
 //   issue           THE FREEZE: buildIssuedSnapshot → render the PDF → upload
 //                   to the private bucket → issue_engagement_proposal (CAS on
 //                   content_version + engagement.updated_at) → on
-//                   applied:false / throw, delete the uploaded object. Slice A
-//                   ships 'manual' delivery; 'link' is slice B.
+//                   applied:false / throw, delete the uploaded object.
+//                   'manual': Ryan downloads the archive. 'link' (slice B):
+//                   a token is minted (hash only reaches the RPC), the client
+//                   is emailed in proposal.locale, the URL is returned ONCE.
+//   resend / revoke link management on an issued row (sent OR accepted —
+//                   access is separate from the frozen agreement): resend
+//                   rotates the token and extends valid_until forward only;
+//                   revoke kills an open tab (checked inside the session).
 //   withdraw        frees the one-open slot; token revoked.
 //   revise          copies content + brief_id + source_snapshot into
 //                   create_engagement_proposal; supersedes only an open source.
@@ -36,8 +42,10 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { sendProposalInvite } from './emails';
 import { generateProposalPdf } from './generate-proposal-pdf';
 import { notifyProposalAccepted } from './proposal-notify';
+import { mintProposalToken, proposalEntryUrl, proposalPath, proposalTokenExpiryFrom } from './proposal-token';
 import {
   ENGAGEMENT_DOCUMENTS_BUCKET,
   buildIssuedSnapshot,
@@ -388,27 +396,98 @@ function addDays(iso: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+function formatClientDate(iso: string | Date, locale: 'en' | 'ja'): string {
+  const d = typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(`${iso}T00:00:00Z`) : new Date(iso);
+  return d.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? 'UTC' : 'Pacific/Honolulu',
+  });
+}
+
+export type IssueResult =
+  | { delivery: 'manual'; downloadPath: string; validUntil: string }
+  | { delivery: 'link'; url: string; emailed: boolean; path: string; expiresAt: string; validUntil: string };
+
+/**
+ * Email the client the proposal link. The plaintext token is in `url` only;
+ * the event carries `emailed` + the expiry, never the token or its hash.
+ * Returns emailed:false (never throws) so the caller can show "copy the link".
+ */
+async function emailProposalLink(
+  admin: SupabaseClient,
+  p: EngagementProposal,
+  engagement: Engagement,
+  token: string,
+  expires: Date,
+  validUntil: string | null,
+  mode: 'issue' | 'resend',
+): Promise<{ url: string; emailed: boolean }> {
+  const email = engagement.client_contact_email?.trim() ?? '';
+  const url = proposalEntryUrl(token);
+  const accepted = p.status === 'accepted';
+  const sent = email
+    ? await sendProposalInvite({
+        locale: p.locale,
+        email,
+        contactName: engagement.client_contact_name,
+        businessName: engagement.title,
+        version: p.version,
+        variant: accepted ? 'accepted_resend' : 'issued',
+        entryUrl: url,
+        validUntil: validUntil ? formatClientDate(validUntil, p.locale) : null,
+        linkExpiresOn: formatClientDate(expires, p.locale),
+      })
+    : { ok: false, error: 'no_recipient' };
+  if (!sent.ok) console.error('[proposal] invite email failed:', sent.error);
+
+  if (mode === 'resend') {
+    await logEvent(
+      admin,
+      p.engagement_id,
+      'proposal_sent',
+      sent.ok
+        ? `Proposal v${p.version} link rotated and re-sent to ${email}${accepted ? ' (accepted proposal)' : ''}`
+        : `Proposal v${p.version} link rotated — email to ${email || '(no contact email)'} FAILED, send the link manually`,
+      { proposal_id: p.id, version: p.version, delivery: 'link', emailed: sent.ok, expires_at: expires.toISOString(), valid_until: validUntil, mode: 'resend' },
+    );
+  } else if (!sent.ok) {
+    // The RPC already wrote proposal_sent (emailed: null); this is the
+    // notification_failed-style second line so the timeline is truthful.
+    await logEvent(
+      admin,
+      p.engagement_id,
+      'notification_failed',
+      `Proposal v${p.version} link issued — email to ${email || '(no contact email)'} FAILED, send the link manually`,
+      { proposal_id: p.id, version: p.version, delivery: 'link', emailed: false, expires_at: expires.toISOString() },
+      'system',
+    );
+  }
+  return { url, emailed: sent.ok };
+}
+
 /**
  * ready → sent. The PDF is rendered from buildIssuedSnapshot(...) BEFORE the
  * RPC and uploaded; the RPC's CAS covers both reads the snapshot came from.
- * On applied:false or throw the uploaded object is deleted. Slice A: 'manual'
- * delivery (Ryan downloads the archive and sends it himself). 'link' is slice B.
+ * On applied:false or throw the uploaded object is deleted. 'manual': Ryan
+ * downloads the archive and sends it himself. 'link': a token is minted
+ * (only its hash + expiry reach the RPC), the client is emailed in
+ * proposal.locale, and {url, emailed, path} is returned ONCE.
  */
-export async function issueProposal(
-  proposalId: string,
-  delivery: 'link' | 'manual',
-): Promise<{ delivery: 'manual'; downloadPath: string; validUntil: string }> {
+export async function issueProposal(proposalId: string, delivery: 'link' | 'manual'): Promise<IssueResult> {
   await requireAdmin();
   const pid = parseInput(uuidSchema, proposalId);
-  if (delivery !== 'manual') {
-    throw new Error('Link delivery is not available yet — issue for manual delivery and send the PDF yourself.');
-  }
+  if (delivery !== 'manual' && delivery !== 'link') throw new Error('Invalid delivery method.');
   const admin = createAdminClient();
   const p = await loadProposal(admin, pid);
   if (p.status !== 'ready') throw new Error('Mark the proposal ready before issuing it.');
   const missing = missingRequiredSections(p.sections);
   if (missing.length) throw new Error('Fill in the executive summary, recommendation, scope and terms before issuing.');
   const engagement = await loadEngagement(admin, p.engagement_id);
+  if (delivery === 'link' && !engagement.client_contact_email?.trim()) {
+    throw new Error('Add a client contact email to the engagement before sending a link (or issue for manual delivery).');
+  }
 
   const now = new Date();
   const today = hstDateOf(now);
@@ -429,6 +508,11 @@ export async function issueProposal(
     throw new Error('Failed to archive the PDF — nothing was issued. Try again.');
   }
 
+  // 'link': the plaintext exists in this scope and the email only; the RPC
+  // and the events see the hash / expiry.
+  const minted = delivery === 'link' ? mintProposalToken() : null;
+  const tokenExpires = delivery === 'link' ? proposalTokenExpiryFrom(now) : null;
+
   const { data, error } = await admin.rpc('issue_engagement_proposal', {
     p_proposal_id: p.id,
     p_content_version: p.content_version,
@@ -436,9 +520,9 @@ export async function issueProposal(
     p_issued_snapshot: snapshot,
     p_pdf_path: path,
     p_pdf_sha256: sha,
-    p_delivery: 'manual',
-    p_token_hash: null,
-    p_token_expires_at: null,
+    p_delivery: delivery,
+    p_token_hash: minted?.hash ?? null,
+    p_token_expires_at: tokenExpires?.toISOString() ?? null,
     p_valid_until: validUntil,
   });
   const result = (data ?? null) as { applied?: boolean; reason?: string; valid_until?: string } | null;
@@ -449,13 +533,94 @@ export async function issueProposal(
     if (result?.reason === 'not_ready') throw new Error('Mark the proposal ready before issuing it.');
     throw new Error('Failed to issue the proposal.');
   }
+  const finalValidUntil = result.valid_until ?? validUntil;
+
+  if (delivery === 'link' && minted && tokenExpires) {
+    const { url, emailed } = await emailProposalLink(admin, { ...p, status: 'sent' }, engagement, minted.token, tokenExpires, finalValidUntil, 'issue');
+    revalidate(p.engagement_id);
+    return { delivery: 'link', url, emailed, path: proposalPath(p.locale, p.id), expiresAt: tokenExpires.toISOString(), validUntil: finalValidUntil };
+  }
 
   revalidate(p.engagement_id);
   return {
     delivery: 'manual',
     downloadPath: `/api/admin/engagements/${engagement.id}/proposal/${p.id}/pdf`,
-    validUntil: result.valid_until ?? validUntil,
+    validUntil: finalValidUntil,
   };
+}
+
+// ── Link management (sent OR accepted) ───────────────────────────────────────
+
+/**
+ * Resend = rotate. The plaintext is never stored, so "find the link later" is
+ * this: a new token replaces the old one (which stops working), the link
+ * expiry is reset to +45 d, valid_until becomes GREATEST(valid_until,
+ * HST today + 30) — never shortened (the guard enforces) — and a fresh email
+ * goes out (the accepted variant says "your accepted proposal"). On a manual
+ * row this ADDS link delivery: delivery_method stays 'manual'; the token
+ * columns are what the session checks. The URL is returned once.
+ */
+export async function resendProposalLink(
+  proposalId: string,
+): Promise<{ url: string; emailed: boolean; path: string; expiresAt: string; validUntil: string }> {
+  await requireAdmin();
+  const pid = parseInput(uuidSchema, proposalId);
+  const admin = createAdminClient();
+  const p = await loadProposal(admin, pid);
+  if (p.status !== 'sent' && p.status !== 'accepted') {
+    throw new Error(p.status === 'draft' || p.status === 'ready' ? 'Issue the proposal first.' : 'This proposal is no longer open — a link can only be sent for an issued or accepted proposal.');
+  }
+  const engagement = await loadEngagement(admin, p.engagement_id);
+  if (!engagement.client_contact_email?.trim()) throw new Error('Add a client contact email to the engagement before sending a link.');
+
+  const now = new Date();
+  const { token, hash } = mintProposalToken();
+  const expires = proposalTokenExpiryFrom(now);
+  const floor = addDays(hstDateOf(now), VALIDITY_DAYS);
+  const validUntil = p.valid_until && p.valid_until > floor ? p.valid_until : floor;
+
+  const { data, error } = await admin
+    .from('engagement_proposals')
+    .update({
+      access_token_hash: hash,
+      token_issued_at: now.toISOString(),
+      token_expires_at: expires.toISOString(),
+      token_revoked_at: null,
+      valid_until: validUntil,
+    })
+    .eq('id', pid)
+    .eq('status', p.status)
+    .select('id');
+  if (error) throw translateDbError(error, 'Failed to issue a new link.');
+  if (!data || data.length === 0) throw new Error('This proposal changed underneath you — reload.');
+
+  const { url, emailed } = await emailProposalLink(admin, p, engagement, token, expires, validUntil, 'resend');
+  revalidate(p.engagement_id);
+  return { url, emailed, path: proposalPath(p.locale, p.id), expiresAt: expires.toISOString(), validUntil };
+}
+
+/** Revoke without replacing: the open tab's next request 403s, and the accept RPC refuses. Any issued status incl. accepted. */
+export async function revokeProposalLink(proposalId: string): Promise<void> {
+  await requireAdmin();
+  const pid = parseInput(uuidSchema, proposalId);
+  const admin = createAdminClient();
+  const p = await loadProposal(admin, pid);
+  if (!p.access_token_hash) throw new Error('No link has been issued for this proposal.');
+  if (p.token_revoked_at) return; // already revoked — nothing to do
+
+  const { data, error } = await admin
+    .from('engagement_proposals')
+    .update({ token_revoked_at: new Date().toISOString() })
+    .eq('id', pid)
+    .is('token_revoked_at', null)
+    .select('id');
+  if (error) throw translateDbError(error, 'Failed to revoke the link.');
+  if (!data || data.length === 0) return; // revoked concurrently — one event is enough
+  await logEvent(admin, p.engagement_id, 'proposal_revoked', `Proposal v${p.version} link revoked`, {
+    proposal_id: pid,
+    version: p.version,
+  });
+  revalidate(p.engagement_id);
 }
 
 // ── Withdraw / revise ────────────────────────────────────────────────────────

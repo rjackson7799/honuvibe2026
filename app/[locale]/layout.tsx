@@ -85,7 +85,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <script
             defer
             data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
-            data-exclude="/join/*, /join/*/**, /ja/join/*, /ja/join/*/**, /discovery/*, /discovery/*/**, /ja/discovery/*, /ja/discovery/*/**"
+            data-exclude="/join/*, /join/*/**, /ja/join/*, /ja/join/*/**, /discovery/*, /discovery/*/**, /ja/discovery/*, /ja/discovery/*/**, /proposal/*, /proposal/*/**, /ja/proposal/*, /ja/proposal/*/**"
             src="https://plausible.io/js/script.exclusions.js"
           />
         )}

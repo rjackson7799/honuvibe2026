@@ -32,6 +32,11 @@ const CHROMELESS = [
   '/discovery/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40',
   '/discovery/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40/',
   '/ja/discovery/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40',
+  // Client proposal page — chromeless, own wordmark, no LangToggle.
+  '/proposal',
+  '/proposal/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40',
+  '/proposal/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40/',
+  '/ja/proposal/3f2a1c9e-0b7d-4e6a-9c1f-2d8b7a6e5f40',
 ];
 
 const KEEPS_NAV = [
@@ -56,6 +61,8 @@ const KEEPS_NAV = [
   '/administration',
   '/discoveries',
   '/discovery-call',
+  '/proposals',
+  '/proposal-templates',
 ];
 
 describe('isAuthShellRoute', () => {

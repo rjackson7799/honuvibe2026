@@ -98,10 +98,11 @@ export const nextConfig: NextConfig = {
       // URL. Never cache them, never leak the URL through a referer, never
       // index them. Both locales are listed because next-intl passes the full
       // path (including the /ja prefix) through to the header matcher.
-      // /discovery/<id> (the client discovery questionnaire) is cookie-
-      // authenticated and confidential per client — same three headers, plus
-      // per-page robots metadata and force-dynamic in the page itself.
-      ...['/join/:path*', '/ja/join/:path*', '/discovery/:path*', '/ja/discovery/:path*'].map((source) => ({
+      // /discovery/<id> (the client discovery questionnaire) and
+      // /proposal/<id> (the client proposal page) are cookie-authenticated
+      // and confidential per client — same three headers, plus per-page
+      // robots metadata and force-dynamic in the page itself.
+      ...['/join/:path*', '/ja/join/:path*', '/discovery/:path*', '/ja/discovery/:path*', '/proposal/:path*', '/ja/proposal/:path*'].map((source) => ({
         source,
         headers: [
           { key: 'Cache-Control', value: 'no-store, max-age=0' },

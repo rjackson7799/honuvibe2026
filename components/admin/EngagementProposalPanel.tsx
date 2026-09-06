@@ -10,12 +10,13 @@
 // the RPC enforces it), the STALE-BRIEF strip, the PROVISIONAL strip,
 // "Viewed 3× · first Mar 14", and the drafting-in-progress LOCK.
 //
-// Slice A: manual issue only. Link delivery buttons render disabled until
-// slice B ships the client page.
+// Link delivery (slice B): Issue & send link / Resend link / Revoke link. The
+// plaintext link is shown ONCE, in the send/resend response card (the
+// discovery panel's rule) — never re-fetched, never in an event.
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Check, Copy, Loader2, Sparkles } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { ProposalPricingForm, draftFromProposal, initialDraft, proposalInputFromDraft, type PricingDraft } from './ProposalPricingForm';
 import { ProposalSectionsEditor } from './ProposalSectionsEditor';
@@ -27,7 +28,9 @@ import {
   markProposalReady,
   proposalBackToDraft,
   resendAcceptNotification,
+  resendProposalLink,
   reviseProposal,
+  revokeProposalLink,
   saveProposal,
   voidProposalAcceptance,
   withdrawProposal,
@@ -76,6 +79,9 @@ export function EngagementProposalPanel({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [creating, setCreating] = useState(false);
+  // The send/resend response — the ONLY place the plaintext link ever shows.
+  const [link, setLink] = useState<{ url: string; emailed: boolean; expiresAt: string; accepted: boolean } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const latest = proposals[0] ?? null;
   const editable = !!latest && (latest.status === 'draft' || latest.status === 'ready');
@@ -185,13 +191,75 @@ export function EngagementProposalPanel({
     run('Mark ready', () => markProposalReady(latest.id));
   }
 
-  function handleIssueManual() {
+  function handleIssue(delivery: 'link' | 'manual') {
     if (!latest) return;
-    if (!window.confirm('Issue for manual delivery? This freezes the document and archives the PDF. After this, content cannot change — fixing anything means a new version.')) return;
+    const freeze = 'This freezes the document and archives the PDF. After this, content cannot change — fixing anything means a new version.';
+    if (
+      !window.confirm(
+        delivery === 'link'
+          ? `Issue & send the link to ${engagement.client_contact_email ?? '(no contact email — add one first)'}? ${freeze}`
+          : `Issue for manual delivery? ${freeze}`,
+      )
+    )
+      return;
+    setLink(null);
     run('Issue', async () => {
-      const r = await issueProposal(latest.id, 'manual');
-      setNotice(`Issued — valid until ${r.validUntil}. Download the archived PDF below and email it yourself.`);
+      const r = await issueProposal(latest.id, delivery);
+      if (r.delivery === 'link') {
+        setLink({ url: r.url, emailed: r.emailed, expiresAt: r.expiresAt, accepted: false });
+        setNotice(`Issued — valid until ${r.validUntil}.`);
+      } else {
+        setNotice(`Issued — valid until ${r.validUntil}. Download the archived PDF below and email it yourself.`);
+      }
     });
+  }
+
+  function handleResendLink() {
+    if (!latest) return;
+    const accepted = latest.status === 'accepted';
+    if (
+      !window.confirm(
+        accepted
+          ? `Send a fresh link to the accepted proposal to ${engagement.client_contact_email ?? '(no contact email)'}? The old link stops working; the agreement is untouched.`
+          : `Resend the link to ${engagement.client_contact_email ?? '(no contact email)'}? The old link stops working and the validity date is extended to at least 30 days from today (never shortened).`,
+      )
+    )
+      return;
+    setLink(null);
+    run('Resend link', async () => {
+      const r = await resendProposalLink(latest.id);
+      setLink({ url: r.url, emailed: r.emailed, expiresAt: r.expiresAt, accepted });
+      setNotice(accepted ? 'Link refreshed.' : `Link refreshed — valid until ${r.validUntil}.`);
+    });
+  }
+
+  function handleRevokeLink() {
+    if (!latest) return;
+    if (!window.confirm('Revoke the link? Any open tab loses access on its next request and a client Accept is refused. Resend to issue a new link.')) return;
+    setLink(null);
+    run('Revoke link', async () => {
+      await revokeProposalLink(latest.id);
+      setNotice('Link revoked.');
+    });
+  }
+
+  async function copyLink() {
+    if (!link) return;
+    try {
+      await navigator.clipboard.writeText(link.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setError('Copy failed — select the link and copy it by hand.');
+    }
+  }
+
+  /** "Link · expires Oct 21" / "Link revoked" / "Link expired" / "No link" for the sent/accepted meta. */
+  function linkState(p: EngagementProposal): { label: string; revoked: boolean } {
+    if (!p.access_token_hash) return { label: 'No link issued', revoked: false };
+    if (p.token_revoked_at) return { label: `Link revoked ${formatShortDate(p.token_revoked_at)}`, revoked: true };
+    if (p.token_expires_at && new Date(p.token_expires_at).getTime() <= Date.now()) return { label: `Link expired ${formatShortDate(p.token_expires_at)}`, revoked: true };
+    return { label: p.token_expires_at ? `Link live · expires ${formatShortDate(p.token_expires_at)}` : 'Link live', revoked: false };
   }
 
   function handleWithdraw() {
@@ -258,6 +326,25 @@ export function EngagementProposalPanel({
       )}
       {notice && (
         <div className="rounded-lg border border-[color:var(--accent-teal)]/30 bg-[color:var(--accent-teal-subtle)] px-4 py-2.5 text-[13px] text-fg-secondary">{notice}</div>
+      )}
+
+      {/* The send/resend response: the ONLY place the link is ever shown. */}
+      {link && (
+        <div className={`rounded-lg border px-4 py-3 text-[13px] space-y-2 ${link.emailed ? 'border-[color:var(--accent-teal)]/30 bg-[color:var(--accent-teal-subtle)]' : 'border-[color:var(--accent-coral)]/40 bg-[color:var(--accent-coral-subtle)]'}`} data-link-card>
+          <p className="font-semibold text-fg-primary">
+            {link.emailed
+              ? `${link.accepted ? 'Accepted-proposal link' : 'Proposal link'} emailed to ${engagement.client_contact_email}. Link opens until ${formatShortDate(link.expiresAt)}.`
+              : 'Email failed — copy the link and send it yourself.'}
+          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <code className="min-w-0 flex-1 truncate rounded bg-bg-primary px-2 py-1.5 font-mono text-[11.5px] text-fg-secondary">{link.url}</code>
+            <button type="button" onClick={copyLink} className={ghostBtn}>
+              {copied ? <Check size={14} className="text-[color:var(--accent-teal)]" /> : <Copy size={14} />}
+              {copied ? 'Copied ✓' : 'Copy link'}
+            </button>
+          </div>
+          <p className="text-[12px] text-fg-tertiary">This link is shown once. Resend to get a new one.</p>
+        </div>
       )}
 
       {/* ── none / create ─────────────────────────────────────────────── */}
@@ -340,8 +427,8 @@ export function EngagementProposalPanel({
               </>
             ) : (
               <>
-                <button type="button" onClick={handleIssueManual} disabled={working} className={primaryBtn}>Issue for manual delivery</button>
-                <button type="button" disabled className={primaryBtn} title="Link delivery ships with the client proposal page (next release)">Issue &amp; send link</button>
+                <button type="button" onClick={() => handleIssue('link')} disabled={working || !engagement.client_contact_email} className={primaryBtn} title={engagement.client_contact_email ? undefined : 'Add a client contact email first'}>Issue &amp; send link</button>
+                <button type="button" onClick={() => handleIssue('manual')} disabled={working} className={ghostBtn}>Issue for manual delivery</button>
                 <button type="button" onClick={() => run('Back to draft', () => proposalBackToDraft(latest.id))} disabled={working} className={ghostBtn}>Back to draft</button>
               </>
             )}
@@ -378,6 +465,10 @@ export function EngagementProposalPanel({
               <dt className="text-xs text-fg-tertiary">Client views</dt>
               <dd className="text-fg-secondary">{latest.open_count > 0 ? `Viewed ${latest.open_count}× · first ${latest.first_opened_at ? formatShortDate(latest.first_opened_at) : '—'}` : 'Not opened yet'}</dd>
             </div>
+            <div>
+              <dt className="text-xs text-fg-tertiary">Link</dt>
+              <dd className={linkState(latest).revoked ? 'text-[color:var(--accent-coral)] font-medium' : 'text-fg-secondary'} data-link-state>{linkState(latest).label}</dd>
+            </div>
           </dl>
           {latest.data_basis === 'provisional' && (
             <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-800">Issued on a provisional data basis (footnote on the document).</div>
@@ -386,7 +477,10 @@ export function EngagementProposalPanel({
             <a href={pdfHref} className={ghostBtn}>Download PDF (archived)</a>
             <button type="button" onClick={handleMarkAccepted} disabled={working} className={primaryBtn}>Mark accepted</button>
             <button type="button" onClick={() => handleRevise(latest)} disabled={working} className={ghostBtn}>Revise</button>
-            <button type="button" disabled className={ghostBtn} title="Link delivery ships with the client proposal page (next release)">Resend link</button>
+            <button type="button" onClick={handleResendLink} disabled={working || !engagement.client_contact_email} className={ghostBtn} title={engagement.client_contact_email ? undefined : 'Add a client contact email first'}>{latest.access_token_hash ? 'Resend link' : 'Send link'}</button>
+            {latest.access_token_hash && !latest.token_revoked_at && (
+              <button type="button" onClick={handleRevokeLink} disabled={working} className={dangerBtn}>Revoke link</button>
+            )}
             <button type="button" onClick={handleWithdraw} disabled={working} className={dangerBtn}>Withdraw</button>
           </div>
           <p className="text-[12px] text-fg-tertiary">The document is frozen. To change anything, Revise — the client keeps this version as a PDF.</p>
@@ -418,12 +512,15 @@ export function EngagementProposalPanel({
             </div>
             <div>
               <dt className="text-xs text-fg-tertiary">Client views</dt>
-              <dd className="text-fg-secondary">{latest.open_count > 0 ? `Viewed ${latest.open_count}×` : 'Not opened online'}</dd>
+              <dd className="text-fg-secondary">{latest.open_count > 0 ? `Viewed ${latest.open_count}×` : 'Not opened online'} · <span data-link-state className={linkState(latest).revoked ? 'text-[color:var(--accent-coral)] font-medium' : ''}>{linkState(latest).label}</span></dd>
             </div>
           </dl>
           <div className="flex items-center gap-2 flex-wrap">
             <a href={pdfHref} className={ghostBtn}>Download PDF (archived)</a>
-            <button type="button" disabled className={ghostBtn} title="Link delivery ships with the client proposal page (next release)">Resend link</button>
+            <button type="button" onClick={handleResendLink} disabled={working || !engagement.client_contact_email} className={ghostBtn} title={engagement.client_contact_email ? undefined : 'Add a client contact email first'}>{latest.access_token_hash ? 'Resend link' : 'Send link'}</button>
+            {latest.access_token_hash && !latest.token_revoked_at && (
+              <button type="button" onClick={handleRevokeLink} disabled={working} className={dangerBtn}>Revoke link</button>
+            )}
             <button type="button" onClick={handleVoid} disabled={working} className={dangerBtn}>Void acceptance</button>
           </div>
         </div>

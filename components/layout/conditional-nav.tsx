@@ -6,7 +6,8 @@ import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 // Routes that have their own dedicated chrome (e.g. StudentDashboardLayout's
 // sidebar) and should NOT render the marketing top nav.
 // /learn/auth, /join/*, the client discovery questionnaire (/discovery/<id>,
-// slice 2 of the engagement spine) and the tokenized survey pages
+// slice 2 of the engagement spine), the client proposal page
+// (/proposal/<id>, slice 3) and the tokenized survey pages
 // (/survey/<slug>, /events/<slug>/survey) are chromeless — each carries its own HonuVibe.AI
 // branding inside its card, so the legacy dark global Nav would just clash with
 // the new marketing-shell aesthetic users see elsewhere.
@@ -14,7 +15,7 @@ import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 // built for the dark Nav, so it is deliberately excluded; /events/<slug>
 // itself keeps the Nav — only its /survey child is a card.
 export function isAuthShellRoute(pathname: string) {
-  return /^\/(ja\/)?(learn\/(dashboard|vault|auth|paths)|admin|join|discovery|survey\/(?!ai-essentials(?:\/|$))[^/]+|events\/[^/]+\/survey)(\/|$)/.test(
+  return /^\/(ja\/)?(learn\/(dashboard|vault|auth|paths)|admin|join|discovery|proposal|survey\/(?!ai-essentials(?:\/|$))[^/]+|events\/[^/]+\/survey)(\/|$)/.test(
     pathname,
   );
 }

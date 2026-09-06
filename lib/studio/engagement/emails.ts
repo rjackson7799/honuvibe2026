@@ -215,3 +215,135 @@ export async function sendProposalAcceptedAdminNotification(
     return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
   }
 }
+
+/** Client invite to a tokenized proposal page (slice 3, slice B). In proposal.locale. */
+export interface ProposalInviteEmailData {
+  locale: Locale;
+  email: string;
+  contactName: string | null;
+  /** The engagement title (the client's business name). */
+  businessName: string;
+  /** Proposal version — named in the copy only when > 1 ("replaces the earlier version"). */
+  version: number;
+  /** 'issued' on first send; 'accepted_resend' when the link is refreshed on an accepted row. */
+  variant: 'issued' | 'accepted_resend';
+  /** The tokenized entry URL — the ONLY place the raw token ever appears. */
+  entryUrl: string;
+  /** Pre-formatted valid_until for the recipient's locale (null on a resend without one — never in practice). */
+  validUntil: string | null;
+  /** Pre-formatted link expiry for the recipient's locale. */
+  linkExpiresOn: string;
+}
+
+/**
+ * Client invite carrying the tokenized proposal link. Same primitives as the
+ * questionnaire invite; every dynamic value escapeHtml'd. The `accepted_resend`
+ * variant says "your accepted proposal" and never asks for a decision.
+ * JA copy ships FLAGGED FOR NATIVE REVIEW.
+ */
+export async function sendProposalInvite(
+  data: ProposalInviteEmailData,
+): Promise<{ ok: boolean; providerId?: string; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) return { ok: false, error: 'email_not_configured' };
+  if (!data.email) return { ok: false, error: 'no_recipient' };
+
+  const isJP = data.locale === 'ja';
+  const accepted = data.variant === 'accepted_resend';
+  const business = escapeHtml(data.businessName);
+  const name = data.contactName ? escapeHtml(data.contactName) : null;
+  const validUntil = data.validUntil ? escapeHtml(data.validUntil) : null;
+  const linkExpiresOn = escapeHtml(data.linkExpiresOn);
+  const versionLine = data.version > 1;
+
+  const parts: string[] = [];
+  parts.push(
+    heading(
+      isJP
+        ? accepted
+          ? name
+            ? `${name} さん、ご承諾いただいた提案書のリンクです`
+            : 'ご承諾いただいた提案書のリンクです'
+          : name
+            ? `${name} さん、${business} のご提案書をお届けします`
+            : `${business} のご提案書をお届けします`
+        : accepted
+          ? name
+            ? `A fresh link to your accepted proposal, ${name}`
+            : 'A fresh link to your accepted proposal'
+          : name
+            ? `Your proposal is ready, ${name}`
+            : 'Your proposal is ready',
+    ),
+  );
+  if (accepted) {
+    parts.push(
+      paragraph(
+        isJP
+          ? `${business} 向けにご承諾いただいた提案書（v${data.version}）を、いつでも閲覧・PDFでダウンロードいただけるよう新しいリンクをお送りします。内容に変更はありません。`
+          : `Here is a fresh link to the ${business} proposal you accepted (v${data.version}), so you can read it and download the PDF any time. Nothing in it has changed.`,
+      ),
+    );
+  } else {
+    parts.push(
+      paragraph(
+        isJP
+          ? `${business} 向けのご提案書をまとめました。下のリンクから、内容の確認、PDFのダウンロード、そしてご承諾の手続きができます。`
+          : `I've put together the proposal for ${business}. Open the link below to read it, download the PDF, and accept it when you're ready.`,
+      ),
+    );
+    if (versionLine) {
+      parts.push(
+        paragraph(
+          isJP
+            ? `これは提案書 v${data.version} で、以前お送りしたバージョンに代わるものです。以前のリンクは開けなくなっています。`
+            : `This is version ${data.version} — it replaces the earlier version, whose link no longer opens.`,
+        ),
+      );
+    }
+    if (validUntil) {
+      parts.push(
+        paragraph(
+          isJP
+            ? `この提案内容は ${validUntil} まで有効です。`
+            : `The proposal is valid until ${validUntil}.`,
+        ),
+      );
+    }
+  }
+  parts.push(ctaButton({ href: data.entryUrl, label: isJP ? '提案書を開く →' : 'Open your proposal →' }));
+  parts.push(divider());
+  parts.push(
+    paragraph(
+      isJP
+        ? `このリンクはあなた専用です。${linkExpiresOn} まで開けます。ご不明な点があれば、このメールにそのまま返信してください。`
+        : `This link is personal to you and opens until ${linkExpiresOn}. Reply to this email with any questions.`,
+    ),
+  );
+  parts.push(paragraph(isJP ? 'Ryan / HonuVibe Studio' : '— Ryan, HonuVibe Studio'));
+
+  const adminEmail = getAdminEmail();
+  try {
+    const { data: sent, error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: data.email,
+      replyTo: adminEmail || undefined,
+      subject: isJP
+        ? accepted
+          ? `【HonuVibe Studio】${data.businessName} — ご承諾済み提案書のリンク`
+          : `【HonuVibe Studio】${data.businessName} — ご提案書のお届け`
+        : accepted
+          ? `A fresh link to your accepted proposal — ${data.businessName}`
+          : `Your proposal from HonuVibe Studio — ${data.businessName}`,
+      html: baseLayout({
+        locale: data.locale,
+        preheader: isJP ? (accepted ? 'ご承諾済み提案書のリンク' : 'ご提案書のお届け') : accepted ? 'Your accepted proposal' : 'Your proposal is ready to read',
+        body: parts.join(''),
+      }),
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, providerId: sent?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
+  }
+}

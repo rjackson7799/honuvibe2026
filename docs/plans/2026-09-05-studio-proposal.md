@@ -1,8 +1,35 @@
 # Studio Proposal — slice 3 of the engagement spine
 
-> **STATUS: rev 2 APPROVED — SLICE A SHIPPED 2026-09-06 (commit SHA recorded in the follow-up docs commit);
-> SLICE B not started.** Migration 074 applied on prod by Ryan BEFORE the push. Slices 1 (`22e2c59`) and 2
-> (`dc89408`) are shipped and live; migration 067 is on prod.
+> **STATUS: rev 2 APPROVED — SLICE A SHIPPED 2026-09-06 (`612e1e9`); SLICE B SHIPPED 2026-09-06 (commit SHA
+> recorded in the follow-up docs commit).** Migration 074 applied on prod by Ryan BEFORE the slice-A push; slice
+> B carries no migration. Slices 1 (`22e2c59`) and 2 (`dc89408`) are shipped and live; migration 067 is on prod.
+>
+> **Slice B verification record (2026-09-06, local stack):**
+> - [x] `pnpm type-check` clean · `pnpm test:run` 1612 passed / 28 failed — the 28 are ONLY the pre-existing
+>   unrelated `lib/progress/{actions,queries}.test.ts` red (9 + 19) · `pnpm build` exit 0 (485 pages; the page,
+>   enter, accept and client PDF routes listed) · `pnpm test:rls` engagement_proposals 45 + engagement 55 green.
+> - [x] Unit files: proposal-session (8: prefix ≠ questionnaire's, A's cookie ≠ B, wrong/length-mismatched secret,
+>   revoked 403, expired 410, presentedTokenHash = sha256(cookie)) · ProposalAcceptForm (8, incl. 410 link_expired
+>   vs expired) · conditional-nav (+6) · vercel-analytics (+1).
+> - [x] Browser smoke (bundled headless shell, local stack, 67/67): EN steps 5 (link issue, valid_until = HST today
+>   + 30, email sent, `proposal_sent` with no 64-hex, admin sha), 7 (private window → `/proposal/<uuid>`, robots
+>   meta, chromeless, byte-identical client PDF + filename, Viewed 1×, second open = no second event, 375 px table
+>   scroll / 16 px input / 48 px Accept), 8 (revise → reload = "open from your email again", old link = "replaced"
+>   403, v2 link), 9 (revoke with the form open → RPC `forbidden` + the card; resend → accept as Test Client →
+>   "recorded"; build / 87500 / 6500 / won_at / lead won / `proposal_accepted` + `stage_changed`; Ryan's
+>   notification stamped; stale tab → "already accepted"; admin Accepted ✓), 12 (resend on accepted says
+>   "accepted"; revoke → page + PDF 403, agreement untouched). JA/JPY: create → link → `/ja/proposal/<uuid>`
+>   (bare path 307s to /ja), computed Noto Sans JP, lh 1.70, ls 0.032 em, no justify, yen without decimals, JA
+>   PDF byte-identical with wrapped Japanese; step 12 (valid_until yesterday via the DB → expired band, accept →
+>   410 `expired`; resend → HST today + 30, old link 403, new link works; accept as テスト 太郎 → build / 132000 /
+>   9800 JPY). No `plausible.io/api/event` beacon and no `/_vercel/insights` request from any client page.
+>   `next start` (prod build): `no-store, max-age=0` · `no-referrer` · `noindex, nofollow` on both prefixes.
+> - [x] Adversarial review: 0 Critical · 1 Important (link-expired vs proposal-expired 410 collapsed — split) ·
+>   9 Minor (6 fixed; 3 rejected as the plan's explicit wording: resend reuses `proposal_sent`, the RPC's
+>   `emailed: null` + failure-only second line, the "replaced" copy for withdrawn rows).
+> - [ ] Owed by Ryan: prod pass sending a real proposal link to himself and accepting it; native review of the
+>   JA strings in `components/proposal/copy.ts`, the entry route's `COPY`, and `sendProposalInvite` in `emails.ts`
+>   (plus the slice-A list below).
 >
 > **Slice A verification record (2026-09-06, local stack):**
 > - [x] `pnpm type-check` clean · `pnpm test:run` 1590 passed / 28 failed — the 28 are ONLY the pre-existing
@@ -20,8 +47,9 @@
 >   steps 2–4 (yen inputs, decimal yen refused, no decimals anywhere, JA AI draft with CJK and no yen amount,
 >   JA PDF band/copy/wrapping) + manual issue. DB checked after every accept/void (contract_value, care_mrr,
 >   stage, won_at, leads.sales_stage). 74/74 checks.
-> - [ ] Slice B: link delivery, the client page/routes, the chrome/analytics edits, the /proposal browser
->   smoke, click-path steps 5 (link), 7, 9 (revoke race + accept via the page), 12, 13 (link parts).
+> - [x] Slice B: link delivery, the client page/routes, the chrome/analytics edits, the /proposal browser
+>   smoke, click-path steps 5 (link), 7, 9 (revoke race + accept via the page), 12, 13 (link parts) — see the
+>   slice B record above.
 > - [ ] Owed by Ryan: prod browser pass with a real engagement; native review of the JA strings in
 >   `proposal-terms.ts`, `proposal-document.ts` (doc copy + JA line labels), and the panel's JA-facing copy.
 >

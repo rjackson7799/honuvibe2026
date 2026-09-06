@@ -1,8 +1,9 @@
 'use client';
 
 // Vercel Web Analytics with a beforeSend that DROPS the client discovery
-// questionnaire (/discovery/<id>, /ja/discovery/<id>). Low-severity — the URL
-// holds only a UUID — but which client is filling out a questionnaire, and
+// questionnaire (/discovery/<id>, /ja/discovery/<id>) and the client proposal
+// page (/proposal/<id>, /ja/proposal/<id>). Low-severity — the URL holds only
+// a UUID — but which client is reading a questionnaire or a proposal, and
 // when, is genuinely confidential. A client component because beforeSend is a
 // function and the [locale] layout is a Server Component (functions cannot
 // cross that boundary as props). Keep the path list in sync with the Plausible
@@ -10,7 +11,7 @@
 
 import { Analytics, type BeforeSendEvent } from '@vercel/analytics/next';
 
-const EXCLUDED_PATH = /^\/(ja\/)?discovery(\/|$)/;
+const EXCLUDED_PATH = /^\/(ja\/)?(discovery|proposal)(\/|$)/;
 
 export function isAnalyticsExcludedUrl(url: string): boolean {
   try {
