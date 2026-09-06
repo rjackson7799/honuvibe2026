@@ -1,7 +1,6 @@
 # Studio Proposal — slice 3 of the engagement spine
 
-> **STATUS: rev 2 APPROVED — SLICE A SHIPPED 2026-09-06 (`612e1e9`); SLICE B SHIPPED 2026-09-06 (commit SHA
-> recorded in the follow-up docs commit).** Migration 074 applied on prod by Ryan BEFORE the slice-A push; slice
+> **STATUS: rev 2 APPROVED — SLICE A SHIPPED 2026-09-06 (`612e1e9`); SLICE B SHIPPED 2026-09-06 (`fb6cf45`, pushed).** Migration 074 applied on prod by Ryan BEFORE the slice-A push; slice
 > B carries no migration. Slices 1 (`22e2c59`) and 2 (`dc89408`) are shipped and live; migration 067 is on prod.
 >
 > **Slice B verification record (2026-09-06, local stack):**
