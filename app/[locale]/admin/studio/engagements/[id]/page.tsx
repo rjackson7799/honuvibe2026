@@ -2,7 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getEngagementBriefs, getEngagementById, getEngagementEvents, getEngagementInvoices, getEngagementProposals, getEngagementQuestionnaire, getLatestEngagementBrief } from '@/lib/admin/queries';
+import { getEngagementBriefs, getEngagementById, getEngagementDeliverables, getEngagementEvents, getEngagementInvoices, getEngagementProposals, getEngagementQuestionnaire, getLatestEngagementBrief } from '@/lib/admin/queries';
 import { createAdminClient } from '@/lib/supabase/server';
 import { STAGE_LABELS } from '@/lib/studio/engagement/stages';
 import { formatShortDate } from '@/lib/studio/engagement/format';
@@ -16,6 +16,7 @@ import { EngagementDiscoveryPanel } from '@/components/admin/EngagementDiscovery
 import { EngagementAnswersView } from '@/components/admin/EngagementAnswersView';
 import { EngagementBriefPanel } from '@/components/admin/EngagementBriefPanel';
 import { EngagementProposalPanel } from '@/components/admin/EngagementProposalPanel';
+import { EngagementDeliverablesPanel } from '@/components/admin/EngagementDeliverablesPanel';
 import { EngagementTimeline } from '@/components/admin/EngagementTimeline';
 
 type Props = {
@@ -54,13 +55,14 @@ export default async function AdminEngagementPage({ params }: Props) {
   const admin = createAdminClient();
   await Promise.all([flipStaleTailoring(admin, id), flipStaleBriefs(admin, id), flipStaleProposalDrafts(admin, id)]);
 
-  const [engagement, events, questionnaire, latestBrief, proposals, invoices] = await Promise.all([
+  const [engagement, events, questionnaire, latestBrief, proposals, invoices, deliverables] = await Promise.all([
     getEngagementById(id),
     getEngagementEvents(id),
     getEngagementQuestionnaire(id),
     getLatestEngagementBrief(id),
     getEngagementProposals(id),
     getEngagementInvoices(id),
+    getEngagementDeliverables(id),
   ]);
   if (!engagement) notFound();
 
@@ -104,8 +106,20 @@ export default async function AdminEngagementPage({ params }: Props) {
   // submitted: a reopened questionnaire waits for the resubmit (see the brief
   // route).
   const snapshot = questionnaire?.answer_snapshot ?? null;
+
+  // The SOFT launch gate's input (075): undelivered BUILD-phase deliverables.
+  // Computed from the rows already fetched — no extra query. The gate warns
+  // and asks for one more confirm; it never blocks (067 owns stage authority).
+  const openBuild = deliverables.filter((d) => d.phase === 'build' && (d.status === 'planned' || d.status === 'in_progress'));
+  const openBuildDeliverables = { count: openBuild.length, titles: openBuild.map((d) => d.title) };
+  // The deliverables panel shows from Build on, or whenever rows already exist
+  // (so a reopened engagement never hides its plan).
+  const showDeliverables =
+    ['build', 'launch', 'care', 'closed'].includes(engagement.stage) || deliverables.length > 0;
+  const acceptedProposal = proposals.find((p) => p.status === 'accepted') ?? null;
+
   const panels = [
-    <EngagementStageControl key="stage" engagement={engagement} />,
+    <EngagementStageControl key="stage" engagement={engagement} openBuildDeliverables={openBuildDeliverables} />,
     <EngagementContactCard key="contact" engagement={engagement} />,
     <EngagementDiscoveryPanel key="discovery" engagement={engagement} questionnaire={questionnaire} answeredCount={answeredCount} />,
     ...(questionnaire && snapshot
@@ -130,6 +144,16 @@ export default async function AdminEngagementPage({ params }: Props) {
       invoices={invoices}
       events={events}
     />,
+    ...(showDeliverables
+      ? [
+          <EngagementDeliverablesPanel
+            key="deliverables"
+            engagementId={engagement.id}
+            deliverables={deliverables}
+            hasAcceptedProposal={!!acceptedProposal}
+          />,
+        ]
+      : []),
     <EngagementTimeline key="timeline" engagementId={engagement.id} events={events} />,
   ];
 

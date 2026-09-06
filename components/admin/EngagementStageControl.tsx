@@ -27,7 +27,19 @@ import type { Engagement } from '@/lib/admin/types';
 const ghostBtn =
   'inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-bg-primary border border-border-default text-fg-secondary text-[12.5px] font-semibold hover:text-fg-primary hover:border-border-hover disabled:opacity-50 transition-colors';
 
-export function EngagementStageControl({ engagement }: { engagement: Engagement }) {
+export function EngagementStageControl({
+  engagement,
+  openBuildDeliverables,
+}: {
+  engagement: Engagement;
+  /**
+   * Undelivered BUILD-phase deliverables (075). A SOFT gate: leaving `build`
+   * with any of these warns and asks for one extra confirm — it never blocks.
+   * 067's stage trigger stays the only stage authority, and there is no
+   * server-side check to match this (decision 7).
+   */
+  openBuildDeliverables?: { count: number; titles: string[] };
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState('');
@@ -52,6 +64,21 @@ export function EngagementStageControl({ engagement }: { engagement: Engagement 
     });
   }
 
+  /**
+   * The soft launch gate. It warns on build -> care and build -> closed too,
+   * not only build -> launch (judgment call 6): skipping launch entirely with
+   * open build items is the same mistake in a different button.
+   */
+  function confirmOpenBuildItems(targetLabel: string): boolean {
+    const open = openBuildDeliverables;
+    if (current !== 'build' || !open || open.count === 0) return true;
+    const shown = open.titles.slice(0, 5).join(', ');
+    const more = open.titles.length > 5 ? ', …' : '';
+    return window.confirm(
+      `${open.count} build deliverable${open.count === 1 ? ' is' : 's are'} not delivered yet: ${shown}${more}. Move to ${targetLabel} anyway?`,
+    );
+  }
+
   function handleActive(stage: EngagementStage) {
     if (stage === current || pending) return;
     if (terminal) {
@@ -60,11 +87,13 @@ export function EngagementStageControl({ engagement }: { engagement: Engagement 
       );
       if (!ok) return;
     }
+    if ((stage === 'launch' || stage === 'care') && !confirmOpenBuildItems(STAGE_LABELS[stage])) return;
     move(stage);
   }
 
   function handleClose() {
     if (pending) return;
+    if (!confirmOpenBuildItems(STAGE_LABELS.closed)) return;
     const ok = window.confirm(
       'Close this engagement? Use this when a care plan ended amicably — it stays in the won bucket. Mark lost is for deals that did not happen.',
     );
