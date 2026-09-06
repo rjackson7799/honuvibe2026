@@ -347,3 +347,186 @@ export async function sendProposalInvite(
     return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
   }
 }
+
+/** Client "your deposit is ready to pay" (slice 4, migration 075). In proposal.locale. */
+export interface DepositRequestEmailData {
+  locale: Locale;
+  email: string;
+  contactName: string | null;
+  /** The engagement title (the client's business name). */
+  businessName: string;
+  /** Pre-formatted via formatMinorUnits — "$437.50" / "¥66,000". */
+  amount: string;
+  /** 50 or 100 — named in the copy only when it is a part payment. */
+  pct: number;
+  /** The tokenized ENTRY URL — never a Stripe URL. The raw token's one appearance. */
+  entryUrl: string;
+  /** Pre-formatted link expiry for the recipient's locale. */
+  linkExpiresOn: string;
+  version: number;
+}
+
+/**
+ * The deposit request. It links to the PROPOSAL PAGE via the tokenized entry
+ * URL (decision 5 / judgment call 8) — never to Stripe: a Checkout Session is
+ * minted on demand behind the cookie, so no durable payment URL exists in any
+ * inbox. Every dynamic value is escapeHtml'd.
+ * JA copy ships FLAGGED FOR NATIVE REVIEW.
+ */
+export async function sendDepositRequestEmail(
+  data: DepositRequestEmailData,
+): Promise<{ ok: boolean; providerId?: string; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) return { ok: false, error: 'email_not_configured' };
+  if (!data.email) return { ok: false, error: 'no_recipient' };
+
+  const isJP = data.locale === 'ja';
+  const business = escapeHtml(data.businessName);
+  const name = data.contactName ? escapeHtml(data.contactName) : null;
+  const amount = escapeHtml(data.amount);
+  const linkExpiresOn = escapeHtml(data.linkExpiresOn);
+  const partial = data.pct < 100;
+
+  const body = [
+    heading(
+      isJP
+        ? name
+          ? `${name} さん、${business} のお支払いのご案内です`
+          : `${business} のお支払いのご案内です`
+        : name
+          ? `Your deposit for ${business} is ready to pay, ${name}`
+          : `Your deposit for ${business} is ready to pay`,
+    ),
+    paragraph(
+      isJP
+        ? partial
+          ? `ご承諾いただきありがとうございます。制作費の ${data.pct}% にあたる ${amount} を、着手金としてお支払いください。ご入金の確認後に制作を開始します。`
+          : `ご承諾いただきありがとうございます。制作費 ${amount} の全額のお支払いをお願いいたします。ご入金の確認後に制作を開始します。`
+        : partial
+          ? `Thank you for accepting. The deposit is ${amount} — ${data.pct}% of the build investment. Work starts once it is received.`
+          : `Thank you for accepting. The build investment is ${amount}, due in full. Work starts once it is received.`,
+    ),
+    paragraph(
+      isJP
+        ? '下のボタンからご提案書のページを開き、ページ上部のお支払いボタンからお進みください。'
+        : "Open your proposal with the button below, then use the payment button at the top of the page.",
+    ),
+    ctaButton({ href: data.entryUrl, label: isJP ? '提案書を開く →' : 'Open your proposal →' }),
+    divider(),
+    paragraph(
+      isJP
+        ? `このリンクはあなた専用です。${linkExpiresOn} まで開けます。お支払いはStripeの安全な決済ページで行われ、当方がカード情報を見ることはありません。ご不明な点があれば、このメールにそのまま返信してください。`
+        : `This link is personal to you and opens until ${linkExpiresOn}. You'll pay on Stripe's secure page; we never see your card details. Reply to this email with any questions.`,
+    ),
+    paragraph(isJP ? 'Ryan / HonuVibe Studio' : '— Ryan, HonuVibe Studio'),
+  ].join('');
+
+  const adminEmail = getAdminEmail();
+  try {
+    const { data: sent, error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: data.email,
+      replyTo: adminEmail || undefined,
+      subject: isJP
+        ? `【HonuVibe Studio】${data.businessName} — お支払いのご案内（${data.amount}）`
+        : `Your deposit for ${data.businessName} — ${data.amount}`,
+      html: baseLayout({
+        locale: data.locale,
+        preheader: isJP ? 'お支払いのご案内' : 'Your deposit is ready to pay',
+        body,
+      }),
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, providerId: sent?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
+  }
+}
+
+/** "An invoice was paid (or needs a refund)" — Ryan's notification (slice 4). */
+export interface InvoicePaidAdminNotifyData {
+  businessName: string;
+  contactName: string | null;
+  contactEmail: string | null;
+  /** "Deposit" | "Build investment" | "Balance" | "Care" — invoiceNoun(). */
+  kind: string;
+  /** Pre-formatted via formatMinorUnits. */
+  amount: string;
+  currency: 'USD' | 'JPY';
+  pct: number | null;
+  version: number | null;
+  variant: 'paid' | 'paid_on_void' | 'duplicate_payment' | 'not_found';
+  paymentIntentId: string | null;
+  /** Absolute link to the engagement workspace ('' when there is no engagement left). */
+  engagementUrl: string;
+}
+
+/** Ryan's "money moved" notification. EN-only (admin). */
+export async function sendInvoicePaidAdminNotification(
+  data: InvoicePaidAdminNotifyData,
+): Promise<{ ok: boolean; providerId?: string; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) return { ok: false, error: 'email_not_configured' };
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return { ok: false, error: 'no_recipient' };
+
+  const banner =
+    data.variant === 'paid'
+      ? `${data.kind} received`
+      : data.variant === 'paid_on_void'
+        ? 'Payment landed on a VOIDED invoice'
+        : data.variant === 'duplicate_payment'
+          ? 'DUPLICATE payment on an already-paid invoice'
+          : 'Payment for an engagement that no longer exists';
+
+  const action =
+    data.variant === 'paid'
+      ? 'Open the engagement to kick off the build — the payment is flagged as needing your attention until you resolve it.'
+      : data.variant === 'paid_on_void'
+        ? 'This invoice had already been voided when the payment arrived. Refund the payment intent below in the Stripe dashboard, or re-issue the deposit if the deal is back on.'
+        : data.variant === 'duplicate_payment'
+          ? 'A second, DIFFERENT payment landed on an invoice that was already paid. Refund the payment intent below in the Stripe dashboard — nothing was changed on the invoice.'
+          : 'Stripe took this payment but the engagement (and its invoice) no longer exist, so there is nowhere to record it. Refund it in the Stripe dashboard or reconcile it by hand.';
+
+  const rows = [
+    { label: 'Client', value: escapeHtml(data.businessName) },
+    { label: 'Contact', value: escapeHtml(data.contactName ?? '') },
+    { label: 'Email', value: escapeHtml(data.contactEmail ?? '') },
+    { label: 'Invoice', value: escapeHtml(data.kind) },
+    { label: 'Amount', value: escapeHtml(data.amount) },
+    { label: 'Currency', value: data.currency },
+  ];
+  if (data.pct !== null) rows.push({ label: 'Percentage of build', value: `${data.pct}%` });
+  if (data.version !== null) rows.push({ label: 'Proposal', value: `v${data.version}` });
+  if (data.paymentIntentId) rows.push({ label: 'Payment intent', value: escapeHtml(data.paymentIntentId) });
+
+  const body = [
+    accentBanner(banner),
+    detailsTable(rows),
+    paragraph(action),
+    ...(data.engagementUrl ? [ctaButton({ href: data.engagementUrl, label: 'Open the engagement →' })] : []),
+  ].join('');
+
+  const subject =
+    data.variant === 'paid'
+      ? `[Studio] ${data.kind} received — ${data.businessName} (${data.amount})`
+      : data.variant === 'paid_on_void'
+        ? `[Studio] Payment on a VOIDED invoice — ${data.businessName} (${data.amount})`
+        : data.variant === 'duplicate_payment'
+          ? `[Studio] DUPLICATE payment — ${data.businessName} (${data.amount})`
+          : `[Studio] Payment for a deleted engagement (${data.amount}, ${data.paymentIntentId ?? 'unknown pi'})`;
+
+  try {
+    const { data: sent, error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: adminEmail,
+      replyTo: data.contactEmail ?? undefined,
+      subject,
+      html: baseLayout({ locale: 'en', body }),
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, providerId: sent?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
+  }
+}

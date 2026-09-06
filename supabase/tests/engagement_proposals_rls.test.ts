@@ -520,7 +520,7 @@ describe('engagement_events.kind constraint swap', () => {
       expect(r.rows[0].conname).toBe('engagement_events_kind_check');
     });
     const eid = await start(LEAD.a);
-    expect(ENGAGEMENT_EVENT_KINDS).toHaveLength(28);
+    expect(ENGAGEMENT_EVENT_KINDS).toHaveLength(36); // 16 (067) + 12 (074) + 8 (075)
     for (const kind of ENGAGEMENT_EVENT_KINDS) {
       const { error } = await svc.from('engagement_events').insert({
         engagement_id: eid, kind, actor: 'system', summary: `kind ${kind}`, to_stage: kind === 'stage_changed' ? 'discovery' : null,
@@ -1109,7 +1109,7 @@ describe('lock-order races', () => {
       expect((await v).data).toEqual({ applied: false, reason: 'not_accepted' });
     });
     expect((await acceptClient(pid, hash)).data).toMatchObject({ applied: true });
-    expect((await voidAcceptance(pid)).data).toEqual({ applied: true, stage_reverted: true });
+    expect((await voidAcceptance(pid)).data).toEqual({ applied: true, stage_reverted: true, invoices_voided: 0 });
   });
 });
 
@@ -1125,7 +1125,7 @@ describe('void_engagement_proposal_acceptance', () => {
     const { error: noReason } = await voidAcceptance(pid, '  ');
     expect(noReason?.message).toContain('void_reason_required');
     const { data } = await voidAcceptance(pid, 'wrong tier');
-    expect(data).toEqual({ applied: true, stage_reverted: true });
+    expect(data).toEqual({ applied: true, stage_reverted: true, invoices_voided: 0 });
     const p = await proposal(pid);
     expect(p).toMatchObject({ status: 'voided', void_reason: 'wrong tier', accepted_by_name: 'Test Client' });
     expect(p.voided_at).not.toBeNull();
@@ -1151,7 +1151,7 @@ describe('void_engagement_proposal_acceptance', () => {
     const { eid, pid, hash } = await issued();
     await acceptClient(pid, hash);
     await svc.from('engagements').update({ stage: 'launch' }).eq('id', eid);
-    expect((await voidAcceptance(pid)).data).toEqual({ applied: true, stage_reverted: false });
+    expect((await voidAcceptance(pid)).data).toEqual({ applied: true, stage_reverted: false, invoices_voided: 0 });
     expect(await engagement(eid)).toMatchObject({ stage: 'launch', contract_value: null });
     expect(await leadStage(LEAD.a)).toBe('won');
   });

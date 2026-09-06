@@ -63,10 +63,15 @@ import {
 } from './proposal-pricing';
 import { acceptedByNameSchema, proposalInputSchema, voidReasonSchema, type ProposalInput } from './proposal-schema';
 import { seedSections } from './proposal-terms';
+import {
+  VALIDITY_DAYS,
+  addDays,
+  formatClientDate,
+  rotateProposalToken,
+  translateDbError,
+} from './proposal-internals';
 import { PROPOSAL_REQUIRED_SECTION_KEYS, type EngagementEventKind } from './types';
 import type { Engagement, EngagementProposal } from '@/lib/admin/types';
-
-const VALIDITY_DAYS = 30;
 
 // ── Auth + parse helpers (the questionnaire-actions idiom) ──────────────────
 
@@ -140,42 +145,6 @@ async function logEvent(
     .from('engagement_events')
     .insert({ engagement_id: engagementId, kind, actor, summary, data, needs_attention: needsAttention });
   if (error) console.error(`[proposal] event ${kind} failed:`, error);
-}
-
-/** Every RAISE name in 074 (+ 23505 / 23514) → an operator-readable sentence. */
-function translateDbError(error: { message?: string; code?: string }, fallback: string): Error {
-  const m = error.message ?? '';
-  const table: [string, string][] = [
-    ['engagement_terminal', 'This engagement is closed — reopen it before proposing.'],
-    ['proposal_already_accepted', 'An accepted proposal already exists — void its acceptance first.'],
-    ['discovery_not_submitted', 'Send the discovery questionnaire and wait for the submission before proposing.'],
-    ['brief_missing', 'Generate the discovery brief before proposing.'],
-    ['brief_stale', 'The brief predates the current submission — regenerate it before proposing.'],
-    ['proposal_not_open', 'That proposal is no longer open, so it cannot be superseded.'],
-    ['proposal_transition_invalid', "That change is not allowed from the proposal's current status."],
-    ['proposal_content_locked', 'This proposal has been issued — its content is frozen. Revise to create a new version.'],
-    ['proposal_drafting_in_progress', 'AI is drafting — edits unlock when it finishes.'],
-    ['proposal_ready_content_change', 'Saving returns this proposal to Draft — mark it ready again after.'],
-    ['proposal_validity_shortened', 'The validity date can only be extended, never shortened.'],
-    ['proposal_issued_fields_locked', 'The issued document cannot be changed.'],
-    ['proposal_acceptance_locked', 'The recorded acceptance cannot be changed — void it instead.'],
-    ['proposal_incomplete', 'Fill in the executive summary, recommendation, scope and terms before issuing.'],
-    ['accepted_by_required', 'Enter the name of the person accepting (up to 200 characters).'],
-    ['void_reason_required', 'A reason is required to void an acceptance.'],
-    ['proposal_not_draft', 'Only a draft can receive an AI draft.'],
-    ['proposal_not_found', 'Proposal not found.'],
-    ['engagement_not_found', 'Engagement not found.'],
-  ];
-  for (const [needle, sentence] of table) {
-    if (m.includes(needle)) return new Error(sentence);
-  }
-  if (error.code === '23505') return new Error('There is already an open proposal — revise it or withdraw it first.');
-  if (error.code === '23514') {
-    console.error('[proposal] check violation:', error);
-    return new Error('The proposal failed a data check — reload and try again.');
-  }
-  console.error('[proposal]', fallback, error);
-  return new Error(fallback);
 }
 
 // ── The offer, re-derived on the server ─────────────────────────────────────
@@ -390,21 +359,6 @@ export async function proposalBackToDraft(proposalId: string): Promise<void> {
 
 // ── Issue (the freeze) ───────────────────────────────────────────────────────
 
-function addDays(iso: string, days: number): string {
-  const d = new Date(`${iso}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-function formatClientDate(iso: string | Date, locale: 'en' | 'ja'): string {
-  const d = typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(`${iso}T00:00:00Z`) : new Date(iso);
-  return d.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso) ? 'UTC' : 'Pacific/Honolulu',
-  });
-}
 
 export type IssueResult =
   | { delivery: 'manual'; downloadPath: string; validUntil: string }
@@ -573,26 +527,9 @@ export async function resendProposalLink(
   const engagement = await loadEngagement(admin, p.engagement_id);
   if (!engagement.client_contact_email?.trim()) throw new Error('Add a client contact email to the engagement before sending a link.');
 
-  const now = new Date();
-  const { token, hash } = mintProposalToken();
-  const expires = proposalTokenExpiryFrom(now);
-  const floor = addDays(hstDateOf(now), VALIDITY_DAYS);
-  const validUntil = p.valid_until && p.valid_until > floor ? p.valid_until : floor;
-
-  const { data, error } = await admin
-    .from('engagement_proposals')
-    .update({
-      access_token_hash: hash,
-      token_issued_at: now.toISOString(),
-      token_expires_at: expires.toISOString(),
-      token_revoked_at: null,
-      valid_until: validUntil,
-    })
-    .eq('id', pid)
-    .eq('status', p.status)
-    .select('id');
-  if (error) throw translateDbError(error, 'Failed to issue a new link.');
-  if (!data || data.length === 0) throw new Error('This proposal changed underneath you — reload.');
+  // The rotation itself lives in proposal-internals.ts so the deposit request
+  // can reuse it (075). Behaviour here is unchanged.
+  const { token, expires, validUntil } = await rotateProposalToken(admin, p, new Date());
 
   const { url, emailed } = await emailProposalLink(admin, p, engagement, token, expires, validUntil, 'resend');
   revalidate(p.engagement_id);
@@ -730,7 +667,14 @@ export async function voidProposalAcceptance(proposalId: string, reason: string)
   const { data, error } = await admin.rpc('void_engagement_proposal_acceptance', { p_proposal_id: pid, p_reason: why });
   if (error) throw translateDbError(error, 'Failed to void the acceptance.');
   const result = (data ?? {}) as { applied?: boolean; reason?: string; stage_reverted?: boolean };
-  if (!result.applied) throw new Error('Only an accepted proposal can be voided.');
+  if (!result.applied) {
+    // 075: money in Stripe must come back before the ledger says the
+    // acceptance never happened. There is no force flag on purpose.
+    if (result.reason === 'invoice_paid') {
+      throw new Error('A paid deposit exists. Refund it in Stripe first, then void.');
+    }
+    throw new Error('Only an accepted proposal can be voided.');
+  }
   const engagement = await loadEngagement(admin, p.engagement_id);
   revalidate(p.engagement_id, engagement.lead_id);
   return { stageReverted: result.stage_reverted === true };

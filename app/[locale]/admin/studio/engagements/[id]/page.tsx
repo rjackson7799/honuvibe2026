@@ -2,7 +2,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getEngagementBriefs, getEngagementById, getEngagementEvents, getEngagementProposals, getEngagementQuestionnaire, getLatestEngagementBrief } from '@/lib/admin/queries';
+import { getEngagementBriefs, getEngagementById, getEngagementEvents, getEngagementInvoices, getEngagementProposals, getEngagementQuestionnaire, getLatestEngagementBrief } from '@/lib/admin/queries';
 import { createAdminClient } from '@/lib/supabase/server';
 import { STAGE_LABELS } from '@/lib/studio/engagement/stages';
 import { formatShortDate } from '@/lib/studio/engagement/format';
@@ -54,12 +54,13 @@ export default async function AdminEngagementPage({ params }: Props) {
   const admin = createAdminClient();
   await Promise.all([flipStaleTailoring(admin, id), flipStaleBriefs(admin, id), flipStaleProposalDrafts(admin, id)]);
 
-  const [engagement, events, questionnaire, latestBrief, proposals] = await Promise.all([
+  const [engagement, events, questionnaire, latestBrief, proposals, invoices] = await Promise.all([
     getEngagementById(id),
     getEngagementEvents(id),
     getEngagementQuestionnaire(id),
     getLatestEngagementBrief(id),
     getEngagementProposals(id),
+    getEngagementInvoices(id),
   ]);
   if (!engagement) notFound();
 
@@ -126,6 +127,8 @@ export default async function AdminEngagementPage({ params }: Props) {
       proposals={proposals}
       questionnaire={questionnaire}
       latestBrief={usableBrief}
+      invoices={invoices}
+      events={events}
     />,
     <EngagementTimeline key="timeline" engagementId={engagement.id} events={events} />,
   ];

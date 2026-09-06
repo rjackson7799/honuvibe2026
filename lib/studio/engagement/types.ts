@@ -44,6 +44,14 @@ export const ENGAGEMENT_EVENT_KINDS = [
   'proposal_withdrawn',
   'proposal_superseded',
   'proposal_revoked',
+  'invoice_issued',
+  'invoice_paid',
+  'invoice_payment_failed',
+  'invoice_duplicate_payment',
+  'invoice_refunded',
+  'invoice_voided',
+  'deliverables_seeded',
+  'deliverable_delivered',
 ] as const;
 export type EngagementEventKind = (typeof ENGAGEMENT_EVENT_KINDS)[number];
 
@@ -101,3 +109,24 @@ export type {
   QuestionnaireSection,
   StoredAnswer,
 } from './questions-schema';
+
+// Invoice + deliverable vocabulary (migration 075). Parity with the SQL CHECKs
+// is asserted by supabase/tests/engagement_invoices_rls.test.ts.
+export const INVOICE_KINDS = ['deposit', 'balance', 'care_month'] as const;
+export type InvoiceKind = (typeof INVOICE_KINDS)[number];
+
+export const INVOICE_STATUSES = ['draft', 'sent', 'paid', 'refunded', 'void'] as const;
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+
+export const DELIVERABLE_PHASES = ['build', 'launch'] as const;
+export type DeliverablePhase = (typeof DELIVERABLE_PHASES)[number];
+
+export const DELIVERABLE_STATUSES = ['planned', 'in_progress', 'delivered', 'accepted'] as const;
+export type DeliverableStatus = (typeof DELIVERABLE_STATUSES)[number];
+
+/**
+ * The only deposit percentages Ryan may choose (decision 2 — no typed
+ * amounts). 50 is the default; flipping this order flips the radio default.
+ */
+export const DEPOSIT_PCTS = [50, 100] as const;
+export type DepositPct = (typeof DEPOSIT_PCTS)[number];

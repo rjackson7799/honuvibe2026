@@ -80,6 +80,14 @@ const statusStyles: Record<string, string> = {
   voided: dangerPill,
   superseded: mutedPill,
   withdrawn: mutedPill,
+  // Invoice statuses (075) — 'draft', 'sent' and 'refunded' are shared above.
+  // Paid is the money landing (teal); void is a retired row (muted, not
+  // danger: voiding an unpaid invoice is routine housekeeping).
+  paid: tealPill,
+  void: mutedPill,
+  // Deliverable statuses (075) — 'in_progress' and 'accepted' shared above.
+  planned: mutedPill,
+  delivered: tealPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -131,6 +139,10 @@ const statusLabels: Record<string, string> = {
   voided: 'Voided',
   superseded: 'Superseded',
   withdrawn: 'Withdrawn',
+  paid: 'Paid',
+  void: 'Void',
+  planned: 'Planned',
+  delivered: 'Delivered',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

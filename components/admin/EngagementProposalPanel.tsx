@@ -21,6 +21,7 @@ import { StatusBadge } from './StatusBadge';
 import { ProposalPricingForm, draftFromProposal, initialDraft, proposalInputFromDraft, type PricingDraft } from './ProposalPricingForm';
 import { ProposalSectionsEditor } from './ProposalSectionsEditor';
 import { ProposalVersionList } from './ProposalVersionList';
+import { ProposalDepositBlock, paidDepositBlocksVoid } from './ProposalDepositBlock';
 import {
   createProposal,
   issueProposal,
@@ -39,7 +40,7 @@ import { formatDateTime, formatMinorUnits, formatRelativeDays, formatShortDate }
 import { seedSections } from '@/lib/studio/engagement/proposal-terms';
 import type { ProposalSection } from '@/lib/studio/engagement/proposal-schema';
 import { PROPOSAL_AI_SECTION_KEYS } from '@/lib/studio/engagement/types';
-import type { Engagement, EngagementBrief, EngagementProposal, EngagementQuestionnaire } from '@/lib/admin/types';
+import type { Engagement, EngagementBrief, EngagementEvent, EngagementInvoice, EngagementProposal, EngagementQuestionnaire } from '@/lib/admin/types';
 
 const ghostBtn =
   'inline-flex items-center justify-center gap-1.5 min-h-[44px] px-4 rounded-lg bg-bg-primary border border-border-default text-fg-secondary text-[12.5px] font-semibold hover:text-fg-primary hover:border-border-hover disabled:opacity-50 transition-colors';
@@ -65,6 +66,8 @@ export function EngagementProposalPanel({
   proposals,
   questionnaire,
   latestBrief,
+  invoices,
+  events,
 }: {
   engagement: Engagement;
   /** All versions, newest first. */
@@ -72,6 +75,10 @@ export function EngagementProposalPanel({
   questionnaire: EngagementQuestionnaire | null;
   /** The newest completed|partial brief (the RPC's rule), or null. */
   latestBrief: EngagementBrief | null;
+  /** Every invoice on the engagement, newest first (075). */
+  invoices: EngagementInvoice[];
+  /** The timeline, read only to surface unresolved payment flags (075). */
+  events: EngagementEvent[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -300,6 +307,9 @@ export function EngagementProposalPanel({
   }
 
   const working = pending || busy !== null;
+  // 075: a paid deposit refuses the void (the RPC enforces it) — refund in
+  // Stripe first. Mirrored here so the button explains itself.
+  const voidBlocked = !!latest && paidDepositBlocksVoid(invoices, latest.id);
   const pdfHref = latest ? `/api/admin/engagements/${engagement.id}/proposal/${latest.id}/pdf` : '#';
 
   return (
@@ -515,13 +525,29 @@ export function EngagementProposalPanel({
               <dd className="text-fg-secondary">{latest.open_count > 0 ? `Viewed ${latest.open_count}×` : 'Not opened online'} · <span data-link-state className={linkState(latest).revoked ? 'text-[color:var(--accent-coral)] font-medium' : ''}>{linkState(latest).label}</span></dd>
             </div>
           </dl>
+          {/* The deposit (075): the money half of an accepted proposal. */}
+          <ProposalDepositBlock
+            engagement={engagement}
+            proposal={latest}
+            invoices={invoices}
+            events={events}
+            disabled={working}
+          />
           <div className="flex items-center gap-2 flex-wrap">
             <a href={pdfHref} className={ghostBtn}>Download PDF (archived)</a>
             <button type="button" onClick={handleResendLink} disabled={working || !engagement.client_contact_email} className={ghostBtn} title={engagement.client_contact_email ? undefined : 'Add a client contact email first'}>{latest.access_token_hash ? 'Resend link' : 'Send link'}</button>
             {latest.access_token_hash && !latest.token_revoked_at && (
               <button type="button" onClick={handleRevokeLink} disabled={working} className={dangerBtn}>Revoke link</button>
             )}
-            <button type="button" onClick={handleVoid} disabled={working} className={dangerBtn}>Void acceptance</button>
+            <button
+              type="button"
+              onClick={handleVoid}
+              disabled={working || voidBlocked}
+              title={voidBlocked ? 'Refund the deposit in Stripe first' : undefined}
+              className={dangerBtn}
+            >
+              Void acceptance
+            </button>
           </div>
         </div>
       )}

@@ -41,6 +41,16 @@ const KIND_LABELS: Record<EngagementEventKind, string> = {
   proposal_withdrawn: 'Proposal withdrawn',
   proposal_superseded: 'Proposal superseded',
   proposal_revoked: 'Proposal link revoked',
+  // 075. "Invoice", not "Deposit": the same kinds label the 100%
+  // "build investment" case and, later, the balance and care rows.
+  invoice_issued: 'Invoice issued',
+  invoice_paid: 'Invoice paid',
+  invoice_payment_failed: 'Payment failed',
+  invoice_duplicate_payment: 'Duplicate payment',
+  invoice_refunded: 'Invoice refunded',
+  invoice_voided: 'Invoice voided',
+  deliverables_seeded: 'Deliverables seeded',
+  deliverable_delivered: 'Deliverable delivered',
 };
 
 const ACTOR_LABELS: Record<EngagementEvent['actor'], string> = {

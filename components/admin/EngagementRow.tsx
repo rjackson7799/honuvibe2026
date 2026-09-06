@@ -60,10 +60,18 @@ export function proposalLabel(e: EngagementListItem): string {
       const opens = e.proposal_open_count ?? 0;
       return opens > 0 ? `Sent · viewed ${opens}×` : `Sent · ${formatRelativeDays(e.proposal_sent_at)}`;
     }
-    case 'accepted':
-      return e.proposal_total_build !== null && e.proposal_currency
-        ? `Accepted ✓ ${formatMinorUnits(e.proposal_total_build, e.proposal_currency)}`
-        : 'Accepted ✓';
+    case 'accepted': {
+      const base =
+        e.proposal_total_build !== null && e.proposal_currency
+          ? `Accepted ✓ ${formatMinorUnits(e.proposal_total_build, e.proposal_currency)}`
+          : 'Accepted ✓';
+      // 075: the deposit's state, from the view's live-deposit columns. Only
+      // the two states worth a glance on a list row — 'refunded' and 'void'
+      // are rare and get read on the engagement page.
+      if (e.deposit_status === 'paid') return `${base} · deposit paid`;
+      if (e.deposit_status === 'sent') return `${base} · deposit due`;
+      return base;
+    }
     case 'voided':
       return 'Voided';
     case 'withdrawn':

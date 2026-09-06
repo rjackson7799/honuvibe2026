@@ -5,6 +5,9 @@ import { authorizeProposalSession } from '@/lib/studio/engagement/proposal-sessi
 import { proposalPath } from '@/lib/studio/engagement/proposal-token';
 import { buildProposalDocModel, hstDateOf, issuedSnapshotSchema } from '@/lib/studio/engagement/proposal-document';
 import { ProposalAcceptForm } from '@/components/proposal/ProposalAcceptForm';
+import { ProposalDepositButton } from '@/components/proposal/ProposalDepositButton';
+import { formatMinorUnits } from '@/lib/studio/engagement/format';
+import type { EngagementInvoice } from '@/lib/admin/types';
 import { ProposalDocument, ProposalShell, Wordmark } from '@/components/proposal/ProposalDocument';
 import { ProposalFatalCard } from '@/components/proposal/ProposalFatalCard';
 import { T } from '@/components/proposal/copy';
@@ -39,6 +42,7 @@ export const metadata = {
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -68,8 +72,9 @@ function Band({ tone, icon, title, body }: { tone: 'teal' | 'coral' | 'muted'; i
   );
 }
 
-export default async function ProposalPage({ params }: Props) {
+export default async function ProposalPage({ params, searchParams }: Props) {
   const { locale, id } = await params;
+  const query = await searchParams;
   setRequestLocale(locale);
   const lang = locale === 'ja' ? 'ja' : 'en';
 
@@ -102,10 +107,71 @@ export default async function ProposalPage({ params }: Props) {
   const pdfLink =
     'inline-flex min-h-[44px] items-center justify-center rounded-[10px] border border-[var(--m-border-strong)] bg-[var(--m-white)] px-4 text-[14px] font-semibold text-[var(--m-ink-primary)] transition-colors hover:border-[var(--m-accent-teal)]';
 
+  // The accepted branch switches on the LIVE deposit invoice (075). Read
+  // through the same service-role client the session already returned — the
+  // client has no RLS path to engagement_invoices by design.
+  let deposit: EngagementInvoice | null = null;
+  if (p.status === 'accepted') {
+    const { data: depositRow, error: depositError } = await auth.supabase
+      .from('engagement_invoices')
+      .select('*')
+      .eq('proposal_id', p.id)
+      .eq('kind', 'deposit')
+      .is('voided_at', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (depositError) {
+      // A deposit we cannot read must not blank the page: fall back to the
+      // plain accepted band, which is true whatever the invoice says.
+      console.error(`[proposal page] deposit lookup failed for ${p.id}: ${depositError.message}`);
+    } else {
+      deposit = (depositRow ?? null) as EngagementInvoice | null;
+    }
+  }
+  // UX only, worded for instant AND delayed methods — the webhook is the
+  // truth, and a reload without the query shows the real state.
+  const justPaid = query?.paid === '1';
+
   let band: React.ReactNode;
   let form: React.ReactNode = null;
+  /** Rendered directly under the band (the deposit button), not at page foot. */
+  let bandAction: React.ReactNode = null;
   if (p.status === 'accepted' && p.accepted_at) {
-    band = <Band tone="teal" icon="ok" title={t.acceptedBandTitle} body={t.acceptedBand(p.accepted_by_name ?? '', longDate(p.accepted_at, p.locale))} />;
+    const acceptedBy = p.accepted_by_name ?? '';
+    const acceptedOn = longDate(p.accepted_at, p.locale);
+    const amount = deposit ? formatMinorUnits(deposit.amount, deposit.currency) : '';
+
+    if (deposit?.status === 'paid') {
+      band = (
+        <Band
+          tone="teal"
+          icon="ok"
+          title={t.depositPaidBandTitle}
+          body={t.depositPaidBand(acceptedBy, acceptedOn, amount, deposit.paid_at ? longDate(deposit.paid_at, p.locale) : acceptedOn)}
+        />
+      );
+    } else if (deposit?.status === 'refunded') {
+      band = (
+        <Band
+          tone="coral"
+          icon={null}
+          title={t.depositRefundedBandTitle}
+          body={t.depositRefundedBand(amount, deposit.refunded_at ? longDate(deposit.refunded_at, p.locale) : acceptedOn)}
+        />
+      );
+    } else if (deposit?.status === 'sent' && deposit.awaiting_async_payment_at) {
+      // A voucher is outstanding — the mint RPC would refuse a second session
+      // anyway, so no button.
+      band = <Band tone="teal" icon="clock" title={t.acceptedBandTitle} body={t.depositPendingBand} />;
+    } else if (deposit?.status === 'sent' && justPaid) {
+      band = <Band tone="teal" icon="clock" title={t.acceptedBandTitle} body={t.depositThanksBand} />;
+    } else if (deposit?.status === 'sent') {
+      band = <Band tone="teal" icon="ok" title={t.acceptedBandTitle} body={t.depositDueBand(acceptedBy, acceptedOn, amount)} />;
+      bandAction = <ProposalDepositButton proposalId={p.id} locale={p.locale} />;
+    } else {
+      band = <Band tone="teal" icon="ok" title={t.acceptedBandTitle} body={t.acceptedBand(acceptedBy, acceptedOn)} />;
+    }
   } else if (p.status === 'sent' && expired) {
     band = <Band tone="coral" icon="clock" title={t.expiredBandTitle} body={t.expiredBandBody(validUntilLong)} />;
   } else if (p.status === 'sent') {
@@ -134,6 +200,7 @@ export default async function ProposalPage({ params }: Props) {
     >
       <div className="space-y-6">
         {band}
+        {bandAction}
         <ProposalDocument model={model} />
         {form}
         <p className="text-center text-[12.5px] text-[var(--m-ink-secondary)]">

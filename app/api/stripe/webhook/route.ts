@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import {
   handleCheckoutCompleted,
+  handleCheckoutAsyncPaymentSucceeded,
+  handleCheckoutAsyncPaymentFailed,
+  handleCheckoutExpired,
   handleChargeRefunded,
   handleSubscriptionCreated,
   handleSubscriptionUpdated,
@@ -48,6 +51,26 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object;
         await handleCheckoutCompleted(session);
+        break;
+      }
+      // The three delayed/expired Checkout events (075). All three are
+      // ENGAGEMENT-ONLY inside the handlers — they must never re-enter
+      // handleCheckoutCompleted, whose partner branch would re-fulfil.
+      // NOTE: these must be added to the Stripe dashboard webhook endpoint
+      // (test AND live) — the code cannot see an event it is not subscribed to.
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object;
+        await handleCheckoutAsyncPaymentSucceeded(session);
+        break;
+      }
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object;
+        await handleCheckoutAsyncPaymentFailed(session);
+        break;
+      }
+      case 'checkout.session.expired': {
+        const session = event.data.object;
+        await handleCheckoutExpired(session);
         break;
       }
       case 'customer.subscription.created': {

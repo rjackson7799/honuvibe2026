@@ -8,6 +8,14 @@ import {
   fulfillSubscriptionCheckout,
 } from '@/lib/partner-checkout/fulfill';
 import { findOrCreateUserByEmail } from '@/lib/auth/find-or-create';
+import {
+  fulfillEngagementInvoiceCheckout,
+  handleEngagementInvoiceAsyncFailed,
+  handleEngagementInvoiceAsyncSucceeded,
+  handleEngagementInvoiceExpired,
+  handleEngagementInvoiceRefunded,
+  isEngagementInvoiceSession,
+} from '@/lib/stripe/engagement-invoice';
 import { stripe } from '@/lib/stripe/client';
 import { resolveSubscriptionTier, paymentTypeForRenewal } from '@/lib/stripe/tiers';
 import { trackServerEvent } from '@/lib/analytics-server';
@@ -31,6 +39,15 @@ export async function handleCheckoutCompleted(
   session: Stripe.Checkout.Session,
 ): Promise<void> {
   const supabase = getServiceClient();
+
+  // STEP 0: Studio engagement invoice (075). Like the partner branch, these
+  // sessions carry no user_id / course_id metadata and identify themselves via
+  // checkout_kind — so this MUST run before the course-enrollment guard below.
+  // The webhook, not the success page, is the truth for the deposit.
+  if (isEngagementInvoiceSession(session)) {
+    await fulfillEngagementInvoiceCheckout(supabase, session);
+    return;
+  }
 
   // STEP 1: Partner-checkout branch. Partner sessions have no user_id /
   // course_id metadata — they identify themselves via checkout_kind='partner'.
@@ -286,6 +303,36 @@ export async function handleCheckoutCompleted(
   });
 }
 
+/**
+ * `checkout.session.async_payment_succeeded` — ENGAGEMENT-ONLY (075).
+ *
+ * It deliberately does NOT route into handleCheckoutCompleted: that
+ * function's partner branch re-runs fulfillCohortCheckout /
+ * fulfillSubscriptionCheckout on every call (lib/partner-checkout/fulfill.ts),
+ * so a delayed-payment event for a cohort session would double-fulfil and
+ * re-send the welcome email. Course and partner sessions keep today's
+ * behaviour of being ignored for this event type.
+ */
+export async function handleCheckoutAsyncPaymentSucceeded(
+  session: Stripe.Checkout.Session,
+): Promise<void> {
+  await handleEngagementInvoiceAsyncSucceeded(getServiceClient(), session);
+}
+
+/** `checkout.session.async_payment_failed` — engagement-only (075). */
+export async function handleCheckoutAsyncPaymentFailed(
+  session: Stripe.Checkout.Session,
+): Promise<void> {
+  await handleEngagementInvoiceAsyncFailed(getServiceClient(), session);
+}
+
+/** `checkout.session.expired` — engagement-only (075): re-arm the mint. */
+export async function handleCheckoutExpired(
+  session: Stripe.Checkout.Session,
+): Promise<void> {
+  await handleEngagementInvoiceExpired(getServiceClient(), session);
+}
+
 export async function handleChargeRefunded(
   charge: Stripe.Charge,
 ): Promise<void> {
@@ -300,6 +347,14 @@ export async function handleChargeRefunded(
   }
 
   const supabase = getServiceClient();
+
+  // Studio engagement invoice (075) — checked FIRST, because engagement money
+  // lives in engagement_invoices and never in `payments` (which is user-keyed:
+  // a user_id FK and an auth.uid() RLS policy). A true verdict means the
+  // charge was ours, so nothing below should run for it.
+  if (await handleEngagementInvoiceRefunded(supabase, paymentIntentId, charge.amount_refunded)) {
+    return;
+  }
 
   // Mark any matching payments rows as refunded (covers subscriptions, cohort,
   // course enrollments — anything with a stripe_payment_intent_id).

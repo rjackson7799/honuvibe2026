@@ -45,6 +45,12 @@ function item(overrides: Partial<EngagementListItem> = {}): EngagementListItem {
     proposal_currency: null,
     proposal_open_count: null,
     proposal_first_opened_at: null,
+    deposit_invoice_id: null,
+    deposit_status: null,
+    deposit_amount: null,
+    deposit_paid_at: null,
+    deliverables_open_count: 0,
+    deliverables_total_count: 0,
     ...overrides,
   };
 }
@@ -135,6 +141,22 @@ describe('proposalLabel', () => {
   it('Accepted ✓ with the contract value in the offer currency; JPY has no decimals', () => {
     expect(proposalLabel(p({ proposal_status: 'accepted', proposal_accepted_at: '2026-09-04T10:00:00Z' }))).toBe('Accepted ✓ $875.00');
     expect(proposalLabel(p({ proposal_status: 'accepted', proposal_currency: 'JPY', proposal_total_build: 132000 }))).toBe('Accepted ✓ ¥132,000');
+  });
+
+  it('appends the deposit state to Accepted, and only for the two states worth a glance (075)', () => {
+    const accepted = p({ proposal_status: 'accepted', proposal_accepted_at: '2026-09-04T10:00:00Z' });
+    expect(proposalLabel(accepted)).toBe('Accepted ✓ $875.00');
+    expect(proposalLabel({ ...accepted, deposit_status: 'sent', deposit_invoice_id: 'i1', deposit_amount: 43750 })).toBe(
+      'Accepted ✓ $875.00 · deposit due',
+    );
+    expect(proposalLabel({ ...accepted, deposit_status: 'paid', deposit_invoice_id: 'i1', deposit_amount: 43750, deposit_paid_at: '2026-09-04T11:00:00Z' })).toBe(
+      'Accepted ✓ $875.00 · deposit paid',
+    );
+    // A draft balance row or a refunded deposit is read on the engagement page.
+    expect(proposalLabel({ ...accepted, deposit_status: 'draft', deposit_invoice_id: 'i1' })).toBe('Accepted ✓ $875.00');
+    expect(proposalLabel({ ...accepted, deposit_status: 'refunded', deposit_invoice_id: 'i1' })).toBe('Accepted ✓ $875.00');
+    // The deposit never leaks onto a non-accepted row.
+    expect(proposalLabel(p({ proposal_status: 'sent', proposal_sent_at: '2026-09-01T09:00:00Z', deposit_status: 'paid' }))).toBe('Sent · 3d ago');
   });
 
   it('Voided / Withdrawn / Superseded', () => {

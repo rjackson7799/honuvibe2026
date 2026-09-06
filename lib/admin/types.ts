@@ -15,8 +15,12 @@ import type { AnswerSnapshot, QuestionnaireSection, EngagementQuestion } from '@
 import type {
   AcceptedVia,
   DataBasis,
+  DeliverablePhase,
+  DeliverableStatus,
   DeliveryMethod,
   DraftingStatus,
+  InvoiceKind,
+  InvoiceStatus,
   PricingMode,
   ProposalStatus,
 } from '@/lib/studio/engagement/types';
@@ -384,6 +388,59 @@ export interface EngagementProposal {
   superseded_by: string | null;
 }
 
+// One money row (migration 075). Amounts are integer minor units in
+// `currency`. `recipient_email` is the engagement contact SNAPSHOTTED at
+// issue and is immutable — the Checkout params are built from it and from
+// the other immutable columns, never from the live engagement. The Checkout
+// URL is never stored; only the session id and its expiry.
+export interface EngagementInvoice {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  engagement_id: string;
+  proposal_id: string | null;
+  kind: InvoiceKind;
+  pct_of_build: number | null;
+  label: string;
+  currency: EngagementCurrency;
+  amount: number;
+  recipient_email: string | null;
+  status: InvoiceStatus;
+  sent_at: string | null;
+  paid_at: string | null;
+  refunded_at: string | null;
+  voided_at: string | null;
+  void_reason: string | null;
+  invoice_email_sent_at: string | null;
+  stripe_checkout_session_id: string | null;
+  checkout_session_expires_at: string | null;
+  awaiting_async_payment_at: string | null;
+  mint_attempt: number;
+  checkout_count: number;
+  stripe_payment_intent_id: string | null;
+  amount_refunded: number | null;
+  /** Decision 8 — the care-billing attach point. Unused this slice. */
+  stripe_subscription_id: string | null;
+}
+
+// One build/launch deliverable (migration 075). `delivered_at` is owned by
+// the DB guard: it is filled on a move into delivered|accepted, cleared on a
+// move back, and preserved through ordinary edits.
+export interface EngagementDeliverable {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  engagement_id: string;
+  proposal_id: string | null;
+  title: string;
+  phase: DeliverablePhase;
+  status: DeliverableStatus;
+  due_on: string | null;
+  delivered_at: string | null;
+  notes_md: string | null;
+  sort_order: number;
+}
+
 // One row of the engagement_list view — the list page's pre-aggregated read.
 export interface EngagementListItem {
   id: string;
@@ -422,6 +479,14 @@ export interface EngagementListItem {
   proposal_currency: EngagementCurrency | null;
   proposal_open_count: number | null;
   proposal_first_opened_at: string | null;
+  // The live deposit + the build-phase deliverable counters (075) — six
+  // columns appended to the view after proposal_first_opened_at.
+  deposit_invoice_id: string | null;
+  deposit_status: InvoiceStatus | null;
+  deposit_amount: number | null;
+  deposit_paid_at: string | null;
+  deliverables_open_count: number;
+  deliverables_total_count: number;
 }
 
 export interface DashboardStats {

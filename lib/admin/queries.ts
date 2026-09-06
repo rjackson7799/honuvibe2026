@@ -15,7 +15,9 @@ import type {
   ProspectStatus,
   Engagement,
   EngagementBrief,
+  EngagementDeliverable,
   EngagementEvent,
+  EngagementInvoice,
   EngagementListItem,
   EngagementProposal,
   EngagementQuestionnaire,
@@ -543,6 +545,32 @@ export async function getEngagementProposals(engagementId: string): Promise<Enga
     .order('version', { ascending: false });
   if (error) throw error;
   return (data ?? []) as unknown as EngagementProposal[];
+}
+
+/** Every invoice for an engagement, newest first (075). Throw-on-error. */
+export async function getEngagementInvoices(engagementId: string): Promise<EngagementInvoice[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_invoices')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as EngagementInvoice[];
+}
+
+/** Every deliverable for an engagement, in panel order (075). Throw-on-error. */
+export async function getEngagementDeliverables(engagementId: string): Promise<EngagementDeliverable[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_deliverables')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('phase', { ascending: true })
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as EngagementDeliverable[];
 }
 
 export async function getLatestEngagementProposal(engagementId: string): Promise<EngagementProposal | null> {
