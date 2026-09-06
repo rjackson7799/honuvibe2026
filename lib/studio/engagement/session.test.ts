@@ -50,7 +50,9 @@ function liveRow(hash: string, overrides: Record<string, unknown> = {}) {
     id: A,
     access_token_hash: hash,
     token_issued_at: NOW.toISOString(),
-    token_expires_at: new Date(NOW.getTime() + 86_400_000).toISOString(),
+    // Relative to the real clock: authorizeSession compares against Date.now(),
+    // so a fixed future date turns into a calendar time bomb.
+    token_expires_at: new Date(Date.now() + 86_400_000).toISOString(),
     token_revoked_at: null,
     status: 'sent',
     ...overrides,

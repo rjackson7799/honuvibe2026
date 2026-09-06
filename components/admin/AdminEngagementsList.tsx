@@ -1,8 +1,9 @@
 'use client';
 
 // Engagements list — mirrors AdminStudioLeadsList 1:1 (same chip constants,
-// same table chrome). Five columns, not six: Email/Source are lead-acquisition
-// facts that belong on the lead page.
+// same table chrome). Six columns: Email/Source are lead-acquisition facts
+// that belong on the lead page; Proposal (074) reads the view's latest-version
+// proposal columns.
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -16,7 +17,7 @@ type Props = {
 
 const stageFilters: (EngagementStage | 'all')[] = ['all', ...ENGAGEMENT_STAGES];
 
-const HEADERS = ['Client', 'Stage', 'Discovery', 'Last activity', 'Started'];
+const HEADERS = ['Client', 'Stage', 'Discovery', 'Proposal', 'Last activity', 'Started'];
 
 const chipBase =
   'px-3.5 py-1.5 min-h-[44px] rounded-full text-[12.5px] font-semibold border transition-all whitespace-nowrap';

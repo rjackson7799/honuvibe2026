@@ -32,6 +32,18 @@ export const ENGAGEMENT_EVENT_KINDS = [
   'brief_failed',
   'notification_sent',
   'notification_failed',
+  'proposal_drafted',
+  'proposal_ai_drafted',
+  'proposal_ai_failed',
+  'proposal_ready',
+  'proposal_back_to_draft',
+  'proposal_sent',
+  'proposal_opened',
+  'proposal_accepted',
+  'proposal_acceptance_voided',
+  'proposal_withdrawn',
+  'proposal_superseded',
+  'proposal_revoked',
 ] as const;
 export type EngagementEventKind = (typeof ENGAGEMENT_EVENT_KINDS)[number];
 
@@ -43,6 +55,42 @@ export type QuestionnaireStatus = (typeof QUESTIONNAIRE_STATUSES)[number];
 export type TailoringStatus = 'none' | 'generating' | 'completed' | 'failed';
 
 export type BriefStatus = 'generating' | 'completed' | 'partial' | 'failed';
+
+// Proposal vocabulary (migration 074). Parity with the SQL CHECKs is asserted
+// by supabase/tests/engagement_proposals_rls.test.ts.
+export const PROPOSAL_STATUSES = ['draft', 'ready', 'sent', 'accepted', 'voided', 'superseded', 'withdrawn'] as const;
+export type ProposalStatus = (typeof PROPOSAL_STATUSES)[number];
+
+export const PRICING_MODES = ['fixed', 'performance', 'hybrid'] as const;
+export type PricingMode = (typeof PRICING_MODES)[number];
+
+export const DATA_BASES = ['client_records', 'provisional'] as const;
+export type DataBasis = (typeof DATA_BASES)[number];
+
+export type DraftingStatus = 'none' | 'generating' | 'completed' | 'failed';
+
+export type DeliveryMethod = 'link' | 'manual';
+
+export type AcceptedVia = 'client' | 'admin';
+
+/** The seven fixed section keys, in document order. The editor cannot add or remove one. */
+export const PROPOSAL_SECTION_KEYS = [
+  'exec_summary',
+  'takeaways',
+  'recommendation',
+  'scope',
+  'investment_notes',
+  'terms',
+  'next_steps',
+] as const;
+export type ProposalSectionKey = (typeof PROPOSAL_SECTION_KEYS)[number];
+
+/** The five keys the AI may write. `terms` and `next_steps` are never model-written. */
+export const PROPOSAL_AI_SECTION_KEYS = ['exec_summary', 'takeaways', 'recommendation', 'scope', 'investment_notes'] as const;
+export type ProposalAiSectionKey = (typeof PROPOSAL_AI_SECTION_KEYS)[number];
+
+/** The sections `ready` and issue require non-blank (TS in markProposalReady, SQL in the issue RPC). */
+export const PROPOSAL_REQUIRED_SECTION_KEYS = ['exec_summary', 'recommendation', 'scope', 'terms'] as const;
 
 export type {
   AnswerSnapshot,

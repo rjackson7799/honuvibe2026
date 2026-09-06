@@ -17,6 +17,7 @@ import type {
   EngagementBrief,
   EngagementEvent,
   EngagementListItem,
+  EngagementProposal,
   EngagementQuestionnaire,
   EngagementRef,
   RevenueStats,
@@ -530,6 +531,31 @@ export async function getEngagementQuestionnaire(
     .maybeSingle();
   if (error) throw error;
   return (data ?? null) as unknown as EngagementQuestionnaire | null;
+}
+
+/** Every proposal version for an engagement, newest first (074). Throw-on-error. */
+export async function getEngagementProposals(engagementId: string): Promise<EngagementProposal[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_proposals')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('version', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as EngagementProposal[];
+}
+
+export async function getLatestEngagementProposal(engagementId: string): Promise<EngagementProposal | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('engagement_proposals')
+    .select('*')
+    .eq('engagement_id', engagementId)
+    .order('version', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as unknown as EngagementProposal | null;
 }
 
 export async function getRevenueStats(): Promise<RevenueStats> {

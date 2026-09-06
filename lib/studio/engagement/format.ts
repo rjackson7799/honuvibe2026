@@ -45,3 +45,21 @@ export function formatRelativeDays(iso: string | null | undefined, now: number =
   if (d < 30) return `${d}d ago`;
   return `${Math.floor(d / 30)}mo ago`;
 }
+
+/**
+ * Money in integer minor units (USD cents / JPY yen) → "$875.00" / "¥250,000".
+ * ONE formatter for the panel, the page, the PDF and the emails. JPY is
+ * zero-decimal: yen are stored and printed as whole units, never divided.
+ * The formatting locale defaults to en-US on purpose — `ja-JP` renders the
+ * full-width ￥, and the documents use the plain ¥ in both languages.
+ */
+export function formatMinorUnits(amount: number, currency: 'USD' | 'JPY', locale = 'en-US'): string {
+  const value = currency === 'JPY' ? amount : amount / 100;
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: currency === 'JPY' ? 0 : 2,
+    maximumFractionDigits: currency === 'JPY' ? 0 : 2,
+  }).format(value);
+}

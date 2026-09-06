@@ -2,18 +2,20 @@ import { setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { getEngagementById, getEngagementEvents, getEngagementQuestionnaire, getLatestEngagementBrief } from '@/lib/admin/queries';
+import { getEngagementBriefs, getEngagementById, getEngagementEvents, getEngagementProposals, getEngagementQuestionnaire, getLatestEngagementBrief } from '@/lib/admin/queries';
 import { createAdminClient } from '@/lib/supabase/server';
 import { STAGE_LABELS } from '@/lib/studio/engagement/stages';
 import { formatShortDate } from '@/lib/studio/engagement/format';
 import { flipStaleTailoring } from '@/lib/studio/engagement/tailor';
 import { flipStaleBriefs } from '@/lib/studio/engagement/brief';
+import { flipStaleProposalDrafts } from '@/lib/studio/engagement/proposal-draft';
 import { isAnswerPresent } from '@/lib/studio/engagement/validate-answers';
 import { EngagementStageControl } from '@/components/admin/EngagementStageControl';
 import { EngagementContactCard } from '@/components/admin/EngagementContactCard';
 import { EngagementDiscoveryPanel } from '@/components/admin/EngagementDiscoveryPanel';
 import { EngagementAnswersView } from '@/components/admin/EngagementAnswersView';
 import { EngagementBriefPanel } from '@/components/admin/EngagementBriefPanel';
+import { EngagementProposalPanel } from '@/components/admin/EngagementProposalPanel';
 import { EngagementTimeline } from '@/components/admin/EngagementTimeline';
 
 type Props = {
@@ -45,19 +47,31 @@ export default async function AdminEngagementPage({ params }: Props) {
   if (!UUID_RE.test(id)) notFound();
 
   // The admin's read is where zombie runs are cleared: a tailoring request
-  // that died mid-call (>5 min) and a brief whose after() never finished
-  // (>7 min) flip to failed here, so the panels never show a stuck spinner.
-  // Both are fenced on their 'generating' status; a live run is untouched.
+  // that died mid-call (>5 min), a brief whose after() never finished
+  // (>7 min) and a proposal AI draft that died mid-call (>5 min) flip to
+  // failed here, so the panels never show a stuck spinner. All are fenced on
+  // their 'generating' status; a live run is untouched.
   const admin = createAdminClient();
-  await Promise.all([flipStaleTailoring(admin, id), flipStaleBriefs(admin, id)]);
+  await Promise.all([flipStaleTailoring(admin, id), flipStaleBriefs(admin, id), flipStaleProposalDrafts(admin, id)]);
 
-  const [engagement, events, questionnaire, latestBrief] = await Promise.all([
+  const [engagement, events, questionnaire, latestBrief, proposals] = await Promise.all([
     getEngagementById(id),
     getEngagementEvents(id),
     getEngagementQuestionnaire(id),
     getLatestEngagementBrief(id),
+    getEngagementProposals(id),
   ]);
   if (!engagement) notFound();
+
+  // The proposal gate mirrors create_engagement_proposal's rule: the newest
+  // completed|partial brief. When the latest brief is generating/failed, an
+  // older usable one still satisfies the gate (second query only then).
+  const usableBrief =
+    latestBrief && (latestBrief.status === 'completed' || latestBrief.status === 'partial')
+      ? latestBrief
+      : latestBrief
+        ? ((await getEngagementBriefs(id, 20)).find((b) => b.status === 'completed' || b.status === 'partial') ?? null)
+        : null;
 
   // Live progress for the discovery panel (answers at the current manifest
   // version that are actually present — the engagement_answer_is_present rule).
@@ -85,8 +99,9 @@ export default async function AdminEngagementPage({ params }: Props) {
   // The workspace is an explicit panel list. Order: stage control → client
   // contact → discovery panel → client answers (once a snapshot exists) →
   // discovery brief (once a snapshot OR a prior brief exists — briefs survive a
-  // start over) → timeline. Generate is offered only while submitted: a
-  // reopened questionnaire waits for the resubmit (see the brief route).
+  // start over) → proposal (074) → timeline. Generate is offered only while
+  // submitted: a reopened questionnaire waits for the resubmit (see the brief
+  // route).
   const snapshot = questionnaire?.answer_snapshot ?? null;
   const panels = [
     <EngagementStageControl key="stage" engagement={engagement} />,
@@ -105,6 +120,13 @@ export default async function AdminEngagementPage({ params }: Props) {
           />,
         ]
       : []),
+    <EngagementProposalPanel
+      key="proposal"
+      engagement={engagement}
+      proposals={proposals}
+      questionnaire={questionnaire}
+      latestBrief={usableBrief}
+    />,
     <EngagementTimeline key="timeline" engagementId={engagement.id} events={events} />,
   ];
 

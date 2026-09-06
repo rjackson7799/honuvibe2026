@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EngagementListItem } from '@/lib/admin/types';
-import { discoveryLabel } from './EngagementRow';
+import { discoveryLabel, proposalLabel } from './EngagementRow';
 
 // The Discovery column's six states, derived ONLY from the engagement_list
 // view's discovery_* columns (no extra queries): — / Draft / Sent · 3d ago /
@@ -36,6 +36,15 @@ function item(overrides: Partial<EngagementListItem> = {}): EngagementListItem {
     latest_brief_status: null,
     last_activity_at: null,
     open_attention_count: 0,
+    proposal_id: null,
+    proposal_version: null,
+    proposal_status: null,
+    proposal_sent_at: null,
+    proposal_accepted_at: null,
+    proposal_total_build: null,
+    proposal_currency: null,
+    proposal_open_count: null,
+    proposal_first_opened_at: null,
     ...overrides,
   };
 }
@@ -91,5 +100,46 @@ describe('discoveryLabel', () => {
     expect(discoveryLabel({ ...submitted, latest_brief_status: 'completed' })).toBe('Brief ready');
     expect(discoveryLabel({ ...submitted, latest_brief_status: 'partial' })).toBe('Brief ready');
     expect(discoveryLabel({ ...submitted, latest_brief_status: 'failed' })).toBe('Submitted ✓');
+  });
+});
+
+describe('proposalLabel', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const p = (overrides: Partial<EngagementListItem>) =>
+    item({ proposal_id: 'p', proposal_version: 1, proposal_currency: 'USD', proposal_total_build: 87500, proposal_open_count: 0, ...overrides });
+
+  it('— when no proposal exists', () => {
+    expect(proposalLabel(item())).toBe('—');
+  });
+
+  it('Draft v1 / Ready before issue', () => {
+    expect(proposalLabel(p({ proposal_status: 'draft' }))).toBe('Draft v1');
+    expect(proposalLabel(p({ proposal_status: 'draft', proposal_version: 2 }))).toBe('Draft v2');
+    expect(proposalLabel(p({ proposal_status: 'ready' }))).toBe('Ready');
+    expect(proposalLabel(p({ proposal_status: 'ready', proposal_version: 3 }))).toBe('Ready v3');
+  });
+
+  it('Sent · 3d ago until the client opens it, then Sent · viewed 2×', () => {
+    const sent = p({ proposal_status: 'sent', proposal_sent_at: '2026-09-01T09:00:00Z' });
+    expect(proposalLabel(sent)).toBe('Sent · 3d ago');
+    expect(proposalLabel({ ...sent, proposal_open_count: 2, proposal_first_opened_at: '2026-09-02T00:00:00Z' })).toBe('Sent · viewed 2×');
+  });
+
+  it('Accepted ✓ with the contract value in the offer currency; JPY has no decimals', () => {
+    expect(proposalLabel(p({ proposal_status: 'accepted', proposal_accepted_at: '2026-09-04T10:00:00Z' }))).toBe('Accepted ✓ $875.00');
+    expect(proposalLabel(p({ proposal_status: 'accepted', proposal_currency: 'JPY', proposal_total_build: 132000 }))).toBe('Accepted ✓ ¥132,000');
+  });
+
+  it('Voided / Withdrawn / Superseded', () => {
+    expect(proposalLabel(p({ proposal_status: 'voided' }))).toBe('Voided');
+    expect(proposalLabel(p({ proposal_status: 'withdrawn' }))).toBe('Withdrawn');
+    expect(proposalLabel(p({ proposal_status: 'superseded' }))).toBe('Superseded');
   });
 });

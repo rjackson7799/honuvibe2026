@@ -73,6 +73,13 @@ const statusStyles: Record<string, string> = {
   sent: coralPill,
   in_progress: coralPill,
   submitted: tealPill,
+  // Proposal statuses ('draft', 'ready', 'sent' shared above). Accepted is
+  // the win (teal); voided is a reversed win (danger); superseded/withdrawn
+  // are history (muted).
+  accepted: tealPill,
+  voided: dangerPill,
+  superseded: mutedPill,
+  withdrawn: mutedPill,
 };
 
 const statusLabels: Record<string, string> = {
@@ -120,6 +127,10 @@ const statusLabels: Record<string, string> = {
   sent: 'Sent',
   in_progress: 'In Progress',
   submitted: 'Submitted',
+  accepted: 'Accepted',
+  voided: 'Voided',
+  superseded: 'Superseded',
+  withdrawn: 'Withdrawn',
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

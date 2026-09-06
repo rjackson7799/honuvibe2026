@@ -156,3 +156,62 @@ export async function sendDiscoverySubmittedAdminNotification(
     return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
   }
 }
+
+/** "A proposal was accepted" — Ryan's notification (slice 3, migration 074). */
+export interface ProposalAcceptedAdminNotifyData {
+  businessName: string;
+  contactName: string | null;
+  contactEmail: string | null;
+  acceptedByName: string;
+  via: 'client' | 'admin';
+  /** Pre-formatted via formatMinorUnits. */
+  totalBuild: string;
+  monthlyCare: string;
+  currency: 'USD' | 'JPY';
+  version: number;
+  stageMoved: boolean;
+  /** Absolute link to the engagement workspace. */
+  engagementUrl: string;
+}
+
+/** Ryan's "proposal accepted" notification. EN-only (admin). */
+export async function sendProposalAcceptedAdminNotification(
+  data: ProposalAcceptedAdminNotifyData,
+): Promise<{ ok: boolean; providerId?: string; error?: string }> {
+  const resend = getResendClient();
+  if (!resend) return { ok: false, error: 'email_not_configured' };
+  const adminEmail = getAdminEmail();
+  if (!adminEmail) return { ok: false, error: 'no_recipient' };
+
+  const body = [
+    accentBanner('Proposal accepted'),
+    detailsTable([
+      { label: 'Client', value: escapeHtml(data.businessName) },
+      { label: 'Contact', value: escapeHtml(data.contactName ?? '') },
+      { label: 'Email', value: escapeHtml(data.contactEmail ?? '') },
+      { label: 'Accepted by', value: escapeHtml(data.acceptedByName) },
+      { label: 'Via', value: data.via === 'client' ? 'Client (proposal page)' : 'You (marked accepted)' },
+      { label: 'Proposal', value: `v${data.version}` },
+      { label: 'Total build', value: escapeHtml(data.totalBuild) },
+      { label: 'Monthly care', value: escapeHtml(data.monthlyCare) },
+      { label: 'Currency', value: data.currency },
+      { label: 'Stage moved to Build', value: data.stageMoved ? 'Yes' : 'No (already past Proposal)' },
+    ]),
+    paragraph('The contract value is on the engagement record. Open it to kick off the build — the acceptance is flagged as needing your attention until you resolve it.'),
+    ctaButton({ href: data.engagementUrl, label: 'Open the engagement →' }),
+  ].join('');
+
+  try {
+    const { data: sent, error } = await resend.emails.send({
+      from: getFromAddress(),
+      to: adminEmail,
+      replyTo: data.contactEmail ?? undefined,
+      subject: `[Proposal] ${data.businessName} accepted v${data.version} — ${data.totalBuild} build`,
+      html: baseLayout({ locale: 'en', body }),
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, providerId: sent?.id };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'send_failed' };
+  }
+}

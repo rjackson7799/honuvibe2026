@@ -12,6 +12,17 @@ import type {
   TailoringStatus,
 } from '@/lib/studio/engagement/types';
 import type { AnswerSnapshot, QuestionnaireSection, EngagementQuestion } from '@/lib/studio/engagement/questions-schema';
+import type {
+  AcceptedVia,
+  DataBasis,
+  DeliveryMethod,
+  DraftingStatus,
+  PricingMode,
+  ProposalStatus,
+} from '@/lib/studio/engagement/types';
+import type { PricedOffer } from '@/lib/studio/engagement/proposal-pricing';
+import type { PerformanceTerms, ProposalSection } from '@/lib/studio/engagement/proposal-schema';
+import type { IssuedSnapshot } from '@/lib/studio/engagement/proposal-document';
 import type { EngagementRef } from '@/lib/studio/engagement/queries';
 
 export type UserRole = 'student' | 'admin' | 'instructor';
@@ -317,6 +328,62 @@ export interface EngagementBrief {
   completed_at: string | null;
 }
 
+// One versioned priced offer (migration 074). The token is stored ONLY as its
+// hash; issued_snapshot is the frozen document; money is minor units in
+// `currency`.
+export interface EngagementProposal {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  engagement_id: string;
+  version: number;
+  locale: EngagementLocale;
+  title: string;
+  status: ProposalStatus;
+  content_version: number;
+  currency: EngagementCurrency;
+  tier: EngagementTier;
+  pricing_mode: PricingMode;
+  pricing: PricedOffer;
+  total_build: number;
+  total_monthly: number;
+  performance_terms: PerformanceTerms | null;
+  data_basis: DataBasis;
+  brief_id: string | null;
+  valid_until: string | null;
+  sections: ProposalSection[];
+  drafting_status: DraftingStatus;
+  drafting_started_at: string | null;
+  drafted_at: string | null;
+  drafting_run_id: string | null;
+  drafting_input_version: number | null;
+  drafting_error: string | null;
+  drafting_model_id: string | null;
+  drafting_pipeline_version: string | null;
+  source_snapshot: Record<string, unknown> | null;
+  issued_snapshot: IssuedSnapshot | null;
+  issued_pdf_path: string | null;
+  issued_pdf_sha256: string | null;
+  sent_at: string | null;
+  delivery_method: DeliveryMethod | null;
+  access_token_hash: string | null;
+  token_issued_at: string | null;
+  token_expires_at: string | null;
+  token_revoked_at: string | null;
+  open_count: number;
+  first_opened_at: string | null;
+  last_opened_at: string | null;
+  accepted_at: string | null;
+  accepted_by_name: string | null;
+  accepted_via: AcceptedVia | null;
+  notification_sent_at: string | null;
+  voided_at: string | null;
+  void_reason: string | null;
+  withdrawn_at: string | null;
+  superseded_at: string | null;
+  superseded_by: string | null;
+}
+
 // One row of the engagement_list view — the list page's pre-aggregated read.
 export interface EngagementListItem {
   id: string;
@@ -345,6 +412,16 @@ export interface EngagementListItem {
   latest_brief_status: BriefStatus | null;
   last_activity_at: string | null;
   open_attention_count: number;
+  // The latest-version proposal (074) — nine columns appended to the view.
+  proposal_id: string | null;
+  proposal_version: number | null;
+  proposal_status: ProposalStatus | null;
+  proposal_sent_at: string | null;
+  proposal_accepted_at: string | null;
+  proposal_total_build: number | null;
+  proposal_currency: EngagementCurrency | null;
+  proposal_open_count: number | null;
+  proposal_first_opened_at: string | null;
 }
 
 export interface DashboardStats {

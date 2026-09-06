@@ -29,6 +29,18 @@ const KIND_LABELS: Record<EngagementEventKind, string> = {
   brief_failed: 'Brief failed',
   notification_sent: 'Notification sent',
   notification_failed: 'Notification failed',
+  proposal_drafted: 'Proposal created',
+  proposal_ai_drafted: 'Proposal drafted by AI',
+  proposal_ai_failed: 'Proposal AI draft failed',
+  proposal_ready: 'Proposal ready',
+  proposal_back_to_draft: 'Proposal back to draft',
+  proposal_sent: 'Proposal issued',
+  proposal_opened: 'Proposal opened',
+  proposal_accepted: 'Proposal accepted',
+  proposal_acceptance_voided: 'Acceptance voided',
+  proposal_withdrawn: 'Proposal withdrawn',
+  proposal_superseded: 'Proposal superseded',
+  proposal_revoked: 'Proposal link revoked',
 };
 
 const ACTOR_LABELS: Record<EngagementEvent['actor'], string> = {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { daysSince, formatDateTime, formatRelativeDays, formatShortDate } from './format';
+import { daysSince, formatDateTime, formatMinorUnits, formatRelativeDays, formatShortDate } from './format';
 
 const NOW = Date.parse('2026-09-04T12:00:00Z');
 
@@ -22,5 +22,20 @@ describe('engagement date helpers', () => {
     expect(formatRelativeDays('2026-09-04T09:00:00Z', NOW)).toBe('today');
     expect(formatRelativeDays('2026-09-01T09:00:00Z', NOW)).toBe('3d ago');
     expect(formatRelativeDays('2026-06-01T09:00:00Z', NOW)).toBe('3mo ago');
+  });
+});
+
+describe('formatMinorUnits', () => {
+  it('USD is cents with two decimals; JPY is whole yen with no decimals', () => {
+    expect(formatMinorUnits(87500, 'USD')).toBe('$875.00');
+    expect(formatMinorUnits(6500, 'USD')).toBe('$65.00');
+    expect(formatMinorUnits(250000, 'JPY')).toBe('¥250,000');
+    expect(formatMinorUnits(0, 'JPY')).toBe('¥0');
+  });
+
+  it('negative adjustments keep the sign; thousands are separated', () => {
+    expect(formatMinorUnits(-15000, 'USD')).toBe('-$150.00');
+    expect(formatMinorUnits(1234567, 'USD')).toBe('$12,345.67');
+    expect(formatMinorUnits(-20000, 'JPY')).toBe('-¥20,000');
   });
 });

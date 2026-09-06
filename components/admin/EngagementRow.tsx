@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { cn } from '@/lib/utils';
-import { daysSince, formatRelativeDays, formatShortDate } from '@/lib/studio/engagement/format';
+import { daysSince, formatMinorUnits, formatRelativeDays, formatShortDate } from '@/lib/studio/engagement/format';
 import type { EngagementListItem } from '@/lib/admin/types';
 
 const TIER_LABELS: Record<string, string> = {
@@ -38,6 +38,38 @@ export function discoveryLabel(e: EngagementListItem): string {
       if (e.latest_brief_status === 'completed' || e.latest_brief_status === 'partial') return 'Brief ready';
       if (e.latest_brief_status === 'generating') return 'Submitted ✓ · brief…';
       return 'Submitted ✓';
+    default:
+      return '—';
+  }
+}
+
+/**
+ * The Proposal column — from the view's proposal_* columns (latest version),
+ * no extra queries: — / Draft v1 / Ready / Sent · 3d ago / Sent · viewed 2× /
+ * Accepted ✓ $875.00 / Voided / Withdrawn / Superseded.
+ */
+export function proposalLabel(e: EngagementListItem): string {
+  if (!e.proposal_id || !e.proposal_status) return '—';
+  const v = e.proposal_version ?? 1;
+  switch (e.proposal_status) {
+    case 'draft':
+      return `Draft v${v}`;
+    case 'ready':
+      return v > 1 ? `Ready v${v}` : 'Ready';
+    case 'sent': {
+      const opens = e.proposal_open_count ?? 0;
+      return opens > 0 ? `Sent · viewed ${opens}×` : `Sent · ${formatRelativeDays(e.proposal_sent_at)}`;
+    }
+    case 'accepted':
+      return e.proposal_total_build !== null && e.proposal_currency
+        ? `Accepted ✓ ${formatMinorUnits(e.proposal_total_build, e.proposal_currency)}`
+        : 'Accepted ✓';
+    case 'voided':
+      return 'Voided';
+    case 'withdrawn':
+      return 'Withdrawn';
+    case 'superseded':
+      return 'Superseded';
     default:
       return '—';
   }
@@ -93,6 +125,9 @@ export function EngagementRow({ engagement }: { engagement: EngagementListItem }
           {discoveryLabel(engagement)}
         </td>
         <td className="px-4 py-3.5 text-[13.5px] text-fg-secondary whitespace-nowrap">
+          {proposalLabel(engagement)}
+        </td>
+        <td className="px-4 py-3.5 text-[13.5px] text-fg-secondary whitespace-nowrap">
           {formatRelativeDays(engagement.last_activity_at ?? engagement.created_at)}
         </td>
         <td className="px-4 py-3.5 text-[13.5px] text-fg-secondary whitespace-nowrap">
@@ -108,7 +143,7 @@ export function EngagementRow({ engagement }: { engagement: EngagementListItem }
 
       {expanded && (
         <tr className="bg-bg-tertiary">
-          <td colSpan={6} className="px-4 py-4">
+          <td colSpan={7} className="px-4 py-4">
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <Field label="Client contact" value={contact || '—'} />
