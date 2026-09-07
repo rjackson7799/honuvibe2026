@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { PUBLIC_EVENTS } from '@/lib/events/public-events';
 import { formatEventDateTime } from '@/lib/events/format';
 import { BannerSettingsCard } from '@/components/admin/BannerSettingsCard';
+import { BusinessUpgradeSettingsCard } from '@/components/admin/BusinessUpgradeSettingsCard';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -19,7 +20,7 @@ export default async function AdminSettingsPage({ params }: Props) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('site_settings')
-    .select('banner_enabled, banner_event_slug')
+    .select('banner_enabled, banner_event_slug, business_upgrades_enabled')
     .eq('id', true)
     .maybeSingle();
 
@@ -43,6 +44,7 @@ export default async function AdminSettingsPage({ params }: Props) {
         initialSlug={data?.banner_event_slug ?? null}
         eventOptions={eventOptions}
       />
+      <BusinessUpgradeSettingsCard initialEnabled={data?.business_upgrades_enabled ?? false} />
     </div>
   );
 }

@@ -25,7 +25,18 @@ const NEXT_STEPS = [
   },
 ];
 
-export default function ContactPage() {
+type ContactPageProps = {
+  searchParams: Promise<{ source?: string; project?: string }>;
+};
+
+export default async function ContactPage({ searchParams }: ContactPageProps) {
+  const params = await searchParams;
+  const sourceContext = params.source === 'business_upgrade' ? 'business_upgrade' : undefined;
+  const upgradeProjectSlug =
+    sourceContext && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(params.project ?? '')
+      ? params.project
+      : undefined;
+
   return (
     <>
       <PageHead
@@ -42,7 +53,10 @@ export default function ContactPage() {
         <div className="container">
           <div className="contact-grid">
             <div>
-              <StartProjectForm />
+              <StartProjectForm
+                sourceContext={sourceContext}
+                upgradeProjectSlug={upgradeProjectSlug}
+              />
             </div>
 
             <aside>

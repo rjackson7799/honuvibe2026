@@ -4,7 +4,7 @@
 
 HonuVibe.AI is a bilingual (EN/JP) platform for AI education, consulting, and community. Founded by Ryan Jackson in Hawaii. The site is the central engine of a growth flywheel: social content → website → newsletter/community → courses → portfolio → brand → more content.
 
-**Primary conversion goal:** Course enrollment. All secondary CTAs feed into this.
+**Primary conversion goal:** The Vault subscription, led by practical Business Upgrade outcomes. Courses support deeper learning; HonuVibe Studio is the secondary implementation path.
 
 **Reference docs:**
 - `docs/HonuVibe_PRD_v11.md` — What to build and why
@@ -226,3 +226,13 @@ Full detail in `docs/dev-workflow.md`; execution prompt in `docs/plans/_EXECUTIO
 - Use `rm -rf` freely for temp/build/cache directories (`.next`, `node_modules`, temp scaffolds, test outputs)
 - Don't ask for confirmation on standard file operations (copy, move, rename, delete temp files)
 - When scaffolding or rebuilding, clean up previous artifacts automatically
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

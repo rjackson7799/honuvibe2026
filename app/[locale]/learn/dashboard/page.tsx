@@ -40,6 +40,10 @@ import { WorkbenchTile } from '@/components/learn/WorkbenchTile';
 import { CommunityTile } from '@/components/learn/CommunityTile';
 import { VaultTile } from '@/components/learn/VaultTile';
 import { StudyPathInvite } from '@/components/learn/StudyPathInvite';
+import { checkVaultAccess } from '@/lib/vault/access';
+import { getBusinessUpgradesEnabled } from '@/lib/business-upgrades/availability';
+import { getActiveBusinessUpgrade } from '@/lib/business-upgrades/queries';
+import { BusinessUpgradePlanCard } from '@/components/learn/BusinessUpgradePlanCard';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -77,10 +81,11 @@ export default async function DashboardPage({ params, searchParams }: Props) {
   const tLearn = await getTranslations({ locale, namespace: 'learn' });
   const tEvents = await getTranslations({ locale, namespace: 'events' });
   const tPaths = await getTranslations({ locale, namespace: 'study_paths' });
+  const tUpgrades = await getTranslations({ locale, namespace: 'business_upgrades' });
 
   const { data: profile } = await supabase
     .from('users')
-    .select('full_name, onboarded, password_set')
+    .select('full_name, onboarded, password_set, role')
     .eq('id', user.id)
     .single();
 
@@ -141,6 +146,9 @@ export default async function DashboardPage({ params, searchParams }: Props) {
     communityFeed,
     partnerCatalog,
     partnerEnrollments,
+    businessUpgradesEnabled,
+    businessUpgradeAccess,
+    activeBusinessUpgrade,
   ] = await Promise.all([
     // getUserEnrollments (inside this bundle) throws on a Supabase error, and it
     // has no error boundary above it — so catch here to safe defaults. The page
@@ -200,6 +208,12 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           return null;
         })
       : Promise.resolve(null),
+    getBusinessUpgradesEnabled().catch(() => false),
+    checkVaultAccess(user.id).catch(() => ({ hasAccess: false as const, source: null, subscriptionStatus: null, activeCourseName: null, sponsor: null })),
+    getActiveBusinessUpgrade(user.id).catch((e) => {
+      console.error('[dashboard] getActiveBusinessUpgrade failed:', e);
+      return null;
+    }),
   ]);
 
   const activeStudyPaths = studyPaths.filter((p) => p.status === 'active');
@@ -322,6 +336,38 @@ export default async function DashboardPage({ params, searchParams }: Props) {
 
       {/* 2 — the only time-bound obligations */}
       <ActionItemsBand items={pendingAssignments} locale={locale} now={now} />
+
+      {(businessUpgradesEnabled || profile?.role === 'admin') &&
+        (businessUpgradeAccess.hasAccess || profile?.role === 'admin') && (
+          <section>
+            <SectionHeading
+              title={tUpgrades('section_title')}
+              viewAllHref={`${prefix}/learn/plans`}
+              viewAllLabel={tUpgrades('view')}
+            />
+            {activeBusinessUpgrade ? (
+              <BusinessUpgradePlanCard
+                plan={activeBusinessUpgrade}
+                locale={locale}
+                labels={{
+                  active: tUpgrades('active'),
+                  completed: tUpgrades('completed'),
+                  archived: tUpgrades('archived'),
+                  progress: (completed, total) => tUpgrades('progress', { completed, total }),
+                  continue: tUpgrades('continue'),
+                  view: tUpgrades('view'),
+                }}
+              />
+            ) : (
+              <Card variant="learn" padding="md">
+                <p className="text-sm text-fg-secondary">{tUpgrades('empty_body')}</p>
+                <Link href={`${prefix}/learn/plans/business/new`} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 text-[13px] font-semibold text-accent-teal">
+                  {tUpgrades('new_plan')} <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+              </Card>
+            )}
+          </section>
+        )}
 
       {/* Partner home — dated obligations stay above it; sitting directly on top
           of My Courses makes the two read as one block. */}

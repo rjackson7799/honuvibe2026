@@ -1,5 +1,7 @@
 import { setRequestLocale } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { checkVaultAccess } from '@/lib/vault/access';
 import {
@@ -18,9 +20,11 @@ import type {
   WorkbenchUsage,
   WorkbenchWorkspaceScenario,
 } from '@/lib/workbench/types';
+import { isBusinessUpgradeWorkbenchContext } from '@/lib/business-upgrades/queries';
 
 type Props = {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams: Promise<{ plan?: string; step?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -31,8 +35,9 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function WorkbenchWorkspacePage({ params }: Props) {
+export default async function WorkbenchWorkspacePage({ params, searchParams }: Props) {
   const { locale, slug } = await params;
+  const context = await searchParams;
   setRequestLocale(locale);
 
   const supabase = await createClient();
@@ -56,6 +61,11 @@ export default async function WorkbenchWorkspacePage({ params }: Props) {
 
   const scenario = await getPublishedScenarioBySlug(slug);
   if (!scenario) notFound();
+
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const hasPlanContext = !!user && !!context.plan && !!context.step && uuidPattern.test(context.plan) && uuidPattern.test(context.step)
+    ? await isBusinessUpgradeWorkbenchContext(user.id, context.plan, context.step, scenario.id)
+    : false;
 
   const [attempts, usageRaw] = await Promise.all([
     getAttemptsForScenario(scenario.id),
@@ -95,13 +105,18 @@ export default async function WorkbenchWorkspacePage({ params }: Props) {
     scores: { used: usageRaw.scores, cap: WORKBENCH_DAILY_CAPS.scores },
   };
 
+  const tUpgrades = await getTranslations({ locale, namespace: 'business_upgrades' });
+  const prefix = locale === 'ja' ? '/ja' : '';
   return (
-    <WorkbenchWorkspace
+    <div className="space-y-4">
+      {hasPlanContext && <Link href={`${prefix}/learn/plans/business/${context.plan}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-accent-teal">← {tUpgrades('return_to_plan')}</Link>}
+      <WorkbenchWorkspace
       scenario={clientScenario}
       initialAttempts={attempts}
       availableModels={availableModels}
       initialUsage={usage}
       initialExpert={expert}
-    />
+      />
+    </div>
   );
 }

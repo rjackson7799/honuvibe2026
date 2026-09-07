@@ -22,7 +22,7 @@
 
 HonuVibe.AI is a Hawaii-based AI consulting, education, and community company founded by Ryan Jackson. The name is a deliberate play on words — Honu (the Hawaiian green sea turtle, a symbol of wisdom and longevity) and the phrase "Whole New Vibe," reflecting a fresh, grounded approach to artificial intelligence education and implementation.
 
-This PRD defines the requirements for HonuVibe.AI's consumer-facing website — a bilingual (English/Japanese) platform that serves as the primary hub for course enrollment, community building, portfolio discovery, and personal brand amplification for Ryan Jackson and the HonuVibe team.
+This PRD defines the requirements for HonuVibe.AI's consumer-facing website — a bilingual (English/Japanese) platform that serves as the primary hub for practical Vault membership, course learning, community building, portfolio discovery, and personal brand amplification for Ryan Jackson and the HonuVibe team.
 
 ### 1.1 Mission Statement
 
@@ -66,13 +66,15 @@ The community layer (newsletter subscribers, Skool members) acts as a re-entry v
 
 ### 2.2 Primary Conversion Goal
 
-The single most important action a visitor should take: **enroll in a course or learning program.** All secondary CTAs (newsletter, Skool community, HonuHub booking) should support and feed into this primary goal.
+The single most important action a visitor should take: **join The Vault to achieve a practical business or career outcome.** Courses support deeper learning, while HonuVibe Studio provides an implementation path for members and prospects who want the work built for them.
 
 ### 2.3 Success Metrics (Launch KPIs — 90 Days)
 
 | Metric | Target | Notes |
 |---|---|---|
-| Course enrollments | 50+ | Primary conversion metric |
+| Vault memberships | Establish after launch baseline | Primary conversion metric |
+| Business Upgrade completions | Establish after 30 starts or 8 weeks | Primary product-outcome metric |
+| Course enrollments | 50+ | Supporting learning metric |
 | Newsletter signups | 500+ | Social traffic funnel |
 | Skool community joins | 100+ | Community activation |
 | Consulting applications received | 5–10 quality inquiries | Gated, high-intent |
@@ -174,7 +176,7 @@ The site is structured across three domains, each with a defined purpose. All sh
 
 ### 5.1 Homepage
 
-The homepage is the single most important page. It must immediately communicate what HonuVibe is, establish trust, and funnel visitors toward course enrollment. It should feel like an experience, not a landing page.
+The homepage is the single most important page. It must immediately communicate what HonuVibe is, establish trust, and funnel visitors toward The Vault, with Studio as the implementation path. It should feel like an experience, not a landing page.
 
 #### Hero Section
 - Full-viewport hero with cinematic background — either a high-quality photo/video still of the Waikiki HonuHub or an abstract ocean/technology texture
@@ -296,7 +298,7 @@ Each project card should include:
 
 ### 5.4 Learn (Custom LMS)
 
-The Learn section is the primary revenue driver and conversion destination. It is powered by a custom LMS built on the HonuVibe.AI site — no third-party course platform. This gives full control over UX, branding, and data.
+The Learn section contains the primary revenue driver and conversion destination: The Vault. Its practical resources and Business Upgrade Plans sit alongside a custom LMS for deeper courses, giving HonuVibe full control over UX, branding, and data.
 
 #### Course Catalog Page (`/learn`)
 - Filter bar: by language (EN / JP), level (Beginner / Intermediate / Advanced), format (Self-paced / Live / HonuHub)

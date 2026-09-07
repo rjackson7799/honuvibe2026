@@ -41,6 +41,11 @@ const schema = z.object({
   message: z.string().min(1).max(5000),
   referral_source: optText,
   source_locale: z.enum(['en', 'ja']).default('en'),
+  source_context: z.enum(['business_upgrade']).optional(),
+  upgrade_project_slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(100).optional(),
+}).refine((value) => !value.source_context || !!value.upgrade_project_slug, {
+  message: 'Project is required for upgrade referrals',
+  path: ['upgrade_project_slug'],
 });
 
 export async function POST(req: NextRequest) {
@@ -59,11 +64,24 @@ export async function POST(req: NextRequest) {
     );
   }
   const d = parsed.data;
+  let controlledReferral = d.referral_source;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && serviceRoleKey) {
     const supabase = createAdminClient();
+    if (d.source_context === 'business_upgrade') {
+      const { data: project, error: projectError } = await supabase
+        .from('business_upgrade_projects')
+        .select('slug')
+        .eq('slug', d.upgrade_project_slug!)
+        .eq('status', 'published')
+        .maybeSingle();
+      if (projectError || !project) {
+        return NextResponse.json({ error: 'Invalid upgrade project' }, { status: 400 });
+      }
+      controlledReferral = `business_upgrade:${project.slug}`;
+    }
     // Writes to the normalized `leads` table (migration 047) — the discovery
     // engine's source of truth — as a lightweight, session-less lead. The admin
     // reads `leads`, so these still appear in /admin/studio/leads.
@@ -76,7 +94,7 @@ export async function POST(req: NextRequest) {
       budget_range: d.budget_range,
       timeline: d.timeline,
       message: d.message,
-      referral_source: d.referral_source,
+      referral_source: controlledReferral,
       source_locale: d.source_locale,
       source: 'studio_form',
       lifecycle: 'new',
@@ -96,7 +114,7 @@ export async function POST(req: NextRequest) {
     projectTypeLabel: labelizeProjectType(d.project_type),
     budgetLabel: labelizeBudget(d.budget_range),
     timelineLabel: labelizeTimeline(d.timeline),
-    referralSource: d.referral_source,
+    referralSource: controlledReferral,
     message: d.message,
   };
 

@@ -1,4 +1,4 @@
-# Analytics Event Taxonomy — Funnel Spine
+# Analytics Event Taxonomy — Funnel and Product Outcomes
 
 **Source of truth for funnel events.** Define an event here (name, trigger, props, owner, destination goal) *before* wiring it. Keep props **non-PII** (never email, name, or free-text).
 
@@ -6,7 +6,7 @@
 - **Why server-side for checkout:** client-only completion undercounts (ad-blockers, Stripe redirect). `checkout_started`/`checkout_completed` fire server-side so the count is ad-block-proof; **Stripe dashboard remains the financial source of truth.**
 - **Props are stringified** (Plausible only accepts string props).
 
-## Funnel spine (5 events)
+## Funnel spine
 
 | Event | Trigger | Side | Required props | Destination goal | Owner |
 |---|---|---|---|---|---|
@@ -15,6 +15,17 @@
 | `checkout_completed` | `checkout.session.completed` / `customer.subscription.created` webhook, after fulfillment | server | `kind`, `currency` | **Conversion goal** (ad-block-proof) | growth |
 | `org_inquiry_submitted` | "For Organizations" / partnership inquiry POST succeeds (P1c) | server | `source` ("team_training"…), `locale` | B2B lead goal | growth |
 | `free_sample_started` | Free-sample landing email capture submitted (P3a) | client | `lesson_slug`, `locale` | Top-of-funnel goal | growth |
+
+## Business Upgrade outcomes
+
+| Event | Trigger | Side | Required props | Destination goal | Owner |
+|---|---|---|---|---|---|
+| `business_upgrade_assessment_completed` | A valid assessment and its recommendations are saved | server | `locale` | Assessment activation | product |
+| `business_upgrade_plan_started` | A recommended project is transactionally created | server | `project_slug` | Upgrade start | product |
+| `business_upgrade_plan_completed` | All required steps and result measurement complete | server | `project_slug` | **Vault outcome goal** | product |
+| `business_upgrade_studio_cta_clicked` | Member leaves a plan for the Studio intake | client | `project_slug`, `locale` | Qualified implementation interest | growth |
+
+Step completion and recommendation views are derived from the database rather than duplicated as analytics events.
 
 **Deferred (add only once a leak is localized):** `hero_cta_click(destination)`, `learn_pricing_cta_click(tier)`, `workbench_demo_view`. Avoids "measure everything, learn nothing."
 

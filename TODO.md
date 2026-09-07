@@ -4,6 +4,28 @@ Tracker for deferred / parked development work. Plan docs in [docs/plans/](docs/
 
 ---
 
+## Vault product opportunities — selected direction
+
+These ideas extend the Vault from a content library into a system that helps members produce measurable business and career outcomes. The first four are the selected product direction; implementation should proceed one reviewed plan at a time.
+
+- [x] **1. Business Upgrade Plans — LEAD FEATURE.** The local MVP is built with assessment, recommendations, measurable plans, admin authoring, and four launch drafts. Native Japanese review, visual QA, hosted migration, and feature enablement remain rollout gates. Implementation record: [docs/plans/2026-09-06-business-upgrade-plans.md](docs/plans/2026-09-06-business-upgrade-plans.md).
+- [ ] **2. Done-With-You Workflow Builder.** Guide a member from a lesson to a finished prompt, SOP, automation brief, or reusable workflow for their own business. Design this after Business Upgrade Plans establishes the member context and plan model.
+- [ ] **3. Business Brain.** Let members maintain reusable, structured context about their business, audience, offers, voice, tools, and goals so Vault activities can be personalized without re-entering the same information. The Business Upgrade MVP should create only the minimum safe profile foundation needed for this future feature.
+- [ ] **4. Industry Implementation Packs.** Curated, bilingual combinations of lessons, templates, prompts, and workflows for specific industries. Use the upgrade project template model where practical rather than creating a second content system.
+
+Additional high-value opportunities to revisit after the first four have usage evidence:
+
+- [ ] **Async expert review.** Members submit a bounded artifact for practical feedback from an instructor or Studio specialist.
+- [ ] **Monthly implementation missions.** Time-boxed, community-supported challenges that end in a useful business deliverable.
+- [ ] **Career proof portfolio.** Convert completed projects into sanitized case studies and evidence of applied AI skills for job seekers and independent professionals.
+- [ ] **AI impact tracker.** Record time saved, revenue influenced, costs reduced, and workflows improved across completed upgrades.
+- [ ] **AI tool decision concierge.** Recommend tools from a maintained evaluation framework based on use case, budget, language, and risk.
+- [ ] **Vault-to-Studio implementation bridge.** Turn a member's approved plan or workflow into a scoped request for HonuVibe Studio when they want it built for them.
+
+The audio/podcast lesson concept remains tracked under **Vault content model — follow-ups** below and can support every track without becoming a separate learning path.
+
+---
+
 ## Vault content model — follow-ups (Phase 4 / polish)
 
 **Plan:** [docs/plans/2026-05-20-vault-content-model-and-admin-design.md](docs/plans/2026-05-20-vault-content-model-and-admin-design.md)
@@ -11,6 +33,7 @@ Tracker for deferred / parked development work. Plan docs in [docs/plans/](docs/
 
 Outstanding items:
 
+- [ ] **Show actual instructor profile photos on Vault cards.** Keep the resource artwork as the card background/thumbnail, and add the assigned instructor's circular profile image, name, and optional title in the card footer to make the experience more personal. Pull from the existing instructor profile record; use initials as the fallback when no photo is available. Account for consistent square cropping and multiple-instructor resources in the final design.
 - [ ] **Build the first Tool widget.** Registry [lib/vault/tools/registry.ts](lib/vault/tools/registry.ts) is empty; Tool entries are forced to draft state until one is registered. Candidates from the original brainstorm: `prompt-builder`, `jp-en-translator`, `ai-cost-calculator`. Each widget gets its own brainstorm.
 - [ ] **Decommission `library_videos`.** Migrate any still-relevant rows into `content_items` (as `video` type), then drop the old [app/[locale]/admin/library/](app/[locale]/admin/library/) admin form. The two systems have lived in parallel since Phase 1 of the original spec.
 - [ ] **Drag-to-reorder for prompt pack rows.** Currently up/down arrow buttons in [components/admin/VaultPromptListEditor.tsx](components/admin/VaultPromptListEditor.tsx). Wire a real dnd library when prompt packs routinely have >10 entries.

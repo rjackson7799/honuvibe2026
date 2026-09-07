@@ -26,6 +26,7 @@ type NavItem = {
   icon: typeof LayoutDashboard;
   exact: boolean;
   ns?: string;
+  alsoMatches?: string[];
 };
 
 const baseNavItems: NavItem[] = [
@@ -33,7 +34,7 @@ const baseNavItems: NavItem[] = [
   { href: '/learn/dashboard/courses', labelKey: 'nav_courses', icon: BookOpen, exact: false },
   { href: '/learn/vault', labelKey: 'nav_vault', icon: Lock, exact: false },
   { href: '/learn/vault/workbench', labelKey: 'nav_workbench', icon: FlaskConical, exact: false },
-  { href: '/learn/paths', labelKey: 'nav_study_paths', icon: Route, exact: false },
+  { href: '/learn/plans', labelKey: 'nav_plans', icon: Route, exact: false, alsoMatches: ['/learn/paths'] },
   { href: '/learn/dashboard/events', labelKey: 'nav_events', icon: CalendarDays, exact: false },
   { href: '/learn/dashboard/community', labelKey: 'nav_community', icon: Users, exact: false },
 ];
@@ -105,10 +106,14 @@ export function StudentNav() {
 
   // Most-specific match wins, so a parent entry (Vault) doesn't stay highlighted
   // when a nested entry (Workbench at /learn/vault/workbench) is the active one.
-  const matchesPath = (item: NavItem) =>
-    item.exact
-      ? logicalPath === item.href
-      : logicalPath === item.href || logicalPath.startsWith(`${item.href}/`);
+  const matchesPath = (item: NavItem) => {
+    const paths = [item.href, ...(item.alsoMatches ?? [])];
+    return paths.some((path) =>
+      item.exact
+        ? logicalPath === path
+        : logicalPath === path || logicalPath.startsWith(`${path}/`),
+    );
+  };
   const isItemActive = (item: NavItem) =>
     matchesPath(item) &&
     !navItems.some(

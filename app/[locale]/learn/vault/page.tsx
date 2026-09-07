@@ -18,11 +18,28 @@ import {
 import { PartnerFilterChips } from '@/components/partners/PartnerFilterChips';
 import { Lock } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/learn/DashboardPageHeader';
+import { getActiveBusinessUpgradeContentIds } from '@/lib/business-upgrades/queries';
 
 type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function VaultHeader({ count, title, subtitle, countLabel }: {
+  count: number;
+  title: string;
+  subtitle: string;
+  countLabel: string;
+}) {
+  return (
+    <DashboardPageHeader
+      icon={Lock}
+      title={title}
+      subtitle={subtitle}
+      count={count > 0 ? countLabel : undefined}
+    />
+  );
+}
 
 export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
@@ -67,25 +84,15 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
     hasAccess = access.hasAccess;
   }
 
-  function VaultHeader({ count }: { count: number }) {
-    return (
-      <DashboardPageHeader
-        icon={Lock}
-        title={t('page_title')}
-        subtitle={t('page_subtitle')}
-        count={count > 0 ? t('items_found', { count }) : undefined}
-      />
-    );
-  }
-
   // Fetch items with partner data + active partners for chips
-  const [result, partners, recentItems] = await Promise.all([
+  const [result, partners, recentItems, planContentIds] = await Promise.all([
     getVaultBrowseWithPartners(
       { pageSize: 20, tags: activeTag ? [activeTag] : undefined },
       ownerSlug,
     ),
     getActivePublicPartners(),
     user && hasAccess ? getVaultRecentlyViewed(user.id, 6) : Promise.resolve([]),
+    user && hasAccess ? getActiveBusinessUpgradeContentIds(user.id).catch(() => []) : Promise.resolve([]),
   ]);
 
   // Build badge slots (Server Component — PartnerBadge uses useTranslations)
@@ -140,7 +147,7 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
   if (!hasAccess) {
     return (
       <div className="space-y-6 max-w-[1100px] mx-auto">
-        <VaultHeader count={result.totalCount} />
+        <VaultHeader count={result.totalCount} title={t('page_title')} subtitle={t('page_subtitle')} countLabel={t('items_found', { count: result.totalCount })} />
         <VaultSubNav isAuthenticated={!!user} />
         {filterChips}
         {activeTagPill}
@@ -150,6 +157,7 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
           hasAccess={false}
           badgeSlots={badgeSlots}
           initialTag={activeTag}
+          planContentIds={planContentIds}
         />
       </div>
     );
@@ -157,7 +165,7 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-6 max-w-[1100px] mx-auto">
-      <VaultHeader count={result.totalCount} />
+      <VaultHeader count={result.totalCount} title={t('page_title')} subtitle={t('page_subtitle')} countLabel={t('items_found', { count: result.totalCount })} />
       <VaultSubNav isAuthenticated={!!user} />
       {filterChips}
       {activeTagPill}
@@ -168,6 +176,7 @@ export default async function VaultBrowsePage({ params, searchParams }: Props) {
         hasAccess={true}
         badgeSlots={badgeSlots}
         initialTag={activeTag}
+        planContentIds={planContentIds}
       />
       {user && <VaultContentRequest />}
     </div>

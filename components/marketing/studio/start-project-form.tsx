@@ -34,7 +34,13 @@ const TIMELINES = [
 
 type Status = 'idle' | 'submitting' | 'ok' | 'error';
 
-export function StartProjectForm() {
+type StartProjectFormProps = {
+  sourceContext?: 'business_upgrade';
+  upgradeProjectSlug?: string;
+};
+
+export function StartProjectForm({ sourceContext, upgradeProjectSlug = '' }: StartProjectFormProps) {
+  const upgradeSource = sourceContext === 'business_upgrade';
   const [status, setStatus] = useState<Status>('idle');
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -75,6 +81,8 @@ export function StartProjectForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate>
+      {upgradeSource && <input type="hidden" name="source_context" value="business_upgrade" />}
+      {upgradeSource && <input type="hidden" name="upgrade_project_slug" value={upgradeProjectSlug} />}
       <div className="field-row">
         <div className="field">
           <label htmlFor="full_name">Name</label>

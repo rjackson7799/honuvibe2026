@@ -31,6 +31,7 @@ import {
   Milestone,
   Radar,
   UserRound,
+  Route,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -59,6 +60,7 @@ const navGroups: NavGroup[] = [
       { href: '/admin/events', label: 'Events', icon: CalendarDays },
       { href: '/admin/event-registrations', label: 'Event RSVPs', icon: Ticket },
       { href: '/admin/course-surveys', label: 'Course Surveys', icon: ListChecks },
+      { href: '/admin/business-upgrades', label: 'Business Upgrades', icon: Route },
       { href: '/admin/tutoring', label: '1v1 Sessions', icon: UserRound },
     ],
   },

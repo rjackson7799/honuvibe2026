@@ -19,10 +19,12 @@ type VaultBrowseGridProps = {
   badgeSlots?: Record<string, ReactNode>;
   /** Initial tag filter (from `?tag=` searchParam). Persists across in-grid refilters. */
   initialTag?: string | null;
+  planContentIds?: string[];
 };
 
-export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true, badgeSlots = {}, initialTag = null }: VaultBrowseGridProps) {
+export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = true, badgeSlots = {}, initialTag = null, planContentIds = [] }: VaultBrowseGridProps) {
   const t = useTranslations('vault');
+  const tUpgrades = useTranslations('business_upgrades');
   const [items, setItems] = useState(initialItems);
   const [totalCount, setTotalCount] = useState(initialTotalCount);
   const [loading, setLoading] = useState(false);
@@ -157,7 +159,7 @@ export function VaultBrowseGrid({ initialItems, initialTotalCount, hasAccess = t
                 item={item}
                 locked={locked}
                 onLockedClick={locked ? () => setModalOpen(true) : undefined}
-                badgeSlot={badgeSlots[item.id]}
+                badgeSlot={(badgeSlots[item.id] || planContentIds.includes(item.id)) ? <div className="space-y-1">{badgeSlots[item.id]}{planContentIds.includes(item.id) && <span className="inline-flex rounded-full bg-accent-teal/10 px-2 py-1 text-[11px] font-semibold text-accent-teal">{tUpgrades('in_active_plan')}</span>}</div> : undefined}
               />
             );
           })}
