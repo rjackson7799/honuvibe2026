@@ -684,3 +684,23 @@ GRANT EXECUTE ON FUNCTION public.set_business_upgrade_project_status(uuid,uuid,t
 
 COMMENT ON TABLE public.business_upgrade_projects IS 'Admin-authored templates; member plans store immutable bilingual snapshots.';
 COMMENT ON FUNCTION public.create_business_upgrade_plan(uuid,uuid,uuid,boolean) IS 'Service-only transactional plan creation; p_user_id and capability come from authenticated server code.';
+
+-- Supabase default privileges grant ALL on new public tables to anon and
+-- authenticated, so the targeted REVOKEs above left SELECT, TRUNCATE,
+-- REFERENCES and TRIGGER in place for anon on the six member tables. RLS
+-- (every policy is TO authenticated) already returned zero rows to anon, but
+-- the grants themselves are closed here to match the house pattern in
+-- 064_partner_membership_spine.sql. TRUNCATE in particular is NOT filtered by
+-- RLS, so it must not survive on a member-data table.
+REVOKE ALL ON
+  public.business_upgrade_profiles, public.business_upgrade_assessments,
+  public.business_upgrade_recommendations, public.business_upgrade_plans,
+  public.business_upgrade_plan_steps, public.business_upgrade_daily_usage
+FROM anon;
+
+REVOKE TRUNCATE, REFERENCES, TRIGGER ON
+  public.business_upgrade_profiles, public.business_upgrade_assessments,
+  public.business_upgrade_recommendations, public.business_upgrade_plans,
+  public.business_upgrade_plan_steps, public.business_upgrade_daily_usage,
+  public.business_upgrade_projects, public.business_upgrade_project_steps
+FROM authenticated;
