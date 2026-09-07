@@ -3,7 +3,10 @@
 > **STATUS: rev 2 APPROVED — SLICE A SHIPPED 2026-09-06 (`5c06299`); SLICE B SHIPPED 2026-09-06 (`c949f4f`, pushed).**
 > Migration 075 ships with slice A and must be applied on prod BEFORE the deploy lands (the 062/074 precedent);
 > slice B carries no migration. Slices 1–3 are shipped and live: spine `22e2c59`, discovery `dc89408`,
-> proposal `612e1e9` + `fb6cf45`; migrations 067 and 074 are on prod.
+> proposal `612e1e9` + `fb6cf45`. **CORRECTION 2026-09-06: only 067 was on prod — 074 was NEVER
+> applied**, found when 075 failed with `42P01: relation "public.engagement_proposals" does not
+> exist`. While it was missing, `/admin/studio/engagements/<id>` 500'd for every engagement. Apply
+> **074 then 075** in the dashboard. Verify a prod migration by querying prod, never by trusting a note.
 >
 > **Verification record (2026-09-06, local stack).**
 > - Slice A: `pnpm type-check` clean · `pnpm test:run` 1699 passed / 28 failed — the 28 are ONLY the
