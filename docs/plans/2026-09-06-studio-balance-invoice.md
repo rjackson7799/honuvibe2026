@@ -1,6 +1,9 @@
 # Studio Balance Invoice — slice 5 of the engagement spine
 
-> **STATUS: rev 2 DRAFT — awaiting Ryan's review. NOT APPROVED, NOT BUILT.** Rev 1 was written
+> **STATUS: rev 2 — APPROVED (Ryan, 2026-09-06). NOT BUILT.** The two open judgment calls were settled
+> the same day: `closed` keeps the row but the CELL WORDING changes (judgment call 2), and the route
+> keeps `/deposit` with the rename deferred to a unit that already forces a client reload (judgment
+> call 4). Execute in a FRESH session per CLAUDE.md. Rev 1 was written
 > 2026-09-06 from the brainstorm settled the same day; **rev 2 incorporates Ryan's review — 8 findings,
 > 6 taken as written, 2 taken with a narrower fix (see "What rev 2 changed").** Slices 1–4 are shipped:
 > spine `22e2c59`, discovery `dc89408`, proposal `612e1e9` + `fb6cf45`, deposit + kickoff `5c06299` +
@@ -202,6 +205,7 @@ necessarily the deposit.
 |---|---|---|
 | none (100% deposit) | not rendered | — |
 | `draft`, before `launch` | `$437.50 — not billed yet` | **Send balance** disabled, *"Billable once the engagement reaches Launch"* |
+| `draft`, engagement `closed`/`lost` | `$437.50 — not billed (engagement closed)` — a fact, not a to-do (judgment call 2) | none; the RPC refuses on a terminal stage |
 | `draft`, at `launch`/`care` | `$437.50 — not billed yet` | **Send balance** |
 | `sent` | `$437.50 billed Sep 20 · not paid` (+ `checkout opened 2×`); `Balance email sent Sep 20` or **`Balance email not sent — resend below`** (coral) | **Resend balance email** |
 | `sent` + `awaiting_async_payment_at` | `… · payment started, awaiting confirmation` | as `sent` |
@@ -360,7 +364,7 @@ through `tail`; it masks the exit code.
 | `lib/studio/engagement/invoice-selection.test.ts` (new) | **The tied-`created_at` fixture: deposit and balance with byte-identical `created_at`, both `sent` → the deposit is returned, deterministically, across repeated calls.** Then: only a balance `sent` → the balance; nothing `sent` → null; a voided row is never returned; `selectDepositInvoice` ignores kind `balance`; `selectLatestSettledInvoice` returns a `refunded` row (which "newest paid" could not). |
 | `app/api/engagement/proposal/[id]/deposit/route.test.ts` | All 13 existing assertions still pass. **Plus: posting the deposit's id while the balance is the payable row → 409 `stale_invoice`, and Stripe is never called** (the two-tab regression); posting a valid id mints for exactly that invoice; a UUID from another proposal → 409 `stale_invoice`; a missing `invoice_id` → 400. |
 | `components/proposal/ProposalPayButton.test.tsx` | Existing assertions; POSTs the `invoiceId` prop; 409 `stale_invoice` → the reload message. |
-| `components/admin/ProposalInvoicesBlock.test.tsx` (new) | The Balance cell's seven states; Send balance disabled before `launch`, enabled at `launch`/`care`; no Balance cell at 100%; **a duplicate-payment event on the BALANCE renders the strip and names the balance** (finding 5); the same for a failed payment. |
+| `components/admin/ProposalInvoicesBlock.test.tsx` (new) | The Balance cell's eight states — including **`draft` on a `closed` engagement reading "not billed (engagement closed)", not "not billed yet"** (judgment call 2); Send balance disabled before `launch`, enabled at `launch`/`care`, absent when terminal; no Balance cell at 100%; **a duplicate-payment event on the BALANCE renders the strip and names the balance** (finding 5); the same for a failed payment. |
 | `lib/studio/engagement/emails.test.ts` (new) | Subject and heading differ per variant; the CTA is the **entry URL, never a Stripe URL**; **the balance variant omits the "deposit received" sentence when `depositPaidAt` is null.** |
 
 ### Browser smoke — local stack only
@@ -388,16 +392,27 @@ implying a browser pass**.
 ## Judgment calls worth a second look
 
 1. **`care` is billable, not just `launch`.** Reversal: one value in the RPC's stage test.
-2. **`closed` now voids nothing.** A closed engagement keeps whatever it was owed, visible as
-   `Balance … not billed yet` indefinitely. Honest, and the invoices are inert while closed — but it is a
-   permanent row. Reversal is *not* recommended: rev 1 proved that voiding on close is what creates the
-   trap.
+2. **`closed` voids nothing, and the CELL SAYS SO (settled 2026-09-06).** Keeping the row is not
+   negotiable — rev 1 proved that voiding on close is what creates the trap. But the complaint about it
+   was never about the data, it was about the word *"yet"*: `Balance … not billed yet` on a
+   two-years-closed engagement reads like an open task. So the fix is in the presentation, not the
+   schema: **on a `closed` engagement the Balance cell reads `$437.50 — not billed (engagement closed)`**,
+   which is a statement of fact rather than a nag, and the Send balance button is already hidden there
+   (the RPC refuses on a terminal stage). One conditional in `ProposalInvoicesBlock`. Recoverability is
+   kept, the false to-do is gone, and reopening restores the normal wording because the stage drives it.
 3. **Reusing `invoice_issued`.** The timeline reads `Invoice issued` twice, distinguished by summary. A
    `balance_sent` kind costs one CHECK entry plus a constraint swap.
-4. **The route keeps the `/deposit` path while the components are renamed.** Deliberate asymmetry, and
-   the one place this plan tolerates a name that undersells what the code does. The alternative —
-   renaming plus a shim that accepts the legacy body — would re-introduce server-side invoice guessing
-   for one release, exactly what finding 3 exists to remove. A header comment carries the explanation.
+4. **The route keeps the `/deposit` path while the components are renamed (settled 2026-09-06).**
+   Deliberate asymmetry, and the one place this plan tolerates a name that undersells what the code does.
+   A third option was considered and rejected: rename to `/pay` and leave a `/deposit` **tombstone** that
+   always returns 409 `stale_invoice`. It is tempting — an old tab genuinely IS stale, so "reload" is the
+   honest answer, and unlike a shim it never guesses an invoice. It was rejected on the realistic failure
+   mode: a tombstone carries a removal chore, removal chores do not get done, and two routes where one
+   belongs is *more* confusing to the next reader than one honestly-commented route. The header comment
+   is cheaper and permanent.
+   **When the rename becomes free:** any later unit that already forces every open client page to reload
+   — a change to the proposal page's shape, or a new token scheme — can rename the route in the same
+   breath at zero risk, because there are no stale tabs left to break. Do it then, not now.
 5. **The repair disables a trigger for one statement.** Narrow, inside the migration transaction, and it
    reports its count. The alternative (adding a `void → draft` transition to the guard) would leave a
    permanent hole in the state machine to serve a one-time fix.
