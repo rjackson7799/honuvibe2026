@@ -5,8 +5,14 @@ import { authorizeProposalSession } from '@/lib/studio/engagement/proposal-sessi
 import { proposalPath } from '@/lib/studio/engagement/proposal-token';
 import { buildProposalDocModel, hstDateOf, issuedSnapshotSchema } from '@/lib/studio/engagement/proposal-document';
 import { ProposalAcceptForm } from '@/components/proposal/ProposalAcceptForm';
-import { ProposalDepositButton } from '@/components/proposal/ProposalDepositButton';
+import { ProposalPayButton } from '@/components/proposal/ProposalPayButton';
 import { formatMinorUnits } from '@/lib/studio/engagement/format';
+import {
+  selectBandState,
+  selectDepositInvoice,
+  selectLatestSettledInvoice,
+  selectPayableInvoice,
+} from '@/lib/studio/engagement/invoice-selection';
 import type { EngagementInvoice } from '@/lib/admin/types';
 import { ProposalDocument, ProposalShell, Wordmark } from '@/components/proposal/ProposalDocument';
 import { ProposalFatalCard } from '@/components/proposal/ProposalFatalCard';
@@ -107,68 +113,122 @@ export default async function ProposalPage({ params, searchParams }: Props) {
   const pdfLink =
     'inline-flex min-h-[44px] items-center justify-center rounded-[10px] border border-[var(--m-border-strong)] bg-[var(--m-white)] px-4 text-[14px] font-semibold text-[var(--m-ink-primary)] transition-colors hover:border-[var(--m-accent-teal)]';
 
-  // The accepted branch switches on the LIVE deposit invoice (075). Read
+  // The accepted branch switches on the LIVE invoices (075 + 077). Read
   // through the same service-role client the session already returned — the
   // client has no RLS path to engagement_invoices by design.
+  //
+  // THREE reads, through the shared selector module. The payable row drives
+  // the button, the deposit row drives the "already received" sentence, and
+  // the settled row drives the paid/refunded bands when nothing is payable.
+  // The route re-runs selectPayableInvoice on the id this page renders, so the
+  // client can only ever be charged for the invoice it was shown.
+  let payable: EngagementInvoice | null = null;
   let deposit: EngagementInvoice | null = null;
+  let settled: EngagementInvoice | null = null;
   if (p.status === 'accepted') {
-    const { data: depositRow, error: depositError } = await auth.supabase
-      .from('engagement_invoices')
-      .select('*')
-      .eq('proposal_id', p.id)
-      .eq('kind', 'deposit')
-      .is('voided_at', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (depositError) {
-      // A deposit we cannot read must not blank the page: fall back to the
-      // plain accepted band, which is true whatever the invoice says.
-      console.error(`[proposal page] deposit lookup failed for ${p.id}: ${depositError.message}`);
-    } else {
-      deposit = (depositRow ?? null) as EngagementInvoice | null;
-    }
+    // The selectors log and return null rather than throwing: an invoice we
+    // cannot read must not blank the page, and the plain accepted band below
+    // is true whatever the rows say.
+    [payable, deposit, settled] = await Promise.all([
+      selectPayableInvoice(auth.supabase, p.id),
+      selectDepositInvoice(auth.supabase, p.id),
+      selectLatestSettledInvoice(auth.supabase, p.id),
+    ]);
   }
   // UX only, worded for instant AND delayed methods — the webhook is the
-  // truth, and a reload without the query shows the real state.
-  const justPaid = query?.paid === '1';
+  // truth, and a reload without the query shows the real state. `1` is the
+  // pre-077 success_url, still honoured so a Checkout session minted before
+  // this shipped returns to a correct band rather than a stale one.
+  const paidParam = typeof query?.paid === 'string' ? query.paid : null;
 
   let band: React.ReactNode;
   let form: React.ReactNode = null;
-  /** Rendered directly under the band (the deposit button), not at page foot. */
+  /** Rendered directly under the band (the pay button), not at page foot. */
   let bandAction: React.ReactNode = null;
   if (p.status === 'accepted' && p.accepted_at) {
     const acceptedBy = p.accepted_by_name ?? '';
     const acceptedOn = longDate(p.accepted_at, p.locale);
-    const amount = deposit ? formatMinorUnits(deposit.amount, deposit.currency) : '';
+    const state = selectBandState({ payable, deposit, settled, paidParam });
+    const money = (i: EngagementInvoice) => formatMinorUnits(i.amount, i.currency);
+    const on = (iso: string | null) => (iso ? longDate(iso, p.locale) : acceptedOn);
 
-    if (deposit?.status === 'paid') {
+    if (state.kind === 'due') {
+      const isBalance = state.invoice.kind === 'balance';
+      const body =
+        isBalance && state.depositPaidAt && deposit
+          ? t.balanceDueAfterDepositBand(money(deposit), on(state.depositPaidAt), money(state.invoice))
+          : isBalance
+            ? t.balanceDueBand(acceptedBy, acceptedOn, money(state.invoice))
+            : t.depositDueBand(acceptedBy, acceptedOn, money(state.invoice));
+      band = <Band tone="teal" icon="ok" title={t.acceptedBandTitle} body={body} />;
+      bandAction = (
+        <ProposalPayButton
+          proposalId={p.id}
+          invoiceId={state.invoice.id}
+          kind={isBalance ? 'balance' : 'deposit'}
+          locale={p.locale}
+        />
+      );
+    } else if (state.kind === 'pending') {
+      // A voucher is outstanding — the mint RPC would refuse a second session
+      // anyway, so no button.
+      band = (
+        <Band
+          tone="teal"
+          icon="clock"
+          title={t.acceptedBandTitle}
+          body={state.invoice.kind === 'balance' ? t.balancePendingBand : t.depositPendingBand}
+        />
+      );
+    } else if (state.kind === 'thanks') {
+      band = (
+        <Band
+          tone="teal"
+          icon="clock"
+          title={t.acceptedBandTitle}
+          body={state.invoice.kind === 'balance' ? t.balanceThanksBand : t.depositThanksBand}
+        />
+      );
+    } else if (state.kind === 'balance_paid') {
+      band = (
+        <Band
+          tone="teal"
+          icon="ok"
+          title={t.balancePaidBandTitle}
+          body={
+            state.inFull
+              ? t.balancePaidInFullBand(money(state.invoice), on(state.invoice.paid_at))
+              : t.balancePaidBand(money(state.invoice), on(state.invoice.paid_at))
+          }
+        />
+      );
+    } else if (state.kind === 'deposit_paid') {
       band = (
         <Band
           tone="teal"
           icon="ok"
           title={t.depositPaidBandTitle}
-          body={t.depositPaidBand(acceptedBy, acceptedOn, amount, deposit.paid_at ? longDate(deposit.paid_at, p.locale) : acceptedOn)}
+          body={t.depositPaidBand(acceptedBy, acceptedOn, money(state.invoice), on(state.invoice.paid_at))}
         />
       );
-    } else if (deposit?.status === 'refunded') {
+    } else if (state.kind === 'refunded') {
+      // BOTH amounts: passing only the original told a partially refunded
+      // client that the whole payment had come back.
+      const noun = state.invoice.kind === 'balance' ? 'Balance' : 'Deposit';
       band = (
         <Band
           tone="coral"
           icon={null}
-          title={t.depositRefundedBandTitle}
-          body={t.depositRefundedBand(amount, deposit.refunded_at ? longDate(deposit.refunded_at, p.locale) : acceptedOn)}
+          title={t.refundedBandTitle(noun)}
+          body={t.refundedBand(
+            noun,
+            formatMinorUnits(state.refundedAmount, state.invoice.currency),
+            formatMinorUnits(state.originalAmount, state.invoice.currency),
+            state.partial,
+            on(state.invoice.refunded_at),
+          )}
         />
       );
-    } else if (deposit?.status === 'sent' && deposit.awaiting_async_payment_at) {
-      // A voucher is outstanding — the mint RPC would refuse a second session
-      // anyway, so no button.
-      band = <Band tone="teal" icon="clock" title={t.acceptedBandTitle} body={t.depositPendingBand} />;
-    } else if (deposit?.status === 'sent' && justPaid) {
-      band = <Band tone="teal" icon="clock" title={t.acceptedBandTitle} body={t.depositThanksBand} />;
-    } else if (deposit?.status === 'sent') {
-      band = <Band tone="teal" icon="ok" title={t.acceptedBandTitle} body={t.depositDueBand(acceptedBy, acceptedOn, amount)} />;
-      bandAction = <ProposalDepositButton proposalId={p.id} locale={p.locale} />;
     } else {
       band = <Band tone="teal" icon="ok" title={t.acceptedBandTitle} body={t.acceptedBand(acceptedBy, acceptedOn)} />;
     }

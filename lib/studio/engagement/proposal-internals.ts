@@ -71,6 +71,9 @@ export function translateDbError(error: { message?: string; code?: string }, fal
     ['invoice_amount_mismatch', 'The payment amount does not match the invoice — check it in Stripe.'],
     ['invoice_payment_intent_required', 'That payment carried no payment intent — check it in Stripe.'],
     ['deliverable_identity_immutable', 'A deliverable cannot be moved to another engagement.'],
+    // 077 — the balance-invoice RAISE names.
+    ['invoice_not_billable_yet', 'The balance is billable once the engagement reaches Launch.'],
+    ['invoice_not_found', 'Invoice not found.'],
     ['proposal_not_found', 'Proposal not found.'],
     ['engagement_not_found', 'Engagement not found.'],
   ];
@@ -102,7 +105,19 @@ export interface RotatedToken {
  * Extracted verbatim from resendProposalLink so the deposit request can reach
  * a manually-accepted client (no token at all), a client whose 45 days have
  * passed, and a client paying from a second device — all with one path.
- * The CAS on `status` makes a concurrent status change lose.
+ *
+ * THE CAS (slice 5 — this repairs a live 4A defect, not just a balance gap).
+ * The CAS on `status` alone let two rotations built from the same observed row
+ * BOTH commit, so the first email shipped a token the second had already
+ * killed — silently. It now also CASes on the PREVIOUS hash, so the loser
+ * matches zero rows and is told to reload.
+ *
+ * The guarantee is deliberately narrow: this serializes rotations that read
+ * the same row, NOT rotation-plus-send as one operation. With staggered reads
+ * (A rotates and stalls, B rotates and sends, A then sends its dead link) both
+ * CAS operations legitimately succeed. That is accepted: every issue and
+ * resend rotates on purpose, only the newest link ever works, and both locales
+ * already tell the client to open the newest link from their email.
  */
 export async function rotateProposalToken(
   admin: SupabaseClient,
@@ -114,7 +129,7 @@ export async function rotateProposalToken(
   const floor = addDays(hstDateOf(now), VALIDITY_DAYS);
   const validUntil = p.valid_until && p.valid_until > floor ? p.valid_until : floor;
 
-  const { data, error } = await admin
+  const pending = admin
     .from('engagement_proposals')
     .update({
       access_token_hash: hash,
@@ -124,8 +139,13 @@ export async function rotateProposalToken(
       valid_until: validUntil,
     })
     .eq('id', p.id)
-    .eq('status', p.status)
-    .select('id');
+    .eq('status', p.status);
+  // The hash half of the CAS. A manually-accepted proposal has never had a
+  // token, so `null` is the value to compare against, not a missing predicate.
+  const cased = p.access_token_hash
+    ? pending.eq('access_token_hash', p.access_token_hash)
+    : pending.is('access_token_hash', null);
+  const { data, error } = await cased.select('id');
   if (error) throw translateDbError(error, 'Failed to issue a new link.');
   if (!data || data.length === 0) throw new Error('This proposal changed underneath you — reload.');
 

@@ -34,10 +34,37 @@ export const T = {
     depositPaidBandTitle: 'Deposit received',
     depositPaidBand: (name: string, date: string, amount: string, paidOn: string) =>
       `Accepted by ${name} on ${date}. Deposit of ${amount} received on ${paidOn}. Ryan will be in touch about kickoff.`,
-    depositRefundedBandTitle: 'Deposit refunded',
-    depositRefundedBand: (amount: string, date: string) =>
-      `The deposit of ${amount} was refunded on ${date}. Reply to the email you received if you have questions.`,
+    // Refunded (077 repairs a 4A defect). The band takes BOTH the refunded and
+    // the ORIGINAL amount: 4A passed only the original, so a PARTIAL refund
+    // told the client the whole payment had come back. One sentence still
+    // covers both kinds of refund — the amounts are what make it true.
+    refundedBandTitle: (noun: string) => `${noun} refunded`,
+    refundedBand: (noun: string, refunded: string, original: string, partial: boolean, date: string) =>
+      partial
+        ? `${refunded} of the ${original} ${noun.toLowerCase()} was refunded on ${date}. Reply to the email you received if you have questions.`
+        : `The ${noun.toLowerCase()} of ${original} was refunded on ${date}. Reply to the email you received if you have questions.`,
+    // Balance band states (077). The balance is the second half of a 50/50
+    // split — created at deposit time, sent once the build reaches launch.
+    balanceDueBand: (name: string, date: string, amount: string) =>
+      `Accepted by ${name} on ${date}. The balance of ${amount} is now due.`,
+    balanceDueAfterDepositBand: (depositAmount: string, depositOn: string, amount: string) =>
+      `Deposit of ${depositAmount} received on ${depositOn}. The balance of ${amount} is now due.`,
+    balanceButton: 'Pay the balance →',
+    balancePendingBand:
+      'Your payment is in progress. Once Stripe confirms it, this page will show the balance as received.',
+    balanceThanksBand:
+      'Thank you. Once Stripe confirms your payment, this page will show the balance as received.',
+    balancePaidBandTitle: 'Balance received',
+    // Two sentences, deliberately. "Settles the project in full" is a claim
+    // about the WHOLE project, so it is only made when the deposit was also
+    // paid and kept — a refunded deposit plus a paid balance means only half
+    // the money is held.
+    balancePaidBand: (amount: string, paidOn: string) =>
+      `The balance of ${amount} was received on ${paidOn}. Thank you.`,
+    balancePaidInFullBand: (amount: string, paidOn: string) =>
+      `The balance of ${amount} was received on ${paidOn}. Thank you — that settles the project in full.`,
     // Deposit button errors
+    payStale: "This page is out of date — reload it to see what's due.",
     depositAlreadyPaid: 'This deposit has already been paid — reload the page.',
     depositPaymentPending:
       'A payment for this deposit is already in progress — once Stripe confirms it, this page will show it as received.',
@@ -100,9 +127,26 @@ export const T = {
     depositPaidBandTitle: 'お支払いを受領しました',
     depositPaidBand: (name: string, date: string, amount: string, paidOn: string) =>
       `${date} に ${name} 様がご承諾されました。${amount} を ${paidOn} に受領いたしました。キックオフについてRyanからご連絡します。`,
-    depositRefundedBandTitle: 'お支払いを返金しました',
-    depositRefundedBand: (amount: string, date: string) =>
-      `${amount} を ${date} に返金いたしました。ご不明な点があれば、届いたメールにご返信ください。`,
+    refundedBandTitle: () => 'お支払いを返金しました',
+    refundedBand: (_noun: string, refunded: string, original: string, partial: boolean, date: string) =>
+      partial
+        ? `${original} のうち ${refunded} を ${date} に返金いたしました。ご不明な点があれば、届いたメールにご返信ください。`
+        : `${original} を ${date} に返金いたしました。ご不明な点があれば、届いたメールにご返信ください。`,
+    balanceDueBand: (name: string, date: string, amount: string) =>
+      `${date} に ${name} 様がご承諾されました。残金 ${amount} のお支払いをお願いいたします。`,
+    balanceDueAfterDepositBand: (depositAmount: string, depositOn: string, amount: string) =>
+      `着手金 ${depositAmount} を ${depositOn} に受領いたしました。残金 ${amount} のお支払いをお願いいたします。`,
+    balanceButton: '残金のお支払いに進む →',
+    balancePendingBand:
+      'お支払い手続き中です。Stripeで確認が取れ次第、このページに受領として表示されます。',
+    balanceThanksBand:
+      'ありがとうございます。Stripeでお支払いが確認され次第、このページに受領として表示されます。',
+    balancePaidBandTitle: '残金を受領しました',
+    balancePaidBand: (amount: string, paidOn: string) =>
+      `残金 ${amount} を ${paidOn} に受領いたしました。ありがとうございました。`,
+    balancePaidInFullBand: (amount: string, paidOn: string) =>
+      `残金 ${amount} を ${paidOn} に受領いたしました。ありがとうございました。これをもちまして全額のご入金が完了しました。`,
+    payStale: 'このページの内容は古くなっています。再読み込みして、現在のお支払い内容をご確認ください。',
     depositAlreadyPaid: 'このお支払いは完了しています。ページを再読み込みしてください。',
     depositPaymentPending:
       'お支払いはすでに手続き中です。Stripeで確認が取れ次第、このページに受領として表示されます。',

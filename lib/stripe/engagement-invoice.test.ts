@@ -9,6 +9,7 @@ import {
 } from './engagement-invoice';
 
 const INVOICE_ID = '11111111-2222-3333-4444-555555555555';
+const OTHER_INVOICE_ID = 'cccccccc-dddd-eeee-ffff-000000000001';
 const ENGAGEMENT_ID = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 const PROPOSAL_ID = '99999999-8888-7777-6666-555555555555';
 
@@ -86,13 +87,32 @@ describe('buildEngagementInvoiceSessionParams', () => {
   it('sets the Stripe locale and the locale-correct return URLs', () => {
     const en = buildEngagementInvoiceSessionParams(input());
     expect(en.locale).toBe('en');
-    expect(en.success_url).toBe(`https://honuvibe.ai/proposal/${PROPOSAL_ID}?paid=1`);
+    expect(en.success_url).toBe(`https://honuvibe.ai/proposal/${PROPOSAL_ID}?paid=${INVOICE_ID}`);
     expect(en.cancel_url).toBe(`https://honuvibe.ai/proposal/${PROPOSAL_ID}`);
 
     const ja = buildEngagementInvoiceSessionParams(input({ locale: 'ja' }));
     expect(ja.locale).toBe('ja');
-    expect(ja.success_url).toBe(`https://honuvibe.ai/ja/proposal/${PROPOSAL_ID}?paid=1`);
+    expect(ja.success_url).toBe(`https://honuvibe.ai/ja/proposal/${PROPOSAL_ID}?paid=${INVOICE_ID}`);
     expect(ja.cancel_url).toBe(`https://honuvibe.ai/ja/proposal/${PROPOSAL_ID}`);
+  });
+
+  it('the return URL NAMES the invoice, so a thanks band cannot bind to the next one', () => {
+    // Slice 5. The only change to this module — every other param below is
+    // asserted unchanged, because the untouched webhook path reads them.
+    const first = buildEngagementInvoiceSessionParams(input({ invoiceId: INVOICE_ID }));
+    const second = buildEngagementInvoiceSessionParams(input({ invoiceId: OTHER_INVOICE_ID }));
+
+    expect(first.success_url).toContain(`?paid=${INVOICE_ID}`);
+    expect(second.success_url).toContain(`?paid=${OTHER_INVOICE_ID}`);
+    // Anchored: the invoice id itself starts with 1, so a substring check would lie.
+    expect(String(first.success_url).endsWith("?paid=1")).toBe(false);
+
+    // Everything the webhook and the idempotency key depend on is identical.
+    const { success_url: _a, ...firstRest } = first;
+    const { success_url: _b, ...secondRest } = second;
+    expect({ ...firstRest, client_reference_id: null, metadata: null })
+      .toEqual({ ...secondRest, client_reference_id: null, metadata: null });
+    expect(first.cancel_url).toBe(second.cancel_url);
   });
 
   it('prefers NEXT_PUBLIC_SITE_URL over the request origin, so two clicks cannot drift', () => {
@@ -102,7 +122,7 @@ describe('buildEngagementInvoiceSessionParams', () => {
 
     delete process.env.NEXT_PUBLIC_SITE_URL;
     const fallback = buildEngagementInvoiceSessionParams(input(), 'https://preview.example.com/');
-    expect(fallback.success_url).toBe(`https://preview.example.com/proposal/${PROPOSAL_ID}?paid=1`);
+    expect(fallback.success_url).toBe(`https://preview.example.com/proposal/${PROPOSAL_ID}?paid=${INVOICE_ID}`);
   });
 
   it('is deterministic: the same input twice yields deep-equal params (idempotency safety)', () => {

@@ -43,6 +43,7 @@ const LEAD_IDS = Object.values(LEAD);
 
 const RPCS = [
   'issue_engagement_deposit',
+  'send_engagement_invoice',
   'begin_engagement_invoice_checkout',
   'record_engagement_invoice_checkout',
   'rearm_engagement_invoice_checkout',
@@ -377,6 +378,108 @@ async function voidAcceptance(pid: string, reason = 'wrong tier') {
   const { data, error } = await svc.rpc('void_engagement_proposal_acceptance', { p_proposal_id: pid, p_reason: reason });
   return { data: data as Record<string, unknown> | null, error };
 }
+async function sendInvoice(invoiceId: string) {
+  const { data, error } = await svc.rpc('send_engagement_invoice', { p_invoice_id: invoiceId });
+  return { data: data as Record<string, unknown> | null, error };
+}
+
+/** Move the stage without tripping the guard's own expectations. */
+async function setStage(eid: string, stage: string, patch: Record<string, unknown> = {}) {
+  const { error } = await svc.from('engagements').update({ stage, ...patch }).eq('id', eid);
+  if (error) throw error;
+}
+
+/**
+ * 077's one-time repair, VERBATIM from the migration's DO block. Kept as a
+ * string here so the tests exercise the shipped logic — including its ABORT —
+ * rather than a paraphrase of it. Returns the NOTICEs it raised.
+ */
+const REPAIR_SQL = `
+DO $$
+DECLARE
+  v_row       record;
+  v_restored  int;
+  v_ambiguous int;
+BEGIN
+  CREATE TEMP TABLE _077_candidates ON COMMIT DROP AS
+  SELECT i.id,
+         i.kind,
+         i.sent_at,
+         e.stage,
+         EXISTS (SELECT 1 FROM public.engagement_invoices o
+                  WHERE o.proposal_id = i.proposal_id
+                    AND o.kind        = i.kind
+                    AND o.voided_at IS NULL)          AS slot_taken,
+         (e.stage = 'lost')                           AS deal_lost,
+         (count(*) OVER (PARTITION BY i.proposal_id, i.kind) > 1) AS slot_contested
+    FROM public.engagement_invoices  i
+    JOIN public.engagement_proposals p ON p.id = i.proposal_id
+    JOIN public.engagements          e ON e.id = i.engagement_id
+   WHERE p.status      = 'accepted'
+     AND i.status      = 'void'
+     AND i.void_reason = 'Engagement marked closed';
+
+  FOR v_row IN SELECT * FROM _077_candidates ORDER BY id LOOP
+    RAISE NOTICE '077 candidate % (kind=%, stage=%, slot_taken=%, deal_lost=%, slot_contested=%)',
+                 v_row.id, v_row.kind, v_row.stage, v_row.slot_taken, v_row.deal_lost,
+                 v_row.slot_contested;
+  END LOOP;
+
+  SELECT count(*) INTO v_ambiguous FROM _077_candidates
+   WHERE slot_taken OR deal_lost OR slot_contested;
+  IF v_ambiguous > 0 THEN
+    RAISE EXCEPTION
+      '077 repair: % ambiguous candidate(s) — reconcile by hand, then re-run. See the NOTICEs above.',
+      v_ambiguous;
+  END IF;
+
+  ALTER TABLE public.engagement_invoices DISABLE TRIGGER trg_engagement_invoices_guard;
+
+  WITH repaired AS (
+    UPDATE public.engagement_invoices i
+       SET status      = CASE WHEN i.sent_at IS NULL THEN 'draft' ELSE 'sent' END,
+           voided_at   = NULL,
+           void_reason = NULL,
+           updated_at  = now()
+      FROM _077_candidates c
+     WHERE c.id = i.id
+     RETURNING 1)
+  SELECT count(*) INTO v_restored FROM repaired;
+
+  ALTER TABLE public.engagement_invoices ENABLE TRIGGER trg_engagement_invoices_guard;
+  RAISE NOTICE '077 repair: restored % invoice(s) voided by a closed sweep', v_restored;
+END $$;`;
+
+async function runRepair(): Promise<{ notices: string[]; error: string | null }> {
+  return withPg(async (c) => {
+    const notices: string[] = [];
+    c.on('notice', (n) => notices.push(n.message ?? ''));
+    try {
+      // Its own transaction: an abort must roll back only the repair.
+      await c.query('BEGIN');
+      await c.query(REPAIR_SQL);
+      await c.query('COMMIT');
+      return { notices, error: null };
+    } catch (e) {
+      await c.query('ROLLBACK').catch(() => {});
+      return { notices, error: e instanceof Error ? e.message : String(e) };
+    }
+  });
+}
+
+/** Void an invoice the way a pre-077 `closed` sweep would have. */
+async function fakeClosedVoid(invoiceId: string): Promise<void> {
+  await withPg(async (c) => {
+    await c.query('ALTER TABLE public.engagement_invoices DISABLE TRIGGER trg_engagement_invoices_guard');
+    await c.query(
+      `UPDATE public.engagement_invoices
+          SET status = 'void', voided_at = now(), void_reason = 'Engagement marked closed', updated_at = now()
+        WHERE id = $1`,
+      [invoiceId],
+    );
+    await c.query('ALTER TABLE public.engagement_invoices ENABLE TRIGGER trg_engagement_invoices_guard');
+  });
+}
 
 /** The deposit + balance rows of an accepted proposal, newest-issued first. */
 async function depositAndBalance(eid: string) {
@@ -472,6 +575,7 @@ describe('RLS — admin-only tables, service-role RPCs', () => {
     const admin = await userClient(USERS.honuvibe_admin);
     const args: Record<(typeof RPCS)[number], Record<string, unknown>> = {
       issue_engagement_deposit: { p_proposal_id: ZERO_UUID, p_pct: 50 },
+      send_engagement_invoice: { p_invoice_id: ZERO_UUID },
       begin_engagement_invoice_checkout: { p_invoice_id: ZERO_UUID, p_token_hash: sha256('x') },
       record_engagement_invoice_checkout: { p_invoice_id: ZERO_UUID, p_attempt: 0, p_session_id: 'cs_x', p_expires_at: new Date().toISOString() },
       rearm_engagement_invoice_checkout: { p_invoice_id: ZERO_UUID, p_session_id: null },
@@ -491,6 +595,7 @@ describe('RLS — admin-only tables, service-role RPCs', () => {
     await withPg(async (c) => {
       const sigs: Record<string, string> = {
         issue_engagement_deposit: 'public.issue_engagement_deposit(uuid,int)',
+        send_engagement_invoice: 'public.send_engagement_invoice(uuid)',
         begin_engagement_invoice_checkout: 'public.begin_engagement_invoice_checkout(uuid,text)',
         record_engagement_invoice_checkout: 'public.record_engagement_invoice_checkout(uuid,int,text,timestamptz)',
         rearm_engagement_invoice_checkout: 'public.rearm_engagement_invoice_checkout(uuid,text)',
@@ -1161,6 +1266,364 @@ describe('terminal sweep (amended)', () => {
 });
 
 // ────────────────────────────────────────────────────────────────────────────
+// 077 — send_engagement_invoice
+// ────────────────────────────────────────────────────────────────────────────
+describe('send_engagement_invoice (077)', () => {
+  /** An accepted 50% proposal with a live deposit + draft balance. */
+  async function withBalance(lead: string, opts: AcceptedOpts = {}) {
+    const a = await acceptedProposal(lead, opts);
+    await issueDeposit(a.pid, 50);
+    const { deposit, balance } = await depositAndBalance(a.eid);
+    return { ...a, depositId: deposit!.id as string, balanceId: balance!.id as string };
+  }
+
+  test('the stage gate: build refuses, launch allows, care allows, terminal refuses', async () => {
+    const { eid, balanceId } = await withBalance(LEAD.a);
+
+    // The engagement is at `proposal` after acceptance; walk it forward.
+    await setStage(eid, 'build');
+    expect((await sendInvoice(balanceId)).error?.message ?? '').toContain('invoice_not_billable_yet');
+    expect(await invoice(balanceId)).toMatchObject({ status: 'draft', sent_at: null });
+
+    await setStage(eid, 'launch');
+    const sent = await sendInvoice(balanceId);
+    expect(sent.error).toBeNull();
+    expect(sent.data).toMatchObject({ applied: true, invoice_id: balanceId, amount: 43750, currency: 'USD' });
+    const row = await invoice(balanceId);
+    expect(row).toMatchObject({ status: 'sent' });
+    expect(row.sent_at).not.toBeNull();
+
+    // `care` is billable too — a care plan that began before the balance went
+    // out still owes it.
+    const careCase = await withBalance(LEAD.b);
+    await setStage(careCase.eid, 'launch');
+    await setStage(careCase.eid, 'care');
+    expect((await sendInvoice(careCase.balanceId)).data).toMatchObject({ applied: true });
+
+    for (const [lead, stage, patch] of [
+      [LEAD.c, 'lost', { lost_reason: 'gone quiet' }],
+      [LEAD.d, 'closed', {}],
+    ] as const) {
+      const t = await withBalance(lead);
+      await setStage(t.eid, stage, patch);
+      expect((await sendInvoice(t.balanceId)).error?.message ?? '').toContain('engagement_terminal');
+    }
+  });
+
+  test('the event: one invoice_issued, summary starts "Balance requested:", data carries no emailed key', async () => {
+    const { eid, balanceId } = await withBalance(LEAD.a);
+    await setStage(eid, 'launch');
+    expect((await sendInvoice(balanceId)).data).toMatchObject({ applied: true });
+
+    const issued = await events(eid, 'invoice_issued');
+    expect(issued).toHaveLength(2); // the deposit's, then the balance's
+    const balanceEvent = issued[1];
+    expect(String(balanceEvent.summary)).toMatch(/^Balance requested: \$437\.50 \(50% of \$875\.00\) — v1$/);
+    expect(balanceEvent.actor).toBe('admin');
+    expect(balanceEvent.needs_attention).toBe(false);
+    expect(balanceEvent.data).toMatchObject({ invoice_id: balanceId, kind: 'balance', amount: 43750, currency: 'USD', pct: 50 });
+    expect(Object.keys(balanceEvent.data as object)).not.toContain('emailed');
+  });
+
+  test('truthful verdicts, one per status — never a blanket already_sent', async () => {
+    const { eid, balanceId } = await withBalance(LEAD.a);
+    await setStage(eid, 'launch');
+    expect((await sendInvoice(balanceId)).data).toMatchObject({ applied: true });
+
+    // sent -> already_sent
+    expect((await sendInvoice(balanceId)).data).toEqual({ applied: false, reason: 'already_sent' });
+
+    // paid -> already_paid
+    await recordCheckout(balanceId, 0, 'cs_bal_paid', future(24 * HOUR));
+    await markPaid(balanceId, 'cs_bal_paid', 'pi_bal_paid', 43750, 'usd');
+    expect((await sendInvoice(balanceId)).data).toEqual({ applied: false, reason: 'already_paid' });
+
+    // refunded -> already_paid (still money that arrived, not a re-send)
+    await markRefunded('pi_bal_paid', 43750);
+    expect(await invoice(balanceId)).toMatchObject({ status: 'refunded' });
+    expect((await sendInvoice(balanceId)).data).toEqual({ applied: false, reason: 'already_paid' });
+
+    // void -> voided
+    const voidCase = await withBalance(LEAD.b);
+    await setStage(voidCase.eid, 'launch');
+    await fakeClosedVoid(voidCase.balanceId);
+    expect((await sendInvoice(voidCase.balanceId)).data).toEqual({ applied: false, reason: 'voided' });
+  });
+
+  test('unknown id, an unaccepted proposal and a missing recipient each RAISE', async () => {
+    expect((await sendInvoice(ZERO_UUID)).error?.message ?? '').toContain('invoice_not_found');
+
+    // The proposal check precedes the invoice verdicts, so voiding the
+    // acceptance yields proposal_not_accepted rather than `voided`.
+    const { eid, pid, balanceId } = await withBalance(LEAD.a);
+    await setStage(eid, 'launch');
+    expect((await voidAcceptance(pid, 'wrong scope')).data).toMatchObject({ applied: true });
+    expect((await sendInvoice(balanceId)).error?.message ?? '').toContain('proposal_not_accepted');
+
+    const noEmail = await withBalance(LEAD.b);
+    await setStage(noEmail.eid, 'launch');
+    await withPg(async (c) => {
+      await c.query('ALTER TABLE public.engagement_invoices DISABLE TRIGGER trg_engagement_invoices_guard');
+      await c.query('UPDATE public.engagement_invoices SET recipient_email = NULL WHERE id = $1', [noEmail.balanceId]);
+      await c.query('ALTER TABLE public.engagement_invoices ENABLE TRIGGER trg_engagement_invoices_guard');
+    });
+    expect((await sendInvoice(noEmail.balanceId)).error?.message ?? '').toContain('invoice_recipient_required');
+  });
+
+  test('a PAID BALANCE alone blocks the acceptance void — the deposit is not paid', async () => {
+    // Rev 1's fixture had both rows paid, so it would have passed against an
+    // implementation that only ever checked the deposit. Here the balance is
+    // the ONLY paid invoice.
+    const { eid, pid, depositId, balanceId } = await withBalance(LEAD.a);
+    await setStage(eid, 'launch');
+    expect((await sendInvoice(balanceId)).data).toMatchObject({ applied: true });
+    await recordCheckout(balanceId, 0, 'cs_only_bal', future(24 * HOUR));
+    await markPaid(balanceId, 'cs_only_bal', 'pi_only_bal', 43750, 'usd');
+
+    expect(await invoice(depositId)).toMatchObject({ status: 'sent' });
+    expect(await invoice(balanceId)).toMatchObject({ status: 'paid' });
+    expect((await voidAcceptance(pid, 'too late')).data).toEqual({ applied: false, reason: 'invoice_paid' });
+    expect((await proposal(pid)).status).toBe('accepted');
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 077 — the amended terminal sweep, and the two recoveries it exists for
+// ────────────────────────────────────────────────────────────────────────────
+describe('terminal sweep — closed voids NOTHING (077)', () => {
+  async function sentDepositDraftBalance(lead: string) {
+    const a = await acceptedProposal(lead);
+    await issueDeposit(a.pid, 50);
+    const { deposit, balance } = await depositAndBalance(a.eid);
+    return { ...a, depositId: deposit!.id as string, balanceId: balance!.id as string };
+  }
+
+  test('closed voids NEITHER the sent deposit nor the draft balance; lost voids BOTH', async () => {
+    const closedCase = await sentDepositDraftBalance(LEAD.a);
+    await setStage(closedCase.eid, 'closed');
+    expect(await events(closedCase.eid, 'invoice_voided')).toHaveLength(0);
+    expect(await invoice(closedCase.depositId)).toMatchObject({ status: 'sent', voided_at: null, void_reason: null });
+    expect(await invoice(closedCase.balanceId)).toMatchObject({ status: 'draft', voided_at: null, void_reason: null });
+
+    const lostCase = await sentDepositDraftBalance(LEAD.b);
+    await setStage(lostCase.eid, 'lost', { lost_reason: 'gone quiet' });
+    expect(await events(lostCase.eid, 'invoice_voided')).toHaveLength(2);
+    expect(await invoice(lostCase.depositId)).toMatchObject({ status: 'void', void_reason: 'Engagement marked lost' });
+    expect(await invoice(lostCase.balanceId)).toMatchObject({ status: 'void', void_reason: 'Engagement marked lost' });
+  });
+
+  test('recovery 1 — a SENT balance survives close → reopen and is still payable', async () => {
+    const { eid, balanceId, hash } = await sentDepositDraftBalance(LEAD.a);
+    await setStage(eid, 'launch');
+    expect((await sendInvoice(balanceId)).data).toMatchObject({ applied: true });
+
+    await setStage(eid, 'closed');
+    expect(await invoice(balanceId)).toMatchObject({ status: 'sent', voided_at: null });
+
+    await setStage(eid, 'launch');
+    const begun = await beginCheckout(balanceId, hash);
+    expect(begun.error).toBeNull();
+    expect(begun.data).toMatchObject({ applied: true, invoice_id: balanceId, amount: 43750 });
+  });
+
+  test('recovery 2 — close → reopen → Request deposit refuses CLEANLY, with no 23505', async () => {
+    // This is the crash rev 1 would have shipped: voiding the deposit while
+    // sparing the draft balance left the balance occupying its live slot, so
+    // the re-issue's second INSERT hit uq_engagement_invoices_one_live.
+    const { eid, pid, depositId, balanceId } = await sentDepositDraftBalance(LEAD.a);
+    await setStage(eid, 'closed');
+    await setStage(eid, 'build');
+
+    const retry = await issueDeposit(pid, 50);
+    expect(retry.error?.message ?? '').toContain('invoice_already_issued');
+    expect(retry.error?.message ?? '').not.toMatch(/23505|duplicate key/i);
+    expect(retry.error?.code ?? '').not.toBe('23505');
+
+    // Both original rows are intact and still the live ones.
+    expect(await invoice(depositId)).toMatchObject({ status: 'sent', voided_at: null });
+    expect(await invoice(balanceId)).toMatchObject({ status: 'draft', voided_at: null });
+    expect((await invoicesOf(eid)).filter((r) => r.voided_at === null)).toHaveLength(2);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 077 — the one-time repair
+// ────────────────────────────────────────────────────────────────────────────
+describe('077 repair — restores only what is unambiguous', () => {
+  test('restores a draft to draft and a sent to sent, and leaves other void reasons alone', async () => {
+    const a = await acceptedProposal(LEAD.a);
+    await issueDeposit(a.pid, 50);
+    const { deposit, balance } = await depositAndBalance(a.eid);
+    const depositId = deposit!.id as string;   // sent_at set  -> restores to `sent`
+    const balanceId = balance!.id as string;   // sent_at null -> restores to `draft`
+    await fakeClosedVoid(depositId);
+    await fakeClosedVoid(balanceId);
+
+    // A row voided by `lost`, and one voided by an acceptance void: untouched.
+    const lostCase = await acceptedProposal(LEAD.b);
+    await issueDeposit(lostCase.pid, 50);
+    const lostDeposit = (await depositAndBalance(lostCase.eid)).deposit!.id as string;
+    await setStage(lostCase.eid, 'lost', { lost_reason: 'gone quiet' });
+
+    const voidCase = await acceptedProposal(LEAD.c);
+    await issueDeposit(voidCase.pid, 50);
+    const voidDeposit = (await depositAndBalance(voidCase.eid)).deposit!.id as string;
+    expect((await voidAcceptance(voidCase.pid, 'wrong tier')).data).toMatchObject({ applied: true });
+
+    const { notices, error } = await runRepair();
+    expect(error).toBeNull();
+    expect(notices.join('\n')).toContain('077 repair: restored 2 invoice(s)');
+
+    expect(await invoice(depositId)).toMatchObject({ status: 'sent', voided_at: null, void_reason: null });
+    expect(await invoice(balanceId)).toMatchObject({ status: 'draft', voided_at: null, void_reason: null });
+    expect(await invoice(lostDeposit)).toMatchObject({ status: 'void', void_reason: 'Engagement marked lost' });
+    expect(String((await invoice(voidDeposit)).void_reason)).toMatch(/^Acceptance voided: /);
+  });
+
+  test('ABORTS without writing when the live slot has been re-taken', async () => {
+    const a = await acceptedProposal(LEAD.a);
+    await issueDeposit(a.pid, 50);
+    const { deposit, balance } = await depositAndBalance(a.eid);
+    const oldDeposit = deposit!.id as string;
+    const oldBalance = balance!.id as string;
+    await fakeClosedVoid(oldDeposit);
+    await fakeClosedVoid(oldBalance);
+
+    // Re-issue: the slots are free, so fresh rows take them.
+    const reissued = await issueDeposit(a.pid, 50);
+    expect(reissued.error).toBeNull();
+
+    const { notices, error } = await runRepair();
+    expect(error ?? '').toContain('ambiguous candidate(s)');
+    expect(notices.join('\n')).toContain('slot_taken=t');
+    // Nothing was written: the originals are still void.
+    expect(await invoice(oldDeposit)).toMatchObject({ status: 'void', void_reason: 'Engagement marked closed' });
+    expect(await invoice(oldBalance)).toMatchObject({ status: 'void', void_reason: 'Engagement marked closed' });
+  });
+
+  test('ABORTS when TWO dead candidates contest one slot — no live row involved', async () => {
+    // close -> reopen -> reissue -> close again. Both voided deposits sit in
+    // the same (proposal_id, kind) slot and NEITHER sees a live row, so the
+    // live-row check alone reads both as unambiguous and a single UPDATE would
+    // un-void the pair. That is the same 23505, reached the other way round.
+    const a = await acceptedProposal(LEAD.a);
+    await issueDeposit(a.pid, 50);
+    const first = await depositAndBalance(a.eid);
+    await fakeClosedVoid(first.deposit!.id as string);
+    await fakeClosedVoid(first.balance!.id as string);
+
+    const reissued = await issueDeposit(a.pid, 50);
+    expect(reissued.error).toBeNull();
+    const second = await depositAndBalance(a.eid);
+    await fakeClosedVoid(second.deposit!.id as string);
+    await fakeClosedVoid(second.balance!.id as string);
+
+    // Four candidates, two per slot, and NO live row anywhere.
+    expect((await invoicesOf(a.eid)).filter((r) => r.voided_at === null)).toHaveLength(0);
+
+    const { notices, error } = await runRepair();
+    expect(error ?? '').toContain('ambiguous candidate(s)');
+    expect(notices.join('\n')).toContain('slot_contested=t');
+    for (const row of await invoicesOf(a.eid)) {
+      expect(row.status, String(row.id)).toBe('void');
+    }
+  });
+
+  test('ABORTS without writing when the engagement has since gone lost', async () => {
+    const a = await acceptedProposal(LEAD.a);
+    await issueDeposit(a.pid, 50);
+    const balanceId = (await depositAndBalance(a.eid)).balance!.id as string;
+    await fakeClosedVoid(balanceId);
+    // closed -> lost is legal: `stage` has a value CHECK, not a transition
+    // allowlist, and the second sweep finds nothing in draft|sent to re-void,
+    // so the row keeps the older 'Engagement marked closed' reason.
+    await setStage(a.eid, 'lost', { lost_reason: 'gone quiet' });
+    expect(await invoice(balanceId)).toMatchObject({ void_reason: 'Engagement marked closed' });
+
+    const { notices, error } = await runRepair();
+    expect(error ?? '').toContain('ambiguous candidate(s)');
+    expect(notices.join('\n')).toContain('deal_lost=t');
+    expect(await invoice(balanceId)).toMatchObject({ status: 'void', voided_at: expect.anything() });
+  });
+
+  test('re-enables the guard: void → sent is still refused through the app path afterwards', async () => {
+    const a = await acceptedProposal(LEAD.a);
+    await issueDeposit(a.pid, 50);
+    const balanceId = (await depositAndBalance(a.eid)).balance!.id as string;
+    await fakeClosedVoid(balanceId);
+    expect((await runRepair()).error).toBeNull();
+
+    // Put it back to void, then confirm the guard still forbids void -> sent.
+    await fakeClosedVoid(balanceId);
+    const { error } = await svc.from('engagement_invoices').update({ status: 'sent' }).eq('id', balanceId);
+    expect(error?.message ?? '').toContain('invoice_transition_invalid');
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 077 — concurrency, two connections
+// ────────────────────────────────────────────────────────────────────────────
+describe('send_engagement_invoice races', () => {
+  async function billable(lead: string) {
+    const a = await acceptedProposal(lead);
+    await issueDeposit(a.pid, 50);
+    const balanceId = (await depositAndBalance(a.eid)).balance!.id as string;
+    await setStage(a.eid, 'launch');
+    return { ...a, balanceId };
+  }
+
+  test('(1) close commits first → the waiting send returns engagement_terminal, nothing sent', async () => {
+    const { eid, balanceId } = await billable(LEAD.a);
+    await withPg(async (x) => {
+      await x.query('BEGIN');
+      await x.query('select id from public.engagements where id = $1 for update', [eid]);
+      const y = sendInvoice(balanceId);
+      await sleep(500);
+      expect(await invoice(balanceId)).toMatchObject({ status: 'draft' }); // Y is blocked
+      await x.query("update public.engagements set stage = 'closed' where id = $1", [eid]);
+      await x.query('COMMIT');
+      const { error } = await y;
+      expect(error?.message ?? '').toContain('engagement_terminal');
+      expect(error?.message ?? '').not.toMatch(/deadlock/i);
+    });
+    expect(await invoice(balanceId)).toMatchObject({ status: 'draft' });
+  });
+
+  test('(2) the acceptance void commits first → the waiting send returns proposal_not_accepted', async () => {
+    const { eid, pid, balanceId } = await billable(LEAD.b);
+    await withPg(async (x) => {
+      await x.query('BEGIN');
+      await x.query('select id from public.engagements where id = $1 for update', [eid]);
+      const y = sendInvoice(balanceId);
+      await sleep(500);
+      expect(await invoice(balanceId)).toMatchObject({ status: 'draft' });
+      const r = await x.query('select public.void_engagement_proposal_acceptance($1, $2) as r', [pid, 'race']);
+      expect(r.rows[0].r).toMatchObject({ applied: true });
+      await x.query('COMMIT');
+      const { error } = await y;
+      expect(error?.message ?? '').toContain('proposal_not_accepted');
+      expect(error?.message ?? '').not.toMatch(/deadlock/i);
+    });
+  });
+
+  test('(3) two simultaneous sends of the same invoice → exactly one applied, exactly one event', async () => {
+    const { eid, balanceId } = await billable(LEAD.c);
+    const [first, second] = await Promise.all([sendInvoice(balanceId), sendInvoice(balanceId)]);
+    for (const r of [first, second]) {
+      expect(r.error).toBeNull();
+      expect(r.error?.message ?? '').not.toMatch(/deadlock/i);
+    }
+    const applied = [first, second].filter((r) => (r.data as { applied?: boolean })?.applied);
+    expect(applied).toHaveLength(1);
+    const loser = [first, second].find((r) => !(r.data as { applied?: boolean })?.applied);
+    expect(loser!.data).toEqual({ applied: false, reason: 'already_sent' });
+
+    const issued = await events(eid, 'invoice_issued');
+    expect(issued.filter((e) => String(e.summary).startsWith('Balance requested:'))).toHaveLength(1);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
 // Deliverables
 // ────────────────────────────────────────────────────────────────────────────
 describe('engagement_deliverables', () => {
@@ -1349,6 +1812,16 @@ describe('hygiene and the view', () => {
 
     await markPaid(invoiceId, 'cs_hygiene', 'pi_hygiene', 43750, 'usd');
     await check('after paid');
+
+    // 077: the same scan after the BALANCE is sent and paid — a second money
+    // path is a second chance to leak a token or a Checkout URL into an event.
+    const balanceId = (await depositAndBalance(eid)).balance!.id as string;
+    await setStage(eid, 'launch');
+    expect((await sendInvoice(balanceId)).data).toMatchObject({ applied: true });
+    await check('after balance sent');
+    await recordCheckout(balanceId, 0, 'cs_hygiene_bal', future(24 * HOUR));
+    await markPaid(balanceId, 'cs_hygiene_bal', 'pi_hygiene_bal', 43750, 'usd');
+    await check('after balance paid');
 
     // No column holds the Checkout URL — only the session id.
     const row = await invoice(invoiceId);

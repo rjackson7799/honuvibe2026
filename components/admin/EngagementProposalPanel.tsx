@@ -21,7 +21,7 @@ import { StatusBadge } from './StatusBadge';
 import { ProposalPricingForm, draftFromProposal, initialDraft, proposalInputFromDraft, type PricingDraft } from './ProposalPricingForm';
 import { ProposalSectionsEditor } from './ProposalSectionsEditor';
 import { ProposalVersionList } from './ProposalVersionList';
-import { ProposalDepositBlock, paidDepositBlocksVoid } from './ProposalDepositBlock';
+import { ProposalInvoicesBlock, paidDepositBlocksVoid } from './ProposalInvoicesBlock';
 import {
   createProposal,
   issueProposal,
@@ -525,8 +525,8 @@ export function EngagementProposalPanel({
               <dd className="text-fg-secondary">{latest.open_count > 0 ? `Viewed ${latest.open_count}×` : 'Not opened online'} · <span data-link-state className={linkState(latest).revoked ? 'text-[color:var(--accent-coral)] font-medium' : ''}>{linkState(latest).label}</span></dd>
             </div>
           </dl>
-          {/* The deposit (075): the money half of an accepted proposal. */}
-          <ProposalDepositBlock
+          {/* The invoices (075/077): the money half of an accepted proposal. */}
+          <ProposalInvoicesBlock
             engagement={engagement}
             proposal={latest}
             invoices={invoices}

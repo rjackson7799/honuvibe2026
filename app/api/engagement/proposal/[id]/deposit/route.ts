@@ -1,18 +1,35 @@
 // POST /api/engagement/proposal/[id]/deposit — mint a Stripe Checkout Session
-// for the live deposit (slice 4, migration 075). The accept route's shape,
-// in order:
+// for the invoice the CLIENT named (slices 4 + 5, migrations 075/077).
+//
+// THE PATH STILL SAYS `deposit`, DELIBERATELY. Since slice 5 this route mints
+// for any payable invoice — the balance as readily as the deposit — so the
+// name undersells it. It is not renamed because a rename breaks every client
+// page already open in a browser, and the honest alternatives are worse: a
+// compatibility shim would have to guess an invoice on the client's behalf,
+// which is exactly the ambiguity decision 3 exists to remove, and a permanent
+// tombstone route is two routes where one belongs. The rename becomes free the
+// first time a token-scheme change invalidates every open tab; do it then.
+//
+// The accept route's shape, in order:
 //
 //   UUID check → rate limit 6 / 15 min per IP (a mint costs a Stripe call;
 //   six per quarter hour is generous for one human, and the token is the real
 //   defence — the IP is a transient key, never stored) → Sec-Fetch-Site
 //   (reject a PRESENT cross-site) → honeypot `company_url` (silent fake
 //   success) → authorizeProposalSession (cookie for THIS id; 403 / 410 / 503)
-//   → find the live `sent` deposit → begin_engagement_invoice_checkout with
-//   the PRESENTED token hash, which locks engagement → proposal → invoice and
-//   re-validates the credential and every status under those locks → build
-//   the params from ONLY the immutable columns it returned → create the
-//   session under `engagement_invoice:<invoice>:<attempt>` → record the
-//   session id + expiry → return {url}, no-store.
+//   → VALIDATE THE POSTED invoice_id against the shared pickPayable →
+//   begin_engagement_invoice_checkout with the PRESENTED token hash, which
+//   locks engagement → proposal → invoice and re-validates the credential and
+//   every status under those locks → build the params from ONLY the immutable
+//   columns it returned → create the session under
+//   `engagement_invoice:<invoice>:<attempt>` → record the session id + expiry
+//   → return {url}, no-store.
+//
+// THE SERVER NEVER CHOOSES THE INVOICE (decision 3). The page renders one
+// specific invoice, the button POSTs its id, and this route re-runs the SAME
+// selector and refuses anything else with 409 `stale_invoice`. Slice 4 let the
+// server pick "the live deposit" independently; with a balance in play that
+// would let a client be SHOWN one invoice and CHARGED another across two tabs.
 //
 // A Stripe idempotency_error (params differed under a reused key — which the
 // immutable-columns rule should make impossible; this is the belt) re-arms the
@@ -31,6 +48,7 @@ import {
   type EngagementInvoiceCheckoutInput,
 } from '@/lib/stripe/engagement-invoice';
 import { authorizeProposalSession, isCrossSite } from '@/lib/studio/engagement/proposal-session';
+import { pickPayable, readLiveInvoices } from '@/lib/studio/engagement/invoice-selection';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -93,25 +111,37 @@ export async function POST(
   }
   const { proposal, supabase, presentedTokenHash } = auth;
 
-  // The LIVE deposit for this proposal — by kind and `voided_at IS NULL`, the
-  // same slot uq_engagement_invoices_one_live enforces. Deliberately NOT
-  // filtered to `sent`: begin_engagement_invoice_checkout owns the verdict, so
-  // a stale tab clicking Pay on an already-paid deposit gets `already_paid`
-  // (409 -> "already been paid, reload") instead of a bare 404. `no_invoice`
-  // then means what it says: no deposit has been requested.
-  const { data: invoiceRow, error: invoiceError } = await supabase
-    .from('engagement_invoices')
-    .select('id')
-    .eq('proposal_id', proposal.id)
-    .eq('kind', 'deposit')
-    .is('voided_at', null)
-    .maybeSingle();
-  if (invoiceError) {
-    console.error('[engagement/proposal/deposit] invoice lookup failed:', invoiceError.message);
-    return json({ error: 'unavailable' }, 503);
+  // The invoice the client says it is paying. An ABSENT id is the
+  // already-deployed slice-4 button, which sends no invoice_id at all: that
+  // tab genuinely IS stale, and 409 is the answer it already knows how to
+  // render ("no longer open — reply to the email"), where a 400 would surface
+  // as the false "payments are temporarily unavailable". A MALFORMED id keeps
+  // its 400: only a broken or hostile client sends one.
+  const postedInvoiceId =
+    payload && typeof payload === 'object' ? (payload as { invoice_id?: unknown }).invoice_id : undefined;
+  if (postedInvoiceId === undefined || postedInvoiceId === null || postedInvoiceId === '') {
+    return json({ error: 'stale_invoice' }, 409);
   }
-  if (!invoiceRow) return json({ error: 'no_invoice' }, 404);
-  const invoiceId = invoiceRow.id as string;
+  if (typeof postedInvoiceId !== 'string' || !UUID_RE.test(postedInvoiceId)) {
+    return json({ error: 'invalid_invoice_id' }, 400);
+  }
+
+  // The SAME selector the page used — one module, so the two cannot disagree
+  // about what is payable. A read failure stays a 503: telling a client to
+  // reload while the database is down sends them into the same wall again.
+  const { ok: invoicesRead, rows: liveInvoices } = await readLiveInvoices(supabase, proposal.id);
+  if (!invoicesRead) return json({ error: 'unavailable' }, 503);
+
+  // Nothing payable, or not the row the client was looking at: either way that
+  // page is out of date. ONE verdict covers every stale case, including a UUID
+  // lifted from another proposal — the rows are scoped to this one.
+  //
+  // Deliberately NOT filtered further here: begin_engagement_invoice_checkout
+  // owns the per-status verdict, so a stale tab clicking Pay on an
+  // already-paid invoice still gets `already_paid` rather than this.
+  const payable = pickPayable(liveInvoices);
+  if (!payable || payable.id !== postedInvoiceId) return json({ error: 'stale_invoice' }, 409);
+  const invoiceId = payable.id;
 
   // A tagged union, not `'fail' in x`: `in`-narrowing over a heterogeneous
   // union widens the accessed property, which loses the NextResponse type.

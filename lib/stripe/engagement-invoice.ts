@@ -110,7 +110,13 @@ export function buildEngagementInvoiceSessionParams(
       locale: input.locale,
     },
     locale: input.locale,
-    success_url: `${origin}${localePrefix}/proposal/${input.proposalId}?paid=1`,
+    // ?paid=<invoiceId>, not ?paid=1 (slice 5): the thank-you band has to bind
+    // to the invoice ACTUALLY paid. With a bare flag, a client who kept the
+    // return URL would see "thank you" against whatever became payable next —
+    // the balance swallowing the deposit's confirmation. The page still
+    // accepts the legacy `1` so a session minted before this shipped returns
+    // to a correct band.
+    success_url: `${origin}${localePrefix}/proposal/${input.proposalId}?paid=${input.invoiceId}`,
     cancel_url: `${origin}${localePrefix}/proposal/${input.proposalId}`,
   };
 }

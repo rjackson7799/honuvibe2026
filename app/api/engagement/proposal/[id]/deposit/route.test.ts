@@ -30,10 +30,24 @@ vi.mock('@/lib/stripe/client', () => ({
   stripe: {},
 }));
 
-let invoiceLookup: { data: { id: string } | null; error: { message: string } | null } = {
-  data: { id: INVOICE_ID },
-  error: null,
-};
+/**
+ * The LIVE invoices selectPayableInvoice reads. Slice 5: the route no longer
+ * looks up "the deposit" itself — it re-runs the shared selector and compares
+ * the answer to the id the CLIENT posted.
+ */
+let liveInvoices: Record<string, unknown>[] = [];
+let invoiceReadError: { message: string } | null = null;
+
+const sentInvoice = (over: Record<string, unknown> = {}) => ({
+  id: INVOICE_ID,
+  kind: 'deposit',
+  status: 'sent',
+  voided_at: null,
+  sent_at: '2026-09-06T10:00:00.000Z',
+  paid_at: null,
+  refunded_at: null,
+  ...over,
+});
 
 const supabaseStub = {
   from: () => {
@@ -43,7 +57,9 @@ const supabaseStub = {
       is: () => q,
       order: () => q,
       limit: () => q,
-      maybeSingle: async () => invoiceLookup,
+      maybeSingle: async () => ({ data: liveInvoices[0] ?? null, error: invoiceReadError }),
+      then: (resolve: (v: unknown) => unknown) =>
+        Promise.resolve(resolve({ data: invoiceReadError ? null : liveInvoices, error: invoiceReadError })),
     };
     return q;
   },
@@ -82,7 +98,9 @@ vi.mock('@/lib/studio/engagement/proposal-session', () => ({
 const tryConsume = vi.fn(() => true);
 vi.mock('@/lib/community/rate-limit', () => ({ tryConsume }));
 
+/** The default body carries the invoice id, as the shipped button does. */
 function post(body: Record<string, unknown> = {}, headers: Record<string, string> = {}) {
+  if (!('invoice_id' in body) && !('company_url' in body)) body = { invoice_id: INVOICE_ID, ...body };
   return new Request(`https://honuvibe.ai/api/engagement/proposal/${PROPOSAL_ID}/deposit`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...headers },
@@ -111,7 +129,8 @@ beforeEach(() => {
   create.mockReset();
   tryConsume.mockReset();
   tryConsume.mockReturnValue(true);
-  invoiceLookup = { data: { id: INVOICE_ID }, error: null };
+  liveInvoices = [sentInvoice()];
+  invoiceReadError = null;
   authResult = {
     ok: true,
     proposal: { id: PROPOSAL_ID, locale: 'en' },
@@ -198,11 +217,11 @@ describe('POST /api/engagement/proposal/[id]/deposit', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('404s when there is no live sent deposit, without touching Stripe', async () => {
-    invoiceLookup = { data: null, error: null };
+  it('nothing payable is 409 stale_invoice — that page is out of date', async () => {
+    liveInvoices = [];
     const res = await call();
-    expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: 'no_invoice' });
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: 'stale_invoice' });
     expect(rpcCalls).toHaveLength(0);
     expect(create).not.toHaveBeenCalled();
   });
@@ -257,5 +276,90 @@ describe('POST /api/engagement/proposal/[id]/deposit', () => {
     const res = await call();
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ url: 'https://checkout.stripe.com/c/pay/cs_3' });
+  });
+
+  // ── slice 5: the client names the invoice, the server validates it ────────
+
+  describe('invoice_id validation (decision 3)', () => {
+    const BALANCE_ID = 'bbbbbbbb-cccc-dddd-eeee-ffffffffffff';
+
+    it('THE TWO-TAB REGRESSION: posting the deposit id while the BALANCE is payable is 409, and Stripe is never called', async () => {
+      // The deposit was paid, so the balance is now the payable row. A tab
+      // left open on the deposit band would, without this check, have charged
+      // the client the balance while showing them "pay the deposit".
+      liveInvoices = [
+        sentInvoice({ id: INVOICE_ID, kind: 'deposit', status: 'paid', paid_at: '2026-09-07T00:00:00.000Z' }),
+        sentInvoice({ id: BALANCE_ID, kind: 'balance', sent_at: '2026-09-20T00:00:00.000Z' }),
+      ];
+      const res = await call(post({ invoice_id: INVOICE_ID }));
+
+      expect(res.status).toBe(409);
+      expect(await res.json()).toEqual({ error: 'stale_invoice' });
+      expect(create).not.toHaveBeenCalled();
+      expect(rpcCalls).toHaveLength(0);
+    });
+
+    it('mints for exactly the invoice posted when it IS the payable one', async () => {
+      liveInvoices = [
+        sentInvoice({ id: INVOICE_ID, kind: 'deposit', status: 'paid', paid_at: '2026-09-07T00:00:00.000Z' }),
+        sentInvoice({ id: BALANCE_ID, kind: 'balance', sent_at: '2026-09-20T00:00:00.000Z' }),
+      ];
+      create.mockResolvedValueOnce(session('cs_bal'));
+      const res = await call(post({ invoice_id: BALANCE_ID }));
+
+      expect(res.status).toBe(200);
+      expect(rpcNamed('begin_engagement_invoice_checkout')[0].args.p_invoice_id).toBe(BALANCE_ID);
+      expect(create.mock.calls[0][1]).toEqual({ idempotencyKey: `engagement_invoice:${INVOICE_ID}:0` });
+    });
+
+    it('a UUID from ANOTHER proposal is 409 — the selector is scoped to this one', async () => {
+      const res = await call(post({ invoice_id: 'dddddddd-eeee-ffff-0000-111111111111' }));
+      expect(res.status).toBe(409);
+      expect(await res.json()).toEqual({ error: 'stale_invoice' });
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it('an ABSENT invoice_id is 409 stale_invoice — the old-tab shim, NOT a 400', async () => {
+      // The already-deployed slice-4 button sends no invoice_id. It maps 409 to
+      // "no longer open — reply to the email", which is true; a 400 would fall
+      // through to its false "payments are temporarily unavailable".
+      for (const body of [{}, { invoice_id: '' }, { invoice_id: null }]) {
+        vi.resetModules();
+        const request = new Request(`https://honuvibe.ai/api/engagement/proposal/${PROPOSAL_ID}/deposit`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const res = await call(request);
+        expect(res.status, JSON.stringify(body)).toBe(409);
+        expect(await res.json()).toEqual({ error: 'stale_invoice' });
+      }
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it('a MALFORMED invoice_id is 400 — only a broken or hostile client sends one', async () => {
+      for (const bad of ['not-a-uuid', 123, { nested: true }]) {
+        vi.resetModules();
+        const res = await call(post({ invoice_id: bad }));
+        expect(res.status, String(bad)).toBe(400);
+        expect(await res.json()).toEqual({ error: 'invalid_invoice_id' });
+      }
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it('the honeypot still wins over invoice validation — a bot learns nothing', async () => {
+      const res = await call(post({ company_url: 'https://spam.example', invoice_id: 'not-a-uuid' }));
+      expect(res.status).toBe(200);
+      expect(await res.json()).toEqual({ ok: true });
+    });
+
+    it('an invoice READ FAILURE is 503, never "reload" — a reload hits the same wall', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      invoiceReadError = { message: 'boom' };
+      const res = await call();
+      expect(res.status).toBe(503);
+      expect(await res.json()).toEqual({ error: 'unavailable' });
+      expect(create).not.toHaveBeenCalled();
+    });
   });
 });

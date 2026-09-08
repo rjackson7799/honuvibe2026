@@ -1,8 +1,14 @@
 'use client';
 
-// "Pay the deposit →" on the accepted band (slice 4, migration 075). POSTs to
-// the mint route, which returns a fresh Stripe Checkout URL; on success we
-// navigate away, so there is no "success" state to render here.
+// The pay button on the accepted band (slices 4 + 5, migrations 075/077).
+// POSTs to the mint route, which returns a fresh Stripe Checkout URL; on
+// success we navigate away, so there is no "success" state to render here.
+//
+// IT NAMES THE INVOICE IT RENDERED (decision 3, slice 5). The page picks the
+// payable invoice, this button POSTs that id, and the server re-runs the same
+// selector and refuses anything else with 409 `stale_invoice`. Without it, a
+// client left on an old tab could be SHOWN "pay the deposit" and CHARGED the
+// balance — the two rows differ only by which one is currently payable.
 //
 // NO token in the body — the hv_engp_ cookie authorises, and
 // begin_engagement_invoice_checkout re-validates its hash on the LOCKED
@@ -23,16 +29,24 @@ type Outcome =
   | { kind: 'redirecting' }
   | { kind: 'error'; message: string };
 
-export function ProposalDepositButton({
+export function ProposalPayButton({
   proposalId,
+  invoiceId,
+  kind,
   locale,
 }: {
   proposalId: string;
+  /** The invoice this button was rendered for. The server validates it. */
+  invoiceId: string;
+  /** Drives the label only — the price comes from the row, never from here. */
+  kind: 'deposit' | 'balance';
   locale: 'en' | 'ja';
 }) {
   const t = T[locale];
   const [outcome, setOutcome] = useState<Outcome>({ kind: 'idle' });
   const busy = outcome.kind === 'submitting' || outcome.kind === 'redirecting';
+  // Without this the balance band would ask the client to "Pay the deposit".
+  const label = kind === 'balance' ? t.balanceButton : t.depositButton;
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,7 +58,7 @@ export function ProposalDepositButton({
       const res = await fetch(`/api/engagement/proposal/${proposalId}/deposit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_url: honeypot }),
+        body: JSON.stringify({ company_url: honeypot, invoice_id: invoiceId }),
       });
       const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
 
@@ -54,7 +68,7 @@ export function ProposalDepositButton({
         return;
       }
       if (res.status === 429) return setOutcome({ kind: 'error', message: t.depositRateLimited });
-      // 404 = no deposit is open on this proposal (it was voided, or none was
+      // 404 = no invoice is open on this proposal (it was voided, or none was
       // ever requested). That is a state message, not an outage.
       if (res.status === 404) return setOutcome({ kind: 'error', message: t.depositNotOpen });
       if (res.status === 403) return setOutcome({ kind: 'error', message: t.depositForbidden });
@@ -64,7 +78,9 @@ export function ProposalDepositButton({
             ? t.depositAlreadyPaid
             : data.error === 'payment_pending'
               ? t.depositPaymentPending
-              : t.depositNotOpen;
+              : data.error === 'stale_invoice'
+                ? t.payStale
+                : t.depositNotOpen;
         return setOutcome({ kind: 'error', message });
       }
       setOutcome({ kind: 'error', message: t.depositUnavailable });
@@ -85,9 +101,10 @@ export function ProposalDepositButton({
         type="submit"
         disabled={busy}
         data-deposit-button
+        data-invoice-kind={kind}
         className="inline-flex min-h-[48px] items-center justify-center rounded-[10px] bg-[var(--m-accent-teal)] px-6 text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
       >
-        {busy ? t.depositButtonBusy : t.depositButton}
+        {busy ? t.depositButtonBusy : label}
       </button>
 
       <p className="text-[12.5px] text-[var(--m-ink-secondary)]">{t.depositSecureNote}</p>

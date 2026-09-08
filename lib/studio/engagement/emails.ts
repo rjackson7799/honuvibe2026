@@ -348,8 +348,27 @@ export async function sendProposalInvite(
   }
 }
 
-/** Client "your deposit is ready to pay" (slice 4, migration 075). In proposal.locale. */
-export interface DepositRequestEmailData {
+/**
+ * Client "your invoice is ready to pay" (slice 4/5, migrations 075 + 077). In
+ * proposal.locale. ONE sender with a `variant`, not a second sender
+ * (decision 4): the tokened entry URL, the expiry line, the Stripe-secure
+ * line, the sign-off and escapeHtml are all shared, and only the ask differs.
+ * That adds one paragraph per locale to the JA review debt instead of a whole
+ * new message.
+ */
+export interface InvoiceRequestEmailData {
+  /** Which ask this is. `balance` is slice 5's addition. */
+  variant: 'deposit' | 'balance';
+  /**
+   * The live deposit's STATUS, for the balance variant's "already received"
+   * sentence — NOT a paid_at timestamp. The 075 guard freezes paid_at once set
+   * and permits paid -> refunded, so a REFUNDED deposit still carries one and
+   * keying on it would tell a refunded client their money was received.
+   * Ignored by the deposit variant.
+   */
+  depositStatus?: string | null;
+  /** Pre-formatted deposit amount, named only when depositStatus is 'paid'. */
+  depositAmount?: string | null;
   locale: Locale;
   email: string;
   contactName: string | null;
@@ -367,44 +386,66 @@ export interface DepositRequestEmailData {
 }
 
 /**
- * The deposit request. It links to the PROPOSAL PAGE via the tokenized entry
- * URL (decision 5 / judgment call 8) — never to Stripe: a Checkout Session is
- * minted on demand behind the cookie, so no durable payment URL exists in any
- * inbox. Every dynamic value is escapeHtml'd.
+ * The invoice request — deposit (slice 4) or balance (slice 5). It links to
+ * the PROPOSAL PAGE via the tokenized entry URL (decision 5 / judgment call 8)
+ * — never to Stripe: a Checkout Session is minted on demand behind the cookie,
+ * so no durable payment URL exists in any inbox. Every dynamic value is
+ * escapeHtml'd.
  * JA copy ships FLAGGED FOR NATIVE REVIEW.
  */
-export async function sendDepositRequestEmail(
-  data: DepositRequestEmailData,
+export async function sendInvoiceRequestEmail(
+  data: InvoiceRequestEmailData,
 ): Promise<{ ok: boolean; providerId?: string; error?: string }> {
   const resend = getResendClient();
   if (!resend) return { ok: false, error: 'email_not_configured' };
   if (!data.email) return { ok: false, error: 'no_recipient' };
 
   const isJP = data.locale === 'ja';
+  const isBalance = data.variant === 'balance';
   const business = escapeHtml(data.businessName);
   const name = data.contactName ? escapeHtml(data.contactName) : null;
   const amount = escapeHtml(data.amount);
   const linkExpiresOn = escapeHtml(data.linkExpiresOn);
   const partial = data.pct < 100;
 
+  // Only a deposit that was PAID AND KEPT may be described as received.
+  const depositKept = isBalance && data.depositStatus === 'paid' && !!data.depositAmount;
+  const depositAmount = depositKept ? escapeHtml(data.depositAmount!) : null;
+
   const body = [
     heading(
       isJP
-        ? name
-          ? `${name} さん、${business} のお支払いのご案内です`
-          : `${business} のお支払いのご案内です`
-        : name
-          ? `Your deposit for ${business} is ready to pay, ${name}`
-          : `Your deposit for ${business} is ready to pay`,
+        ? isBalance
+          ? name
+            ? `${name} さん、${business} の残金のご請求です`
+            : `${business} の残金のご請求です`
+          : name
+            ? `${name} さん、${business} のお支払いのご案内です`
+            : `${business} のお支払いのご案内です`
+        : isBalance
+          ? name
+            ? `The balance for ${business} is ready to pay, ${name}`
+            : `The balance for ${business} is ready to pay`
+          : name
+            ? `Your deposit for ${business} is ready to pay, ${name}`
+            : `Your deposit for ${business} is ready to pay`,
     ),
     paragraph(
       isJP
-        ? partial
-          ? `ご承諾いただきありがとうございます。制作費の ${data.pct}% にあたる ${amount} を、着手金としてお支払いください。ご入金の確認後に制作を開始します。`
-          : `ご承諾いただきありがとうございます。制作費 ${amount} の全額のお支払いをお願いいたします。ご入金の確認後に制作を開始します。`
-        : partial
-          ? `Thank you for accepting. The deposit is ${amount} — ${data.pct}% of the build investment. Work starts once it is received.`
-          : `Thank you for accepting. The build investment is ${amount}, due in full. Work starts once it is received.`,
+        ? isBalance
+          ? depositKept
+            ? `制作が完了しました。着手金 ${depositAmount} は受領済みです。残金 ${amount} のお支払いをお願いいたします。`
+            : `制作が完了しました。残金 ${amount} のお支払いをお願いいたします。`
+          : partial
+            ? `ご承諾いただきありがとうございます。制作費の ${data.pct}% にあたる ${amount} を、着手金としてお支払いください。ご入金の確認後に制作を開始します。`
+            : `ご承諾いただきありがとうございます。制作費 ${amount} の全額のお支払いをお願いいたします。ご入金の確認後に制作を開始します。`
+        : isBalance
+          ? depositKept
+            ? `Your build is ready. The deposit of ${depositAmount} was received, and the remaining balance is ${amount}.`
+            : `Your build is ready. The remaining balance is ${amount}.`
+          : partial
+            ? `Thank you for accepting. The deposit is ${amount} — ${data.pct}% of the build investment. Work starts once it is received.`
+            : `Thank you for accepting. The build investment is ${amount}, due in full. Work starts once it is received.`,
     ),
     paragraph(
       isJP
@@ -428,11 +469,17 @@ export async function sendDepositRequestEmail(
       to: data.email,
       replyTo: adminEmail || undefined,
       subject: isJP
-        ? `【HonuVibe Studio】${data.businessName} — お支払いのご案内（${data.amount}）`
-        : `Your deposit for ${data.businessName} — ${data.amount}`,
+        ? isBalance
+          ? `【HonuVibe Studio】${data.businessName} — 残金のご請求（${data.amount}）`
+          : `【HonuVibe Studio】${data.businessName} — お支払いのご案内（${data.amount}）`
+        : isBalance
+          ? `The balance for ${data.businessName} — ${data.amount}`
+          : `Your deposit for ${data.businessName} — ${data.amount}`,
       html: baseLayout({
         locale: data.locale,
-        preheader: isJP ? 'お支払いのご案内' : 'Your deposit is ready to pay',
+        preheader: isJP
+          ? isBalance ? '残金のご請求' : 'お支払いのご案内'
+          : isBalance ? 'Your balance is ready to pay' : 'Your deposit is ready to pay',
         body,
       }),
     });
