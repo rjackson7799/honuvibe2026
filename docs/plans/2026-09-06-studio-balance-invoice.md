@@ -1,6 +1,26 @@
 # Studio Balance Invoice — slice 5 of the engagement spine
 
-> **STATUS: rev 3 — APPROVED, IN EXECUTION (2026-09-07).** Rev 2 was approved by Ryan on 2026-09-06
+> **STATUS: rev 3 — SHIPPED `5e1cc37` (2026-09-07, pushed to `main`).** Built in one session on Ryan's
+> explicit "commit now and push to live", over the stated gap that `pnpm test:rls` could not run here.
+>
+> **VERIFICATION RECORD.** `pnpm type-check` exit 0 · `pnpm build` exit 0 (BUILD_ID `Ls7zkob9vDSzu053nDI-S`,
+> needs `NODE_OPTIONS=--max-old-space-size=8192`) · `pnpm test:run` **1851 passed / 28 failed**, the failures
+> being ONLY the pre-existing unrelated red `lib/progress/actions.test.ts` (9) and
+> `lib/progress/queries.test.ts` (19), each confirmed by running the file alone · **304 tests green across
+> all 26 files this slice touches.** Two independent review passes: the third-party review of rev 2 (7
+> findings — 6 taken, 1 split take/reject; see "What rev 3 changed") and an adversarial code-reviewer on
+> the finished diff, whose single sub-threshold note proved REAL on inspection and became the
+> `slot_contested` guard in the repair.
+>
+> **NOT VERIFIED, AND OWED:** `pnpm test:rls` never ran and **migration 077 has never been executed by any
+> Postgres** — Docker Desktop's privileged `com.docker.service` is Stopped and starting it needs elevation
+> a non-interactive session cannot obtain; no local Postgres exists either. 077 was reviewed statically
+> only, though 30 RLS tests are written against it and ship with it. Also owed: the browser pass (EN +
+> `/ja`) and a JA native review of the eight new band keys and the balance email variant. Prod holds zero
+> engagements and zero invoices, so the repair should report `restored 0` and the `success_url` rollout
+> window is empty.
+>
+> *(Rev 3 pre-ship status, kept for the record: APPROVED, IN EXECUTION 2026-09-07.)* Rev 2 was approved by Ryan on 2026-09-06
 > after his 8-finding review (6 taken as written, 2 narrowed — see "What rev 2 changed"), and settled
 > both open judgment calls: on `closed` the row survives but the CELL WORDING changes (judgment call 2),
 > and the route keeps the `/deposit` path, with the rename deferred until a token-scheme change has
