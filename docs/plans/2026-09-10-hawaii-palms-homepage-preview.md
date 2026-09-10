@@ -1,8 +1,9 @@
 # Hawaii Palms — gated homepage-concepts preview
 
-**Status: DELIVERED 2026-09-10.** No code diff — this was a delivery job, not a build.
-Nothing was committed or deployed for it; the only prod changes are one `client_previews`
-row and three Storage objects.
+**Status: DELIVERED 2026-09-10.** Mostly a delivery job: the preview itself is one
+`client_previews` row plus Storage objects, with nothing of it in the repo. One piece of
+product work came out of it — the gated password page can now show a per-client logo
+(`185858a`), which is a real code change and shipped through the normal gate.
 
 ## What was delivered
 
@@ -16,7 +17,7 @@ for Hawaii Palms English School, a pre-deal Studio prospect (see the studio-clie
 | Password | in the `client_previews` row — deliberately not written into the repo |
 | Row id | `cb808f79-88fb-4700-ba33-200632772f64` |
 | Expires | **2026-10-10** (extend via `expires_at`) |
-| Contents | `index.html` chooser → `concept-a.html` (7.14 MB), `concept-b.html` (7.66 MB), `dashboard.html` (3.29 MB) |
+| Contents | `index.html` chooser → `concept-a.html` (7.14 MB), `concept-b.html` (7.66 MB), `dashboard.html` (3.29 MB), `logo.png` (52 KB) |
 
 Concept A is "Cinematic Editorial", Concept B is "Warm Tropical". Both carry a built-in
 JP / KO / ES language switcher.
@@ -54,6 +55,32 @@ been live since `13116f3`.
    redeployed.** It had never been set — every gated request 503'd until this. Setting the
    variable alone is not enough; it binds at deploy time.
 
+## Branding the password page (`185858a`)
+
+The client asked for their logo on the login screen as well as the chooser. The login page is
+`renderPasswordPage()` in `lib/previews/gate.ts` — shared by every gated preview — so it was
+built as a **convention, not a hardcode**: ship a `logo.png` at an export's storage root and
+that preview's password page shows it. No column, no migration.
+
+Design notes worth keeping:
+- The logo is **inlined as a base64 data URI**, not linked. A viewer at the password page has
+  no gate cookie, so any URL back into the route would 401 them.
+- CSP gained `img-src data:` — and only `data:`. A remote `img-src` would let a preview page
+  phone home, which is the thing these previews must never do.
+- `safeLogoDataUri()` allowlists `data:image/(png|jpeg|webp);base64,…` and **rejects SVG**,
+  which can carry script. The value is not HTML-escaped; the anchored allowlist (no quotes,
+  angle brackets or whitespace in the character class) is what makes that safe.
+- The unauthenticated **401 path is not behind the rate limiter** (only POST is). An uncached
+  read there would let anyone drive one Storage read per request, so there are two guards: a
+  per-instance TTL cache **and** single-flight, so a burst of concurrent misses collapses to
+  one download. HEAD skips the lookup (it discards the body); the 429 response omits the logo
+  because that path *is* the limiter and so cannot be bounded by it.
+
+An adversarial review caught the single-flight gap — the original cache only bounded
+*sequential* floods, and the test proving it was sequential too, so it would have passed with
+the protection absent. Both were fixed; the new concurrency test was verified to fail without
+the guard (8 concurrent requests → 8 downloads) before being accepted.
+
 ## Verification (all against prod)
 
 | Check | Result |
@@ -66,8 +93,14 @@ been live since `13116f3`.
 | `concept-a.html` | 200, 7,143,389 bytes — byte-exact vs local |
 | `concept-b.html` | 200, 7,659,157 bytes — byte-exact vs local |
 | `access_count` | 1 — entry file only; the two concept fetches correctly did not bump it |
+| `dashboard.html` | 200, 3,291,815 bytes — byte-exact |
+| `logo.png` (authed) | 200, 53,242 bytes, `image/png` |
+| Logo on the login page | inlined data URI decodes **byte-identical** to the local file, 560×207 |
+| CSP on prod | `default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'` |
 
-`pnpm verify` does not apply: there is no code diff.
+Gate for `185858a`: type-check ✅, build ✅, gate tests 49/49 ✅. The 28 failures in
+`lib/progress/*` are a **pre-existing** red from unrelated uncommitted work already in the
+tree — that diff does not touch `lib/progress`, and only its own five files were staged.
 
 ## Still open
 
