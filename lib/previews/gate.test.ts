@@ -8,8 +8,14 @@ import {
   escapeHtml,
   renderPasswordPage,
   renderMessagePage,
+  htmlPageHeaders,
+  safeLogoDataUri,
   PREVIEW_COOKIE_PREFIX,
 } from './gate';
+
+// 1x1 transparent PNG.
+const PNG_1PX =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 const SECRET = 'test-secret-0123456789abcdef0123456789abcdef';
 
@@ -137,6 +143,64 @@ describe('preview gate helpers', () => {
       const html = renderPasswordPage({ slug: 'a"><script>' });
       expect(html).not.toContain('"><script>');
       expect(html).toContain('&quot;&gt;&lt;script&gt;');
+    });
+  });
+
+  describe('safeLogoDataUri', () => {
+    it('accepts the raster types we allow', () => {
+      expect(safeLogoDataUri(PNG_1PX)).toBe(PNG_1PX);
+      expect(safeLogoDataUri('data:image/jpeg;base64,AAAA')).toBe('data:image/jpeg;base64,AAAA');
+      expect(safeLogoDataUri('data:image/webp;base64,AAAA')).toBe('data:image/webp;base64,AAAA');
+    });
+
+    it('rejects SVG even though it is an image type', () => {
+      // SVG can carry script; there is no reason to accept it for a decoration.
+      expect(safeLogoDataUri('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=')).toBeNull();
+    });
+
+    it('rejects remote URLs, script URIs and junk', () => {
+      expect(safeLogoDataUri('https://evil.example/logo.png')).toBeNull();
+      expect(safeLogoDataUri('javascript:alert(1)')).toBeNull();
+      expect(safeLogoDataUri('data:text/html;base64,PGI+')).toBeNull();
+      expect(safeLogoDataUri('data:image/png,notbase64')).toBeNull();
+      expect(safeLogoDataUri('')).toBeNull();
+      expect(safeLogoDataUri(null)).toBeNull();
+      expect(safeLogoDataUri(undefined)).toBeNull();
+    });
+
+    it('rejects a payload carrying a quote break-out attempt', () => {
+      expect(safeLogoDataUri('data:image/png;base64,AAA" onerror="alert(1)')).toBeNull();
+    });
+  });
+
+  describe('renderPasswordPage with a logo', () => {
+    it('renders the logo when one is supplied', () => {
+      const html = renderPasswordPage({ slug: 'acme-abc12345', logoDataUri: PNG_1PX });
+      expect(html).toContain(`<img class="logo" src="${PNG_1PX}" alt="">`);
+    });
+
+    it('omits the logo entirely when there is none', () => {
+      const html = renderPasswordPage({ slug: 'acme-abc12345' });
+      expect(html).not.toContain('<img');
+    });
+
+    it('drops a hostile logo value rather than emitting it', () => {
+      const html = renderPasswordPage({
+        slug: 'acme-abc12345',
+        logoDataUri: 'x" onerror="alert(1)',
+      });
+      expect(html).not.toContain('onerror');
+      expect(html).not.toContain('<img');
+    });
+  });
+
+  describe('htmlPageHeaders', () => {
+    it('allows data: images only — never a remote host', () => {
+      const csp = String((htmlPageHeaders() as Record<string, string>)['Content-Security-Policy']);
+      expect(csp).toContain('img-src data:');
+      expect(csp).toContain("default-src 'none'");
+      expect(csp).not.toMatch(/img-src[^;]*https?:/);
+      expect(csp).not.toMatch(/img-src[^;]*\*/);
     });
   });
 

@@ -133,6 +133,7 @@ describe('preview gate route', () => {
 
   it('401s a gated GET with no cookie and returns the password form', async () => {
     setRow(gatedRow('acme-nocookie'));
+    downloadMock.mockResolvedValue({ data: null, error: { message: 'not found' } });
     const { request, ctx } = getReq('acme-nocookie', ['index.html']);
     const res = await GET(request, ctx);
     expect(res.status).toBe(401);
@@ -140,7 +141,75 @@ describe('preview gate route', () => {
     expect(html).toContain('name="password"');
     expect(html).toContain('action="/api/preview/acme-nocookie"');
     expect(html).toContain('noindex,nofollow');
-    expect(downloadMock).not.toHaveBeenCalled();
+    // The ONLY storage read allowed before auth is the optional branding logo —
+    // never the export itself.
+    expect(downloadMock).toHaveBeenCalledTimes(1);
+    expect(downloadMock).toHaveBeenCalledWith('acme-nocookie/logo.png');
+    expect(html).not.toContain('<img');
+  });
+
+  it('inlines a logo.png as a data URI on the password page', async () => {
+    setRow(gatedRow('acme-withlogo'));
+    // 1x1 transparent PNG.
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    downloadMock.mockResolvedValue({
+      data: { size: png.byteLength, arrayBuffer: async () => png },
+      error: null,
+    });
+    const { request, ctx } = getReq('acme-withlogo', ['index.html']);
+    const html = await (await GET(request, ctx)).text();
+    expect(html).toContain('<img class="logo" src="data:image/png;base64,iVBORw0KGgo');
+  });
+
+  it('caches the logo lookup so a sequential flood cannot drive storage reads', async () => {
+    // The 401 path is NOT behind the POST rate limiter, so this cache is the
+    // only thing bounding storage reads from anonymous traffic.
+    setRow(gatedRow('acme-logocache'));
+    downloadMock.mockResolvedValue({ data: null, error: { message: 'not found' } });
+    for (let i = 0; i < 5; i += 1) {
+      const { request, ctx } = getReq('acme-logocache', ['index.html']);
+      expect((await GET(request, ctx)).status).toBe(401);
+    }
+    expect(downloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('single-flights CONCURRENT logo misses into one storage read', async () => {
+    // The TTL cache alone does not cover this: requests that arrive before the
+    // first download resolves all miss together and would each open their own
+    // read. Deliberately concurrent — a sequential loop cannot catch it.
+    setRow(gatedRow('acme-logorace'));
+    let release: () => void = () => {};
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    downloadMock.mockImplementation(async () => {
+      await gate;
+      return { data: null, error: { message: 'not found' } };
+    });
+
+    const inFlight = Array.from({ length: 8 }, () => {
+      const { request, ctx } = getReq('acme-logorace', ['index.html']);
+      return GET(request, ctx);
+    });
+    release();
+    const results = await Promise.all(inFlight);
+
+    expect(results.every((r) => r.status === 401)).toBe(true);
+    expect(downloadMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses an oversized logo rather than inlining it', async () => {
+    setRow(gatedRow('acme-biglogo'));
+    downloadMock.mockResolvedValue({
+      data: { size: 300 * 1024, arrayBuffer: async () => Buffer.alloc(8) },
+      error: null,
+    });
+    const { request, ctx } = getReq('acme-biglogo', ['index.html']);
+    const html = await (await GET(request, ctx)).text();
+    expect(html).not.toContain('<img');
   });
 
   it('streams a gated GET with a valid cookie (no-store + noindex)', async () => {

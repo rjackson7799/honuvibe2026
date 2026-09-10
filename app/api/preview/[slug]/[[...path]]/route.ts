@@ -26,6 +26,14 @@ const SLUG_RE = /^[a-z0-9-]{8,80}$/;
 const NOINDEX = 'noindex, nofollow';
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
+// Optional per-preview branding: if an export ships a `logo.png` at its root,
+// the password page shows it. One fixed name keeps this to a single Storage
+// lookup instead of probing extensions on every unauthenticated hit.
+const LOGO_FILE = 'logo.png';
+// Inlined as base64 into a page that is never cached (`no-store`), so it is
+// re-sent on every attempt — keep it small. 256 KB raw ≈ 350 KB encoded.
+const LOGO_MAX_BYTES = 256 * 1024;
+
 type RouteContext = { params: Promise<{ slug: string; path?: string[] }> };
 
 type PreviewRow = {
@@ -62,13 +70,88 @@ function messageResponse(status: number, title: string, message: string): NextRe
   });
 }
 
+// In-memory logo cache (per instance, same convention as the rate limiter).
+//
+// This is a correctness guard, not an optimization. The unauthenticated 401 path
+// is NOT behind the rate limiter — only POST is — so without it, anyone could
+// drive one Storage read per request just by re-requesting the entry URL.
+// Misses are cached too (as null), so a preview with no logo does not pay a
+// round trip per hit either.
+//
+// Two honest limits: the cache is per instance, so on Vercel the real ceiling is
+// one read per slug per TTL *per warm instance*, not one globally; and the TTL
+// alone would not stop a burst of CONCURRENT misses, which is what logoInFlight
+// below is for. Together they bound anonymous traffic to something proportional
+// to instance count rather than to request count.
+const LOGO_CACHE_TTL_MS = 10 * 60_000;
+const LOGO_CACHE_MAX = 100;
+const logoCache = new Map<string, { value: string | null; expires: number }>();
+// Single-flight: concurrent callers that miss together await ONE download
+// instead of each issuing their own.
+const logoInFlight = new Map<string, Promise<string | null>>();
+
+/**
+ * Read `<prefix>/logo.png` and return it as a data URI, or null.
+ *
+ * It has to be inlined rather than linked: the viewer looking at the password
+ * page has no gate cookie yet, so any URL back into this route would 401. The
+ * service role reads it here instead. Best-effort throughout — a missing,
+ * oversized, or unreadable logo just means a page without one.
+ */
+async function loadLogoDataUri(
+  admin: SupabaseClient,
+  storagePrefix: string,
+): Promise<string | null> {
+  const hit = logoCache.get(storagePrefix);
+  if (hit && hit.expires > Date.now()) return hit.value;
+
+  // Someone else is already fetching this one — ride along rather than opening a
+  // second read. Without this, a burst of concurrent misses fans out 1:1.
+  const pending = logoInFlight.get(storagePrefix);
+  if (pending) return pending;
+
+  const task = fetchLogo(admin, storagePrefix);
+  logoInFlight.set(storagePrefix, task);
+  try {
+    // fetchLogo populates logoCache before it resolves, so by the time we clear
+    // the in-flight entry a late arrival already finds a warm cache — no gap.
+    return await task;
+  } finally {
+    logoInFlight.delete(storagePrefix);
+  }
+}
+
+async function fetchLogo(admin: SupabaseClient, storagePrefix: string): Promise<string | null> {
+  let value: string | null = null;
+  try {
+    const { data, error } = await admin.storage
+      .from(BUCKET)
+      .download(`${storagePrefix}/${LOGO_FILE}`);
+    // data.size is the RAW byte count, checked before base64 inflates it ~33%.
+    if (!error && data && data.size <= LOGO_MAX_BYTES) {
+      value = `data:image/png;base64,${Buffer.from(await data.arrayBuffer()).toString('base64')}`;
+    }
+  } catch {
+    value = null;
+  }
+
+  // Cheap bound: drop the oldest entry once the map is full (insertion-ordered).
+  if (logoCache.size >= LOGO_CACHE_MAX) {
+    const oldest = logoCache.keys().next().value;
+    if (oldest !== undefined) logoCache.delete(oldest);
+  }
+  logoCache.set(storagePrefix, { value, expires: Date.now() + LOGO_CACHE_TTL_MS });
+  return value;
+}
+
 function passwordResponse(
   status: number,
   slug: string,
   title: string | null,
   error?: string,
+  logoDataUri?: string | null,
 ): NextResponse {
-  return new NextResponse(renderPasswordPage({ slug, title, error }), {
+  return new NextResponse(renderPasswordPage({ slug, title, error, logoDataUri }), {
     status,
     headers: htmlPageHeaders(),
   });
@@ -125,7 +208,16 @@ type Resolved =
 // GET/HEAD share this: after loadContext, redirect a bare-slug hit to the entry
 // file, guard the path, and enforce the gated cookie. Returns either a terminal
 // response or an instruction to stream one object.
-async function resolve(request: NextRequest, slug: string, path?: string[]): Promise<Resolved> {
+//
+// `withLogo` is false for HEAD: that verb discards the body, so fetching a logo
+// to render into HTML nobody receives would be pure waste — and an unauthenticated
+// Storage read anyone could trigger at will.
+async function resolve(
+  request: NextRequest,
+  slug: string,
+  path: string[] | undefined,
+  withLogo: boolean,
+): Promise<Resolved> {
   const ctx = await loadContext(slug);
   if (ctx.kind === 'terminal') return ctx;
   const { admin, row } = ctx;
@@ -156,7 +248,8 @@ async function resolve(request: NextRequest, slug: string, path?: string[]): Pro
     }
     const cookie = request.cookies.get(cookieNameFor(slug))?.value;
     if (!cookie || !verifyGate(slug, row.password, cookie)) {
-      return { kind: 'terminal', response: passwordResponse(401, slug, row.title) };
+      const logo = withLogo ? await loadLogoDataUri(admin, row.storage_prefix) : null;
+      return { kind: 'terminal', response: passwordResponse(401, slug, row.title, undefined, logo) };
     }
   }
 
@@ -168,7 +261,7 @@ async function resolve(request: NextRequest, slug: string, path?: string[]): Pro
 
 export async function GET(request: NextRequest, ctx: RouteContext): Promise<Response> {
   const { slug, path } = await ctx.params;
-  const r = await resolve(request, slug, path);
+  const r = await resolve(request, slug, path, true);
   if (r.kind === 'terminal') return r.response;
 
   const { data: blob, error } = await r.admin.storage.from(BUCKET).download(r.objectPath);
@@ -206,7 +299,7 @@ export async function HEAD(request: NextRequest, ctx: RouteContext): Promise<Res
   // slug/env/row/expiry/path/auth checks, then report headers only — no Storage
   // read, no bump.
   const { slug, path } = await ctx.params;
-  const r = await resolve(request, slug, path);
+  const r = await resolve(request, slug, path, false);
   if (r.kind === 'terminal') {
     return new NextResponse(null, { status: r.response.status, headers: r.response.headers });
   }
@@ -243,6 +336,9 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
   const perIpOk = tryConsume(`preview:${slug}:${ip}`, 10, 60_000);
   const perSlugOk = perIpOk && tryConsume(`preview:slug:${slug}`, 100, 60 * 60_000);
   if (!perIpOk || !perSlugOk) {
+    // No logo here, deliberately: this is the one response that is NOT behind
+    // the limiter (it *is* the limiter), so loading one would let a flood of
+    // attempts drive an unbounded number of Storage reads.
     return passwordResponse(429, slug, row.title, 'Too many attempts — try again in a minute.');
   }
 
@@ -257,7 +353,10 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
 
   // row.password is non-null for gated rows (DB CHECK client_previews_gated_needs_password).
   if (password === null || !passwordMatches(password, row.password ?? '')) {
-    return passwordResponse(401, slug, row.title, 'Incorrect password.');
+    // Safe to load the logo: this path sits behind the rate limiter above, so
+    // the Storage reads it can cause are bounded (10/min per IP, 100/hr per slug).
+    const logo = await loadLogoDataUri(base.admin, row.storage_prefix);
+    return passwordResponse(401, slug, row.title, 'Incorrect password.', logo);
   }
 
   const res = NextResponse.redirect(new URL(`/api/preview/${slug}/${row.entry_file}`, request.url), 303);

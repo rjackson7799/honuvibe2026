@@ -98,6 +98,11 @@ export function escapeHtml(value: string): string {
  * Never applied to streamed exports — a CSP would break their inline
  * scripts/styles, and their Cache-Control is `private, no-store` (set in the
  * route) so a cookie revocation takes effect on the next request.
+ *
+ * `img-src data:` (and ONLY data:) exists for the optional client logo on the
+ * password page. The logo is inlined as a data URI rather than linked, because
+ * the viewer has no gate cookie yet and so cannot fetch anything through the
+ * route — and allowing a remote img-src would let a preview page phone home.
  */
 export function htmlPageHeaders(): HeadersInit {
   return {
@@ -106,8 +111,20 @@ export function htmlPageHeaders(): HeadersInit {
     'X-Robots-Tag': 'noindex, nofollow',
     'Referrer-Policy': 'no-referrer',
     'Content-Security-Policy':
-      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
+      "default-src 'none'; img-src data:; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'",
   };
+}
+
+/**
+ * Accept a logo only as a base64 data URI in a raster image type we chose.
+ * SVG is deliberately excluded: it can carry script, and while an <img> context
+ * neutralizes that today, there is no reason to take the risk for a decoration.
+ * Anything else (a remote URL, a javascript: URI, a malformed string) yields
+ * null and the page simply renders without a logo.
+ */
+export function safeLogoDataUri(value: string | null | undefined): string | null {
+  if (!value) return null;
+  return /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value) ? value : null;
 }
 
 const PAGE_STYLE = `
@@ -132,6 +149,13 @@ const PAGE_STYLE = `
     border: 1px solid #30363d;
     border-radius: 12px;
     padding: 32px 28px;
+  }
+  .logo {
+    display: block;
+    width: auto;
+    max-width: 240px;
+    max-height: 90px;
+    margin: 0 auto 22px;
   }
   h1 { margin: 0 0 8px; font-size: 20px; font-weight: 600; }
   p { margin: 0 0 20px; color: #9da7b3; font-size: 14px; }
@@ -172,10 +196,20 @@ const PAGE_STYLE = `
 `.trim();
 
 /** Self-contained password prompt. Posts `password` to /api/preview/<slug>. */
-export function renderPasswordPage(opts: { slug: string; title?: string | null; error?: string }): string {
+export function renderPasswordPage(opts: {
+  slug: string;
+  title?: string | null;
+  error?: string;
+  /** Optional client logo, already a data URI (see safeLogoDataUri). */
+  logoDataUri?: string | null;
+}): string {
   const heading = opts.title ? escapeHtml(opts.title) : 'Protected preview';
   const action = `/api/preview/${escapeHtml(opts.slug)}`;
   const errorBlock = opts.error ? `<div class="error">${escapeHtml(opts.error)}</div>` : '';
+  // alt="" — the heading right below already names the client, so the logo is
+  // decorative and a screen reader should skip it rather than say it twice.
+  const logo = safeLogoDataUri(opts.logoDataUri);
+  const logoBlock = logo ? `<img class="logo" src="${logo}" alt="">\n` : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -187,7 +221,7 @@ export function renderPasswordPage(opts: { slug: string; title?: string | null; 
 </head>
 <body>
 <main class="card">
-<h1>${heading}</h1>
+${logoBlock}<h1>${heading}</h1>
 <p>This preview is password protected. Enter the password you were sent.</p>
 ${errorBlock}
 <form method="POST" action="${action}">
