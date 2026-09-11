@@ -24,7 +24,12 @@ const BUCKET = 'engagement-documents';
 
 const svc = serviceClient();
 
-vi.setConfig({ testTimeout: 30_000 });
+// Remote-aware: against the hosted test project every RPC is a network round
+// trip, so the fixture-heavy tests need far more headroom than they do against
+// a local stack. Raised ONLY when TEST_SUPABASE_DB_URL is remote, so a genuine
+// hang still fails fast locally instead of being masked.
+const REMOTE_DB = !DB_URL.includes('127.0.0.1') && !DB_URL.includes('localhost');
+vi.setConfig({ testTimeout: REMOTE_DB ? 120_000 : 30_000 });
 
 const FIXTURE_BIZ = 'RLS Fixture Proposal Biz';
 const LEAD = {

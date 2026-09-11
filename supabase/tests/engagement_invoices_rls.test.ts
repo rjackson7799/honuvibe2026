@@ -29,7 +29,14 @@ const DB_URL =
 
 const svc = serviceClient();
 
-vi.setConfig({ testTimeout: 30_000 });
+// 30 s is ample against a LOCAL stack, where an RPC is a unix-socket hop. Against
+// the hosted throwaway project (TEST_SUPABASE_DB_URL pointing anywhere but
+// 127.0.0.1) every RPC is a network round trip, and the fixture-heavy repair
+// tests — which build two or three full accepted proposals apiece, ~8 RPCs each —
+// run right at the 30 s line. Raised only for the remote case, so a genuine hang
+// against a local stack still fails fast instead of being masked.
+const REMOTE_DB = !DB_URL.includes('127.0.0.1') && !DB_URL.includes('localhost');
+vi.setConfig({ testTimeout: REMOTE_DB ? 120_000 : 30_000 });
 
 const FIXTURE_BIZ = 'RLS Fixture Invoice Biz';
 const LEAD = {
