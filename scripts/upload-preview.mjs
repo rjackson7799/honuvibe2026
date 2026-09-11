@@ -135,6 +135,14 @@ async function main() {
     const { error } = await supabase.storage.from(BUCKET).upload(objectPath, buffer, {
       contentType: contentTypeFor(dirent.name),
       upsert: true,
+      // Without this, Supabase applies its default max-age=3600 and the Storage
+      // CDN caches per POP. Re-uploading a preview then leaves the POP nearest
+      // the Vercel function serving the OLD export for up to an hour, while a
+      // direct download from elsewhere returns the new one — observed on the
+      // Hawaii Palms preview, 2026-09-10. Previews are low-traffic and the gate
+      // route already sends `private, no-store` to the browser, so CDN caching
+      // buys nothing here and costs correctness.
+      cacheControl: '0',
     });
     if (error) {
       fail(`Failed to upload "${objectPath}": ${error.message}`);
