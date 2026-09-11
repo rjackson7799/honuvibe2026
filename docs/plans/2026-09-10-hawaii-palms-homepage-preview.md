@@ -102,17 +102,43 @@ Gate for `185858a`: type-check ✅, build ✅, gate tests 49/49 ✅. The 28 fail
 `lib/progress/*` are a **pre-existing** red from unrelated uncommitted work already in the
 tree — that diff does not touch `lib/progress`, and only its own five files were staged.
 
-## Still open
+## The image-slot saga — and the verification lesson
 
-- **Render check in a real browser.** The bundles carry `design_doc_mode="canvas"` in their
-  helmet; nothing in the file proves they render as finished homepages rather than a canvas.
-  Confirm before sending to the client. Also confirm the browser tab reads
-  "Hawaii Palms English School — Concept A/B" (static analysis found no `document.title` or
-  head-mutation calls, so it should hold, but it is unverified visually).
-- **Concept descriptions on the chooser page are placeholder copy** written from the concept
-  names alone, not from seeing the designs. Correct them and re-upload.
-- Optional: `lead_id` is NULL — `studio_leads` is empty on prod, so the skill's lead-wiring
-  step was a no-op.
+The first three exports shipped **stock AI photography** instead of the school's real photos,
+and I reported them as correct twice before Ryan caught it by comparing the live page to his
+editor. Both mistakes are worth remembering.
+
+**Mistake 1 — the wrong question.** I verified by probing whether images from the project's
+`.image-slots.state.json` appeared in the bundle. They did, so I called it fixed. But the
+author had *replaced* those photos: matching the old bytes proved the export still carried the
+**superseded** images. The `true` I read as success was the failure.
+
+**Mistake 2 — trusting the tool's success output.** A re-upload reported ✓ on every file while
+the gate kept serving the previous export (see the cacheControl fix above).
+
+**The check that actually works** (`scratchpad/resolve-slots.mjs`): follow the render path —
+`<image-slot id=… src=<uuid>>` → the bundler's `"<uuid>":{"mime":…,"data":"<base64>"}` resource
+map → decode → build a contact sheet with `sharp` → **look at it**. Run it against the SERVED
+file, not the local one. Some slots bypass markup entirely: Concept B's polaroid stack reads
+`src: (window.__BST || [])[k]` from an inlined data-URI array, so it needs its own check.
+
+**Root cause of the stale images:** Claude Design keeps a derived `export-src-<name>.html`
+whose baked `src` uuids froze at bake time, while the editor renders from *live* slot state.
+So the editor looked right, the export was wrong, and re-exporting reproduced it byte-for-byte
+(same resource set, only UUID ordering differed). The fix is to re-bake, not to re-export.
+
+## Final state
+
+Concept A: 21 slots filled, real photos throughout; only `a-pg-hero` empty.
+Concept B: 26 slots + 2 polaroid photos; `b-pg-hero`, `b-m-exp3` and the third stack position
+empty — all confirmed not visible in practice.
+
+Known, deliberate, and disclosed to the client on the chooser page: the story sections carry
+**fabricated testimonials** (invented names, quotes and cities). Concept B's polaroids are also
+keyed by stack position rather than story index, so three photos cycle against five stories —
+acceptable in a mockup, must be fixed before launch.
+
+`lead_id` is NULL — `studio_leads` is empty on prod, so the skill's lead-wiring step was a no-op.
 
 ## Skill note
 
