@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -33,6 +34,7 @@ import {
   UserRound,
   Route,
   Settings,
+  ChevronDown,
   type LucideIcon,
 } from 'lucide-react';
 import { LangToggle } from '@/components/layout/lang-toggle';
@@ -117,6 +119,39 @@ const navGroups: NavGroup[] = [
 
 const flatItems: NavItem[] = navGroups.flatMap((g) => g.items);
 
+/** localStorage key holding the labels of collapsed sidebar groups (JSON array). */
+export const ADMIN_NAV_COLLAPSED_KEY = 'honuvibe-admin-nav-collapsed';
+
+const knownGroupLabels = new Set(navGroups.map((g) => g.label));
+
+function readCollapsed(): Set<string> {
+  try {
+    const raw = localStorage.getItem(ADMIN_NAV_COLLAPSED_KEY);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(
+      parsed.filter((v): v is string => typeof v === 'string' && knownGroupLabels.has(v)),
+    );
+  } catch {
+    return new Set();
+  }
+}
+
+function writeCollapsed(collapsed: Set<string>) {
+  try {
+    // Persist in nav order so the stored value is stable regardless of click order.
+    const ordered = navGroups.map((g) => g.label).filter((l) => collapsed.has(l));
+    localStorage.setItem(ADMIN_NAV_COLLAPSED_KEY, JSON.stringify(ordered));
+  } catch {
+    // Storage unavailable (private mode, quota) — collapse still works for this page view.
+  }
+}
+
+function groupPanelId(label: string) {
+  return `admin-nav-group-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+}
+
 function isItemActive(item: NavItem, logicalPath: string): boolean {
   if (item.exact) return logicalPath === item.href;
   const matchesHref =
@@ -135,6 +170,28 @@ export function AdminNav() {
   const t = useTranslations('nav');
   const logicalPath = pathname.replace(/^\/(en|ja)/, '') || '/';
 
+  // Server and first client render agree on "all expanded"; the persisted
+  // choice is applied after mount to avoid a hydration mismatch. `hydrated`
+  // gates the persist effect so the pre-read default never overwrites storage.
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setCollapsed(readCollapsed());
+    setHydrated(true);
+  }, []);
+  useEffect(() => {
+    if (hydrated) writeCollapsed(collapsed);
+  }, [collapsed, hydrated]);
+
+  const toggleGroup = useCallback((label: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  }, []);
+
   const userMenuLabels = {
     signIn: t('sign_in'),
     account: t('account'),
@@ -147,7 +204,10 @@ export function AdminNav() {
   return (
     <>
       {/* Desktop sidebar */}
-      <nav className="hidden md:flex flex-col shrink-0 w-56 h-screen sticky top-0 bg-bg-secondary border-r border-border-default">
+      <nav
+        data-testid="admin-sidebar"
+        className="hidden md:flex flex-col shrink-0 w-56 h-screen sticky top-0 bg-bg-secondary border-r border-border-default"
+      >
         {/* Logo */}
         <div className="px-5 h-14 border-b border-border-default flex items-center">
           <HonuVibeWordmark />
@@ -156,32 +216,66 @@ export function AdminNav() {
         {/* Grouped nav */}
         <div className="flex-1 min-h-0 overflow-y-auto px-2.5 py-3">
           <div className="flex flex-col gap-3">
-            {navGroups.map((group) => (
-              <div key={group.label} className="flex flex-col gap-0.5">
-                <span className="px-3 pt-1 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-fg-tertiary">
-                  {group.label}
-                </span>
-                {group.items.map((item) => {
-                  const isActive = isItemActive(item, logicalPath);
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
-                        isActive
-                          ? 'bg-accent-teal/10 text-accent-teal font-medium'
-                          : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
+            {navGroups.map((group) => {
+              const isOpen = !collapsed.has(group.label);
+              const panelId = groupPanelId(group.label);
+              const containsActive = group.items.some((item) =>
+                isItemActive(item, logicalPath),
+              );
+              return (
+                <div key={group.label} className="flex flex-col gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(group.label)}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    className="flex w-full items-center justify-between gap-2 px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-[0.16em] text-fg-tertiary transition-colors duration-[var(--duration-fast)] hover:text-fg-secondary hover:bg-bg-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/40"
+                  >
+                    <span className="flex items-center gap-2">
+                      {group.label}
+                      {!isOpen && containsActive && (
+                        <span
+                          data-testid="nav-group-active-dot"
+                          role="img"
+                          aria-label="Contains current page"
+                          className="inline-block size-1.5 rounded-full bg-accent-teal"
+                        />
                       )}
-                    >
-                      <Icon size={18} />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            ))}
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      aria-hidden="true"
+                      className={cn(
+                        'shrink-0 transition-transform duration-[var(--duration-fast)] motion-reduce:transition-none',
+                        !isOpen && '-rotate-90',
+                      )}
+                    />
+                  </button>
+                  {/* Stays mounted so aria-controls always resolves; `hidden` does the collapsing. */}
+                  <div id={panelId} hidden={!isOpen} className="flex flex-col gap-0.5">
+                    {group.items.map((item) => {
+                      const isActive = isItemActive(item, logicalPath);
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={cn(
+                            'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors duration-[var(--duration-fast)]',
+                            isActive
+                              ? 'bg-accent-teal/10 text-accent-teal font-medium'
+                              : 'text-fg-secondary hover:text-fg-primary hover:bg-bg-tertiary',
+                          )}
+                        >
+                          <Icon size={18} />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -193,7 +287,10 @@ export function AdminNav() {
       </nav>
 
       {/* Mobile bottom nav — flat for now, grouping doesn't fit a horizontal strip */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border-default bg-bg-secondary flex overflow-x-auto">
+      <nav
+        data-testid="admin-mobile-nav"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border-default bg-bg-secondary flex overflow-x-auto"
+      >
         {flatItems.map((item) => {
           const isActive = isItemActive(item, logicalPath);
           const Icon = item.icon;
