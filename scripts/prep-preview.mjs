@@ -16,7 +16,8 @@
  *   4. Writes `<out-dir>/index.html` — the "preview board" the client lands on
  *      after the password: branded header, one panel per page, notes, footer.
  *
- * Then upload with scripts/upload-preview.mjs and upsert the client_previews
+ * Then upload with `node --env-file=.env.local scripts/upload-preview.mjs <out-dir> <slug>`
+ * and upsert the client_previews
  * row (see the studio-client-preview skill). The manifest itself stays OUTSIDE
  * the out-dir on purpose: it carries local source paths, and the upload script
  * pushes every file in the out-dir.
