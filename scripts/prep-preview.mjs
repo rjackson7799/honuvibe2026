@@ -37,6 +37,9 @@
  *   ],
  *   "intro": "Two directions for your review.",  // one or two sentences under the header
  *   "introSecondary": "ご確認ください。",         // optional second-language line
+ *   "links": {                                   // optional: rename hardcoded cross-page links.
+ *     "Okada Appearances.dc.html": "appearances.html"   // Claude Design links sibling pages as
+ *   },                                           //   "<Project> <Page>.dc.html" — export EVERY linked page
  *   "pages": [
  *     {
  *       "file": "site.html",                     // name inside the export (bare file name)
@@ -45,7 +48,8 @@
  *       "kind": "Site concept",                  // small label on the board panel
  *       "name": "The public site",               // panel heading
  *       "description": "Hero, appearances, gallery…", // one or two sentences
- *       "cta": "Open the site"                   // link text
+ *       "cta": "Open the site",                  // link text
+ *       "board": true                            // false = upload + prep it, but no panel on the board
  *     }
  *   ],
  *   "notes": ["Placeholder photos…"],            // optional caveats shown to the client
@@ -98,8 +102,17 @@ const ANALYTICS_PATTERNS = [
   /<script[^>]*>[^<]*(hj\(|analytics\.load\(|clarity\()[^<]*<\/script>/gi,
 ];
 
-export function prepHtml(html, title) {
+export function prepHtml(html, title, links = {}) {
   let out = html;
+
+  // Cross-page links: Claude Design hardcodes "./<Project> <Page>.dc.html" (the
+  // space arrives as %20). Rewrite every form of each name so the sub pages can
+  // live under clean names in the export.
+  for (const [from, to] of Object.entries(links)) {
+    for (const needle of new Set([from, encodeURI(from), encodeURIComponent(from), from.replace(/ /g, '%20')])) {
+      out = out.split(needle).join(to);
+    }
+  }
 
   // <title>: replace the first one, or add one if the export has none.
   if (/<title>[^<]*<\/title>/i.test(out)) {
@@ -180,6 +193,7 @@ export function renderBoard(m, opts) {
     : `<h1 class="client">${escapeHtml(m.client)}</h1>`;
 
   const panels = m.pages
+    .filter((p) => p.board !== false)
     .map(
       (p) => `
       <a class="panel" href="${escapeHtml(p.file)}">
@@ -304,7 +318,7 @@ async function main() {
     if (p.file === 'index.html') fail('pages[].file cannot be index.html — that name is the board.');
     if (!p.source || !(await fileExists(p.source))) fail(`pages[].source not found: ${p.source}`);
     const raw = await readFile(p.source, 'utf8');
-    const { html, stripped, absolute } = prepHtml(raw, p.title ?? `${m.client} — ${p.name ?? basename(p.file)}`);
+    const { html, stripped, absolute } = prepHtml(raw, p.title ?? `${m.client} — ${p.name ?? basename(p.file)}`, m.links ?? {});
     await writeFile(join(outDir, p.file), html, 'utf8');
     const mb = (Buffer.byteLength(html) / (1024 * 1024)).toFixed(2);
     console.log(`  ✓ ${p.file}  (${mb} MB${stripped ? `, stripped ${stripped} analytics tag(s)` : ''})`);
@@ -340,7 +354,18 @@ async function main() {
   const fontCss = await fontFaceCss(m.fonts ?? []);
   const board = renderBoard(m, { hasLogo, hasBg, fontCss });
   await writeFile(join(outDir, 'index.html'), board, 'utf8');
-  console.log(`  ✓ index.html  (board: ${m.pages.length} page(s))`);
+  const onBoard = m.pages.filter((p) => p.board !== false).length;
+  console.log(`  ✓ index.html  (board: ${onBoard} panel(s), ${m.pages.length - onBoard} sub page(s) linked only from the concepts)`);
+
+  // Any Claude Design sibling link that is neither renamed nor shipped will 404
+  // for the client — say so loudly rather than let them find it.
+  const shipped = new Set(m.pages.map((p) => p.file));
+  for (const p of m.pages) {
+    const html = await readFile(join(outDir, p.file), 'utf8');
+    const dangling = [...new Set((html.match(/[A-Za-z0-9 _%-]+.dc.html/g) ?? []).map((x) => decodeURIComponent(x)))]
+      .filter((name) => !shipped.has(name));
+    if (dangling.length) console.log(`    ! ${p.file} still links to unexported page(s): ${dangling.join(', ')}`);
+  }
 
   console.log(`\nPrepared ${outDir}`);
   console.log('Next: node --env-file=.env.local scripts/upload-preview.mjs <out-dir> <slug>\n');

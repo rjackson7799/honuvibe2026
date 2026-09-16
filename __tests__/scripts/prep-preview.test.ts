@@ -47,6 +47,14 @@ describe('prepHtml', () => {
     expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
   });
 
+  it('rewrites hardcoded Claude Design sibling links in every encoding', () => {
+    const html = '<a href="./Okada%20Gallery.dc.html">g</a><a href="Okada Gallery.dc.html">g2</a>';
+    const { html: out } = prepHtml(html, 'Acme', { 'Okada Gallery.dc.html': 'gallery.html' });
+    expect(out).toContain('href="./gallery.html"');
+    expect(out).toContain('href="gallery.html"');
+    expect(out).not.toContain('.dc.html');
+  });
+
   it('adds a title when the export has none', () => {
     const { html } = prepHtml('<html><head><meta charset="utf-8"></head><body></body></html>', 'Acme');
     expect(html).toContain('<title>Acme</title>');
@@ -98,6 +106,15 @@ describe('renderBoard', () => {
     expect(() => renderBoard({ ...manifest, fonts: [{ family: evil, file: 'x.woff2', role: 'display' }] }, o)).toThrow(/family/);
     const ok = renderBoard({ ...manifest, fonts: [{ family: 'Zen Antique', file: 'x.woff2', role: 'display' }] }, o);
     expect(ok).toContain('"Zen Antique", Georgia');
+  });
+
+  it('keeps board:false pages off the board (they are still uploaded)', () => {
+    const html = renderBoard(
+      { ...manifest, pages: [...manifest.pages, { file: 'gallery.html', name: 'Gallery', board: false }] },
+      { hasLogo: false, hasBg: false, fontCss: '' },
+    );
+    expect(html).not.toContain('href="gallery.html"');
+    expect(html).toContain('href="site.html"');
   });
 
   it('never references a remote host — the preview must not phone home', () => {
