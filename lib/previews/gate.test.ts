@@ -9,7 +9,7 @@ import {
   renderPasswordPage,
   renderMessagePage,
   htmlPageHeaders,
-  safeLogoDataUri,
+  safeImageDataUri,
   PREVIEW_COOKIE_PREFIX,
 } from './gate';
 
@@ -146,30 +146,34 @@ describe('preview gate helpers', () => {
     });
   });
 
-  describe('safeLogoDataUri', () => {
+  describe('safeImageDataUri', () => {
     it('accepts the raster types we allow', () => {
-      expect(safeLogoDataUri(PNG_1PX)).toBe(PNG_1PX);
-      expect(safeLogoDataUri('data:image/jpeg;base64,AAAA')).toBe('data:image/jpeg;base64,AAAA');
-      expect(safeLogoDataUri('data:image/webp;base64,AAAA')).toBe('data:image/webp;base64,AAAA');
+      expect(safeImageDataUri(PNG_1PX)).toBe(PNG_1PX);
+      expect(safeImageDataUri('data:image/jpeg;base64,AAAA')).toBe('data:image/jpeg;base64,AAAA');
+      expect(safeImageDataUri('data:image/webp;base64,AAAA')).toBe('data:image/webp;base64,AAAA');
     });
 
     it('rejects SVG even though it is an image type', () => {
       // SVG can carry script; there is no reason to accept it for a decoration.
-      expect(safeLogoDataUri('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=')).toBeNull();
+      expect(safeImageDataUri('data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=')).toBeNull();
     });
 
     it('rejects remote URLs, script URIs and junk', () => {
-      expect(safeLogoDataUri('https://evil.example/logo.png')).toBeNull();
-      expect(safeLogoDataUri('javascript:alert(1)')).toBeNull();
-      expect(safeLogoDataUri('data:text/html;base64,PGI+')).toBeNull();
-      expect(safeLogoDataUri('data:image/png,notbase64')).toBeNull();
-      expect(safeLogoDataUri('')).toBeNull();
-      expect(safeLogoDataUri(null)).toBeNull();
-      expect(safeLogoDataUri(undefined)).toBeNull();
+      expect(safeImageDataUri('https://evil.example/logo.png')).toBeNull();
+      expect(safeImageDataUri('javascript:alert(1)')).toBeNull();
+      expect(safeImageDataUri('data:text/html;base64,PGI+')).toBeNull();
+      expect(safeImageDataUri('data:image/png,notbase64')).toBeNull();
+      expect(safeImageDataUri('')).toBeNull();
+      expect(safeImageDataUri(null)).toBeNull();
+      expect(safeImageDataUri(undefined)).toBeNull();
     });
 
     it('rejects a payload carrying a quote break-out attempt', () => {
-      expect(safeLogoDataUri('data:image/png;base64,AAA" onerror="alert(1)')).toBeNull();
+      expect(safeImageDataUri('data:image/png;base64,AAA" onerror="alert(1)')).toBeNull();
+    });
+
+    it('rejects a payload carrying a CSS url() break-out attempt', () => {
+      expect(safeImageDataUri('data:image/jpeg;base64,AAA") ; x:url(')).toBeNull();
     });
   });
 
@@ -191,6 +195,38 @@ describe('preview gate helpers', () => {
       });
       expect(html).not.toContain('onerror');
       expect(html).not.toContain('<img');
+    });
+  });
+
+  describe('renderPasswordPage with a background image', () => {
+    const JPG = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAg=';
+
+    it('paints the background as an inline data URI (CSP allows img-src data: only)', () => {
+      const html = renderPasswordPage({ slug: 'acme-abc12345', bgDataUri: JPG });
+      expect(html).toContain(`background-image: url("${JPG}")`);
+      // The overlay must be present so text stays readable over any photo.
+      expect(html).toContain('class="backdrop"');
+    });
+
+    it('omits the backdrop element entirely when there is no background', () => {
+      const html = renderPasswordPage({ slug: 'acme-abc12345' });
+      expect(html).not.toContain('class="backdrop"');
+      expect(html).not.toContain('background-image');
+    });
+
+    it('drops a hostile background value rather than emitting it', () => {
+      const html = renderPasswordPage({
+        slug: 'acme-abc12345',
+        bgDataUri: 'x");} body{background:url(javascript:alert(1)',
+      });
+      expect(html).not.toContain('javascript:');
+      expect(html).not.toContain('class="backdrop"');
+    });
+
+    it('renders logo and background together', () => {
+      const html = renderPasswordPage({ slug: 'acme-abc12345', logoDataUri: PNG_1PX, bgDataUri: JPG });
+      expect(html).toContain('<img class="logo"');
+      expect(html).toContain('class="backdrop"');
     });
   });
 

@@ -26,13 +26,16 @@ const SLUG_RE = /^[a-z0-9-]{8,80}$/;
 const NOINDEX = 'noindex, nofollow';
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
-// Optional per-preview branding: if an export ships a `logo.png` at its root,
-// the password page shows it. One fixed name keeps this to a single Storage
-// lookup instead of probing extensions on every unauthenticated hit.
-const LOGO_FILE = 'logo.png';
-// Inlined as base64 into a page that is never cached (`no-store`), so it is
-// re-sent on every attempt — keep it small. 256 KB raw ≈ 350 KB encoded.
-const LOGO_MAX_BYTES = 256 * 1024;
+// Optional per-preview branding: if an export ships a `logo.png` and/or a
+// `bg.jpg` at its root, the password page shows them (logo in the card, photo
+// full-bleed behind it under a dark overlay). Fixed names keep this to a bounded
+// number of Storage lookups instead of probing extensions on every
+// unauthenticated hit. Both are inlined as base64 into a page that is never
+// cached (`no-store`), so they are re-sent on every attempt — keep them small.
+type BrandingAsset = { file: string; mime: 'image/png' | 'image/jpeg'; maxBytes: number };
+const LOGO_ASSET: BrandingAsset = { file: 'logo.png', mime: 'image/png', maxBytes: 256 * 1024 };
+// 600 KB raw ≈ 800 KB encoded — a 1920-wide JPEG at quality ~70 fits comfortably.
+const BG_ASSET: BrandingAsset = { file: 'bg.jpg', mime: 'image/jpeg', maxBytes: 600 * 1024 };
 
 type RouteContext = { params: Promise<{ slug: string; path?: string[] }> };
 
@@ -70,78 +73,94 @@ function messageResponse(status: number, title: string, message: string): NextRe
   });
 }
 
-// In-memory logo cache (per instance, same convention as the rate limiter).
+// In-memory branding cache (per instance, same convention as the rate limiter),
+// keyed by `<prefix>/<file>` so the logo and background are cached independently.
 //
 // This is a correctness guard, not an optimization. The unauthenticated 401 path
 // is NOT behind the rate limiter — only POST is — so without it, anyone could
-// drive one Storage read per request just by re-requesting the entry URL.
-// Misses are cached too (as null), so a preview with no logo does not pay a
-// round trip per hit either.
+// drive Storage reads per request just by re-requesting the entry URL. Misses
+// are cached too (as null), so a preview with no branding files does not pay
+// round trips per hit either.
 //
 // Two honest limits: the cache is per instance, so on Vercel the real ceiling is
-// one read per slug per TTL *per warm instance*, not one globally; and the TTL
-// alone would not stop a burst of CONCURRENT misses, which is what logoInFlight
-// below is for. Together they bound anonymous traffic to something proportional
-// to instance count rather than to request count.
-const LOGO_CACHE_TTL_MS = 10 * 60_000;
-const LOGO_CACHE_MAX = 100;
-const logoCache = new Map<string, { value: string | null; expires: number }>();
+// one read per file per TTL *per warm instance*, not one globally; and the TTL
+// alone would not stop a burst of CONCURRENT misses, which is what
+// brandingInFlight below is for. Together they bound anonymous traffic to
+// something proportional to instance count rather than to request count.
+const BRANDING_CACHE_TTL_MS = 10 * 60_000;
+const BRANDING_CACHE_MAX = 200;
+const brandingCache = new Map<string, { value: string | null; expires: number }>();
 // Single-flight: concurrent callers that miss together await ONE download
 // instead of each issuing their own.
-const logoInFlight = new Map<string, Promise<string | null>>();
+const brandingInFlight = new Map<string, Promise<string | null>>();
 
 /**
- * Read `<prefix>/logo.png` and return it as a data URI, or null.
+ * Read `<prefix>/<asset.file>` and return it as a data URI, or null.
  *
  * It has to be inlined rather than linked: the viewer looking at the password
  * page has no gate cookie yet, so any URL back into this route would 401. The
  * service role reads it here instead. Best-effort throughout — a missing,
- * oversized, or unreadable logo just means a page without one.
+ * oversized, or unreadable file just means a page without it.
  */
-async function loadLogoDataUri(
+async function loadBrandingDataUri(
   admin: SupabaseClient,
   storagePrefix: string,
+  asset: BrandingAsset,
 ): Promise<string | null> {
-  const hit = logoCache.get(storagePrefix);
+  const key = `${storagePrefix}/${asset.file}`;
+  const hit = brandingCache.get(key);
   if (hit && hit.expires > Date.now()) return hit.value;
 
   // Someone else is already fetching this one — ride along rather than opening a
   // second read. Without this, a burst of concurrent misses fans out 1:1.
-  const pending = logoInFlight.get(storagePrefix);
+  const pending = brandingInFlight.get(key);
   if (pending) return pending;
 
-  const task = fetchLogo(admin, storagePrefix);
-  logoInFlight.set(storagePrefix, task);
+  const task = fetchBranding(admin, key, asset);
+  brandingInFlight.set(key, task);
   try {
-    // fetchLogo populates logoCache before it resolves, so by the time we clear
-    // the in-flight entry a late arrival already finds a warm cache — no gap.
+    // fetchBranding populates brandingCache before it resolves, so by the time we
+    // clear the in-flight entry a late arrival already finds a warm cache — no gap.
     return await task;
   } finally {
-    logoInFlight.delete(storagePrefix);
+    brandingInFlight.delete(key);
   }
 }
 
-async function fetchLogo(admin: SupabaseClient, storagePrefix: string): Promise<string | null> {
+async function fetchBranding(
+  admin: SupabaseClient,
+  key: string,
+  asset: BrandingAsset,
+): Promise<string | null> {
   let value: string | null = null;
   try {
-    const { data, error } = await admin.storage
-      .from(BUCKET)
-      .download(`${storagePrefix}/${LOGO_FILE}`);
+    const { data, error } = await admin.storage.from(BUCKET).download(key);
     // data.size is the RAW byte count, checked before base64 inflates it ~33%.
-    if (!error && data && data.size <= LOGO_MAX_BYTES) {
-      value = `data:image/png;base64,${Buffer.from(await data.arrayBuffer()).toString('base64')}`;
+    if (!error && data && data.size <= asset.maxBytes) {
+      value = `data:${asset.mime};base64,${Buffer.from(await data.arrayBuffer()).toString('base64')}`;
     }
   } catch {
     value = null;
   }
 
   // Cheap bound: drop the oldest entry once the map is full (insertion-ordered).
-  if (logoCache.size >= LOGO_CACHE_MAX) {
-    const oldest = logoCache.keys().next().value;
-    if (oldest !== undefined) logoCache.delete(oldest);
+  if (brandingCache.size >= BRANDING_CACHE_MAX) {
+    const oldest = brandingCache.keys().next().value;
+    if (oldest !== undefined) brandingCache.delete(oldest);
   }
-  logoCache.set(storagePrefix, { value, expires: Date.now() + LOGO_CACHE_TTL_MS });
+  brandingCache.set(key, { value, expires: Date.now() + BRANDING_CACHE_TTL_MS });
   return value;
+}
+
+type Branding = { logoDataUri: string | null; bgDataUri: string | null };
+
+/** Both branding files for a preview, fetched together (each cached + single-flighted). */
+async function loadBranding(admin: SupabaseClient, storagePrefix: string): Promise<Branding> {
+  const [logoDataUri, bgDataUri] = await Promise.all([
+    loadBrandingDataUri(admin, storagePrefix, LOGO_ASSET),
+    loadBrandingDataUri(admin, storagePrefix, BG_ASSET),
+  ]);
+  return { logoDataUri, bgDataUri };
 }
 
 function passwordResponse(
@@ -149,12 +168,18 @@ function passwordResponse(
   slug: string,
   title: string | null,
   error?: string,
-  logoDataUri?: string | null,
+  branding?: Branding | null,
 ): NextResponse {
-  return new NextResponse(renderPasswordPage({ slug, title, error, logoDataUri }), {
-    status,
-    headers: htmlPageHeaders(),
-  });
+  return new NextResponse(
+    renderPasswordPage({
+      slug,
+      title,
+      error,
+      logoDataUri: branding?.logoDataUri,
+      bgDataUri: branding?.bgDataUri,
+    }),
+    { status, headers: htmlPageHeaders() },
+  );
 }
 
 function entryRedirect(request: NextRequest, slug: string, entryFile: string): NextResponse {
@@ -248,8 +273,8 @@ async function resolve(
     }
     const cookie = request.cookies.get(cookieNameFor(slug))?.value;
     if (!cookie || !verifyGate(slug, row.password, cookie)) {
-      const logo = withLogo ? await loadLogoDataUri(admin, row.storage_prefix) : null;
-      return { kind: 'terminal', response: passwordResponse(401, slug, row.title, undefined, logo) };
+      const branding = withLogo ? await loadBranding(admin, row.storage_prefix) : null;
+      return { kind: 'terminal', response: passwordResponse(401, slug, row.title, undefined, branding) };
     }
   }
 
@@ -353,10 +378,10 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
 
   // row.password is non-null for gated rows (DB CHECK client_previews_gated_needs_password).
   if (password === null || !passwordMatches(password, row.password ?? '')) {
-    // Safe to load the logo: this path sits behind the rate limiter above, so
+    // Safe to load branding: this path sits behind the rate limiter above, so
     // the Storage reads it can cause are bounded (10/min per IP, 100/hr per slug).
-    const logo = await loadLogoDataUri(base.admin, row.storage_prefix);
-    return passwordResponse(401, slug, row.title, 'Incorrect password.', logo);
+    const branding = await loadBranding(base.admin, row.storage_prefix);
+    return passwordResponse(401, slug, row.title, 'Incorrect password.', branding);
   }
 
   const res = NextResponse.redirect(new URL(`/api/preview/${slug}/${row.entry_file}`, request.url), 303);

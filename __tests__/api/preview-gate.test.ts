@@ -141,11 +141,39 @@ describe('preview gate route', () => {
     expect(html).toContain('name="password"');
     expect(html).toContain('action="/api/preview/acme-nocookie"');
     expect(html).toContain('noindex,nofollow');
-    // The ONLY storage read allowed before auth is the optional branding logo —
-    // never the export itself.
-    expect(downloadMock).toHaveBeenCalledTimes(1);
+    // The ONLY storage reads allowed before auth are the two optional branding
+    // files (logo + background) — never the export itself.
+    expect(downloadMock).toHaveBeenCalledTimes(2);
     expect(downloadMock).toHaveBeenCalledWith('acme-nocookie/logo.png');
+    expect(downloadMock).toHaveBeenCalledWith('acme-nocookie/bg.jpg');
     expect(html).not.toContain('<img');
+    expect(html).not.toContain('class="backdrop"');
+  });
+
+  it('inlines a bg.jpg as a data URI background on the password page', async () => {
+    setRow(gatedRow('acme-withbg01'));
+    const jpg = Buffer.from('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAg=', 'base64');
+    downloadMock.mockImplementation(async (path: string) =>
+      path.endsWith('/bg.jpg')
+        ? { data: { size: jpg.byteLength, arrayBuffer: async () => jpg }, error: null }
+        : { data: null, error: { message: 'not found' } },
+    );
+    const { request, ctx } = getReq('acme-withbg01', ['index.html']);
+    const html = await (await GET(request, ctx)).text();
+    expect(html).toContain('class="backdrop"');
+    expect(html).toContain('background-image: url("data:image/jpeg;base64,/9j/4AAQ');
+  });
+
+  it('refuses an oversized bg.jpg rather than inlining it', async () => {
+    setRow(gatedRow('acme-bigbg001'));
+    downloadMock.mockImplementation(async (path: string) =>
+      path.endsWith('/bg.jpg')
+        ? { data: { size: 2 * 1024 * 1024, arrayBuffer: async () => Buffer.alloc(8) }, error: null }
+        : { data: null, error: { message: 'not found' } },
+    );
+    const { request, ctx } = getReq('acme-bigbg001', ['index.html']);
+    const html = await (await GET(request, ctx)).text();
+    expect(html).not.toContain('class="backdrop"');
   });
 
   it('inlines a logo.png as a data URI on the password page', async () => {
@@ -173,7 +201,8 @@ describe('preview gate route', () => {
       const { request, ctx } = getReq('acme-logocache', ['index.html']);
       expect((await GET(request, ctx)).status).toBe(401);
     }
-    expect(downloadMock).toHaveBeenCalledTimes(1);
+    // One read per branding file (logo + background), regardless of hit count.
+    expect(downloadMock).toHaveBeenCalledTimes(2);
   });
 
   it('single-flights CONCURRENT logo misses into one storage read', async () => {
@@ -198,7 +227,8 @@ describe('preview gate route', () => {
     const results = await Promise.all(inFlight);
 
     expect(results.every((r) => r.status === 401)).toBe(true);
-    expect(downloadMock).toHaveBeenCalledTimes(1);
+    // One read per branding file (logo + background) across all 8 requests.
+    expect(downloadMock).toHaveBeenCalledTimes(2);
   });
 
   it('refuses an oversized logo rather than inlining it', async () => {

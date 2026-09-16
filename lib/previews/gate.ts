@@ -116,82 +116,126 @@ export function htmlPageHeaders(): HeadersInit {
 }
 
 /**
- * Accept a logo only as a base64 data URI in a raster image type we chose.
- * SVG is deliberately excluded: it can carry script, and while an <img> context
- * neutralizes that today, there is no reason to take the risk for a decoration.
- * Anything else (a remote URL, a javascript: URI, a malformed string) yields
- * null and the page simply renders without a logo.
+ * Accept a branding image (logo or background) only as a base64 data URI in a
+ * raster type we chose. SVG is deliberately excluded: it can carry script, and
+ * while an <img> context neutralizes that today, there is no reason to take the
+ * risk for a decoration. Anything else (a remote URL, a javascript: URI, a
+ * malformed string) yields null and the page simply renders without it.
+ *
+ * The anchored character class is also what makes it safe to drop the value
+ * unescaped into an HTML attribute AND a CSS url("…") — no quotes, parens,
+ * angle brackets or whitespace can survive it.
  */
-export function safeLogoDataUri(value: string | null | undefined): string | null {
+export function safeImageDataUri(value: string | null | undefined): string | null {
   if (!value) return null;
   return /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value) ? value : null;
 }
 
+// One neutral surface that works with or without a client photo behind it.
+// Deliberately no brand accent here: the client's identity arrives through the
+// logo and background files, so the chrome stays quiet and lets them carry it.
 const PAGE_STYLE = `
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
+  html { background: #0a0a0c; }
   body {
     margin: 0;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
-    background: #0d1117;
-    color: #e6edf3;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px 20px;
+    background: radial-gradient(120% 80% at 50% 0%, #17171c 0%, #0a0a0c 65%);
+    color: #f2efe8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(6,6,9,0.42) 0%, rgba(6,6,9,0.66) 55%, rgba(6,6,9,0.86) 100%);
   }
   .card {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    max-width: 380px;
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 12px;
-    padding: 32px 28px;
+    max-width: 400px;
+    padding: 36px 30px 30px;
+    background: rgba(12,12,16,0.72);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
   }
   .logo {
     display: block;
     width: auto;
-    max-width: 240px;
-    max-height: 90px;
-    margin: 0 auto 22px;
+    max-width: 100%;
+    max-height: 150px;
+    margin: 0 auto 26px;
   }
-  h1 { margin: 0 0 8px; font-size: 20px; font-weight: 600; }
-  p { margin: 0 0 20px; color: #9da7b3; font-size: 14px; }
-  label { display: block; margin: 0 0 8px; font-size: 13px; color: #9da7b3; }
+  h1 { margin: 0 0 6px; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  p { margin: 0 0 22px; color: rgba(242,239,232,0.62); font-size: 14px; }
+  label { display: block; margin: 0 0 8px; font-size: 13px; color: rgba(242,239,232,0.62); }
   input[type="password"] {
     width: 100%;
-    padding: 12px 14px;
+    padding: 13px 14px;
     font-size: 16px;
-    color: #e6edf3;
-    background: #0d1117;
-    border: 1px solid #30363d;
-    border-radius: 8px;
+    color: #f2efe8;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 9px;
     outline: none;
+    transition: border-color 150ms ease, background 150ms ease;
   }
-  input[type="password"]:focus { border-color: #2f81f7; }
+  input[type="password"]::placeholder { color: rgba(242,239,232,0.3); }
+  input[type="password"]:focus {
+    border-color: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.08);
+  }
   button {
     width: 100%;
+    min-height: 46px;
     margin-top: 16px;
     padding: 12px 14px;
     font-size: 15px;
     font-weight: 600;
-    color: #ffffff;
-    background: #238636;
+    color: #0a0a0c;
+    background: #f2efe8;
     border: 0;
-    border-radius: 8px;
+    border-radius: 9px;
     cursor: pointer;
+    transition: background 150ms ease;
   }
-  button:hover { background: #2ea043; }
+  button:hover { background: #ffffff; }
+  button:focus-visible, input[type="password"]:focus-visible {
+    outline: 2px solid #f2efe8;
+    outline-offset: 2px;
+  }
   .error {
     margin: 0 0 16px;
     padding: 10px 12px;
     font-size: 13px;
     color: #ffb4ab;
-    background: #3d1a17;
-    border: 1px solid #6e2b25;
-    border-radius: 8px;
+    background: rgba(120,30,24,0.35);
+    border: 1px solid rgba(255,120,110,0.35);
+    border-radius: 9px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    input[type="password"], button { transition: none; }
   }
 `.trim();
 
@@ -200,16 +244,26 @@ export function renderPasswordPage(opts: {
   slug: string;
   title?: string | null;
   error?: string;
-  /** Optional client logo, already a data URI (see safeLogoDataUri). */
+  /** Optional client logo, already a data URI (see safeImageDataUri). */
   logoDataUri?: string | null;
+  /** Optional full-bleed background photo, already a data URI (see safeImageDataUri). */
+  bgDataUri?: string | null;
 }): string {
   const heading = opts.title ? escapeHtml(opts.title) : 'Protected preview';
   const action = `/api/preview/${escapeHtml(opts.slug)}`;
   const errorBlock = opts.error ? `<div class="error">${escapeHtml(opts.error)}</div>` : '';
   // alt="" — the heading right below already names the client, so the logo is
   // decorative and a screen reader should skip it rather than say it twice.
-  const logo = safeLogoDataUri(opts.logoDataUri);
+  const logo = safeImageDataUri(opts.logoDataUri);
   const logoBlock = logo ? `<img class="logo" src="${logo}" alt="">\n` : '';
+  // The photo paints a fixed layer behind the card (not <body>) so the darkening
+  // overlay in .backdrop::after can sit between it and the card. It goes in a
+  // second <style> block rather than a style attribute so the data URI needs no
+  // attribute escaping; style-src 'unsafe-inline' and img-src data: in
+  // htmlPageHeaders() are exactly what this needs.
+  const bg = safeImageDataUri(opts.bgDataUri);
+  const backdropStyle = bg ? `<style>.backdrop { background-image: url("${bg}"); }</style>\n` : '';
+  const backdrop = bg ? `<div class="backdrop" aria-hidden="true"></div>\n` : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -218,9 +272,9 @@ export function renderPasswordPage(opts: {
 <meta name="robots" content="noindex,nofollow">
 <title>${heading}</title>
 <style>${PAGE_STYLE}</style>
-</head>
+${backdropStyle}</head>
 <body>
-<main class="card">
+${backdrop}<main class="card">
 ${logoBlock}<h1>${heading}</h1>
 <p>This preview is password protected. Enter the password you were sent.</p>
 ${errorBlock}
