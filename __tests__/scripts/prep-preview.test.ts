@@ -76,8 +76,8 @@ describe('renderBoard', () => {
 
   it('links every page relatively and escapes all copy', () => {
     const html = renderBoard(manifest, { hasLogo: false, hasBg: false, fontCss: '' });
-    expect(html).toContain('href="site.html"');
-    expect(html).toContain('href="admin.html"');
+    expect(html).toContain('href="site.html" target="_blank" rel="noopener"');
+    expect(html).toContain('href="admin.html" target="_blank" rel="noopener"');
     expect(html).toContain('Acme &lt;Co&gt;');
     expect(html).toContain('Home &amp; more');
     expect(html).toContain('Placeholder &quot;photos&quot;');

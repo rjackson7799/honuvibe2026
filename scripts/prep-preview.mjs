@@ -196,7 +196,7 @@ export function renderBoard(m, opts) {
     .filter((p) => p.board !== false)
     .map(
       (p) => `
-      <a class="panel" href="${escapeHtml(p.file)}">
+      <a class="panel" href="${escapeHtml(p.file)}" target="_blank" rel="noopener">
         <span class="kind">${escapeHtml(p.kind ?? '')}</span>
         <span class="name">${escapeHtml(p.name ?? p.title)}</span>
         <span class="desc">${escapeHtml(p.description ?? '')}</span>
