@@ -141,6 +141,23 @@ export function prepHtml(html, title, links = {}) {
   return { html: out, stripped, absolute };
 }
 
+/**
+ * Page links in `html` that this export does not ship — each one 404s for the
+ * client. Covers both an unrenamed Claude Design sibling ("Okada Gallery.dc.html")
+ * and a renamed one whose target was never exported ("gallery.html" in `links`
+ * but absent from `pages`).
+ *
+ * Anchored on the href attribute — a bundle's quotes are backslash-escaped inside
+ * its JS string — so doctypes, mime types and stray base64 in a 12 MB export
+ * cannot masquerade as page links.
+ */
+export function danglingLinks(html, shipped) {
+  const names = [...html.matchAll(/href=\\?["']\.?\/?([A-Za-z0-9 _%-]+\.(?:dc\.)?html)/gi)].map(
+    (m) => decodeURIComponent(m[1]),
+  );
+  return [...new Set(names)].filter((name) => !shipped.has(name));
+}
+
 // --- 4: preview board ------------------------------------------------------
 
 async function fontFaceCss(fonts) {
@@ -357,14 +374,18 @@ async function main() {
   const onBoard = m.pages.filter((p) => p.board !== false).length;
   console.log(`  ✓ index.html  (board: ${onBoard} panel(s), ${m.pages.length - onBoard} sub page(s) linked only from the concepts)`);
 
-  // Any Claude Design sibling link that is neither renamed nor shipped will 404
-  // for the client — say so loudly rather than let them find it.
-  const shipped = new Set(m.pages.map((p) => p.file));
+  // Any page link that is not shipped will 404 for the client — say so loudly
+  // rather than let them find it. This covers BOTH an unrenamed Claude Design
+  // sibling ("Okada Gallery.dc.html") and a renamed one whose target was never
+  // exported ("gallery.html" in `links` but absent from `pages`).
+  const shipped = new Set([...m.pages.map((p) => p.file), 'index.html']);
   for (const p of m.pages) {
     const html = await readFile(join(outDir, p.file), 'utf8');
-    const dangling = [...new Set((html.match(/[A-Za-z0-9 _%-]+.dc.html/g) ?? []).map((x) => decodeURIComponent(x)))]
-      .filter((name) => !shipped.has(name));
-    if (dangling.length) console.log(`    ! ${p.file} still links to unexported page(s): ${dangling.join(', ')}`);
+    const dangling = danglingLinks(html, shipped);
+    if (dangling.length) {
+      console.log(`    ! ${p.file} links to ${dangling.length} page(s) not in this export — they will 404:`);
+      for (const d of dangling) console.log(`      ${d}`);
+    }
   }
 
   console.log(`\nPrepared ${outDir}`);

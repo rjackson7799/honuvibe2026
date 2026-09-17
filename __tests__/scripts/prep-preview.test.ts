@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 // The script is plain ESM (allowJs) so the pure helpers import without running main().
-import { prepHtml, renderBoard } from '../../scripts/prep-preview.mjs';
+import { prepHtml, renderBoard, danglingLinks } from '../../scripts/prep-preview.mjs';
 
 const BUNDLE = `<!DOCTYPE html>
 <html>
@@ -58,6 +58,34 @@ describe('prepHtml', () => {
   it('adds a title when the export has none', () => {
     const { html } = prepHtml('<html><head><meta charset="utf-8"></head><body></body></html>', 'Acme');
     expect(html).toContain('<title>Acme</title>');
+  });
+});
+
+describe('danglingLinks', () => {
+  const shipped = new Set(['site.html', 'index.html']);
+
+  it('flags a renamed link whose target was never exported', () => {
+    // The whole point: `links` rewrote it to a clean name, so nothing says
+    // ".dc.html" any more — but the page still is not in the export.
+    const html = '<a href="./gallery.html">g</a><a href="site.html">s</a>';
+    expect(danglingLinks(html, shipped)).toEqual(['gallery.html']);
+  });
+
+  it('flags an unrenamed Claude Design sibling', () => {
+    const html = '<a href=\\"Okada%20Gallery.dc.html\\">g</a>';
+    expect(danglingLinks(html, shipped)).toEqual(['Okada Gallery.dc.html']);
+  });
+
+  it('ignores doctypes, mime types and base64 that merely contain "html"', () => {
+    const html =
+      '<!DOCTYPE html><html><meta content="text/html"><script>var x="c3RhZ2h0bWw=";</script>' +
+      '<a href="site.html">ok</a>';
+    expect(danglingLinks(html, shipped)).toEqual([]);
+  });
+
+  it('reports each missing page once', () => {
+    const html = '<a href="reel.html">a</a><a href="./reel.html">b</a>';
+    expect(danglingLinks(html, shipped)).toEqual(['reel.html']);
   });
 });
 

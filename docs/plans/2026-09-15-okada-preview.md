@@ -1,21 +1,24 @@
-# Okada Kazuchika — gated site + admin concept preview
+# Kazuchika Okada — gated site + admin concept preview
 
-**Status: DELIVERED 2026-09-15** (code for the branded login shipped in the same
-change — see "Product work" below).
+**Status: DELIVERED 2026-09-15. REPOSITIONED 2026-09-17** — the client dropped the
+wrestling angle so as not to be typecast as only a wrestler, and the preview was
+rebuilt around an actor's portfolio. See "Repositioning" below; the original
+delivery is kept for the record.
 
-## What was delivered
+## What is delivered (current)
 
-Two Claude Design bundles for Okada Kazuchika ("The Rainmaker", pro wrestler —
-a management/press site plus the admin tool behind it), a new Studio prospect.
+Claude Design bundles for Kazuchika Okada — an **actor's** site (film, television,
+stage; representation by a talent agency) plus the admin tool behind it. A new
+Studio prospect.
 
 | | |
 |---|---|
-| Slug | `okada-5a5c1a2742` |
+| Slug | `okada-5a5c1a2742` (unchanged — same link and password as before) |
 | Link | `https://www.honuvibe.ai/api/preview/okada-5a5c1a2742` |
 | Password | in the `client_previews` row — deliberately not written into the repo |
 | Row id | `fd0f1b6a-79dc-45ee-8bae-bbdf2afcd13c` |
 | Expires | **2026-10-31** (extend via `expires_at`) |
-| Contents | `index.html` board → `site.html` (13.94 MB), `admin.html` (9.55 MB); `logo.png` (75 KB), `bg.jpg` (184 KB) |
+| Contents | `index.html` board → `site.html` (12.30 MB), `admin.html` (9.55 MB), `opportunities.html` (9.54 MB, admin sub page); `logo.png` (88 KB), `bg.jpg` (57 KB) |
 | Lead | `studio_leads` is empty on prod, so `lead_id` is NULL |
 
 ## Product work that came out of it
@@ -73,3 +76,59 @@ Post-deploy checks (backdrop on the login page, byte-exact `site.html` /
   stock.
 - The board's notes tell the client that photos, dates and stats are
   placeholders and that mobile is a next-round refinement.
+
+---
+
+## Repositioning (2026-09-17)
+
+The client came back: **drop the wrestling angle** — they don't want him typecast
+as only a wrestler. The new Claude Design export reframes him as a working actor
+(film · television · stage; New York · Los Angeles · Tokyo; enquiries through a
+talent agency). Nothing in the new home page references wrestling.
+
+What changed, all inside the same slug so **the link and password did not move**:
+
+| | Before | After |
+|---|---|---|
+| Site | wrestling site (appearances, record, history) | actor portfolio (reel, credits, gallery, about, contact) |
+| Wordmark | `KAZUCHIKA` / `OKADA` + "THE RAINMAKER ・ レインメーカー", Zen Antique | `Kazuchika` / *`Okada`* italic, Bodoni Moda, kicker "FILM · TELEVISION · STAGE" |
+| Login backdrop | generated arena / ring photo | the client's own headshot, poster-composed left-of-card on black |
+| Board fonts / accent | Zen Antique + Zen Kaku Gothic New, `#c9a24a` | Bodoni Moda + Jost, `#c9a227` |
+| Board copy | "hero, appearances, gallery, film & TV, history, record" | "the hero, a short about, the reel, selected credits, the gallery, and enquiries routed through representation" |
+| Admin | unchanged | unchanged (client asked for this explicitly) |
+
+**Retired from Storage** (deleted, not merely unlinked, so the old style cannot
+surface from the new nav): `appearances.html`, `gallery.html`, `history.html`.
+All three now 404 through the gate. `site.html` was overwritten by the new home.
+
+The backdrop is no longer a generated stand-in — it is composed from the export's
+own headshot (pure-black background, so it composites seamlessly) with the site's
+own faint gold glow. The earlier generated arena image is gone.
+
+### Still owed by the client
+
+The new nav links five inner pages that have not been exported yet — `reel.html`,
+`credits.html`, `gallery.html`, `about.html`, `contact.html`. They are already
+mapped in the manifest's `links`, so each one works the moment its export lands.
+Until then they 404, and the board says so in its notes.
+
+### Product work from this round
+
+`scripts/prep-preview.mjs` now reports **mapped links whose target was never
+exported**, not just unrenamed `.dc.html` siblings — the exact failure that would
+otherwise reach the client as a dead nav item. Extracted as `danglingLinks()` and
+unit-tested, including that a doctype, a mime type and stray base64 in a 12 MB
+bundle do not masquerade as page links.
+
+`render-wordmark.ps1` (skill asset) gained `-Line2Ttf` so a second line can be set
+in a real italic face rather than a GDI+ synthesized slant, plus `-LineHeight`,
+`-Line2Indent` and `-KickerAlpha` to match a client's own hero metrics.
+
+### Verification (prod, after the swap)
+
+| Check | Result |
+|---|---|
+| Login page | logo + backdrop present, zero wrestling references |
+| Correct password | 303 + `HttpOnly; Secure` cookie |
+| `index`, `site`, `admin`, `opportunities`, `logo`, `bg` | 200, all byte-exact vs local |
+| `appearances` / `gallery` / `history` | 404 — retired style is gone |
