@@ -18,7 +18,7 @@ Studio prospect.
 | Password | in the `client_previews` row — deliberately not written into the repo |
 | Row id | `fd0f1b6a-79dc-45ee-8bae-bbdf2afcd13c` |
 | Expires | **2026-10-31** (extend via `expires_at`) |
-| Contents | `index.html` board → `site.html` (12.30 MB), `admin.html` (9.55 MB), `opportunities.html` (9.54 MB, admin sub page); `logo.png` (88 KB), `bg.jpg` (57 KB) |
+| Contents | `index.html` board → `site.html` (12.30 MB) + its five inner pages (`about`, `reel`, `credits`, `gallery`, `contact`); `admin.html` (9.55 MB) + `opportunities.html` (9.54 MB); `logo.png` (88 KB), `bg.jpg` (57 KB) — 11 objects |
 | Lead | `studio_leads` is empty on prod, so `lead_id` is NULL |
 
 ## Product work that came out of it
@@ -40,7 +40,11 @@ Studio prospect.
    two-line wordmark + kicker to PNG with .NET — headless Chrome hangs on this
    machine; headless Edge works for screenshots).
 
-## Assets
+## Assets (SUPERSEDED 2026-09-17 — see "Repositioning" below)
+
+Both assets described here were retired with the wrestling angle. The swap-in
+instruction below no longer applies: the backdrop is now the client's own
+headshot, taken from the export itself.
 
 - **Wordmark**: rendered from the site's own type (Zen Antique for the name,
   Zen Kaku Gothic New 500 for the kicker; palette from the bundle's thumbnail
@@ -105,12 +109,21 @@ The backdrop is no longer a generated stand-in — it is composed from the expor
 own headshot (pure-black background, so it composites seamlessly) with the site's
 own faint gold glow. The earlier generated arena image is gone.
 
-### Still owed by the client
+### Inner pages — COMPLETE (2026-09-17, later the same day)
 
-The new nav links five inner pages that have not been exported yet — `reel.html`,
-`credits.html`, `gallery.html`, `about.html`, `contact.html`. They are already
-mapped in the manifest's `links`, so each one works the moment its export lands.
-Until then they 404, and the board says so in its notes.
+All five inner pages were exported and shipped: `reel.html`, `credits.html`,
+`gallery.html`, `about.html`, `contact.html`. The site is now complete end to
+end — 8 pages plus branding, 11 objects under the slug — and **every href in
+every served page resolves to a shipped file** (checked against prod, not just
+locally).
+
+One gotcha worth keeping: the inner pages link the home page under its *project
+page name*, `Okada Actor - Style A Nocturne.dc.html`, not `Okada Home.dc.html`.
+Without that extra `links` entry the brand mark on all five pages would have
+dead-ended. The manifest maps both names to `site.html`.
+
+The board's notes were updated in the same pass — they no longer tell the client
+the inner pages are still being built, and now point at the nav instead.
 
 ### Product work from this round
 
@@ -130,5 +143,6 @@ in a real italic face rather than a GDI+ synthesized slant, plus `-LineHeight`,
 |---|---|
 | Login page | logo + backdrop present, zero wrestling references |
 | Correct password | 303 + `HttpOnly; Secure` cookie |
-| `index`, `site`, `admin`, `opportunities`, `logo`, `bg` | 200, all byte-exact vs local |
+| All 11 objects | 200, all byte-exact vs local |
+| Every href in every served page | resolves to a shipped file |
 | `appearances` / `gallery` / `history` | 404 — retired style is gone |
