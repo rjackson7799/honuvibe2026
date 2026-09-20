@@ -146,3 +146,76 @@ in a real italic face rather than a GDI+ synthesized slant, plus `-LineHeight`,
 | All 11 objects | 200, all byte-exact vs local |
 | Every href in every served page | resolves to a shipped file |
 | `appearances` / `gallery` / `history` | 404 — retired style is gone |
+
+---
+
+## Design concept B added (2026-09-20)
+
+A second design direction for the public site, delivered into the **same slug** —
+link and password unchanged. The board now offers a choice rather than a single
+site: **Direction A — Nocturne** (the existing Bodoni Moda / Jost, black-and-gold
+concept) and **Direction B — Mincho** (Zen Old Mincho / Zen Kaku Gothic New, warm
+black, credits led on the first screen), plus the unchanged admin.
+
+Concept B ships eight pages — home, reel, credits, about, skills, gallery, press,
+contact — under `-b` file names (`site-b.html`, `reel-b.html`, …) so nothing in
+concept A had to move. Concept A's files are **byte-identical to what was already
+live**, except `site.html`, which is +4 bytes: its `<title>` changed from "Site
+concept" to "Design concept A". Verified by comparing prep output against the
+sizes reported by Storage, file by file, before uploading.
+
+Two pages are new to B and have no counterpart in A: **skills** (physicality and
+range — choreographed combat, stunt readiness, live performance at scale) and
+**press**.
+
+### The Contact nav was mis-wired in the export — patched at delivery
+
+B's Claude Design export pointed the Contact nav item at four different wrong
+targets, and only the gallery page linked the real contact page:
+
+| Page | Exported `href` |
+|---|---|
+| Home, Contact | `#top` |
+| Skills | `#enquiries` |
+| Press | `#interviews` |
+| Reel, Credits, About | the **home page** |
+| Gallery | correct |
+
+Seven of eight pages would have reached the client with a Contact link that went
+nowhere or to the wrong page, and `danglingLinks()` could not catch it — three of
+them pointed at a page that *is* shipped, just the wrong one.
+
+Fixed at delivery by `C:/work/okada/fix-contact-links.mjs`, which stages corrected
+copies into `C:/work/okada/src-b/` and rewrites only the anchor whose text is
+`Contact` (the sole element in the bundle with that text — 2 per page, nav and
+footer; 14 rewrites across 7 pages; deltas of 6–44 bytes per file confirm nothing
+else moved). The contact page's own nav item is left alone.
+
+**The durable fix is re-baking the links in Claude Design** — the editor is still
+the source of truth and still has the bug. Re-export, then re-run the fix script
+(idempotent) or drop it once the export is correct.
+
+### Disclosed on the board
+
+- The **EN / 日本語 switch in B's header is not wired** — `href="#top"`, and the
+  bundle carries no Japanese body copy. The board note says so explicitly rather
+  than letting the client read it as a working bilingual site.
+- B's credits are real screen credits (`My Dad Is a Heel Wrestler`, `99.9 Criminal
+  Lawyer`, `Keishicho Outsider`, `Yakuza 6`). The wrestling-titled film is a
+  *credit*, not a positioning — B frames combat and stunt work under "Physicality
+  & Range", i.e. craft, which holds the 2026-09-17 repositioning.
+
+### Working folder was rebuilt from prod
+
+`C:/work/okada/` no longer existed. It was reconstructed from the live preview
+rather than guessed: `logo.png` and `bg.jpg` downloaded from Storage with the
+service key, and the two board webfonts (`bodoni-latin.woff2`, `jost-latin.woff2`)
+**extracted from the data URIs inside the live `index.html`** — so the regenerated
+board is typographically identical to the one the client already saw. The skill's
+`manifest.example.json` is the real previous manifest, which is what made the
+concept-A half of the rebuild exact.
+
+### Contents now
+
+19 objects: board + A (`site` + 5 inner) + B (`site-b` + 7 inner) + admin
+(`admin`, `opportunities`) + `logo.png` + `bg.jpg`.
