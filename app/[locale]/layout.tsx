@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import { VercelAnalytics } from '@/components/analytics/vercel-analytics';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/providers/theme-provider';
-import { dmSans, dmSerif, inter, jetbrainsMono, notoSansJP } from '@/app/fonts';
+import { dmSans, dmSerif, inter, jetbrainsMono, notoSansJP, publicSans, spaceGrotesk } from '@/app/fonts';
 import { Nav } from '@/components/layout/nav';
 import { ConditionalNav, ConditionalMain } from '@/components/layout/conditional-nav';
 import { ConditionalFooter } from '@/components/layout/conditional-footer';
@@ -62,7 +62,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${dmSans.variable} ${dmSerif.variable} ${inter.variable} ${jetbrainsMono.variable}${locale === 'ja' ? ` ${notoSansJP.variable}` : ''}`}
+      className={`${dmSans.variable} ${dmSerif.variable} ${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} ${publicSans.variable}${locale === 'ja' ? ` ${notoSansJP.variable}` : ''}`}
     >
       <head>
         <script

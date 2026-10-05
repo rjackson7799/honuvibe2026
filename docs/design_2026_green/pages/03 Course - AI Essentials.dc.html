@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #F6F1E2; color: #16241D; font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  a { color: #0E3629; text-decoration: none; }
+  a:hover { color: #C9552F; }
+</style>
+</helmet>
+
+<div style="max-width:100%;overflow-x:hidden">
+
+<header style="position:sticky;top:0;z-index:40;background:#0E3629;color:#F6F1E2;border-bottom:1px solid #16483A">
+  <div style="max-width:1320px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+    <a href="./01%20Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2">HonuVibe</a>
+    <nav style="display:flex;gap:22px;font-size:15px;flex-wrap:wrap"><a href="./02%20Learn%20-%20Catalog.dc.html" style="color:#F6F1E2;font-weight:600;border-bottom:2px solid #E9A63B;padding-bottom:2px">Learn</a><a href="./04%20Build.dc.html" style="color:#CBDCD1">Build</a><a href="./05%20Partner.dc.html" style="color:#CBDCD1">Partner</a></nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+      <div role="group" aria-label="Language" style="display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #2C5A48;border-radius:999px;background:#0B2E23">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+          <button type="button" aria-pressed="{{ l.active }}" onClick="{{ l.select }}" style="min-height:36px;min-width:44px;padding:0 12px;border:none;border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <a href="./06%20Sign%20In.dc.html" style="font-size:15px;color:#F6F1E2">Sign in</a>
+      <a href="#" style="background:#E9A63B;color:#0E3629;padding:11px 18px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center">Join the Vault</a>
+    </div>
+  </div>
+</header>
+
+<section id="top" style="background:#0E3629;color:#F6F1E2;padding:36px 0 64px">
+  <div style="max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:48px;align-items:start">
+    <div>
+      <div style="font-size:13.5px;color:#8FAA98;display:flex;gap:6px;flex-wrap:wrap"><a href="./01%20Home.dc.html" style="color:#8FAA98">Home</a><span>/</span><a href="./02%20Learn%20-%20Catalog.dc.html" style="color:#8FAA98">Learn</a><span>/</span><span style="color:#CBDCD1">AI Essentials</span></div>
+      <div style="margin-top:22px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <span style="background:#E9A63B;color:#0E3629;font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:6px 11px;border-radius:7px">Beginner</span>
+        <span style="border:1px solid #2C5A48;color:#CBDCD1;font-size:11.5px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:7px">Self-paced</span>
+        <span style="font-size:12.5px;color:#8FAA98;letter-spacing:0.06em">HV-AIE100</span>
+      </div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(40px,4.8vw,64px);line-height:1.02;letter-spacing:-0.04em;margin:16px 0 0;text-wrap:balance">AI Essentials: Your First Steps into the Future</h1>
+      <p style="font-size:18px;color:#8FAA98;margin:12px 0 0">AIエッセンシャルズ：未来への第一歩</p>
+      <p style="font-size:17.5px;line-height:1.6;color:#CBDCD1;margin:20px 0 0;max-width:54ch">Your starting point for learning AI. In five modules, you go from curious to confident. Every lesson is hands-on and designed so you finish having done something real with AI.</p>
+      <div style="margin-top:28px;display:flex;flex-wrap:wrap;gap:12px">
+        <a href="#" style="background:#E9A63B;color:#0E3629;padding:0 26px;border-radius:10px;font-size:17px;font-weight:600;min-height:54px;display:inline-flex;align-items:center">Start learning in the Vault</a>
+        <a href="#syllabus" style="border:1.5px solid #4E7A66;color:#F6F1E2;padding:0 22px;border-radius:10px;font-size:17px;font-weight:600;min-height:54px;display:inline-flex;align-items:center;gap:10px"><span aria-hidden="true">↓</span>Download syllabus</a>
+      </div>
+      <dl style="margin:36px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:#2C5A48;border:1px solid #2C5A48;border-radius:12px;overflow:hidden">
+        <sc-for list="{{ facts }}" as="f" hint-placeholder-count="4">
+          <div style="background:#0E3629;padding:16px 18px">
+            <dt style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8FAA98">{{ f.k }}</dt>
+            <dd style="margin:6px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.01em;color:#F6F1E2">{{ f.v }}</dd>
+          </div>
+        </sc-for>
+      </dl>
+    </div>
+
+    <aside style="background:#F6F1E2;color:#16241D;border-radius:16px;overflow:hidden">
+      <div style="aspect-ratio:16/9;background:#16483A">
+        <image-slot id="aie-hero" shape="rect" placeholder="Drop the AI Essentials course image (16:9)"></image-slot>
+      </div>
+      <div style="padding:24px 26px 26px;display:grid;gap:14px">
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">Included in the Vault</div>
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:38px;letter-spacing:-0.03em;color:#0E3629">$99</span><span style="font-size:15px;color:#5C6B62">/ month · cancel anytime</span></div>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#3E4F45">One membership opens this course and every other course in every track, in English and 日本語.</p>
+        <a href="#" style="background:#0E3629;color:#F6F1E2;border-radius:10px;min-height:52px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px" style-hover="background:#16483A;color:#F6F1E2">Join the Vault</a>
+        <a href="#curriculum" style="font-size:15px;font-weight:600;color:#C9552F;text-align:center">See what’s inside ↓</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<sc-if value="{{ showSubnav }}" hint-placeholder-val="{{ true }}">
+<nav aria-label="On this page" style="position:sticky;top:69px;z-index:30;background:#F6F1E2;border-bottom:1px solid #E4DAC1">
+  <div style="max-width:1320px;margin:0 auto;padding:0 32px;display:flex;gap:26px;overflow-x:auto">
+    <sc-for list="{{ sections }}" as="s" hint-placeholder-count="6">
+      <a href="{{ s.href }}" style="flex:none;font-size:15px;font-weight:600;color:#3E4F45;padding:16px 0;min-height:52px;display:inline-flex;align-items:center;border-bottom:2px solid transparent" style-hover="color:#0E3629;border-bottom-color:#E9A63B">{{ s.label }}</a>
+    </sc-for>
+  </div>
+</nav>
+</sc-if>
+
+<section id="overview" style="max-width:1320px;margin:0 auto;padding:72px 32px 0;scroll-margin-top:130px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:44px;align-items:start">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Who it’s for</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);letter-spacing:-0.035em;line-height:1.05;color:#0E3629;margin:10px 0 0">Built for people new to AI</h2>
+      <ul style="list-style:none;margin:24px 0 0;padding:0;display:grid;gap:14px">
+        <sc-for list="{{ audience }}" as="a" hint-placeholder-count="4">
+          <li style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;font-size:16.5px;line-height:1.55;color:#16241D"><span style="color:#C9552F;font-weight:700">→</span><span>{{ a }}</span></li>
+        </sc-for>
+      </ul>
+    </div>
+    <div style="display:grid;gap:18px">
+      <div style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:24px">
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">Before you start</div>
+        <p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:#16241D">No prior AI experience required. You need a laptop with internet access and a Chrome browser. Create free accounts on ChatGPT and Claude before Module 1.</p>
+      </div>
+      <div style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:24px">
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">Tools you’ll use</div>
+        <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+          <sc-for list="{{ tools }}" as="t" hint-placeholder-count="3">
+            <span style="border:1.5px solid #0E3629;border-radius:999px;padding:0 16px;min-height:40px;display:inline-flex;align-items:center;font-weight:600;font-size:15px;color:#0E3629">{{ t }}</span>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="outcomes" style="max-width:1320px;margin:0 auto;padding:80px 32px 0;scroll-margin-top:130px">
+  <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Learning outcomes</div>
+  <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);letter-spacing:-0.035em;line-height:1.05;color:#0E3629;margin:10px 0 0">What you’ll be able to do</h2>
+  <ol style="list-style:none;margin:28px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1px;background:#E4DAC1;border:1px solid #E4DAC1;border-radius:14px;overflow:hidden">
+    <sc-for list="{{ outcomes }}" as="o" hint-placeholder-count="6">
+      <li style="background:#F6F1E2;padding:22px 24px;display:flex;flex-direction:column;gap:10px">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#C9552F">{{ o.n }}</span>
+        <span style="font-size:16.5px;line-height:1.5;color:#16241D">{{ o.t }}</span>
+      </li>
+    </sc-for>
+  </ol>
+</section>
+
+<section id="curriculum" style="max-width:1320px;margin:0 auto;padding:80px 32px 0;scroll-margin-top:130px">
+  <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Curriculum</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);letter-spacing:-0.035em;line-height:1.05;color:#0E3629;margin:10px 0 0">Five modules, one practice task each</h2>
+      <p style="margin:10px 0 0;font-size:15.5px;color:#5C6B62">Suggested pace: one module a week. Go faster or slower as you like.</p>
+    </div>
+    <button type="button" onClick="{{ toggleAll }}" style="border:1.5px solid #0E3629;background:transparent;color:#0E3629;border-radius:10px;min-height:46px;padding:0 18px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer">{{ toggleAllLabel }}</button>
+  </div>
+  <div style="margin-top:28px;display:grid;gap:12px">
+    <sc-for list="{{ modules }}" as="m" hint-placeholder-count="5">
+      <div style="background:#FFFCF2;border:1px solid {{ m.border }};border-radius:14px;overflow:hidden;transition:border-color .2s ease">
+        <button type="button" aria-expanded="{{ m.open }}" onClick="{{ m.toggle }}" style="width:100%;display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:18px;align-items:center;background:transparent;border:none;padding:20px 24px;text-align:left;font-family:inherit;cursor:pointer;color:#0E3629">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:34px;letter-spacing:-0.03em;color:#C9552F;line-height:1">{{ m.num }}</span>
+          <span style="display:flex;flex-direction:column;gap:4px;min-width:0">
+            <span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">Module {{ m.n }} · {{ m.stage }}</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(19px,2vw,24px);letter-spacing:-0.02em;line-height:1.15">{{ m.title }}</span>
+          </span>
+          <span style="display:flex;align-items:center;gap:16px">
+            <span style="font-size:14px;color:#5C6B62;white-space:nowrap">{{ m.len }}</span>
+            <span style="font-size:24px;color:#C9552F;transform:{{ m.rot }};transition:transform .3s ease;line-height:1">+</span>
+          </span>
+        </button>
+        <sc-if value="{{ m.open }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:4px 24px 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px">
+            <sc-for list="{{ m.lessons }}" as="ls">
+              <div style="border-top:2px solid #0E3629;padding-top:14px">
+                <div style="font-size:12.5px;color:#8A7C63">Lesson {{ ls.code }}</div>
+                <h3 style="margin:4px 0 0;font-size:17px;font-weight:600;line-height:1.3;color:#0E3629">{{ ls.t }}</h3>
+                <ul style="margin:10px 0 0;padding:0 0 0 18px;display:grid;gap:6px;font-size:15px;line-height:1.5;color:#3E4F45">
+                  <sc-for list="{{ ls.pts }}" as="p"><li>{{ p }}</li></sc-for>
+                </ul>
+              </div>
+            </sc-for>
+            <div style="grid-column:1/-1;margin-top:6px;background:#EFE7D2;border-radius:10px;padding:14px 18px;display:flex;gap:12px;flex-wrap:wrap;align-items:baseline">
+              <span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#C9552F;font-weight:700">Practice task</span>
+              <span style="font-size:16px;font-weight:600;color:#0E3629">{{ m.task }}</span>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <p style="margin:18px 0 0;font-size:15px;color:#5C6B62">Finish all five modules to earn your HonuVibe.AI certificate. Ready for more? AI Mastery (Level 2) picks up where this course ends.</p>
+</section>
+
+<section id="instructors" style="max-width:1320px;margin:0 auto;padding:80px 32px 0;scroll-margin-top:130px">
+  <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Your instructors</div>
+  <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);letter-spacing:-0.035em;line-height:1.05;color:#0E3629;margin:10px 0 0">Taught in English and 日本語</h2>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:18px">
+    <sc-for list="{{ teachers }}" as="t" hint-placeholder-count="2">
+      <article style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;padding:26px;display:grid;grid-template-columns:104px minmax(0,1fr);gap:22px;align-items:start">
+        <div style="width:104px;height:104px;border-radius:50%;overflow:hidden;background:#E4DAC1">
+          <image-slot id="{{ t.slot }}" shape="circle" placeholder="Photo"></image-slot>
+        </div>
+        <div>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:23px;letter-spacing:-0.02em;color:#0E3629">{{ t.name }}</h3>
+          <div style="margin-top:4px;font-size:14.5px;color:#C9552F;font-weight:600">{{ t.role }}</div>
+          <p style="margin:12px 0 0;font-size:15.5px;line-height:1.6;color:#3E4F45">{{ t.bio }}</p>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ t.tags }}" as="g"><span style="background:#EFE7D2;border-radius:6px;padding:4px 10px;font-size:13px;color:#3E4F45">{{ g }}</span></sc-for>
+          </div>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+  <p style="margin:14px 0 0;font-size:12.5px;color:#8A7C63">Placeholder bios for layout. Replace before launch.</p>
+</section>
+
+<section id="syllabus" style="max-width:1320px;margin:0 auto;padding:80px 32px 0;scroll-margin-top:130px">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:clamp(24px,3.4vw,44px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:32px;align-items:center">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">Syllabus</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(26px,3vw,36px);letter-spacing:-0.03em;line-height:1.08;margin:10px 0 0">Take the full syllabus with you</h2>
+      <p style="margin:12px 0 0;font-size:15.5px;line-height:1.6;color:#CBDCD1;max-width:46ch">Every module, lesson and practice task on four pages. Useful if you need to share the course with your manager or team.</p>
+    </div>
+    <div style="display:grid;gap:12px">
+      <sc-for list="{{ pdfs }}" as="p" hint-placeholder-count="2">
+        <a href="{{ p.href }}" download="{{ p.file }}" style="background:#16483A;border:1.5px solid #2C5A48;border-radius:12px;padding:16px 20px;min-height:72px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:center;color:#F6F1E2;transition:border-color .2s ease" style-hover="border-color:#E9A63B;color:#F6F1E2">
+          <span style="width:44px;height:44px;border-radius:8px;background:#F6F1E2;color:#0E3629;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:0.04em">PDF</span>
+          <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+            <span style="font-weight:600;font-size:16px">{{ p.label }}</span>
+            <span style="font-size:13.5px;color:#8FAA98">{{ p.meta }}</span>
+          </span>
+          <span aria-hidden="true" style="font-size:20px;color:#E9A63B">↓</span>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="max-width:1320px;margin:0 auto;padding:80px 32px 0;scroll-margin-top:130px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:36px;align-items:start">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Questions</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;max-width:16ch">About this course</h2>
+      <figure style="margin:36px 0 0;background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;padding:26px 28px;max-width:480px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:0.6;color:#E9A63B;height:22px">“</span>
+        <div ref="{{ quoteRef }}" style="display:flex;flex-direction:column;gap:18px;min-height:190px">
+          <blockquote style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:20px;line-height:1.4;letter-spacing:-0.01em;color:#0E3629;text-wrap:pretty">{{ testi.text }}</blockquote>
+          <figcaption style="margin-top:auto;display:flex;flex-direction:column;gap:2px">
+            <span style="font-weight:600;font-size:15px;color:#0E3629">{{ testi.name }}</span>
+            <span style="font-size:14px;color:#5C6B62">{{ testi.org }}</span>
+          </figcaption>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <sc-for list="{{ quoteDots }}" as="d" hint-placeholder-count="3">
+            <button type="button" aria-label="{{ d.label }}" onClick="{{ d.go }}" style="border:none;background:transparent;padding:0;min-width:24px;min-height:24px;display:inline-flex;align-items:center;cursor:pointer"><span style="width:{{ d.w }};height:6px;border-radius:999px;background:{{ d.c }};transition:width .4s ease,background .4s ease"></span></button>
+          </sc-for>
+        </div>
+      </figure>
+      <p style="margin:12px 0 0;font-size:12.5px;color:#8A7C63">Placeholder testimonials. Replace with real student quotes.</p>
+    </div>
+    <div style="display:grid">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
+        <div style="border-top:1px solid #E4DAC1">
+          <button type="button" aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:transparent;border:none;padding:18px 0;min-height:56px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.01em;color:#0E3629;text-align:left;cursor:pointer" style-hover="color:#C9552F">
+            <span>{{ q.q }}</span>
+            <span style="flex:none;font-size:22px;color:#C9552F;transform:{{ q.rot }};transition:transform .3s ease">+</span>
+          </button>
+          <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 18px;font-size:15.5px;line-height:1.65;color:#3E4F45;max-width:60ch">{{ q.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section style="max-width:1320px;margin:0 auto;padding:56px 32px 0">
+  <div style="background:#EFE7D2;border-radius:16px;padding:24px 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
+    <div style="max-width:56ch">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;color:#0E3629;margin:0">Start AI Essentials today.</h2>
+      <p style="margin:6px 0 0;font-size:15px;color:#3E4F45;line-height:1.55">Included in the Vault at $99 / month, with every other course. Cancel anytime.</p>
+    </div>
+    <a href="#" style="background:#E9A63B;color:#0E3629;border-radius:10px;padding:0 22px;min-height:52px;display:inline-flex;align-items:center;font-weight:600">Join the Vault →</a>
+  </div>
+</section>
+
+<footer style="max-width:1320px;margin:0 auto;padding:56px 32px 44px;display:flex;flex-wrap:wrap;gap:22px;justify-content:space-between;font-size:14px;color:#5C6B62">
+  <span>© 2026 HonuVibe.AI</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap"><a href="./02%20Learn%20-%20Catalog.dc.html">Learn</a><a href="./04%20Build.dc.html">Build</a><a href="./05%20Partner.dc.html">Partner</a><a href="#top">About us</a><a href="#top">Contact</a></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showSubnav&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;},&quot;curriculumOpen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;First module&quot;,&quot;All&quot;,&quot;None&quot;],&quot;default&quot;:&quot;First module&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { lang: 'en', open: null, faq: 0, q: 0 };
+  quoteRef = React.createRef();
+  QUOTES = [
+    { text: 'I had never opened ChatGPT before Module 1. By the end I was drafting English emails to our US office in half the time.', name: 'Placeholder Name', org: 'Sales coordinator, Tokyo' },
+    { text: 'The personal assistant module changed how I work. It knows my job, my clients and how I write, so I stopped starting from zero.', name: 'Placeholder Name', org: 'Account manager, Osaka' },
+    { text: 'Clear, practical and in both languages. I shared the syllabus with my team and three of them signed up the same week.', name: 'Placeholder Name', org: 'Team lead, Honolulu' }
+  ];
+  startQuotes() { if (!this.reduce) this._qt = setInterval(() => this.setState(s => ({ q: s.q + 1 })), 6500); }
+  componentDidMount() { this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; this.startQuotes(); }
+  componentWillUnmount() { clearInterval(this._qt); }
+  componentDidUpdate(_, prev) {
+    const el = this.quoteRef.current;
+    if (!this.reduce && el && el.animate && prev.q !== this.state.q) el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+  initialOpen() {
+    const m = this.props.curriculumOpen ?? 'First module';
+    return m === 'All' ? [0, 1, 2, 3, 4] : m === 'None' ? [] : [0];
+  }
+  renderVals() {
+    const MODS = [
+      { stage: 'Foundation', title: 'The AI Tools That Matter', task: 'Try Three Tools', lessons: [
+        { t: 'What AI actually does today', pts: ['The simple, honest version of AI capabilities', 'Separating hype from reality'] },
+        { t: 'The top 10 AI tools professionals are using right now', pts: ['Demos of ChatGPT, Claude, Perplexity, and more', 'What American companies are actually doing with AI every day'] },
+        { t: 'Guided setup and first AI tasks', pts: ['Open ChatGPT and Claude step by step', 'Your first AI tasks: ask, translate, summarize'] } ] },
+      { stage: 'Foundation', title: 'Make AI Do Your Work', task: 'Complete 5 AI Tasks', lessons: [
+        { t: 'AI for writing and communication', pts: ['Write and edit emails, messages, and documents with AI', 'Research any topic in minutes instead of hours'] },
+        { t: 'AI for translation and analysis', pts: ['Translate between English and Japanese naturally', 'Summarize long documents, articles, and reports'] },
+        { t: 'Creative AI and better prompting', pts: ['Brainstorm ideas, plans, names, and strategies', 'How to ask AI better questions: simple tips, instant results'] } ] },
+      { stage: 'Building', title: 'AI at Work — With Your Team', task: 'AI Work Diary', lessons: [
+        { t: 'AI for daily work routines', pts: ['Use AI to organize your morning in 2 minutes', 'Draft, reply, and translate professional emails'] },
+        { t: 'AI for meetings and team communication', pts: ['Prepare meeting agendas and write follow-up notes', 'Handle bilingual team communication faster'] },
+        { t: 'Practical exercises', pts: ['Prepare for an English meeting, summarize a report, reply to a confusing email', 'How American teams use AI every day: examples you can adopt'] } ] },
+      { stage: 'Application', title: 'Build Your First AI Tool', task: 'Use Your AI Assistant Daily', lessons: [
+        { t: 'Understanding personal AI assistants', pts: ['What a personal AI assistant is: a coworker who knows your job', 'How it differs from regular AI chat'] },
+        { t: 'Building your assistant step by step', pts: ['Build yours in 15 minutes, step by step', 'Tell AI about your job, industry, and how you communicate'] },
+        { t: 'Testing and improving', pts: ['Test it with a real task and see the difference', 'Add company info, set language preferences'] } ] },
+      { stage: 'Mastery', title: 'Your AI Action Plan', task: 'Personal AI Action Plan', lessons: [
+        { t: 'Reflection', pts: ['Your favorite AI win from the course', 'What’s coming next in AI: the simple version'] },
+        { t: 'Building lasting habits', pts: ['The one habit that keeps you ahead: 10 minutes a week', 'Create your personal AI action plan: 3 tools, 3 goals, 3 months'] },
+        { t: 'What’s next', pts: ['Preview: AI Mastery (Level 2) for those who want to go deeper', 'Earn your certificate'] } ] }
+    ];
+    const open = this.state.open ?? this.initialOpen();
+    const setOpen = o => this.setState({ open: o });
+    const allOpen = open.length === MODS.length;
+    const FAQS = [
+      { q: 'Is this course live?', a: 'No. AI Essentials is now self-paced. Every module is recorded, so you can start any time and watch on your own schedule.' },
+      { q: 'How long does it take?', a: 'Each module has about an hour of video plus a practice task. Most people take one module a week, but you can go faster.' },
+      { q: 'Do I need to pay for ChatGPT or Claude?', a: 'No. Free accounts on both are enough for every lesson in this course.' },
+      { q: 'Is it available in Japanese?', a: 'Yes. Lessons, guides and the syllabus are available in English and 日本語, and you can switch at any point.' },
+      { q: 'Do I get a certificate?', a: 'Yes. Complete all five modules and their practice tasks to receive your HonuVibe.AI certificate.' }
+    ];
+    const fq = this.state.faq;
+    const qi = this.state.q % this.QUOTES.length;
+    return {
+      testi: this.QUOTES[qi], quoteRef: this.quoteRef,
+      quoteDots: this.QUOTES.map((_, i) => ({ label: 'Quote ' + (i + 1), w: i === qi ? '18px' : '6px', c: i === qi ? '#C9552F' : '#E4DAC1', go: () => { this.setState({ q: i }); clearInterval(this._qt); this.startQuotes(); } })),
+      showSubnav: this.props.showSubnav ?? true,
+      langs: [['en', 'EN'], ['ja', '日本語']].map(([k, label]) => { const on = this.state.lang === k; return { label, active: on, bg: on ? '#F6F1E2' : 'transparent', fg: on ? '#0E3629' : '#CBDCD1', select: () => this.setState({ lang: k }) }; }),
+      facts: [{ k: 'Format', v: 'Self-paced video' }, { k: 'Length', v: '5 modules · ~5 hrs' }, { k: 'Language', v: 'EN / 日本語' }, { k: 'Finish with', v: 'Certificate' }],
+      sections: [['#overview', 'Overview'], ['#outcomes', 'Outcomes'], ['#curriculum', 'Curriculum'], ['#instructors', 'Instructors'], ['#syllabus', 'Syllabus'], ['#faq', 'FAQ']].map(([href, label]) => ({ href, label })),
+      audience: [
+        'Japanese business professionals who want to understand and use AI in their daily work',
+        'Professionals with no prior AI experience looking for a practical, hands-on starting point',
+        'Bilingual professionals who want to leverage AI for cross-cultural communication',
+        'Team leaders exploring how AI can improve their team’s productivity and workflows'
+      ],
+      tools: ['ChatGPT', 'Claude', 'Perplexity'],
+      outcomes: [
+        'Identify which AI tools matter for your career and skip the ones that don’t',
+        'Use AI to complete everyday work tasks: writing, research, translation, and planning',
+        'Ask AI better questions and get dramatically better results',
+        'Use AI to improve meetings, emails, and team communication',
+        'Set up a personal AI assistant configured for your specific job',
+        'Create a clear AI action plan for continued growth after the course'
+      ].map((t, i) => ({ t, n: '0' + (i + 1) })),
+      toggleAllLabel: allOpen ? 'Collapse all' : 'Expand all',
+      toggleAll: () => setOpen(allOpen ? [] : MODS.map((_, i) => i)),
+      modules: MODS.map((m, i) => {
+        const o = open.includes(i);
+        return { ...m, n: i + 1, num: '0' + (i + 1), len: '3 lessons · ~60 min', open: o, rot: o ? 'rotate(45deg)' : 'none', border: '#E4DAC1',
+          lessons: m.lessons.map((l, j) => ({ ...l, code: (i + 1) + '.' + (j + 1) })),
+          toggle: () => setOpen(o ? open.filter(x => x !== i) : [...open, i]) };
+      }),
+      teachers: [
+        { slot: 'aie-chiemi', name: 'Chiemi Moriguchi', role: 'Lead instructor', bio: 'Chiemi has spent a decade helping Japanese and American teams work together. She teaches AI the way she wishes someone had taught her: plainly, with real work tasks, and in whichever language you think in.', tags: ['English', '日本語', 'Business communication'] },
+        { slot: 'aie-mizuho', name: 'Mizuho', role: 'Instructor', bio: 'Mizuho works with small teams to set up everyday AI workflows, from email triage to meeting notes. She leads the hands-on modules, including building your first personal AI assistant.', tags: ['English', '日本語', 'Workflows'] }
+      ],
+      pdfs: [
+        { label: 'Syllabus · English', meta: 'PDF · 4 pages', href: './assets/HV-AIE100-syllabus-en.pdf', file: 'HV-AIE100-syllabus-en.pdf' },
+        { label: 'シラバス · 日本語', meta: 'PDF · 4ページ', href: './assets/HV-AIE100-syllabus-ja.pdf', file: 'HV-AIE100-syllabus-ja.pdf' }
+      ],
+      faqs: FAQS.map((f, i) => { const o = fq === i; return { ...f, open: o, rot: o ? 'rotate(45deg)' : 'none', toggle: () => this.setState({ faq: o ? -1 : i }) }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

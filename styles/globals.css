@@ -490,6 +490,137 @@
   background: rgba(15, 169, 160, 0.12);
 }
 
+/* ============================================
+   HV SHELL — 2026 green marketing design system
+   Handoff: docs/design_2026_green/README.md ("Design tokens").
+   Scoped under [data-shell="hv"] and exposed to Tailwind as hv-* tokens in
+   @theme inline below. Deliberately a SEPARATE scope from
+   [data-shell="marketing"]: that --m-* set is also used by proposals, the
+   engagement questionnaire, surveys, join pages and the studio/app subdomains,
+   so it must keep rendering unchanged while marketing pages migrate.
+   Components under components/marketing/hv/ use only --hv-* tokens.
+   ============================================ */
+[data-shell="hv"] {
+  /* Greens (primary ink on light, surfaces on dark) */
+  --hv-green-950: #0B2E23;   /* language-toggle track, deepest wells */
+  --hv-green-900: #0E3629;   /* dark hero/header/section bg, headings on light, dark buttons */
+  --hv-green-800: #16483A;   /* cards and hover fills on dark, header border */
+  --hv-green-750: #1D5745;   /* hover fill for list rows on dark */
+  --hv-green-700: #2C5A48;   /* borders and chips on dark */
+  --hv-green-600: #4E7A66;   /* secondary button border on dark, muted numerals, light checks */
+  --hv-green-400: #8FAA98;   /* helper text on dark, placeholders on dark */
+  --hv-green-200: #CBDCD1;   /* body text on dark, nav links */
+
+  /* Accents */
+  --hv-amber: #E9A63B;             /* primary CTA fill, live dots, rotator words, active on dark */
+  --hv-terracotta: #C9552F;        /* eyebrows on light, link hover, small accents */
+  --hv-terracotta-dark: #8A3F22;   /* lesson-card cover tone */
+  --hv-bronze: #7A5C2E;            /* lesson/service card cover tone */
+
+  /* Sands (light surfaces) */
+  --hv-sand-50: #FFFCF2;    /* cards on cream */
+  --hv-sand-100: #F6F1E2;   /* page background; text on dark */
+  --hv-sand-200: #EFE7D2;   /* inactive chips, bands */
+  --hv-sand-300: #E4DAC1;   /* card and divider borders on light */
+  --hv-sand-400: #C6B896;   /* inactive filter-chip border, switch track */
+
+  /* Ink on light */
+  --hv-ink: #16241D;        /* body text */
+  --hv-ink-700: #3E4F45;    /* secondary text */
+  --hv-ink-500: #5C6B62;    /* meta text */
+  --hv-taupe: #8A7C63;      /* captions, fine print */
+
+  /* Cover tints — text on terracotta / bronze / green covers */
+  --hv-cover-peach: #FFF3EA;
+  --hv-cover-blush: #FFE9DC;
+  --hv-cover-wheat: #F2DCA8;
+
+  /* Shadows */
+  --hv-shadow-cta: 0 12px 26px -12px rgba(233, 166, 59, 0.6);
+  --hv-shadow-card: 0 18px 40px -18px rgba(14, 54, 41, 0.28);
+  --hv-shadow-card-sm: 0 16px 30px rgba(14, 54, 41, 0.12);
+  --hv-shadow-panel: 0 22px 44px -20px rgba(14, 54, 41, 0.3);
+  --hv-shadow-tab: 0 1px 2px rgba(14, 54, 41, 0.12);
+  --hv-glow-amber: 0 0 0 1.5px #E9A63B, 0 0 40px rgba(233, 166, 59, 0.25);
+
+  /* Motion */
+  --hv-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Layout */
+  --hv-container: 1320px;
+
+  /* Type scale */
+  --hv-text-h1: clamp(38px, 4.2vw, 56px);
+  --hv-text-h1-lg: clamp(42px, 5vw, 68px);
+  --hv-text-h2: clamp(30px, 3.6vw, 46px);
+  --hv-text-h2-sm: clamp(28px, 3.2vw, 40px);
+  --hv-text-h2-panel: 28px;
+  --hv-text-h3: 24px;
+  --hv-text-lead: 18px;
+
+  /* Font stacks. Noto Sans JP carries the JA glyphs; neither Latin face has
+     them. --font-noto-sans-jp is only set on <html> for the ja locale, so it
+     MUST carry a fallback: an unresolved var() with none would make the whole
+     font-family invalid on every EN page. */
+  --hv-font-display: var(--font-space-grotesk), var(--font-noto-sans-jp, 'Noto Sans JP'), system-ui, sans-serif;
+  --hv-font-body: var(--font-public-sans), var(--font-noto-sans-jp, 'Noto Sans JP'), system-ui, sans-serif;
+
+  background-color: var(--hv-sand-100);
+  color: var(--hv-ink);
+  font-family: var(--hv-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-shell="hv"] ::selection {
+  background: rgba(233, 166, 59, 0.35);
+}
+
+/* Marquee track: the static parts of the animation live here so the
+   hover pause (animation-play-state via a utility) and the reduced-motion
+   rule below can both override them. Only duration and direction are set
+   inline by HvMarquee. */
+[data-shell="hv"] .hv-marquee-track {
+  animation-name: hv-marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* JA typography inside the hv shell: the display tracking (-0.03 to -0.04em)
+   is tuned for Latin glyphs and reads cramped in Japanese, so headings drop
+   to 0 tracking with looser leading; body gets the JP line-height/tracking
+   from CLAUDE.md. */
+html[lang="ja"] [data-shell="hv"] {
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+}
+html[lang="ja"] [data-shell="hv"] :is(h1, h2, h3, h4, .hv-display) {
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-wrap: initial;
+}
+
+/* Keyframes (README "Interactions and motion"). */
+@keyframes hv-rise {
+  from { opacity: 0; transform: translateY(0.5em); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes hv-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes hv-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-shell="hv"] .animate-hv-pulse,
+  [data-shell="hv"] .animate-hv-rise,
+  [data-shell="hv"] .hv-marquee-track {
+    animation: none;
+  }
+}
+
 /* Soft-highlight for the Learn page intent picker → chapter scroll target.
    `data-active` is toggled by learn-intent-picker.tsx and auto-clears. */
 [data-shell="marketing"] .learn-chapter {
@@ -839,6 +970,50 @@
   --color-m-code-string: var(--m-code-string);
   --color-m-code-comment: var(--m-code-comment);
   --color-m-code-keyword: var(--m-code-keyword);
+
+  /* HV shell tokens (2026 green design; used inside [data-shell="hv"]) */
+  --color-hv-green-950: var(--hv-green-950);
+  --color-hv-green-900: var(--hv-green-900);
+  --color-hv-green-800: var(--hv-green-800);
+  --color-hv-green-750: var(--hv-green-750);
+  --color-hv-green-700: var(--hv-green-700);
+  --color-hv-green-600: var(--hv-green-600);
+  --color-hv-green-400: var(--hv-green-400);
+  --color-hv-green-200: var(--hv-green-200);
+  --color-hv-amber: var(--hv-amber);
+  --color-hv-terracotta: var(--hv-terracotta);
+  --color-hv-terracotta-dark: var(--hv-terracotta-dark);
+  --color-hv-bronze: var(--hv-bronze);
+  --color-hv-sand-50: var(--hv-sand-50);
+  --color-hv-sand-100: var(--hv-sand-100);
+  --color-hv-sand-200: var(--hv-sand-200);
+  --color-hv-sand-300: var(--hv-sand-300);
+  --color-hv-sand-400: var(--hv-sand-400);
+  --color-hv-ink: var(--hv-ink);
+  --color-hv-ink-700: var(--hv-ink-700);
+  --color-hv-ink-500: var(--hv-ink-500);
+  --color-hv-taupe: var(--hv-taupe);
+  --color-hv-cover-peach: var(--hv-cover-peach);
+  --color-hv-cover-blush: var(--hv-cover-blush);
+  --color-hv-cover-wheat: var(--hv-cover-wheat);
+  --shadow-hv-cta: var(--hv-shadow-cta);
+  --shadow-hv-card: var(--hv-shadow-card);
+  --shadow-hv-card-sm: var(--hv-shadow-card-sm);
+  --shadow-hv-panel: var(--hv-shadow-panel);
+  --shadow-hv-tab: var(--hv-shadow-tab);
+  --shadow-hv-glow-amber: var(--hv-glow-amber);
+  --ease-hv: var(--hv-ease);
+  --font-hv-display: var(--hv-font-display);
+  --font-hv-body: var(--hv-font-body);
+  --text-hv-h1: var(--hv-text-h1);
+  --text-hv-h1-lg: var(--hv-text-h1-lg);
+  --text-hv-h2: var(--hv-text-h2);
+  --text-hv-h2-sm: var(--hv-text-h2-sm);
+  --text-hv-h2-panel: var(--hv-text-h2-panel);
+  --text-hv-h3: var(--hv-text-h3);
+  --text-hv-lead: var(--hv-text-lead);
+  --animate-hv-pulse: hv-pulse 2s ease-in-out infinite;
+  --animate-hv-rise: hv-rise 0.55s var(--hv-ease) both;
 
   --text-display: clamp(32px, 7vw, 64px);
   --text-h1: clamp(26px, 5vw, 44px);

@@ -35,6 +35,16 @@ describe('MarketingShell', () => {
     expect(root.className).not.toContain('-mt-');
   });
 
+  it('switches to the 2026 green scope with theme="hv"', () => {
+    const { container } = render(
+      <MarketingShell theme="hv">
+        <p>x</p>
+      </MarketingShell>,
+    );
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.getAttribute('data-shell')).toBe('hv');
+  });
+
   it('allows callers to extend className', () => {
     const { container } = render(
       <MarketingShell className="extra-class">

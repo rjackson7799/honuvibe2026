@@ -229,7 +229,16 @@
     "role": "創設者 & AI教育者",
     "cta": "ライアンについて詳しく"
   },
+  "hv": {
+    "carousel_label": "受講者の声",
+    "quote_n": "コメント {n}"
+  },
   "newsletter": {
+    "hv_heading": "波に乗ろう。",
+    "hv_body": "週刊のインサイト、チュートリアル、コミュニティのハイライトを英語と日本語でお届けします。",
+    "hv_placeholder": "you@example.com",
+    "hv_success": "ありがとうございます。最初の号は今週中に届きます。",
+    "email_label": "メールアドレス",
     "overline": "つながり続ける",
     "heading": "波に乗ろう",
     "description": "HonuVibe流でAIを学ぶ1,000人以上の起業家に参加。週刊のインサイト、チュートリアル、コミュニティハイライト。",

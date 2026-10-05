@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #F6F1E2; color: #16241D; font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #0E3629; text-decoration: none; }
+  a:hover { color: #C9552F; }
+  input::placeholder, textarea::placeholder { color: #8FAA98; }
+  input[type=range] { accent-color: #E9A63B; }
+  @keyframes hv-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes hv-rise { from { opacity: 0; transform: translateY(0.5em); } to { opacity: 1; transform: none; } }
+  @keyframes hv-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+</style>
+</helmet>
+
+<div style="max-width:100%;overflow-x:hidden">
+
+<header style="position:sticky;top:0;z-index:40;background:#0E3629;color:#F6F1E2;border-bottom:1px solid #16483A">
+  <div style="max-width:1320px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+    <a href="./01%20Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2">HonuVibe</a>
+    <nav style="display:flex;gap:22px;font-size:15px;flex-wrap:wrap"><a href="./02%20Learn%20-%20Catalog.dc.html" style="color:#CBDCD1">Learn</a><a href="./04%20Build.dc.html" style="color:#CBDCD1">Build</a><a href="#top" style="color:#F6F1E2;font-weight:600;border-bottom:2px solid #E9A63B;padding-bottom:2px">Partner</a></nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+      <div role="group" aria-label="Language" style="display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #2C5A48;border-radius:999px;background:#0B2E23">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+          <button type="button" aria-pressed="{{ l.active }}" onClick="{{ l.select }}" style="min-height:36px;min-width:44px;padding:0 12px;border:none;border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .2s ease,color .2s ease" style-hover="color:#F6F1E2">{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <a href="./06%20Sign%20In.dc.html" style="font-size:15px;color:#F6F1E2">Sign in</a>
+      <a href="#enquire" style="background:#E9A63B;color:#0E3629;padding:11px 18px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center">Talk to us</a>
+    </div>
+  </div>
+</header>
+
+<section id="top" style="background:#0E3629;color:#F6F1E2;padding:40px 0 60px">
+  <div style="max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:44px;align-items:center">
+    <div>
+      <div data-intro="1" style="font-size:13.5px;color:#8FAA98"><a href="./01%20Home.dc.html" style="color:#8FAA98">Home</a> / <span style="color:#CBDCD1">Partner</span></div>
+      <h1 data-intro="1" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(42px,5vw,68px);line-height:1;letter-spacing:-0.04em;margin:18px 0 0">Partner with HonuVibe</h1>
+      <p data-intro="1" style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(20px,2.2vw,28px);letter-spacing:-0.02em;line-height:1.2;margin:16px 0 0;color:#CBDCD1;min-height:2.4em">AI training for {{ rotator }}</p>
+      <p data-intro="1" style="font-size:17px;line-height:1.6;color:#CBDCD1;margin:12px 0 0;max-width:52ch">Group licenses at a discount, curriculum written for your members, and a co-branded program your community can grow into, with your best people teaching inside it.</p>
+      <div data-intro="1" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:26px">
+        <a href="#enquire" style="background:#E9A63B;color:#0E3629;padding:0 24px;border-radius:10px;font-size:16px;font-weight:600;min-height:54px;display:inline-flex;align-items:center;transition:transform .25s ease,box-shadow .25s ease" style-hover="transform:translateY(-1px);box-shadow:0 10px 22px -10px rgba(233,166,59,0.6);color:#0E3629">Start a conversation →</a>
+        <a href="#offer" style="border:1.5px solid #4E7A66;color:#F6F1E2;padding:0 24px;border-radius:10px;font-size:16px;font-weight:600;min-height:54px;display:inline-flex;align-items:center;transition:border-color .2s ease" style-hover="border-color:#E9A63B;color:#F6F1E2">What we offer</a>
+      </div>
+    </div>
+
+    <div data-intro="1" style="background:#F6F1E2;color:#16241D;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <span style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:#C9552F">Group license estimate</span>
+        <span style="font-size:12.5px;color:#8A7C63">Indicative</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:56px;letter-spacing:-0.04em;line-height:1;color:#0E3629">{{ seats }}</span>
+        <span style="font-size:16px;color:#5C6B62">seats</span>
+      </div>
+      <input type="range" min="10" max="500" step="5" value="{{ seats }}" onInput="{{ onSeats }}" aria-label="Number of seats" style="width:100%;height:28px;margin:0;cursor:pointer" />
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+        <sc-for list="{{ bands }}" as="b" hint-placeholder-count="3">
+          <div style="border-radius:9px;padding:9px 10px;background:{{ b.bg }};color:{{ b.fg }};transition:background .3s ease,color .3s ease">
+            <div style="font-size:12.5px">{{ b.range }}</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.01em;margin-top:2px">{{ b.off }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;border-top:1px solid #E4DAC1">
+          <sc-for list="{{ quote }}" as="q" hint-placeholder-count="3">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-bottom:1px solid #E4DAC1">
+              <span style="font-size:15px;color:#3E4F45">{{ q.k }}</span>
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:{{ q.c }}">{{ q.v }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <a href="#enquire" onClick="{{ quoteGo }}" style="background:#0E3629;color:#F6F1E2;border-radius:10px;min-height:52px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;transition:transform .25s ease" style-hover="transform:translateY(-2px);color:#F6F1E2">Request this quote →</a>
+    </div>
+  </div>
+</section>
+
+<section id="who" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1">
+    <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Who we partner with</div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end;margin-top:10px">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:0;max-width:22ch;text-wrap:balance">Any group with people who want to learn AI.</h2>
+      <p style="max-width:38ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">If your members or staff keep asking where to start, we can run the program for them.</p>
+    </div>
+  </div>
+  <div data-reveal="1" style="margin-top:28px;margin-left:-32px;margin-right:-32px;display:flex;flex-direction:column;gap:10px">{{ marqueeA }}{{ marqueeB }}</div>
+</section>
+
+<section id="offer" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">What we offer</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;max-width:20ch;text-wrap:balance">Four ways to work together.</h2>
+    </div>
+    <p style="max-width:36ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">Most partners combine two or three. We scope them as one agreement.</p>
+  </div>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px">
+    <sc-for list="{{ offers }}" as="o" hint-placeholder-count="4">
+      <a href="#enquire" onClick="{{ o.pick }}" data-reveal="1" data-reveal-delay="{{ o.delay }}" style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-4px);box-shadow:0 18px 34px -18px rgba(14,54,41,0.35)">
+        <div style="background:{{ o.bg }};color:{{ o.fg }};padding:22px;display:flex;flex-direction:column;gap:10px;min-height:150px">
+          <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700">{{ o.num }}</span><span>{{ o.tag }}</span></div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;line-height:1.02;letter-spacing:-0.03em;margin-top:auto">{{ o.name }}</div>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px;flex:1">
+          <p style="margin:0;font-size:15.5px;line-height:1.55;color:#3E4F45">{{ o.blurb }}</p>
+          <div style="display:grid;gap:8px">
+            <sc-for list="{{ o.points }}" as="p" hint-placeholder-count="3"><div style="display:flex;gap:9px;font-size:14.5px;line-height:1.45;color:#5C6B62"><span style="color:#4E7A66;font-weight:700">✓</span><span>{{ p }}</span></div></sc-for>
+          </div>
+          <span style="margin-top:auto;padding-top:6px;font-size:14px;font-weight:600;color:#C9552F">Ask about {{ o.short }} →</span>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+
+  <div data-reveal="1" style="margin-top:20px;background:#EFE7D2;border-radius:16px;padding:clamp(22px,3vw,32px)">
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:baseline">
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em;color:#0E3629;margin:0">Also available</h3>
+      <span style="font-size:14.5px;color:#5C6B62">Add any of these to a partnership.</span>
+    </div>
+    <div style="margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:2px;background:#E4DAC1;border-radius:12px;overflow:hidden">
+      <sc-for list="{{ extras }}" as="x" hint-placeholder-count="8">
+        <div style="background:#FFFCF2;padding:18px 20px;display:flex;flex-direction:column;gap:6px;transition:background .2s ease" style-hover="background:#F6F1E2">
+          <div style="display:flex;align-items:center;gap:9px"><span style="width:6px;height:6px;border-radius:50%;background:#C9552F;flex:none"></span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16.5px;letter-spacing:-0.01em;color:#0E3629">{{ x.t }}</span></div>
+          <p style="margin:0;font-size:14.5px;line-height:1.5;color:#5C6B62">{{ x.d }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="faculty" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:20px;padding:clamp(26px,3.6vw,48px)">
+    <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:28px;align-items:end">
+      <div>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">Member teachers</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;margin:10px 0 0;max-width:20ch;text-wrap:balance">Your best community members can become teachers.</h2>
+      </div>
+      <p style="font-size:16.5px;line-height:1.65;color:#CBDCD1;margin:0;max-width:56ch">The most motivated people in the community don’t just finish the program — they can grow into paid teachers inside it, building courses and earning a share of what they ship. Your community becomes its own faculty, and the knowledge keeps compounding long after the first cohort ends.</p>
+    </div>
+
+    <div style="margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:18px">
+      <sc-for list="{{ path }}" as="s" hint-placeholder-count="4">
+        <div data-reveal="1" data-reveal-delay="{{ s.delay }}" onMouseEnter="{{ s.enter }}" onMouseLeave="{{ s.leave }}" style="display:flex;flex-direction:column;gap:16px;cursor:default">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="flex:none;width:48px;height:48px;border-radius:50%;background:{{ s.nodeBg }};color:{{ s.nodeFg }};border:1.5px solid #E9A63B;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;transform:{{ s.nodeScale }};box-shadow:{{ s.nodeGlow }};transition:background .4s ease,color .4s ease,transform .4s cubic-bezier(.2,.7,.2,1),box-shadow .4s ease">{{ s.num }}</span>
+            <span data-line="1" style="flex:1;height:2px;background:{{ s.lineColor }};transform-origin:left center;border-radius:2px;transition:background .6s ease"></span>
+          </div>
+          <div style="flex:1;background:{{ s.cardBg }};border:1.5px solid {{ s.cardBorder }};border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px;transform:{{ s.cardLift }};box-shadow:{{ s.cardShadow }};transition:transform .45s cubic-bezier(.2,.7,.2,1),border-color .45s ease,box-shadow .45s ease,background .45s ease">
+            <span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:#E9A63B">{{ s.role }}</span>
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.025em;margin:0">{{ s.title }}</h3>
+            <p style="font-size:15px;line-height:1.6;color:#CBDCD1;margin:0">{{ s.body }}</p>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+      <div data-reveal="1" style="margin-top:36px;padding-top:28px;border-top:1px solid #2C5A48;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px;align-items:center">
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em">Where each course sale goes</div>
+          <p style="margin:6px 0 0;font-size:14.5px;line-height:1.55;color:#8FAA98">Indicative split. Final terms are set in the partnership agreement.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div ref="{{ splitRef }}" style="display:flex;height:16px;border-radius:999px;overflow:hidden;background:#16483A">
+            <sc-for list="{{ split }}" as="p" hint-placeholder-count="3"><span style="width:{{ p.w }};background:{{ p.c }};transition:width 1.1s cubic-bezier(.2,.7,.2,1)"></span></sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px 22px">
+            <sc-for list="{{ split }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;align-items:baseline;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:{{ p.c }};flex:none;align-self:center"></span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2">{{ p.pct }}</span><span style="font-size:14.5px;color:#CBDCD1">{{ p.who }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</section>
+
+<section id="models" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Partnership levels</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">Start small, grow into it.</h2>
+    </div>
+    <p style="max-width:38ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">Many partners start with seats and move up once members are using it every week.</p>
+  </div>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px;align-items:stretch">
+    <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+      <div data-reveal="1" data-reveal-delay="{{ t.delay }}" style="background:{{ t.bg }};color:{{ t.fg }};border:1px solid {{ t.border }};border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:16px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 22px 44px -22px rgba(14,54,41,0.4)">
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;margin:0">{{ t.name }}</h3>
+            <sc-if value="{{ t.popular }}" hint-placeholder-val="{{ false }}"><span style="background:#E9A63B;color:#0E3629;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 9px;border-radius:6px">Most partners</span></sc-if>
+          </div>
+          <div style="font-size:14.5px;color:{{ t.sub }};margin-top:4px">{{ t.tag }}</div>
+        </div>
+        <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span style="font-size:15px;color:{{ t.sub }}">{{ t.unit }}</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:40px;letter-spacing:-0.04em;line-height:1">{{ t.price }}</span><span style="font-size:15px;color:{{ t.sub }}">{{ t.per }}</span></div>
+        </sc-if>
+        <div style="display:grid;gap:10px">
+          <sc-for list="{{ t.includes }}" as="f" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-size:15px;line-height:1.5;color:{{ t.sub }}"><span style="color:{{ t.check }};font-weight:700">✓</span><span>{{ f }}</span></div></sc-for>
+        </div>
+        <a href="#enquire" onClick="{{ t.pick }}" style="margin-top:auto;background:{{ t.btnBg }};color:{{ t.btnFg }};border-radius:10px;min-height:54px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16.5px;transition:transform .25s ease" style-hover="transform:translateY(-2px)">{{ t.cta }}</a>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section id="how" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1">
+    <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">How it runs</div>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">From first call to first cohort.</h2>
+  </div>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:18px">
+    <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+      <div data-reveal="1" data-reveal-delay="{{ s.delay }}" style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#C9552F">{{ s.num }}</span><span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:#8A7C63">{{ s.when }}</span></div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em;color:#0E3629;margin:0">{{ s.title }}</h3>
+        <p style="font-size:15px;line-height:1.6;color:#3E4F45;margin:0">{{ s.body }}</p>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section id="faq" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:36px;align-items:start">
+    <div data-reveal="1">
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Questions</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;max-width:16ch">What partners ask first.</h2>
+      <figure style="margin:36px 0 0;background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;padding:26px 28px;max-width:480px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:0.6;color:#E9A63B;height:22px">“</span>
+        <div ref="{{ quoteRef }}" style="display:flex;flex-direction:column;gap:18px;min-height:190px">
+          <blockquote style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:20px;line-height:1.4;letter-spacing:-0.01em;color:#0E3629;text-wrap:pretty">{{ testi.text }}</blockquote>
+          <figcaption style="margin-top:auto;display:flex;flex-direction:column;gap:2px">
+            <span style="font-weight:600;font-size:15px;color:#0E3629">{{ testi.name }}</span>
+            <span style="font-size:14px;color:#5C6B62">{{ testi.org }}</span>
+          </figcaption>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <sc-for list="{{ quoteDots }}" as="d" hint-placeholder-count="3">
+            <button type="button" aria-label="{{ d.label }}" onClick="{{ d.go }}" style="border:none;background:transparent;padding:0;min-width:24px;min-height:24px;display:inline-flex;align-items:center;cursor:pointer"><span style="width:{{ d.w }};height:6px;border-radius:999px;background:{{ d.c }};transition:width .4s ease,background .4s ease"></span></button>
+          </sc-for>
+        </div>
+      </figure>
+    </div>
+    <div style="display:grid">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+        <div style="border-top:1px solid #E4DAC1">
+          <button type="button" aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:transparent;border:none;padding:18px 0;min-height:56px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.01em;color:#0E3629;text-align:left;cursor:pointer" style-hover="color:#C9552F">
+            <span>{{ q.q }}</span>
+            <span style="flex:none;font-size:22px;color:#C9552F;transform:{{ q.rot }};transition:transform .3s ease">+</span>
+          </button>
+          <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 18px;font-size:15.5px;line-height:1.65;color:#3E4F45;max-width:60ch">{{ q.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="enquire" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:clamp(24px,3.4vw,44px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:36px;align-items:start">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">Start a conversation</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.4vw,44px);letter-spacing:-0.035em;line-height:1.04;margin:10px 0 0;max-width:18ch">Tell us about your group.</h2>
+      <p style="margin:14px 0 0;font-size:16.5px;line-height:1.6;color:#CBDCD1;max-width:44ch">Who they are and roughly how many. We reply within two working days with a proposed model, a price per seat and possible start dates.</p>
+      <div style="margin-top:24px;display:grid;gap:12px">
+        <sc-for list="{{ promises }}" as="b" hint-placeholder-count="3"><div style="display:flex;gap:10px;font-size:15.5px;line-height:1.5;color:#CBDCD1"><span style="color:#E9A63B;font-weight:700">✓</span><span>{{ b }}</span></div></sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ send }}" style="background:#16483A;border-radius:14px;padding:24px;display:grid;gap:18px">
+        <div style="display:grid;gap:9px">
+          <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#8FAA98;font-weight:600">Interested in (pick any)</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ interests }}" as="t" hint-placeholder-count="5">
+              <button type="button" aria-pressed="{{ t.active }}" onClick="{{ t.toggle }}" style="border:1.5px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};border-radius:999px;padding:0 16px;min-height:44px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:background .18s ease,border-color .18s ease">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px">
+          <sc-for list="{{ fields }}" as="f" hint-placeholder-count="4">
+            <label style="display:grid;gap:7px">
+              <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#8FAA98;font-weight:600">{{ f.label }}</span>
+              <input type="{{ f.type }}" required="required" placeholder="{{ f.ph }}" defaultValue="{{ f.val }}" style="background:#0E3629;border:1.5px solid #2C5A48;border-radius:9px;padding:0 14px;font-family:inherit;font-size:15.5px;color:#F6F1E2;min-height:50px;outline:none" style-focus="border-color:#E9A63B" />
+            </label>
+          </sc-for>
+        </div>
+        <label style="display:grid;gap:7px">
+          <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#8FAA98;font-weight:600">What would success look like?</span>
+          <textarea rows="3" placeholder="120 member businesses using AI for quoting and admin by spring." style="background:#0E3629;border:1.5px solid #2C5A48;border-radius:9px;padding:14px;font-family:inherit;font-size:15.5px;color:#F6F1E2;resize:vertical;outline:none" style-focus="border-color:#E9A63B"></textarea>
+        </label>
+        <button type="submit" style="background:#E9A63B;color:#0E3629;border:none;border-radius:10px;font-family:inherit;font-size:16.5px;font-weight:600;min-height:54px;cursor:pointer;transition:transform .25s ease,box-shadow .25s ease" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(233,166,59,0.6)">Send enquiry →</button>
+        <div style="font-size:13px;color:#8FAA98;text-align:center">Prefer email? partnerships@honuvibe.ai</div>
+      </form>
+    </sc-if>
+    <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#16483A;border-radius:14px;padding:28px;display:grid;gap:10px">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em">Enquiry received.</div>
+        <p style="margin:0;font-size:15.5px;line-height:1.6;color:#CBDCD1">We’ll reply within two working days with a proposed model and pricing for your group.</p>
+      </div>
+    </sc-if>
+  </div>
+</section>
+
+<footer style="max-width:1320px;margin:0 auto;padding:56px 32px 44px;display:flex;flex-wrap:wrap;gap:22px;justify-content:space-between;font-size:14px;color:#5C6B62">
+  <span>© 2026 HonuVibe.AI</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap"><a href="./02%20Learn%20-%20Catalog.dc.html">Learn</a><a href="./04%20Build.dc.html">Build</a><a href="#top">Partner</a><a href="#top">About us</a><a href="#top">Contact</a></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;animateHero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;scrollReveal&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;autoPath&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;showPrices&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { lang: 'en', rot: 0, seats: 40, step: -1, splitOn: false, faq: 0, picked: ['Group licenses'], sent: false, q: 0 };
+  splitRef = React.createRef();
+  quoteRef = React.createRef();
+  startQuotes() { if (!this.reduce) this._qt = setInterval(() => this.setState(s => ({ q: (s.q || 0) + 1 })), 6500); }
+  componentDidUpdate(_, prev) {
+    const el = this.quoteRef.current;
+    if (!this.reduce && el && el.animate && prev.q !== this.state.q) el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+  componentDidMount() {
+    this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (this.state.q == null) this.setState({ q: 0 });
+    this.startQuotes();
+    if (this.reduce) { this.setState({ splitOn: true }); return; }
+    const ease = 'cubic-bezier(.2,.7,.2,1)';
+    if (this.props.animateHero ?? true) {
+      document.querySelectorAll('[data-intro]').forEach((el, i) => el.animate && el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 750, delay: 80 + i * 90, easing: ease, fill: 'backwards' }));
+      this._t = setInterval(() => this.setState(s => ({ rot: s.rot + 1 })), 3600);
+    }
+    if (this.props.scrollReveal ?? true) setTimeout(() => this.reveal(ease), 60);
+    const fac = document.getElementById('faculty');
+    if (fac) {
+      this._fio = new IntersectionObserver(es => {
+        if (!es[0].isIntersecting) return;
+        setTimeout(() => this.setState({ splitOn: true }), 600);
+        if ((this.props.autoPath ?? true) && !this._st) {
+          setTimeout(() => this.setState({ step: 0 }), 500);
+          this._st = setInterval(() => { if (!this._hold) this.setState(s => ({ step: (s.step + 1) % 4 })); }, 2600);
+        }
+      }, { threshold: 0.3 });
+      this._fio.observe(fac);
+    }
+  }
+  componentWillUnmount() { clearInterval(this._qt); clearInterval(this._t); clearInterval(this._st); this._io && this._io.disconnect(); this._fio && this._fio.disconnect(); }
+  reveal(ease) {
+    const show = el => {
+      const d = +(el.dataset.revealDelay || 0);
+      el.style.transition = `opacity .8s ease ${d}ms, transform .8s ${ease} ${d}ms`;
+      el.style.opacity = '1'; el.style.transform = 'none';
+      const line = el.querySelector('[data-line]');
+      if (line) { line.style.transition = `transform 1s ${ease} ${d + 150}ms`; line.style.transform = 'scaleX(1)'; }
+      setTimeout(() => { el.style.transition = ''; el.style.transform = ''; }, 900 + d);
+    };
+    const io = this._io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { show(en.target); io.unobserve(en.target); } }), { rootMargin: '0px 0px -10% 0px' });
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+      el.style.opacity = '0'; el.style.transform = 'translateY(24px)';
+      const line = el.querySelector('[data-line]'); if (line) line.style.transform = 'scaleX(0)';
+      io.observe(el);
+    });
+  }
+  goEnquire() {
+    const el = document.getElementById('enquire');
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+  }
+  pick(label) { this.setState(s => ({ picked: s.picked.includes(label) ? s.picked : s.picked.concat(label) })); }
+  rotator(items) {
+    const e = React.createElement, i = this.state.rot % items.length;
+    return e('span', { style: { display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' } },
+      e('span', { key: i, style: { display: 'inline-block', color: '#E9A63B', animation: this.reduce ? 'none' : 'hv-rise .55s cubic-bezier(.2,.7,.2,1) both' } }, items[i]));
+  }
+  marquee(items, reverse, dark) {
+    const e = React.createElement;
+    const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pill = (t, i) => e('span', { key: i, style: { flex: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 20px', minHeight: 48, borderRadius: 999, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: 17, letterSpacing: '-0.01em', background: dark ? '#0E3629' : '#FFFCF2', color: dark ? '#F6F1E2' : '#0E3629', border: dark ? '1px solid #0E3629' : '1px solid #E4DAC1' } }, e('span', { style: { width: 6, height: 6, borderRadius: '50%', background: dark ? '#E9A63B' : '#C9552F' } }), t);
+    const list = reduce ? items : items.concat(items);
+    const track = e('div', { style: { display: 'flex', gap: 10, width: 'max-content', paddingRight: 10, animation: reduce ? 'none' : `hv-marquee ${items.length * 3.2}s linear infinite${reverse ? ' reverse' : ''}` } }, list.map(pill));
+    const set = s => ev => { const t = ev.currentTarget.firstChild; if (t) t.style.animationPlayState = s; };
+    return e('div', { role: 'list', 'aria-label': 'Who we partner with', onMouseEnter: set('paused'), onMouseLeave: set('running'), style: { overflowX: reduce ? 'auto' : 'hidden', padding: '0 32px', maskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)' } }, track);
+  }
+  renderVals() {
+    if (!this._mq) this._mq = {
+      a: this.marquee(['Chambers of commerce', 'Industry associations', 'Accelerators', 'Colleges', 'Training providers', 'Company teams'], false, true),
+      b: this.marquee(['Online communities', 'Coworking spaces', 'Nonprofits', 'Franchise networks', 'Alumni networks', 'Creator communities', 'Local councils'], true, false)
+    };
+    const showPrices = this.props.showPrices ?? true;
+    const BASE = 99, seats = this.state.seats;
+    const BANDS = [{ min: 10, max: 49, off: 20, price: 79 }, { min: 50, max: 199, off: 30, price: 69 }, { min: 200, max: 500, off: 40, price: 59 }];
+    const band = BANDS.find(b => seats <= b.max) || BANDS[2];
+    const fmt = n => '$' + n.toLocaleString('en-US');
+    const INTERESTS = ['Group licenses', 'Custom curriculum', 'Co-branding', 'Revenue share', 'Member teachers'];
+    const pickGo = label => () => this.pick(label);
+    const tierDefs = [
+      { key: 'Group licenses', name: 'Group licenses', tag: 'Discounted seats for your members or staff', unit: 'from', price: '$59', per: '/ seat / month', includes: ['Full Vault access, every track, EN and 日本語', 'Seats you can reassign, one invoice', 'Progress dashboard for admins', 'Volume discount from 10 seats'], cta: 'Ask about seats →' },
+      { key: 'Custom curriculum', name: 'Community program', tag: 'A program built around your members’ work', unit: '', price: 'Quoted', per: 'per program', popular: true, includes: ['Everything in Group licenses', 'Custom curriculum written for your sector', 'Live kickoff, office hours and demo day', 'Completion certificates under your name'], cta: 'Ask about a program →' },
+      { key: 'Revenue share', name: 'Co-branded platform', tag: 'For communities of 250 members or more', unit: '', price: 'Rev share', per: 'no upfront fee', includes: ['Everything in Community program', 'Your brand alongside ours on the platform', 'A share of every membership your members buy', 'Member teachers publishing their own courses'], cta: 'Ask about co-branding →' }
+    ];
+    const QUOTES = [
+      { text: 'Our members kept asking where to start with AI. Within a month of the first cohort, half of them had built something for their own business.', name: 'Placeholder Name', org: 'Director, regional chamber of commerce' },
+      { text: 'Two of our graduates now teach their own courses inside the program. Members trust them more than any outside trainer.', name: 'Placeholder Name', org: 'Founder, online creator community' },
+      { text: 'The custom lessons used our members’ real paperwork as examples. That is what made it stick.', name: 'Placeholder Name', org: 'Program lead, industry association' }
+    ];
+    const qi = this.state.q % QUOTES.length;
+    return {
+      testi: QUOTES[qi], quoteRef: this.quoteRef,
+      quoteDots: QUOTES.map((_, i) => ({ label: `Quote ${i + 1}`, w: i === qi ? '18px' : '6px', c: i === qi ? '#C9552F' : '#E4DAC1', go: () => { this.setState({ q: i }); clearInterval(this._qt); this.startQuotes(); } })),
+      langs: [['en', 'EN'], ['ja', '日本語']].map(([k, label]) => { const on = this.state.lang === k; return { label, active: on, bg: on ? '#F6F1E2' : 'transparent', fg: on ? '#0E3629' : '#CBDCD1', select: () => this.setState({ lang: k }) }; }),
+      rotator: this.rotator(['your chamber of commerce.', 'your accelerator cohort.', 'your college.', 'your whole team.', 'your online community.']),
+      seats,
+      onSeats: e => this.setState({ seats: +e.target.value }),
+      bands: BANDS.map(b => { const on = b === band; return { range: b.max === 500 ? `${b.min}+ seats` : `${b.min}–${b.max} seats`, off: `${b.off}% off`, bg: on ? '#0E3629' : '#EFE7D2', fg: on ? '#F6F1E2' : '#5C6B62' }; }),
+      quote: [
+        { k: 'Per seat, per month', v: `${fmt(band.price)}`, c: '#0E3629' },
+        { k: 'Monthly total', v: fmt(seats * band.price), c: '#0E3629' },
+        { k: `Saved vs ${fmt(BASE)} individual`, v: fmt(seats * (BASE - band.price)) + ' / mo', c: '#C9552F' }
+      ],
+      quoteGo: () => this.pick('Group licenses'),
+      showPrices,
+      marqueeA: this._mq.a, marqueeB: this._mq.b,
+      offers: [
+        { num: '01', name: 'Group licenses', short: 'seats', tag: 'Up to 40% off', bg: '#0E3629', fg: '#E9A63B', blurb: 'Discounted Vault seats for your members or staff, managed from one account.', points: ['Volume pricing from 10 seats', 'Reassign seats as people come and go'] },
+        { num: '02', name: 'Custom curriculum', short: 'curriculum', tag: 'Built with you', bg: '#C9552F', fg: '#FFF3EA', blurb: 'Lessons written around the tools, tasks and language your members use.', points: ['Sector examples and case studies', 'Delivered in English or 日本語'] },
+        { num: '03', name: 'Co-branding', short: 'co-branding', tag: 'Your name on it', bg: '#7A5C2E', fg: '#FFF3EA', blurb: 'Run the program under your brand and ours, from the sign-up page to the certificate.', points: ['Co-branded landing page and materials', 'Certificates your members can share'] },
+        { num: '04', name: 'Revenue share', short: 'revenue share', tag: '250+ members', bg: '#E9A63B', fg: '#0E3629', blurb: 'Turn training into income for the community instead of a line in the budget.', points: ['A share of every membership', 'Paid monthly, reported openly'] }
+      ].map((o, i) => ({ ...o, delay: String(i * 110), pick: pickGo(o.name === 'Co-branding' ? 'Co-branding' : o.name) })),
+      extras: [
+        { t: 'Admin dashboard', d: 'See who started, who finished and what they built.' },
+        { t: 'Bulk enrollment', d: 'Add members from a spreadsheet or your existing login.' },
+        { t: 'Live workshops', d: 'Kickoffs and hands-on sessions, in person or online.' },
+        { t: 'Demo days', d: 'Members show what they built to your community or sponsors.' },
+        { t: 'Sponsored seats', d: 'A sponsor funds seats for members who couldn’t otherwise join.' },
+        { t: 'Studio credits', d: 'Member businesses get a discount on Build projects with us.' },
+        { t: 'Challenges', d: 'Time-boxed build challenges with a shared brief and prizes.' },
+        { t: 'Impact report', d: 'A yearly summary of skills gained and things shipped, for your board.' }
+      ],
+      path: [
+        { num: '01', role: 'Learner', title: 'Takes the program', body: 'Works through the tracks with the rest of the cohort.' },
+        { num: '02', role: 'Builder', title: 'Ships something real', body: 'Builds a tool or site for their own business and shows it at demo day.' },
+        { num: '03', role: 'Mentor', title: 'Helps the next cohort', body: 'Joins office hours and answers questions from newer members.' },
+        { num: '04', role: 'Teacher', title: 'Publishes a course', body: 'Builds a course with our review and earns a share of every sale.' }
+      ].map((s, i) => {
+        const cur = this.state.step, on = i === cur, done = cur >= 0 && i < cur;
+        return { ...s, delay: String(i * 140),
+          nodeBg: on || done ? '#E9A63B' : 'transparent', nodeFg: on || done ? '#0E3629' : '#E9A63B',
+          nodeScale: on ? 'scale(1.12)' : 'none', nodeGlow: on ? '0 0 0 6px rgba(233,166,59,0.18)' : 'none',
+          lineColor: done ? '#E9A63B' : '#2C5A48',
+          cardBg: on ? '#1D5745' : '#16483A', cardBorder: on ? '#E9A63B' : '#16483A',
+          cardLift: on ? 'translateY(-6px)' : 'none', cardShadow: on ? '0 20px 36px -18px rgba(0,0,0,0.55)' : 'none',
+          enter: () => { this._hold = true; this.setState({ step: i }); },
+          leave: () => { this._hold = false; } };
+      }),
+      splitRef: this.splitRef,
+      split: [{ pct: '50%', n: 50, who: 'to the member teacher', c: '#E9A63B' }, { pct: '20%', n: 20, who: 'to your community', c: '#C9552F' }, { pct: '30%', n: 30, who: 'to HonuVibe', c: '#CBDCD1' }].map(p => ({ ...p, w: this.state.splitOn ? p.n + '%' : '0%' })),
+      tiers: tierDefs.map((t, i) => {
+        const d = !!t.popular;
+        return { ...t, popular: d, delay: String(i * 120), bg: d ? '#0E3629' : '#FFFCF2', fg: d ? '#F6F1E2' : '#0E3629', border: d ? '#0E3629' : '#E4DAC1', sub: d ? '#CBDCD1' : '#3E4F45', check: d ? '#E9A63B' : '#4E7A66', btnBg: d ? '#E9A63B' : '#0E3629', btnFg: d ? '#0E3629' : '#F6F1E2', pick: pickGo(t.key) };
+      }),
+      steps: [
+        { num: '01', when: 'Day 0', title: 'Enquiry', body: 'Tell us who your group is and roughly how many people.' },
+        { num: '02', when: 'Within 2 days', title: 'Proposal', body: 'A suggested model, price per seat and start date, in writing.' },
+        { num: '03', when: '1–3 weeks', title: 'Shape it', body: 'We choose tracks, write any custom lessons and set up your branding.' },
+        { num: '04', when: 'Kickoff', title: 'Launch', body: 'Seats open or the cohort starts. You see progress from day one.' }
+      ].map((s, i) => ({ ...s, delay: String(i * 120) })),
+      faqs: [
+        { q: 'What is the minimum group size?', a: 'Ten seats for group licenses. Co-branding and revenue share start at 250 members.' },
+        { q: 'How does custom curriculum work?', a: 'We interview a few members, collect the tasks they do every week, and write lessons around them. Custom lessons sit alongside the standard tracks.' },
+        { q: 'Who can become a teacher?', a: 'Any member who has finished a track and has something worth teaching. We review every course before it goes live and help with structure and recording.' },
+        { q: 'How is revenue share paid?', a: 'Monthly, with a report showing every membership and course sale it came from.' },
+        { q: 'Can you deliver in Japanese?', a: 'Yes. Every lesson exists in English and 日本語, and live sessions can run in either.' },
+        { q: 'Do members need a technical background?', a: 'No. Tracks start from opening the tool for the first time and end with something built and live.' }
+      ].map((f, i) => { const open = this.state.faq === i; return { ...f, open, rot: open ? 'rotate(45deg)' : 'none', toggle: () => this.setState({ faq: open ? -1 : i }) }; }),
+      promises: ['A price per seat in writing before you commit', 'We’ll say if a smaller option fits better', 'No minimum term beyond the license period'],
+      interests: INTERESTS.map(label => { const a = this.state.picked.includes(label); return { label, active: a, bg: a ? '#E9A63B' : 'transparent', fg: a ? '#0E3629' : '#F6F1E2', border: a ? '#E9A63B' : '#2C5A48', toggle: () => this.setState(s => ({ picked: a ? s.picked.filter(x => x !== label) : s.picked.concat(label) })) }; }),
+      fields: [
+        { label: 'Name', ph: 'Your name', type: 'text', val: '' },
+        { label: 'Email', ph: 'you@organization.org', type: 'email', val: '' },
+        { label: 'Organization', ph: 'Chamber, college, community', type: 'text', val: '' },
+        { label: 'Group size', ph: 'Around 40 people', type: 'text', val: '' }
+      ],
+      send: e => { e.preventDefault(); this.setState({ sent: true }); },
+      sent: this.state.sent, notSent: !this.state.sent
+    };
+  }
+}
+</script>
+</body>
+</html>

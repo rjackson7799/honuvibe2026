@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #F6F1E2; color: #16241D; font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #0E3629; text-decoration: none; }
+  a:hover { color: #C9552F; }
+  input::placeholder, textarea::placeholder { color: #8FAA98; }
+  @keyframes hv-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes hv-rise { from { opacity: 0; transform: translateY(0.5em); } to { opacity: 1; transform: none; } }
+  @keyframes hv-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+</style>
+</helmet>
+
+<div style="max-width:100%;overflow-x:hidden">
+
+<header style="position:sticky;top:0;z-index:40;background:#0E3629;color:#F6F1E2;border-bottom:1px solid #16483A">
+  <div style="max-width:1320px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+    <a href="./01%20Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2">HonuVibe</a>
+    <nav style="display:flex;gap:22px;font-size:15px;flex-wrap:wrap"><a href="./02%20Learn%20-%20Catalog.dc.html" style="color:#CBDCD1">Learn</a><a href="#top" style="color:#F6F1E2;font-weight:600;border-bottom:2px solid #E9A63B;padding-bottom:2px">Build</a><a href="./05%20Partner.dc.html" style="color:#CBDCD1">Partner</a></nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+      <div role="group" aria-label="Language" style="display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #2C5A48;border-radius:999px;background:#0B2E23">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+          <button type="button" aria-pressed="{{ l.active }}" onClick="{{ l.select }}" style="min-height:36px;min-width:44px;padding:0 12px;border:none;border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:background .2s ease,color .2s ease" style-hover="color:#F6F1E2">{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <a href="./06%20Sign%20In.dc.html" style="font-size:15px;color:#F6F1E2">Sign in</a>
+      <a href="#brief" style="background:#E9A63B;color:#0E3629;padding:11px 18px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center">Start a project</a>
+    </div>
+  </div>
+</header>
+
+<section id="top" style="background:#0E3629;color:#F6F1E2;padding:40px 0 60px">
+  <div style="max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:44px;align-items:center">
+    <div>
+      <div data-intro="1" style="font-size:13.5px;color:#8FAA98"><a href="./01%20Home.dc.html" style="color:#8FAA98">Home</a> / <span style="color:#CBDCD1">Build</span></div>
+      <h1 data-intro="1" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(42px,5vw,68px);line-height:1;letter-spacing:-0.04em;margin:18px 0 0">Build in our Studio</h1>
+      <p data-intro="1" style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(20px,2.2vw,28px);letter-spacing:-0.02em;line-height:1.2;margin:16px 0 0;color:#CBDCD1;min-height:2.4em">We’ll build {{ rotator }}</p>
+      <p data-intro="1" style="font-size:17px;line-height:1.6;color:#CBDCD1;margin:12px 0 0;max-width:50ch">Websites, web apps, MVPs and business documents, designed and shipped by the people who teach the courses. Fixed price before we start.</p>
+      <form data-intro="1" onSubmit="{{ heroSubmit }}" style="margin-top:26px;display:flex;align-items:center;gap:12px;background:#16483A;border:1.5px solid #2C5A48;border-radius:12px;padding:0 8px 0 18px;min-height:60px;max-width:560px">
+        <span style="color:#E9A63B;font-size:18px">✦</span>
+        <input type="text" value="{{ idea }}" onInput="{{ onIdea }}" placeholder="What do you want built?" aria-label="What do you want built?" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#F6F1E2;font-family:inherit;font-size:17px;min-height:56px" />
+        <button type="submit" style="background:#E9A63B;color:#0E3629;border:none;border-radius:9px;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;white-space:nowrap;transition:transform .25s ease,box-shadow .25s ease" style-hover="transform:translateY(-1px);box-shadow:0 10px 22px -10px rgba(233,166,59,0.6)">Start a brief →</button>
+      </form>
+      <div data-intro="1" style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:#E9A63B;margin-right:4px"><span style="width:7px;height:7px;border-radius:50%;background:#E9A63B;animation:hv-pulse 2s ease-in-out infinite"></span>We build</span>
+        <sc-for list="{{ heroChips }}" as="h" hint-placeholder-count="4">
+          <button type="button" onClick="{{ h.pick }}" style="border:1px solid #2C5A48;background:transparent;color:#F6F1E2;border-radius:999px;padding:0 14px;min-height:40px;font-family:inherit;font-size:14px;cursor:pointer;transition:border-color .2s ease" style-hover="border-color:#E9A63B">{{ h.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <a data-intro="1" href="#work" style="background:#F6F1E2;color:#16241D;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .25s ease" style-hover="box-shadow:0 0 0 1.5px #E9A63B,0 0 40px rgba(233,166,59,0.25)">
+      <div style="position:relative;aspect-ratio:16/9;background:#E4DAC1">
+        <sc-for list="{{ heroCards }}" as="c" hint-placeholder-count="1">
+          <div style="position:absolute;inset:0;opacity:{{ c.opacity }};transition:opacity .7s ease;pointer-events:{{ c.events }}">
+            <image-slot id="{{ c.slot }}" shape="rect" placeholder="{{ c.ph }}"></image-slot>
+          </div>
+        </sc-for>
+        <span style="position:absolute;top:14px;left:14px;background:#E9A63B;color:#0E3629;font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:6px 11px;border-radius:7px;pointer-events:none">Recent build</span>
+        <div style="position:absolute;top:18px;right:16px;display:flex;gap:6px;pointer-events:none">
+          <sc-for list="{{ heroCards }}" as="c" hint-placeholder-count="4"><span style="width:{{ c.dotW }};height:6px;border-radius:999px;background:{{ c.dot }};transition:width .4s ease,background .4s ease"></span></sc-for>
+        </div>
+      </div>
+      <div ref="{{ heroCardRef }}" style="padding:22px 24px 24px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">{{ heroCard.kind }}</span>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-0.03em;line-height:1.1;color:#0E3629;margin:0">{{ heroCard.title }}</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#5C6B62;min-height:3.1em">{{ heroCard.body }}</p>
+        <span style="margin-top:8px;font-weight:600;color:#C9552F">See the work →</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section id="what" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1">
+    <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">What we build</div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end;margin-top:10px">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:0;max-width:22ch;text-wrap:balance">Four kinds of work, one small team.</h2>
+      <p style="max-width:36ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">If yours is a mix, say so in the brief and we’ll scope it as one project.</p>
+    </div>
+  </div>
+  <div data-reveal="1" style="margin-top:28px;margin-left:-32px;margin-right:-32px;display:flex;flex-direction:column;gap:10px">{{ marqueeA }}{{ marqueeB }}</div>
+  <div style="margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px">
+    <sc-for list="{{ services }}" as="s" hint-placeholder-count="4">
+      <a href="#brief" onClick="{{ s.pick }}" data-reveal="1" data-reveal-delay="{{ s.delay }}" style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-4px);box-shadow:0 18px 34px -18px rgba(14,54,41,0.35)">
+        <div style="background:{{ s.bg }};color:{{ s.fg }};padding:22px;display:flex;flex-direction:column;gap:10px;min-height:150px">
+          <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700">{{ s.num }}</span><sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}"><span>{{ s.from }}</span></sc-if></div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;line-height:1.02;letter-spacing:-0.03em;margin-top:auto">{{ s.name }}</div>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px;flex:1">
+          <p style="margin:0;font-size:15.5px;line-height:1.55;color:#3E4F45">{{ s.blurb }}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ s.examples }}" as="x" hint-placeholder-count="3"><span style="border:1px solid #E4DAC1;border-radius:999px;padding:4px 10px;font-size:13px;color:#5C6B62">{{ x }}</span></sc-for>
+          </div>
+          <span style="margin-top:auto;padding-top:6px;font-size:14px;font-weight:600;color:#C9552F">Brief a {{ s.short }} →</span>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section id="work" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Recent work</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">Things we’ve shipped</h2>
+    </div>
+    <p style="max-width:36ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">Each project is labelled as client work or concept.</p>
+  </div>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px">
+    <sc-for list="{{ work }}" as="w" hint-placeholder-count="4">
+      <a href="#brief" data-reveal="1" data-reveal-delay="{{ w.delay }}" style="display:flex;flex-direction:column;gap:12px;transition:transform .3s ease" style-hover="transform:translateY(-3px)">
+        <div style="position:relative;border-radius:14px;overflow:hidden;background:#EFE7D2;aspect-ratio:4/3">
+          <image-slot id="{{ w.slot }}" shape="rect" placeholder="{{ w.ph }}"></image-slot>
+          <span style="position:absolute;top:12px;left:12px;background:#0E3629;color:#F6F1E2;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 9px;border-radius:6px;pointer-events:none">{{ w.kind }}</span>
+        </div>
+        <div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em;color:#0E3629">{{ w.title }}</div>
+          <div style="font-size:14px;color:#5C6B62;margin-top:3px">{{ w.label }}</div>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section id="how" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:20px;padding:clamp(26px,3.6vw,48px)">
+    <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">How it runs</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;margin:10px 0 0;max-width:22ch;text-wrap:balance">Four steps, no surprise invoice.</h2>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;border:1px solid #2C5A48;border-radius:12px;padding:12px 16px">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-0.03em;color:#E9A63B">~3 weeks</span>
+        <span style="font-size:14.5px;color:#CBDCD1">brief to launch, for most projects</span>
+      </div>
+    </div>
+    <div style="margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:18px">
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+        <div data-reveal="1" data-reveal-delay="{{ s.delay }}" onMouseEnter="{{ s.enter }}" onMouseLeave="{{ s.leave }}" style="display:flex;flex-direction:column;gap:16px;cursor:default">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="flex:none;width:48px;height:48px;border-radius:50%;background:{{ s.nodeBg }};color:{{ s.nodeFg }};border:1.5px solid #E9A63B;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;transform:{{ s.nodeScale }};box-shadow:{{ s.nodeGlow }};transition:background .4s ease,color .4s ease,transform .4s cubic-bezier(.2,.7,.2,1),box-shadow .4s ease">{{ s.num }}</span>
+            <span data-line="1" style="flex:1;height:2px;background:{{ s.lineColor }};transform-origin:left center;border-radius:2px;transition:background .6s ease"></span>
+          </div>
+          <div style="flex:1;background:{{ s.cardBg }};border:1.5px solid {{ s.cardBorder }};border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:10px;transform:{{ s.cardLift }};box-shadow:{{ s.cardShadow }};transition:transform .45s cubic-bezier(.2,.7,.2,1),border-color .45s ease,box-shadow .45s ease,background .45s ease">
+            <span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:#E9A63B">{{ s.when }}</span>
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.025em;margin:0">{{ s.title }}</h3>
+            <p style="font-size:15px;line-height:1.6;color:#CBDCD1;margin:0">{{ s.body }}</p>
+            <div style="margin-top:auto;padding-top:14px;border-top:1px solid #2C5A48;display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:11.5px;letter-spacing:0.1em;text-transform:uppercase;color:#8FAA98;font-weight:600">{{ s.giveLabel }}</span>
+              <span style="font-size:15px;font-weight:600;color:#F6F1E2;line-height:1.4">{{ s.give }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+<section id="tiers" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div data-reveal="1" style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Pricing</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">Priced before we start.</h2>
+    </div>
+    <p style="max-width:38ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">One fixed figure against a written scope. If the scope changes, we re-quote rather than bill extra.</p>
+  </div>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px;align-items:stretch">
+    <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3">
+      <div data-reveal="1" data-reveal-delay="{{ t.delay }}" style="background:{{ t.bg }};color:{{ t.fg }};border:1px solid {{ t.border }};border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:16px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 22px 44px -22px rgba(14,54,41,0.4)">
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;margin:0">{{ t.name }}</h3>
+            <sc-if value="{{ t.popular }}" hint-placeholder-val="{{ false }}"><span style="background:#E9A63B;color:#0E3629;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 9px;border-radius:6px">Most projects</span></sc-if>
+          </div>
+          <div style="font-size:14.5px;color:{{ t.sub }};margin-top:4px">{{ t.tag }}</div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:15px;color:{{ t.sub }}">{{ t.unit }}</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:46px;letter-spacing:-0.04em;line-height:1">{{ t.price }}</span></div>
+        <div style="display:grid;gap:10px">
+          <sc-for list="{{ t.includes }}" as="f" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-size:15px;line-height:1.5;color:{{ t.sub }}"><span style="color:{{ t.check }};font-weight:700">✓</span><span>{{ f }}</span></div></sc-for>
+        </div>
+        <a href="#brief" onClick="{{ t.pick }}" style="margin-top:auto;background:{{ t.btnBg }};color:{{ t.btnFg }};border-radius:10px;min-height:54px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16.5px;transition:transform .25s ease" style-hover="transform:translateY(-2px)">{{ t.cta }}</a>
+      </div>
+    </sc-for>
+  </div>
+  <div data-reveal="1" style="margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:20px">
+    <div style="background:#EFE7D2;border-radius:16px;padding:24px 28px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.02em;color:#0E3629;margin:0">À la carte</h3>
+        <div style="font-size:14.5px;color:#3E4F45;margin-top:4px">Add to any tier. Quoted with your scope.</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ addons }}" as="a" hint-placeholder-count="4">
+          <span style="display:inline-flex;align-items:center;gap:8px;background:#FFFCF2;border:1px solid #E4DAC1;border-radius:999px;padding:0 14px;min-height:40px;font-size:14.5px;font-weight:500;color:#0E3629;transition:border-color .2s ease" style-hover="border-color:#0E3629"><span style="width:6px;height:6px;border-radius:50%;background:#C9552F"></span>{{ a.name }}</span>
+        </sc-for>
+        <span style="display:inline-flex;align-items:center;padding:0 6px;min-height:40px;font-size:14.5px;color:#5C6B62">and more</span>
+      </div>
+    </div>
+    <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:24px 28px;display:flex;flex-direction:column;gap:10px;justify-content:center">
+      <span style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:#E9A63B">Required for every build</span>
+      <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.02em">Hosting and maintenance</span><span style="font-size:15px;color:#CBDCD1">from</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;letter-spacing:-0.03em;color:#E9A63B">$25</span><span style="font-size:15px;color:#CBDCD1">/ month</span></div>
+      <p style="margin:0;font-size:14.5px;line-height:1.55;color:#CBDCD1">Keeps your site online, secure and up to date after launch.</p>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<section id="faq" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:36px;align-items:start">
+    <div data-reveal="1">
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Questions</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;max-width:16ch">Before you brief us.</h2>
+      <figure style="margin:36px 0 0;background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;padding:26px 28px;max-width:480px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:0.6;color:#E9A63B;height:22px">“</span>
+        <div ref="{{ quoteRef }}" style="display:flex;flex-direction:column;gap:18px;min-height:190px">
+          <blockquote style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:20px;line-height:1.4;letter-spacing:-0.01em;color:#0E3629;text-wrap:pretty">{{ testi.text }}</blockquote>
+          <figcaption style="margin-top:auto;display:flex;flex-direction:column;gap:2px">
+            <span style="font-weight:600;font-size:15px;color:#0E3629">{{ testi.name }}</span>
+            <span style="font-size:14px;color:#5C6B62">{{ testi.org }}</span>
+          </figcaption>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <sc-for list="{{ quoteDots }}" as="d" hint-placeholder-count="3">
+            <button type="button" aria-label="{{ d.label }}" onClick="{{ d.go }}" style="border:none;background:transparent;padding:0;min-width:24px;min-height:24px;display:inline-flex;align-items:center;cursor:pointer"><span style="width:{{ d.w }};height:6px;border-radius:999px;background:{{ d.c }};transition:width .4s ease,background .4s ease"></span></button>
+          </sc-for>
+        </div>
+      </figure>
+    </div>
+    <div style="display:grid">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+        <div style="border-top:1px solid #E4DAC1">
+          <button type="button" aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:transparent;border:none;padding:18px 0;min-height:56px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.01em;color:#0E3629;text-align:left;cursor:pointer" style-hover="color:#C9552F">
+            <span>{{ q.q }}</span>
+            <span style="flex:none;font-size:22px;color:#C9552F;transform:{{ q.rot }};transition:transform .3s ease">+</span>
+          </button>
+          <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 18px;font-size:15.5px;line-height:1.65;color:#3E4F45;max-width:60ch">{{ q.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="brief" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:clamp(24px,3.4vw,44px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:36px;align-items:start">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">Start a project</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.4vw,44px);letter-spacing:-0.035em;line-height:1.04;margin:10px 0 0;max-width:18ch">Tell us what you need built.</h2>
+      <p style="margin:14px 0 0;font-size:16.5px;line-height:1.6;color:#CBDCD1;max-width:44ch">A few lines is enough. We reply within two working days with a scope, a fixed price and a date.</p>
+      <div style="margin-top:24px;display:grid;gap:12px">
+        <sc-for list="{{ briefPoints }}" as="b" hint-placeholder-count="3"><div style="display:flex;gap:10px;font-size:15.5px;line-height:1.5;color:#CBDCD1"><span style="color:#E9A63B;font-weight:700">✓</span><span>{{ b }}</span></div></sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+      <form ref="{{ formRef }}" onSubmit="{{ sendBrief }}" style="background:#16483A;border-radius:14px;padding:24px;display:grid;gap:18px">
+        <div style="display:grid;gap:9px">
+          <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#8FAA98;font-weight:600">What kind of project?</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ types }}" as="t" hint-placeholder-count="4">
+              <button type="button" aria-pressed="{{ t.active }}" onClick="{{ t.select }}" style="border:1.5px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }};border-radius:999px;padding:0 16px;min-height:44px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:background .18s ease,border-color .18s ease">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <label style="display:grid;gap:7px">
+          <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#8FAA98;font-weight:600">What do you want built?</span>
+          <textarea rows="4" value="{{ idea }}" onInput="{{ onIdea }}" placeholder="A booking page for my clinic, wired to my calendar." style="background:#0E3629;border:1.5px solid #2C5A48;border-radius:9px;padding:14px;font-family:inherit;font-size:15.5px;color:#F6F1E2;resize:vertical;outline:none" style-focus="border-color:#E9A63B"></textarea>
+        </label>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:14px">
+          <sc-for list="{{ fields }}" as="f" hint-placeholder-count="2">
+            <label style="display:grid;gap:7px">
+              <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#8FAA98;font-weight:600">{{ f.label }}</span>
+              <input type="{{ f.type }}" required="required" placeholder="{{ f.ph }}" style="background:#0E3629;border:1.5px solid #2C5A48;border-radius:9px;padding:0 14px;font-family:inherit;font-size:15.5px;color:#F6F1E2;min-height:50px;outline:none" style-focus="border-color:#E9A63B" />
+            </label>
+          </sc-for>
+        </div>
+        <button type="submit" style="background:#E9A63B;color:#0E3629;border:none;border-radius:10px;font-family:inherit;font-size:16.5px;font-weight:600;min-height:54px;cursor:pointer;transition:transform .25s ease,box-shadow .25s ease" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(233,166,59,0.6)">Send the brief →</button>
+        <div style="font-size:13px;color:#8FAA98;text-align:center">No obligation. We’ll tell you if a Vault lesson is the cheaper answer.</div>
+      </form>
+    </sc-if>
+    <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#16483A;border-radius:14px;padding:28px;display:grid;gap:10px">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em">Brief received.</div>
+        <p style="margin:0;font-size:15.5px;line-height:1.6;color:#CBDCD1">We’ll reply within two working days with a scope, a fixed price and a date for your {{ sentType }}.</p>
+      </div>
+    </sc-if>
+  </div>
+</section>
+
+<section data-reveal="1" style="max-width:1320px;margin:0 auto;padding:24px 32px 0">
+  <a href="./02%20Learn%20-%20Catalog.dc.html" style="background:#EFE7D2;border-radius:16px;padding:24px 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;transition:background .25s ease" style-hover="background:#E4DAC1">
+    <div style="max-width:56ch">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;color:#0E3629;margin:0">Rather build it yourself?</h2>
+      <p style="margin:6px 0 0;font-size:15px;color:#3E4F45;line-height:1.55">The Build with AI track teaches the same work: websites, prototypes and business tools.</p>
+    </div>
+    <span style="border:1.5px solid #0E3629;color:#0E3629;border-radius:10px;padding:0 20px;min-height:50px;display:inline-flex;align-items:center;font-weight:600">Browse the track →</span>
+  </a>
+</section>
+
+<footer style="max-width:1320px;margin:0 auto;padding:56px 32px 44px;display:flex;flex-wrap:wrap;gap:22px;justify-content:space-between;font-size:14px;color:#5C6B62">
+  <span>© 2026 HonuVibe.AI</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap"><a href="./02%20Learn%20-%20Catalog.dc.html">Learn</a><a href="#top">Build</a><a href="./05%20Partner.dc.html">Partner</a><a href="#top">About us</a><a href="#top">Contact</a></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;animateHero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;scrollReveal&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;autoSteps&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;showPrices&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { lang: 'en', rot: 0, idea: '', type: 'website', sent: false, step: -1 };
+  formRef = React.createRef();
+  quoteRef = React.createRef();
+  startQuotes() { if (!this.reduce) this._qt = setInterval(() => this.setState(s => ({ q: (s.q || 0) + 1 })), 6500); }
+  animQuote(prev) { const el = this.quoteRef.current; if (!this.reduce && el && el.animate && prev.q !== this.state.q) el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.2,.7,.2,1)' }); }
+  heroCardRef = React.createRef();
+  componentDidUpdate(_, prev) {
+    this.animQuote(prev);
+    const el = this.heroCardRef.current;
+    if (!this.reduce && el && el.animate && prev.rot !== this.state.rot) el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+  componentDidMount() {
+    this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.startQuotes();
+    if (this.reduce) return;
+    const ease = 'cubic-bezier(.2,.7,.2,1)';
+    if (this.props.animateHero ?? true) {
+      document.querySelectorAll('[data-intro]').forEach((el, i) => el.animate && el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 750, delay: 80 + i * 90, easing: ease, fill: 'backwards' }));
+      this._t = setInterval(() => this.setState(s => ({ rot: s.rot + 1 })), 4800);
+    }
+    if (this.props.scrollReveal ?? true) setTimeout(() => this.reveal(ease), 60);
+    if (this.props.autoSteps ?? true) {
+      const how = document.getElementById('how');
+      if (how) {
+        this._sio = new IntersectionObserver(es => {
+          if (es[0].isIntersecting && !this._st) {
+            setTimeout(() => this.setState({ step: 0 }), 500);
+            this._st = setInterval(() => { if (!this._hold) this.setState(s => ({ step: (s.step + 1) % 4 })); }, 2600);
+          }
+        }, { threshold: 0.35 });
+        this._sio.observe(how);
+      }
+    }
+  }
+  componentWillUnmount() { clearInterval(this._qt); clearInterval(this._t); clearInterval(this._st); this._io && this._io.disconnect(); this._sio && this._sio.disconnect(); }
+  reveal(ease) {
+    const show = el => {
+      const d = +(el.dataset.revealDelay || 0);
+      el.style.transition = `opacity .8s ease ${d}ms, transform .8s ${ease} ${d}ms`;
+      el.style.opacity = '1'; el.style.transform = 'none';
+      const line = el.querySelector('[data-line]');
+      if (line) { line.style.transition = `transform 1s ${ease} ${d + 150}ms`; line.style.transform = 'scaleX(1)'; }
+      setTimeout(() => { el.style.transition = ''; el.style.transform = ''; }, 900 + d);
+    };
+    const io = this._io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { show(en.target); io.unobserve(en.target); } }), { rootMargin: '0px 0px -10% 0px' });
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      if (el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+      el.style.opacity = '0'; el.style.transform = 'translateY(24px)';
+      const line = el.querySelector('[data-line]'); if (line) line.style.transform = 'scaleX(0)';
+      io.observe(el);
+    });
+  }
+  goBrief() {
+    const el = document.getElementById('brief');
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' });
+  }
+  rotator(items) {
+    const e = React.createElement, i = this.state.rot % items.length;
+    return e('span', { style: { display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' } },
+      e('span', { key: i, style: { display: 'inline-block', color: '#E9A63B', animation: this.reduce ? 'none' : 'hv-rise .55s cubic-bezier(.2,.7,.2,1) both' } }, items[i]));
+  }
+  marquee(items, reverse, dark) {
+    const e = React.createElement;
+    const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pill = (t, i) => e('span', { key: i, style: { flex: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 20px', minHeight: 48, borderRadius: 999, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: 17, letterSpacing: '-0.01em', background: dark ? '#0E3629' : '#FFFCF2', color: dark ? '#F6F1E2' : '#0E3629', border: dark ? '1px solid #0E3629' : '1px solid #E4DAC1' } }, e('span', { style: { width: 6, height: 6, borderRadius: '50%', background: dark ? '#E9A63B' : '#C9552F' } }), t);
+    const list = reduce ? items : items.concat(items);
+    const track = e('div', { style: { display: 'flex', gap: 10, width: 'max-content', paddingRight: 10, animation: reduce ? 'none' : `hv-marquee ${items.length * 3.2}s linear infinite${reverse ? ' reverse' : ''}` } }, list.map(pill));
+    const set = s => ev => { const t = ev.currentTarget.firstChild; if (t) t.style.animationPlayState = s; };
+    return e('div', { 'aria-label': 'What we build with', role: 'list', onMouseEnter: set('paused'), onMouseLeave: set('running'), style: { overflowX: reduce ? 'auto' : 'hidden', padding: '0 32px', maskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)' } }, track);
+  }
+  renderVals() {
+    if (!this._mq) this._mq = {
+      a: this.marquee(['Claude Code', 'Cursor', 'Supabase', 'Vercel', 'Stripe', 'Next.js', 'n8n', 'Figma', 'Google Calendar', 'Shopify'], false, true),
+      b: this.marquee(['Landing pages', 'Booking sites', 'Quote calculators', 'Client portals', 'Ordering pages', 'Intake forms', 'Internal dashboards', 'Investor demos', 'Member areas'], true, false)
+    };
+    const showPrices = this.props.showPrices ?? true;
+    const HERO = [
+      { line: 'a booking site for your studio.', slot: 'build-hero', ph: 'Drop a booking site screenshot', kind: 'Website · Design + build', title: 'A booking site for a wellness studio', body: 'Class schedule, online booking and payments, wired to the calendar the owner already used.' },
+      { line: 'a quote tool customers can use.', slot: 'build-hero-2', ph: 'Drop a quote tool screenshot', kind: 'Web app · Design + build', title: 'A quote tool for a trades business', body: 'Customers enter the job and get a price before they pick up the phone.' },
+      { line: 'a client portal for your team.', slot: 'build-hero-3', ph: 'Drop a client portal screenshot', kind: 'Web app · Database-driven', title: 'A client portal for a small firm', body: 'Clients log in to see files, invoices and project status in one place.' },
+      { line: 'an MVP you can show investors.', slot: 'build-hero-4', ph: 'Drop an MVP screenshot', kind: 'MVP · Build + pitch deck', title: 'An MVP and pitch deck for a startup', body: 'A working first version, plus the deck and pro-forma to take into the meeting.' }
+    ];
+    const TYPES = { website: 'Website', webapp: 'Web app', mvp: 'MVP', docs: 'Documents', other: 'Other' };
+    const pickType = k => () => this.setState({ type: k });
+    const pickAndGo = k => () => { this.setState({ type: k }); this.goBrief(); };
+    const tierDefs = [
+      { key: 'website', name: 'Landing Page', tag: 'A landing page or informational site', unit: 'from', price: '$100', includes: ['Up to 5 designed and built pages', 'Copy shaped with you', 'A contact form', 'Live on your domain'], cta: 'Brief a Landing Page →' },
+      { key: 'webapp', name: 'Build', tag: 'Database-driven sites', unit: 'from', price: '$1,500', popular: true, includes: ['A site built on your own data: listings, bookings, members or orders', 'Connected to your calendar, inbox or payments', 'Two rounds of changes', 'Handover walkthrough and files'], cta: 'Brief a Build project →' },
+      { key: 'mvp', name: 'System', tag: 'MVPs and workflows', unit: 'from', price: '$2,500', includes: ['Everything in Build', 'An MVP or one AI workflow', 'Pitch deck and pro-forma financials for your launch', 'Team documentation', 'A month of support after launch'], cta: 'Brief a System project →' }
+    ];
+    const QUOTES = [{"text":"We sent four lines about our booking problem. Two days later we had a price and a date, and the site launched when they said it would.","name":"Placeholder Name","org":"Owner, wellness studio"},{"text":"Customers get a quote on our site before they call. It cut our back-and-forth on small jobs to almost nothing.","name":"Placeholder Name","org":"Director, trades business"},{"text":"They built the MVP and the investor deck together, so the story and the product matched in the meeting.","name":"Placeholder Name","org":"Founder, early-stage startup"}];
+    const FAQS = [{"q":"What counts as a change in scope?","a":"Anything not in the written scope, such as a new page, feature or integration. We quote it separately before doing it, so the original price never moves on its own."},{"q":"How many rounds of changes do I get?","a":"Build and System projects include two rounds. Landing Pages include one. Small fixes during the build don’t count toward rounds."},{"q":"Who owns the code and design?","a":"You do. At handover you get the files, the accounts and a walkthrough, and you can keep working on it yourself or with anyone else."},{"q":"What does hosting and maintenance cover?","a":"Hosting, security updates, backups and small fixes, from $25 a month. Larger changes are quoted like a new brief."},{"q":"Can you work in Japanese?","a":"Yes. We build and hand over in English or 日本語, including the site copy."},{"q":"Will you sign an NDA?","a":"Yes, on request, before you send the details. All projects are private by default."}];
+    const qi = (this.state.q || 0) % QUOTES.length;
+    const fq = this.state.faq == null ? 0 : this.state.faq;
+    const extra = {
+      testi: QUOTES[qi], quoteRef: this.quoteRef,
+      quoteDots: QUOTES.map((_, i) => ({ label: 'Quote ' + (i + 1), w: i === qi ? '18px' : '6px', c: i === qi ? '#C9552F' : '#E4DAC1', go: () => { this.setState({ q: i }); clearInterval(this._qt); this.startQuotes(); } })),
+      faqs: FAQS.map((f, i) => { const open = fq === i; return { ...f, open, rot: open ? 'rotate(45deg)' : 'none', toggle: () => this.setState({ faq: open ? -1 : i }) }; })
+    };
+    return { ...extra,
+      rotator: this.rotator(HERO.map(h => h.line)),
+      heroCard: HERO[this.state.rot % HERO.length],
+      heroCardRef: this.heroCardRef,
+      heroCards: HERO.map((h, i) => { const on = i === this.state.rot % HERO.length; return { ...h, opacity: on ? 1 : 0, events: on ? 'auto' : 'none', dot: on ? '#E9A63B' : 'rgba(255,252,242,0.7)', dotW: on ? '18px' : '6px' }; }),
+      langs: [['en', 'EN'], ['ja', '日本語']].map(([k, label]) => { const on = this.state.lang === k; return { label, active: on, bg: on ? '#F6F1E2' : 'transparent', fg: on ? '#0E3629' : '#CBDCD1', select: () => this.setState({ lang: k }) }; }),
+      idea: this.state.idea, onIdea: e => this.setState({ idea: e.target.value }),
+      heroSubmit: e => { e.preventDefault(); this.goBrief(); },
+      heroChips: Object.entries(TYPES).filter(([k]) => k !== 'other').map(([k, label]) => ({ label, pick: pickAndGo(k) })),
+      marqueeA: this._mq.a, marqueeB: this._mq.b,
+      showPrices,
+      services: [
+        { key: 'website', num: '01', name: 'Websites', short: 'website', from: 'From $100', bg: '#0E3629', fg: '#E9A63B', blurb: 'A site that explains what you do and moves the visitor to the next step.', examples: ['Business sites', 'Landing pages', 'Booking'] },
+        { key: 'webapp', num: '02', name: 'Web apps', short: 'web app', from: 'From $1,500', bg: '#C9552F', fg: '#FFF3EA', blurb: 'Tools and portals your customers or team log into and use every week.', examples: ['Quote tools', 'Client portals', 'Dashboards'] },
+        { key: 'mvp', num: '03', name: 'MVPs', short: 'MVP', from: 'From $2,500', bg: '#7A5C2E', fg: '#FFF3EA', blurb: 'The smallest working version of an idea, built fast so you can test it.', examples: ['Prototypes', 'Investor demos', 'Pilots'] },
+        { key: 'docs', num: '04', name: 'Business documents', short: 'document', from: 'Priced per scope', bg: '#E9A63B', fg: '#0E3629', blurb: 'The documents that go in front of investors, lenders and clients.', examples: ['Pitch decks', 'Presentations', 'Pro-forma financials'] }
+      ].map((s, i) => ({ ...s, delay: String(i * 110), pick: pickType(s.key) })),
+      work: [
+        { slot: 'build-work-1', kind: 'Website', title: 'Booking site for a wellness studio', label: 'Client work', ph: 'Drop project screenshot 1' },
+        { slot: 'build-work-2', kind: 'Web app', title: 'Quote tool for a trades business', label: 'Concept', ph: 'Drop project screenshot 2' },
+        { slot: 'build-work-4', kind: 'MVP', title: 'Intake workflow for a clinic', label: 'Concept', ph: 'Drop project screenshot 4' }
+      ].map((w, i) => ({ ...w, delay: String((i % 3) * 120) })),
+      steps: [
+        { num: '01', title: 'Brief', when: 'Day 0', body: 'Tell us what you need in a few lines. No spec document required.', giveLabel: 'You send', give: 'A few lines about the project' },
+        { num: '02', title: 'Scope and price', when: 'Within 2 days', body: 'We write down what’s included and quote one fixed figure against it.', giveLabel: 'You get', give: 'A written scope and one fixed price' },
+        { num: '03', title: 'Build', when: '1–3 weeks', body: 'You see it in progress and comment as it goes, not at the end.', giveLabel: 'You get', give: 'A live preview link to comment on' },
+        { num: '04', title: 'Handover', when: 'Launch week', body: 'Launch, a walkthrough and the files. You can keep working on it yourself.', giveLabel: 'You get', give: 'Your live site, files and a walkthrough' }
+      ].map((s, i) => {
+        const cur = this.state.step, on = i === cur, done = cur >= 0 && i < cur;
+        return { ...s, delay: String(i * 140),
+          nodeBg: on || done ? '#E9A63B' : 'transparent', nodeFg: on || done ? '#0E3629' : '#E9A63B',
+          nodeScale: on ? 'scale(1.12)' : 'none', nodeGlow: on ? '0 0 0 6px rgba(233,166,59,0.18)' : 'none',
+          lineColor: done ? '#E9A63B' : '#2C5A48',
+          cardBg: on ? '#1D5745' : '#16483A', cardBorder: on ? '#E9A63B' : '#16483A',
+          cardLift: on ? 'translateY(-6px)' : 'none', cardShadow: on ? '0 20px 36px -18px rgba(0,0,0,0.55)' : 'none',
+          enter: () => { this._hold = true; this.setState({ step: i }); },
+          leave: () => { this._hold = false; } };
+      }),
+      tiers: tierDefs.map((t, i) => {
+        const d = !!t.popular;
+        return { ...t, popular: d, delay: String(i * 120), bg: d ? '#0E3629' : '#FFFCF2', fg: d ? '#F6F1E2' : '#0E3629', border: d ? '#0E3629' : '#E4DAC1', sub: d ? '#CBDCD1' : '#3E4F45', check: d ? '#E9A63B' : '#4E7A66', btnBg: d ? '#E9A63B' : '#0E3629', btnFg: d ? '#0E3629' : '#F6F1E2', pick: pickType(t.key) };
+      }),
+      addons: ['Multi-lingual sites', 'AI chat widget', 'Form building', 'Lead capture'].map((a, i) => ({ name: a, delay: String(i * 90) })),
+      briefPoints: ['A fixed price, written against a written scope', 'A reply within two working days', 'Built in English or 日本語, handed over either way', 'All projects are private. We sign NDAs on request.'],
+      types: Object.entries(TYPES).map(([k, label]) => { const a = this.state.type === k; return { label, active: a, bg: a ? '#E9A63B' : 'transparent', fg: a ? '#0E3629' : '#F6F1E2', border: a ? '#E9A63B' : '#2C5A48', select: pickType(k) }; }),
+      fields: [{ label: 'Name', ph: 'Your name', type: 'text' }, { label: 'Email', ph: 'you@yourbusiness.com', type: 'email' }],
+      formRef: this.formRef,
+      sendBrief: e => { e.preventDefault(); this.setState({ sent: true }); },
+      sent: this.state.sent, notSent: !this.state.sent,
+      sentType: { mvp: 'MVP', docs: 'documents', other: 'project' }[this.state.type] || TYPES[this.state.type].toLowerCase()
+    };
+  }
+}
+</script>
+</body>
+</html>

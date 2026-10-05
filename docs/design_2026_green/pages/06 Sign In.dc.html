@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #F6F1E2; color: #16241D; font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #0E3629; text-decoration: none; }
+  a:hover { color: #C9552F; }
+  input::placeholder { color: #8A7C63; }
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr))">
+
+<section style="background:#0E3629;color:#F6F1E2;padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;gap:40px">
+  <a href="./01%20Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2;align-self:flex-start">HonuVibe</a>
+  <div style="margin-top:auto;max-width:560px">
+    <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">{{ eyebrow }}</div>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(42px,5vw,68px);line-height:1;letter-spacing:-0.04em;margin:14px 0 0;text-wrap:balance">{{ headline }}</h1>
+    <p style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(20px,2.2vw,26px);letter-spacing:-0.02em;line-height:1.2;margin:16px 0 0;color:#CBDCD1">{{ subhead }}</p>
+    <p style="font-size:17px;line-height:1.6;color:#CBDCD1;margin:12px 0 0;max-width:48ch">{{ body }}</p>
+  </div>
+  <figure style="margin:0 0 auto;background:#16483A;border:1px solid #2C5A48;border-radius:16px;padding:24px 26px;max-width:520px;display:flex;flex-direction:column;gap:16px">
+    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:0.6;color:#E9A63B;height:22px">“</span>
+    <div ref="{{ quoteRef }}" style="display:flex;flex-direction:column;gap:16px;min-height:150px">
+      <blockquote style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:19px;line-height:1.4;letter-spacing:-0.01em;color:#F6F1E2;text-wrap:pretty">{{ testi.text }}</blockquote>
+      <figcaption style="margin-top:auto;display:flex;flex-direction:column;gap:2px">
+        <span style="font-weight:600;font-size:15px;color:#F6F1E2">{{ testi.name }}</span>
+        <span style="font-size:14px;color:#8FAA98">{{ testi.org }}</span>
+      </figcaption>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <sc-for list="{{ quoteDots }}" as="d" hint-placeholder-count="3">
+        <button type="button" aria-label="{{ d.label }}" onClick="{{ d.go }}" style="border:none;background:transparent;padding:0;min-width:24px;min-height:24px;display:inline-flex;align-items:center;cursor:pointer"><span style="width:{{ d.w }};height:6px;border-radius:999px;background:{{ d.c }};transition:width .4s ease,background .4s ease"></span></button>
+      </sc-for>
+    </div>
+  </figure>
+  <p style="margin:-28px 0 0;font-size:12.5px;color:#8FAA98">Placeholder testimonials. Replace with real student quotes.</p>
+</section>
+
+<section style="padding:clamp(28px,4vw,56px);display:flex;flex-direction:column">
+  <div style="display:flex;justify-content:flex-end">
+    <div role="group" aria-label="Language" style="display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #E4DAC1;border-radius:999px;background:#FFFCF2">
+      <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+        <button type="button" aria-pressed="{{ l.active }}" onClick="{{ l.select }}" style="min-height:36px;min-width:44px;padding:0 12px;border:none;border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">{{ l.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin:auto 0;width:100%;max-width:440px;align-self:center;padding:40px 0">
+    <div role="tablist" style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#EFE7D2;border-radius:12px">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2">
+        <button type="button" role="tab" aria-selected="{{ t.active }}" onClick="{{ t.select }}" style="min-height:44px;border:none;border-radius:9px;background:{{ t.bg }};color:{{ t.fg }};font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;box-shadow:{{ t.shadow }};transition:background .2s ease">{{ t.label }}</button>
+      </sc-for>
+    </div>
+
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:28px;letter-spacing:-0.03em;line-height:1.1;color:#0E3629;margin:28px 0 0">{{ formTitle }}</h2>
+    <p style="margin:6px 0 0;font-size:15px;color:#5C6B62">{{ formNote }}</p>
+
+    <button type="button" style="margin-top:24px;width:100%;min-height:52px;border:1.5px solid #E4DAC1;border-radius:10px;background:#FFFCF2;color:#0E3629;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px" style-hover="border-color:#0E3629">
+      <span aria-hidden="true" style="width:22px;height:22px;border-radius:50%;border:1.5px solid #0E3629;display:inline-flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px">G</span>Continue with Google
+    </button>
+
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin:22px 0;font-size:13.5px;color:#8A7C63">
+      <span style="height:1px;background:#E4DAC1"></span><span>or with email</span><span style="height:1px;background:#E4DAC1"></span>
+    </div>
+
+    <form onSubmit="{{ submit }}" style="display:grid;gap:16px">
+      <sc-if value="{{ isSignUp }}" hint-placeholder-val="{{ false }}">
+        <label style="display:grid;gap:7px">
+          <span style="font-size:14px;font-weight:600;color:#0E3629">Name</span>
+          <input type="text" autocomplete="name" style="min-height:50px;border:1.5px solid #E4DAC1;border-radius:10px;background:#FFFCF2;padding:0 14px;font-family:inherit;font-size:16px;color:#16241D;outline:none" style-focus="border-color:#0E3629" />
+        </label>
+      </sc-if>
+      <label style="display:grid;gap:7px">
+        <span style="font-size:14px;font-weight:600;color:#0E3629">Email</span>
+        <input type="email" autocomplete="email" placeholder="you@company.com" style="min-height:50px;border:1.5px solid #E4DAC1;border-radius:10px;background:#FFFCF2;padding:0 14px;font-family:inherit;font-size:16px;color:#16241D;outline:none" style-focus="border-color:#0E3629" />
+      </label>
+      <label style="display:grid;gap:7px">
+        <span style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:14px;font-weight:600;color:#0E3629">Password</span>
+          <sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ true }}"><a href="#" style="font-size:14px;font-weight:600;color:#C9552F">Forgot password?</a></sc-if>
+        </span>
+        <span style="position:relative;display:block">
+          <input type="{{ pwType }}" autocomplete="current-password" style="width:100%;min-height:50px;border:1.5px solid #E4DAC1;border-radius:10px;background:#FFFCF2;padding:0 72px 0 14px;font-family:inherit;font-size:16px;color:#16241D;outline:none" style-focus="border-color:#0E3629" />
+          <button type="button" onClick="{{ togglePw }}" aria-label="{{ pwToggleLabel }}" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);min-height:42px;min-width:56px;border:none;background:transparent;font-family:inherit;font-size:13.5px;font-weight:600;color:#5C6B62;cursor:pointer">{{ pwToggleText }}</button>
+        </span>
+      </label>
+      <button type="submit" style="margin-top:6px;min-height:54px;border:none;border-radius:10px;background:#E9A63B;color:#0E3629;font-family:inherit;font-size:17px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .25s ease,box-shadow .25s ease" style-hover="transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(233,166,59,0.6)">{{ cta }} <span>→</span></button>
+    </form>
+
+    <sc-if value="{{ showMagic }}" hint-placeholder-val="{{ true }}">
+      <button type="button" style="margin-top:12px;width:100%;min-height:50px;border:1.5px solid #0E3629;border-radius:10px;background:transparent;color:#0E3629;font-family:inherit;font-size:15.5px;font-weight:600;cursor:pointer" style-hover="background:#EFE7D2">Email me a sign-in link instead</button>
+    </sc-if>
+
+    <p style="margin:24px 0 0;font-size:15px;color:#3E4F45;text-align:center">{{ switchQ }} <button type="button" onClick="{{ switchMode }}" style="border:none;background:transparent;padding:0;font-family:inherit;font-size:15px;font-weight:600;color:#C9552F;cursor:pointer">{{ switchA }}</button></p>
+  </div>
+
+  <p style="margin:0;font-size:13px;line-height:1.55;color:#5C6B62;text-align:center">By continuing, you agree to our <a href="#" style="font-weight:600">Terms</a> and <a href="#" style="font-weight:600">Privacy Policy</a>.</p>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Sign in&quot;,&quot;Sign up&quot;],&quot;default&quot;:&quot;Sign in&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showMagicLink&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { mode: null, lang: 'en', pw: false, q: 0 };
+  quoteRef = React.createRef();
+  QUOTES = [
+    { text: 'The bilingual approach is a game-changer. I finally found an AI community that bridges the gap between US innovation and the Japanese market.', name: 'Takeshi M.', org: 'Tech entrepreneur, Tokyo' },
+    { text: 'I had never opened ChatGPT before Module 1. By the end I was drafting English emails to our US office in half the time.', name: 'Placeholder Name', org: 'Sales coordinator, Tokyo' },
+    { text: 'Clear and practical. I shared the syllabus with my team and three of them signed up the same week.', name: 'Placeholder Name', org: 'Team lead, Honolulu' }
+  ];
+  startQuotes() { if (!this.reduce) this._qt = setInterval(() => this.setState(s => ({ q: s.q + 1 })), 6500); }
+  componentDidMount() { this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; this.startQuotes(); }
+  componentWillUnmount() { clearInterval(this._qt); }
+  componentDidUpdate(_, prev) {
+    const el = this.quoteRef.current;
+    if (!this.reduce && el && el.animate && prev.q !== this.state.q) el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  }
+  renderVals() {
+    const mode = this.state.mode ?? ((this.props.defaultMode ?? 'Sign in') === 'Sign up' ? 'up' : 'in');
+    const up = mode === 'up';
+    const setMode = m => this.setState({ mode: m });
+    const qi = this.state.q % this.QUOTES.length;
+    return {
+      isSignUp: up, isSignIn: !up,
+      eyebrow: up ? 'Join the community' : 'Welcome back',
+      headline: up ? 'Join the Vault' : 'Back to the Vault',
+      subhead: up ? 'Start free. Finish something real with AI.' : 'Pick up the lesson you left off.',
+      body: up ? 'Join the community for free. Upgrade to the full course library whenever you’re ready.' : 'Your courses, tracks and practice tasks are where you left them.',
+      formTitle: up ? 'Create your free account' : 'Sign in to HonuVibe',
+      formNote: up ? 'No card needed to join the community.' : 'Use the email you joined with.',
+      cta: up ? 'Create free account' : 'Sign in',
+      switchQ: up ? 'Already a member?' : 'New to HonuVibe?',
+      switchA: up ? 'Sign in' : 'Join for free',
+      switchMode: () => setMode(up ? 'in' : 'up'),
+      showMagic: this.props.showMagicLink ?? true,
+      tabs: [['in', 'Sign in'], ['up', 'Sign up']].map(([k, label]) => { const on = mode === k; return { label, active: on, bg: on ? '#FFFCF2' : 'transparent', fg: on ? '#0E3629' : '#5C6B62', shadow: on ? '0 1px 2px rgba(14,54,41,0.12)' : 'none', select: () => setMode(k) }; }),
+      langs: [['en', 'EN'], ['ja', '日本語']].map(([k, label]) => { const on = this.state.lang === k; return { label, active: on, bg: on ? '#0E3629' : 'transparent', fg: on ? '#F6F1E2' : '#3E4F45', select: () => this.setState({ lang: k }) }; }),
+      pwType: this.state.pw ? 'text' : 'password',
+      pwToggleText: this.state.pw ? 'Hide' : 'Show',
+      pwToggleLabel: this.state.pw ? 'Hide password' : 'Show password',
+      togglePw: () => this.setState(s => ({ pw: !s.pw })),
+      submit: e => e.preventDefault(),
+      testi: this.QUOTES[qi], quoteRef: this.quoteRef,
+      quoteDots: this.QUOTES.map((_, i) => ({ label: 'Quote ' + (i + 1), w: i === qi ? '18px' : '6px', c: i === qi ? '#E9A63B' : '#2C5A48', go: () => { this.setState({ q: i }); clearInterval(this._qt); this.startQuotes(); } }))
+    };
+  }
+}
+</script>
+</body>
+</html>

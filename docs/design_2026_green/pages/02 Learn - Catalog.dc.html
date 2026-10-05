@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #F6F1E2; color: #16241D; font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #0E3629; text-decoration: none; }
+  a:hover { color: #C9552F; }
+  input::placeholder { color: #8FAA98; }
+  @keyframes hv-rise { from { opacity: 0; transform: translateY(0.5em); } to { opacity: 1; transform: none; } }
+  @keyframes hv-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+</style>
+</helmet>
+
+<div style="max-width:100%;overflow-x:hidden">
+
+<header style="position:sticky;top:0;z-index:40;background:#0E3629;color:#F6F1E2;border-bottom:1px solid #16483A">
+  <div style="max-width:1320px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+    <a href="./01%20Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2">HonuVibe</a>
+    <nav style="display:flex;gap:22px;font-size:15px;flex-wrap:wrap"><a href="#top" style="color:#F6F1E2;font-weight:600;border-bottom:2px solid #E9A63B;padding-bottom:2px">Learn</a><a href="./04%20Build.dc.html" style="color:#CBDCD1">Build</a><a href="./05%20Partner.dc.html" style="color:#CBDCD1">Partner</a></nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+      <div role="group" aria-label="Language" style="display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #2C5A48;border-radius:999px;background:#0B2E23">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+          <button type="button" aria-pressed="{{ l.active }}" onClick="{{ l.select }}" style="min-height:36px;min-width:44px;padding:0 12px;border:none;border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <a href="./06%20Sign%20In.dc.html" style="font-size:15px;color:#F6F1E2">Sign in</a>
+      <a href="#free" style="background:#E9A63B;color:#0E3629;padding:11px 18px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center">Get started free</a>
+    </div>
+  </div>
+</header>
+
+<section id="top" style="background:#0E3629;color:#F6F1E2;padding:40px 0 60px">
+  <div style="max-width:1320px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:44px;align-items:center">
+    <div>
+      <div style="font-size:13.5px;color:#8FAA98"><a href="./01%20Home.dc.html" style="color:#8FAA98">Home</a> / <span style="color:#CBDCD1">Learn</span></div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(42px,5vw,68px);line-height:1;letter-spacing:-0.04em;margin:18px 0 0">Learn in the Vault</h1>
+      <p style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(20px,2.2vw,28px);letter-spacing:-0.02em;line-height:1.2;margin:16px 0 0;color:#CBDCD1;min-height:2.4em">Finish a lesson with {{ rotator }}</p>
+      <p style="font-size:17px;line-height:1.6;color:#CBDCD1;margin:12px 0 0;max-width:50ch">Every lesson we’ve made, organized by track, in English and 日本語. Search for what you need this week.</p>
+      <label style="margin-top:26px;display:flex;align-items:center;gap:12px;background:#16483A;border:1.5px solid #2C5A48;border-radius:12px;padding:0 8px 0 18px;min-height:60px;max-width:560px">
+        <span style="color:#8FAA98;font-size:18px">⌕</span>
+        <input type="search" value="{{ query }}" onInput="{{ onQuery }}" placeholder="Search lessons, tools or topics" aria-label="Search lessons" style="flex:1;min-width:0;background:transparent;border:none;outline:none;color:#F6F1E2;font-family:inherit;font-size:17px;min-height:56px" />
+        <a href="#catalog" style="background:#E9A63B;color:#0E3629;border-radius:9px;padding:0 18px;min-height:44px;display:inline-flex;align-items:center;font-weight:600;font-size:15px">Search</a>
+      </label>
+      <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <span style="display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:#E9A63B;margin-right:4px"><span style="width:7px;height:7px;border-radius:50%;background:#E9A63B;animation:hv-pulse 2s ease-in-out infinite"></span>Hot</span>
+        <sc-for list="{{ hotChips }}" as="h" hint-placeholder-count="3">
+          <button type="button" onClick="{{ h.pick }}" style="border:1px solid #2C5A48;background:transparent;color:#F6F1E2;border-radius:999px;padding:0 14px;min-height:40px;font-family:inherit;font-size:14px;cursor:pointer" style-hover="border-color:#E9A63B">{{ h.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <a id="free" href="#catalog" style="background:#F6F1E2;color:#16241D;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .25s ease" style-hover="box-shadow:0 0 0 1.5px #E9A63B,0 0 40px rgba(233,166,59,0.25)">
+      <div style="position:relative;aspect-ratio:16/9;background:#E4DAC1">
+        <image-slot id="learnA-free" shape="rect" placeholder="Drop a free lesson thumbnail"></image-slot>
+        <span style="position:absolute;top:14px;left:14px;background:#E9A63B;color:#0E3629;font-size:11.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:6px 11px;border-radius:7px;pointer-events:none">Free lesson</span>
+      </div>
+      <div style="padding:22px 24px 24px;display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">AI Essentials · Lesson 1</span>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;letter-spacing:-0.03em;line-height:1.1;color:#0E3629;margin:0">Ten prompts you’ll reuse every week</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#5C6B62">Build a small prompt kit around the work you already repeat. Try it before you join.</p>
+        <span style="margin-top:8px;font-weight:600;color:#C9552F">Try a free lesson →</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section id="hot" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:64px 32px 0">
+  <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:700"><span style="width:7px;height:7px;border-radius:50%;background:#C9552F;animation:hv-pulse 2s ease-in-out infinite"></span>Hot topics</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);letter-spacing:-0.035em;line-height:1.05;color:#0E3629;margin:10px 0 0">What members are learning this week</h2>
+    </div>
+    <span style="font-size:14px;color:#5C6B62">Short lessons · updated weekly</span>
+  </div>
+  <div style="margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px">
+    <sc-for list="{{ hot }}" as="h" hint-placeholder-count="4">
+      <a href="#catalog" style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;min-height:190px;transition:border-color .2s ease" style-hover="border-color:#0E3629">
+        <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:#8A7C63"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#C9552F">{{ h.num }}</span><span>{{ h.len }}</span></div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.02em;line-height:1.15;color:#0E3629;margin:0">{{ h.title }}</h3>
+        <p style="margin:0;font-size:14.5px;line-height:1.5;color:#5C6B62">{{ h.why }}</p>
+        <span style="margin-top:auto;font-size:14px;font-weight:600;color:#C9552F">Open →</span>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section id="catalog" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:72px 32px 0">
+  <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">The catalog</div>
+  <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3.2vw,40px);letter-spacing:-0.035em;line-height:1.05;color:#0E3629;margin:10px 0 0">Browse by track</h2>
+  <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <sc-for list="{{ chips }}" as="c" hint-placeholder-count="6">
+      <button type="button" onClick="{{ c.select }}" aria-pressed="{{ c.active }}" style="border:1.5px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};border-radius:999px;padding:0 18px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;min-height:46px;transition:background .18s ease,border-color .18s ease">{{ c.label }}</button>
+    </sc-for>
+    <button type="button" onClick="{{ toggleFree }}" aria-pressed="{{ freeOnly }}" style="margin-left:auto;display:inline-flex;align-items:center;gap:10px;border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:600;color:#0E3629;cursor:pointer;min-height:46px">
+      <span style="width:40px;height:24px;border-radius:999px;background:{{ freeTrack }};position:relative;transition:background .2s ease"><span style="position:absolute;top:3px;left:{{ freeKnob }};width:18px;height:18px;border-radius:50%;background:#FFFCF2;transition:left .2s ease"></span></span>Free lessons only
+    </button>
+  </div>
+
+  <div style="margin-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline;border-bottom:1px solid #E4DAC1;padding-bottom:14px">
+    <p style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(18px,1.8vw,22px);letter-spacing:-0.02em;color:#0E3629;margin:0">{{ activeHeadline }}</p>
+    <span style="font-size:14px;color:#5C6B62">{{ resultCount }}</span>
+  </div>
+
+  <div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:26px;align-items:flex-start">
+    <div style="flex:999 1 560px;min-width:0">
+      <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,228px),1fr));gap:20px">
+          <sc-for list="{{ visible }}" as="l" hint-placeholder-count="8">
+            <article style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease;display:flex;flex-direction:column" style-hover="transform:translateY(-4px);box-shadow:0 16px 30px rgba(14,54,41,0.12)">
+              <div style="height:150px;background:{{ l.bg }};padding:18px;display:flex;flex-direction:column;justify-content:space-between">
+                <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+                  <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:{{ l.fg }}">{{ l.track }}</span>
+                  <sc-if value="{{ l.free }}" hint-placeholder-val="{{ false }}"><span style="background:#E9A63B;color:#0E3629;font-size:10.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px">Free</span></sc-if>
+                </div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;line-height:1.02;letter-spacing:-0.03em;color:{{ l.fg }};white-space:pre-line">{{ l.cover }}</div>
+              </div>
+              <div style="padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1">
+                <h3 style="margin:0;font-size:17.5px;font-weight:600;color:#0E3629;line-height:1.25">{{ l.title }}</h3>
+                <p style="margin:0;font-size:14.5px;line-height:1.5;color:#5C6B62">{{ l.blurb }}</p>
+                <div style="margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px">
+                  <span style="font-size:14px;font-weight:600;color:#C9552F">{{ l.cta }}</span>
+                  <span style="font-size:12.5px;color:#8A7C63">{{ l.len }} · {{ l.level }}</span>
+                </div>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#EFE7D2;border-radius:14px;padding:28px;font-size:16px;color:#3E4F45;display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+          <span>Nothing matches yet. New lessons land every month.</span>
+          <button type="button" onClick="{{ clearAll }}" style="border:1.5px solid #0E3629;background:transparent;color:#0E3629;border-radius:10px;min-height:46px;padding:0 18px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer">Clear filters</button>
+        </div>
+      </sc-if>
+      <p style="margin:16px 0 0;font-size:12.5px;color:#8A7C63">Illustrative lesson previews for layout — not a list of published lessons.</p>
+    </div>
+
+    <aside style="flex:1 1 280px;max-width:100%;display:grid;gap:20px;position:sticky;top:88px;min-width:0">
+      <div style="background:#0E3629;color:#F6F1E2;border-radius:14px;padding:22px">
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#E9A63B">Study paths</div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:21px;letter-spacing:-0.02em;margin:10px 0 4px">Lessons, in order</h3>
+        <p style="margin:0;font-size:14px;color:#8FAA98;line-height:1.5">Pick the goal that sounds like you.</p>
+        <div style="margin-top:18px;display:grid;gap:10px">
+          <sc-for list="{{ paths }}" as="p" hint-placeholder-count="4">
+            <a href="#catalog" style="background:#16483A;border-radius:10px;padding:14px;display:block;min-height:44px;transition:background .18s ease" style-hover="background:#1D5745">
+              <div style="font-size:15.5px;font-weight:600;color:#F6F1E2;line-height:1.3">{{ p.goal }}</div>
+              <div style="font-size:13px;color:#8FAA98;margin-top:5px">{{ p.meta }}</div>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:22px">
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#8A7C63">Inside every lesson</div>
+        <div style="margin-top:14px;display:grid;gap:12px">
+          <sc-for list="{{ anatomy }}" as="a" hint-placeholder-count="4">
+            <div>
+              <div style="font-size:15.5px;font-weight:600;color:#0E3629">{{ a.t }}</div>
+              <div style="font-size:14px;color:#5C6B62;line-height:1.5;margin-top:3px">{{ a.d }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="newsletter" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:clamp(24px,3.4vw,40px)">
+    <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">Weekly newsletters</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(26px,3vw,36px);letter-spacing:-0.03em;line-height:1.08;margin:10px 0 0">Join the wave.</h2>
+      </div>
+      <p style="margin:0;font-size:15px;color:#CBDCD1;max-width:40ch;line-height:1.55">Two weekly letters, both in English and 日本語. Pick one or both.</p>
+    </div>
+    <sc-if value="{{ notSubscribed }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ subscribe }}" style="margin-top:24px;display:grid;gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px">
+          <sc-for list="{{ letters }}" as="n" hint-placeholder-count="2">
+            <button type="button" role="checkbox" aria-checked="{{ n.on }}" onClick="{{ n.toggle }}" style="text-align:left;display:grid;grid-template-columns:26px minmax(0,1fr);gap:14px;align-items:start;background:{{ n.bg }};border:1.5px solid {{ n.border }};border-radius:12px;padding:18px;color:#F6F1E2;font-family:inherit;cursor:pointer;transition:background .2s ease,border-color .2s ease">
+              <span style="width:24px;height:24px;border-radius:7px;border:1.5px solid {{ n.border }};background:{{ n.boxBg }};color:#0E3629;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center">{{ n.mark }}</span>
+              <span style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em">{{ n.name }}</span>
+                <span style="font-size:14.5px;line-height:1.5;color:#CBDCD1">{{ n.desc }}</span>
+                <span style="font-size:12.5px;color:#8FAA98">{{ n.when }}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="email" required="required" placeholder="you@example.com" aria-label="Email address" style="flex:1 1 260px;min-height:52px;border-radius:10px;border:1.5px solid #4E7A66;background:#16483A;color:#F6F1E2;padding:0 16px;font-family:inherit;font-size:16px;outline:none" style-focus="border-color:#E9A63B" />
+          <button type="submit" style="min-height:52px;border:none;border-radius:10px;background:#E9A63B;color:#0E3629;padding:0 24px;font-family:inherit;font-weight:600;font-size:16px;cursor:pointer">{{ subscribeLabel }}</button>
+        </div>
+      </form>
+    </sc-if>
+    <sc-if value="{{ subscribed }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:22px;font-size:16px;color:#F6F1E2">Thanks. Your first issue arrives this week.</div>
+    </sc-if>
+  </div>
+</section>
+
+<section id="faq" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:36px;align-items:start">
+    <div data-reveal="1">
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Questions</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;max-width:16ch">Before you start.</h2>
+      <figure style="margin:36px 0 0;background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;padding:26px 28px;max-width:480px;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:44px;line-height:0.6;color:#E9A63B;height:22px">“</span>
+        <div ref="{{ quoteRef }}" style="display:flex;flex-direction:column;gap:18px;min-height:190px">
+          <blockquote style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:20px;line-height:1.4;letter-spacing:-0.01em;color:#0E3629;text-wrap:pretty">{{ testi.text }}</blockquote>
+          <figcaption style="margin-top:auto;display:flex;flex-direction:column;gap:2px">
+            <span style="font-weight:600;font-size:15px;color:#0E3629">{{ testi.name }}</span>
+            <span style="font-size:14px;color:#5C6B62">{{ testi.org }}</span>
+          </figcaption>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <sc-for list="{{ quoteDots }}" as="d" hint-placeholder-count="3">
+            <button type="button" aria-label="{{ d.label }}" onClick="{{ d.go }}" style="border:none;background:transparent;padding:0;min-width:24px;min-height:24px;display:inline-flex;align-items:center;cursor:pointer"><span style="width:{{ d.w }};height:6px;border-radius:999px;background:{{ d.c }};transition:width .4s ease,background .4s ease"></span></button>
+          </sc-for>
+        </div>
+      </figure>
+    </div>
+    <div style="display:grid">
+      <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="6">
+        <div style="border-top:1px solid #E4DAC1">
+          <button type="button" aria-expanded="{{ q.open }}" onClick="{{ q.toggle }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;background:transparent;border:none;padding:18px 0;min-height:56px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;letter-spacing:-0.01em;color:#0E3629;text-align:left;cursor:pointer" style-hover="color:#C9552F">
+            <span>{{ q.q }}</span>
+            <span style="flex:none;font-size:22px;color:#C9552F;transform:{{ q.rot }};transition:transform .3s ease">+</span>
+          </button>
+          <sc-if value="{{ q.open }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0 0 18px;font-size:15.5px;line-height:1.65;color:#3E4F45;max-width:60ch">{{ q.a }}</p>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:24px 32px 0">
+  <div style="background:#EFE7D2;border-radius:16px;padding:24px 28px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between">
+    <div style="max-width:56ch">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;color:#0E3629;margin:0">Start free. Open the whole Vault when you’re ready.</h2>
+      <p style="margin:6px 0 0;font-size:15px;color:#3E4F45;line-height:1.55">Honu Community is free. The Vault is $99 / month, includes the Community, and you can cancel anytime.</p>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="#free" style="background:#E9A63B;color:#0E3629;border-radius:10px;padding:0 20px;min-height:50px;display:inline-flex;align-items:center;font-weight:600">Try a free lesson →</a>
+      
+    </div>
+  </div>
+</section>
+
+<footer style="max-width:1320px;margin:0 auto;padding:56px 32px 44px;display:flex;flex-wrap:wrap;gap:22px;justify-content:space-between;font-size:14px;color:#5C6B62">
+  <span>© 2026 HonuVibe.AI</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap"><a href="#top">Learn</a><a href="./04%20Build.dc.html">Build</a><a href="./05%20Partner.dc.html">Partner</a><a href="#top">About us</a><a href="#top">Contact</a></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;animateHero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;scrollReveal&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+class Component extends DCLogic {
+  state = { track: 'all', query: '', freeOnly: false, lang: 'en', rot: 0, letters: { community: true, vault: true }, subscribed: false };
+  quoteRef = React.createRef();
+  startQuotes() { if (!this.reduce) this._qt = setInterval(() => this.setState(s => ({ q: (s.q || 0) + 1 })), 6500); }
+  animQuote(prev) { const el = this.quoteRef.current; if (!this.reduce && el && el.animate && prev.q !== this.state.q) el.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 600, easing: 'cubic-bezier(.2,.7,.2,1)' }); }
+  componentDidUpdate(_, prev) { this.animQuote(prev); }
+  componentDidMount() {
+    this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.startQuotes();
+    if (!this.reduce && (this.props.animateHero ?? true)) this._t = setInterval(() => this.setState(s => ({ rot: s.rot + 1 })), 2800);
+    if (!this.reduce && (this.props.scrollReveal ?? true)) setTimeout(() => this.reveal(), 60);
+  }
+  componentWillUnmount() { clearInterval(this._qt); clearInterval(this._t); this._io && this._io.disconnect(); }
+  reveal() {
+    const io = this._io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.style.opacity = '1'; en.target.style.transform = 'none'; io.unobserve(en.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      if (el.getBoundingClientRect().top < window.innerHeight) return;
+      el.style.opacity = '0'; el.style.transform = 'translateY(22px)'; el.style.transition = 'opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)';
+      io.observe(el);
+    });
+  }
+  rotator(items) {
+    const e = React.createElement, i = this.state.rot % items.length;
+    return e('span', { style: { display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' } },
+      e('span', { key: i, style: { display: 'inline-block', color: '#E9A63B', animation: this.reduce ? 'none' : 'hv-rise .55s cubic-bezier(.2,.7,.2,1) both' } }, items[i]));
+  }
+  renderVals() {
+    const T = { ess: 'AI Essentials', mkt: 'Marketing & Growth', bld: 'Build with AI', res: 'Research & Insights', wf: 'Workflow & Automation' };
+    const all = [
+      { key: 'ess', free: true, cover: 'Ten prompts\nyou will reuse', track: T.ess, title: 'A prompt set for your own business', blurb: 'A short, reusable kit around the work you repeat weekly.', len: '3 lessons', level: 'Beginner', bg: '#0E3629', fg: '#E9A63B' },
+      { key: 'wf', cover: 'Ask your own\nbusiness', track: T.wf, title: 'Build a Second Brain for your business', blurb: 'Notes, calls, and documents in one place you can question.', len: '5 lessons', level: 'Intermediate', bg: '#16483A', fg: '#CBDCD1' },
+      { key: 'wf', cover: 'Inquiries that\nfile themselves', track: T.wf, title: 'Automate 80% of small business tasks', blurb: 'Find the weekly repeat, then hand the predictable part off.', len: '6 lessons', level: 'Intermediate', bg: '#7A5C2E', fg: '#FFF3EA' },
+      { key: 'mkt', cover: 'A landing page\nthat converts', track: T.mkt, title: 'Create a high converting lead funnel', blurb: 'A page, a follow-up sequence, and the numbers between them.', len: '5 lessons', level: 'Intermediate', bg: '#8A3F22', fg: '#FFE9DC' },
+      { key: 'bld', cover: 'What will\nthis cost?', track: T.bld, title: 'A pricing calculator customers can use', blurb: 'A small tool that answers the question before the phone call.', len: '5 lessons', level: 'Beginner', bg: '#2C5A48', fg: '#F2DCA8' },
+      { key: 'ess', free: true, cover: 'Notes in,\ndocument out', track: T.ess, title: 'Notes into a client-ready document', blurb: 'A messy call recap becomes a formatted one-pager.', len: '4 lessons', level: 'Beginner', bg: '#C9552F', fg: '#FFF3EA' },
+      { key: 'mkt', cover: 'One service,\nsix weeks\nof content', track: T.mkt, title: 'A campaign for a service you already sell', blurb: 'Offer, audience, and a channel plan you can run on your own.', len: '6 lessons', level: 'Beginner', bg: '#E9A63B', fg: '#0E3629' },
+      { key: 'res', cover: 'Feedback →\nresearch brief', track: T.res, title: 'Turn customer feedback into a decision', blurb: 'Themes, quotes, and a recommendation you can act on.', len: '5 lessons', level: 'Intermediate', bg: '#0E3629', fg: '#E9A63B' },
+      { key: 'wf', cover: 'Monday report,\nautomatically', track: T.wf, title: 'Weekly reporting without the spreadsheet night', blurb: 'One workflow gathers the numbers and writes the summary.', len: '4 lessons', level: 'Intermediate', bg: '#4E7A66', fg: '#0E3629' },
+      { key: 'bld', cover: 'A booking page\nthat works', track: T.bld, title: 'A booking page wired to your calendar', blurb: 'Take appointments without the back-and-forth email.', len: '4 lessons', level: 'Beginner', bg: '#C9552F', fg: '#FFF3EA' },
+      { key: 'res', cover: 'Know your\nmarket', track: T.res, title: 'A competitor scan you can trust', blurb: 'Gather, compare, and write up what the field is doing.', len: '3 lessons', level: 'Beginner', bg: '#7A5C2E', fg: '#FFF3EA' },
+      { key: 'ess', free: true, cover: 'From blank\npage to draft', track: T.ess, title: 'Write faster without sounding like a robot', blurb: 'Draft in your own voice and keep the edit short.', len: '3 lessons', level: 'Beginner', bg: '#16483A', fg: '#CBDCD1' }
+    ];
+    const heads = {
+      all: 'Everything in the Vault, across all five tracks',
+      ess: 'AI Essentials: confidence with AI in everyday work',
+      mkt: 'Marketing & Growth: reach customers and grow sales',
+      bld: 'Build with AI: websites, prototypes and business tools',
+      res: 'Research & Insights: understand customers and decide well',
+      wf: 'Workflow & Automation: hand off the work that repeats'
+    };
+    const { track: cur, query, freeOnly } = this.state;
+    const q = query.trim().toLowerCase();
+    const visible = all.filter(l => (cur === 'all' || l.key === cur) && (!freeOnly || l.free) && (!q || (l.title + ' ' + l.blurb + ' ' + l.track).toLowerCase().includes(q)))
+      .map(l => ({ ...l, cta: l.free ? 'Try it free →' : 'Start this →' }));
+    const hotList = [
+      { title: 'Build a second brain for your business', why: 'Put notes, calls and documents somewhere you can ask questions of.', len: '18 min', q: 'second brain' },
+      { title: 'This month’s model comparison', why: 'Which model to reach for, by task, with the same prompt run on each.', len: '12 min', q: '' },
+      { title: 'AI agents for small teams', why: 'What an agent can safely take off your plate, and what it can’t yet.', len: '15 min', q: 'automate' },
+      { title: 'Voice AI for customer calls', why: 'Answer, route and summarize calls without a call center.', len: '14 min', q: '' }
+    ];
+    const pickHot = qq => () => { this.setState({ query: qq, track: 'all' }); const el = document.getElementById('catalog'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }); };
+    const L = this.state.letters;
+    const nCount = (L.community ? 1 : 0) + (L.vault ? 1 : 0);
+    const letterDefs = [
+      { key: 'community', name: 'Honu Community Weekly', desc: 'Prompts and tools to try, plus highlights from members.', when: 'Every Tuesday · free' },
+      { key: 'vault', name: 'The Vault Weekly', desc: 'New lessons, this week’s hot topics, and what changed in AI.', when: 'Every Friday · free to subscribe' }
+    ];
+    const QUOTES = [{"text":"I had never opened an AI tool before the first lesson. Three weeks later my booking page was live and taking appointments.","name":"Placeholder Name","org":"Owner, hair salon"},{"text":"The Monday report lesson saved me two hours a week the first time I ran it. That alone paid for the Vault.","name":"Placeholder Name","org":"Operations manager, logistics firm"},{"text":"Every lesson ends with something you actually use the next day. I keep coming back because the content keeps changing.","name":"Placeholder Name","org":"Freelance marketer"}];
+    const FAQS = [{"q":"Do I need a technical background?","a":"No. Tracks start from opening the tool for the first time and end with something built and live."},{"q":"What’s the difference between Free and the Vault?","a":"Free gives you the community and selected lessons. The Vault unlocks every course in every track, plus new lessons as they’re added."},{"q":"Can I cancel anytime?","a":"Yes. The Vault is billed monthly and you can cancel from your account. You keep access until the end of the period you paid for."},{"q":"Are lessons available in Japanese?","a":"Yes. Every lesson exists in English and 日本語, and you can switch at any point."},{"q":"How often are lessons updated?","a":"Lessons are reviewed as the tools change, and new ones are added regularly. Updates are included at no extra cost."},{"q":"How long does a track take?","a":"Most people finish a track in two to four weeks at a few hours a week. You can go at your own pace."}];
+    const qi = (this.state.q || 0) % QUOTES.length;
+    const fq = this.state.faq == null ? 0 : this.state.faq;
+    const extra = {
+      testi: QUOTES[qi], quoteRef: this.quoteRef,
+      quoteDots: QUOTES.map((_, i) => ({ label: 'Quote ' + (i + 1), w: i === qi ? '18px' : '6px', c: i === qi ? '#C9552F' : '#E4DAC1', go: () => { this.setState({ q: i }); clearInterval(this._qt); this.startQuotes(); } })),
+      faqs: FAQS.map((f, i) => { const open = fq === i; return { ...f, open, rot: open ? 'rotate(45deg)' : 'none', toggle: () => this.setState({ faq: open ? -1 : i }) }; })
+    };
+    return { ...extra,
+      rotator: this.rotator(['a prompt kit you’ll reuse.', 'a booking page that works.', 'a Monday report that writes itself.', 'a lead funnel you can measure.']),
+      langs: [['en', 'EN'], ['ja', '日本語']].map(([k, label]) => { const on = this.state.lang === k; return { label, active: on, bg: on ? '#F6F1E2' : 'transparent', fg: on ? '#0E3629' : '#CBDCD1', select: () => this.setState({ lang: k }) }; }),
+      query, onQuery: e => this.setState({ query: e.target.value }),
+      hotChips: [['Second brain', 'second brain'], ['Automation', 'automate'], ['Prompts', 'prompt']].map(([label, qq]) => ({ label, pick: pickHot(qq) })),
+      hot: hotList.map((h, i) => ({ ...h, num: '0' + (i + 1) })),
+      chips: [['all', 'All tracks'], ['ess', T.ess], ['mkt', T.mkt], ['bld', T.bld], ['res', T.res], ['wf', T.wf]].map(([key, label]) => {
+        const a = key === cur; return { label, active: a, bg: a ? '#0E3629' : 'transparent', fg: a ? '#F6F1E2' : '#0E3629', border: a ? '#0E3629' : '#C6B896', select: () => this.setState({ track: key }) };
+      }),
+      freeOnly, toggleFree: () => this.setState(s => ({ freeOnly: !s.freeOnly })),
+      freeTrack: freeOnly ? '#C9552F' : '#C6B896', freeKnob: freeOnly ? '19px' : '3px',
+      activeHeadline: q ? `Results for “${query.trim()}”` : heads[cur],
+      resultCount: visible.length + (visible.length === 1 ? ' lesson' : ' lessons'),
+      visible, hasResults: visible.length > 0, noResults: visible.length === 0,
+      clearAll: () => this.setState({ track: 'all', query: '', freeOnly: false }),
+      paths: [
+        { goal: 'I want to stop retyping the same email', meta: 'Workflow & Automation · 3 lessons' },
+        { goal: 'I want more people to find my business', meta: 'Marketing & Growth · 4 lessons' },
+        { goal: 'I want a page or tool of my own, live', meta: 'Build with AI · 5 lessons' },
+        { goal: 'I want AI skills I can show at work', meta: 'AI Essentials → Research & Insights' }
+      ],
+      anatomy: [
+        { t: 'A short video', d: 'Watch the work being done, start to finish.' },
+        { t: 'A written guide', d: 'The same steps in text, in English and 日本語.' },
+        { t: 'Templates and tools', d: 'Prompts and files you copy straight into your own work.' },
+        { t: 'A Workbench task', d: 'Run the lesson on your own business before you move on.' }
+      ],
+      letters: letterDefs.map(d => { const on = !!L[d.key]; return { ...d, on, mark: on ? '✓' : '', bg: on ? '#16483A' : 'transparent', border: on ? '#E9A63B' : '#2C5A48', boxBg: on ? '#E9A63B' : 'transparent', toggle: () => this.setState(s => ({ letters: { ...s.letters, [d.key]: !s.letters[d.key] } })) }; }),
+      subscribeLabel: nCount === 2 ? 'Subscribe to both' : 'Subscribe',
+      subscribed: this.state.subscribed, notSubscribed: !this.state.subscribed,
+      subscribe: e => { e.preventDefault(); if (nCount) this.setState({ subscribed: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

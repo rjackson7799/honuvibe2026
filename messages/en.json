@@ -229,7 +229,16 @@
     "role": "Founder & AI Educator",
     "cta": "Read more about Ryan"
   },
+  "hv": {
+    "carousel_label": "Testimonials",
+    "quote_n": "Quote {n}"
+  },
   "newsletter": {
+    "hv_heading": "Join the wave.",
+    "hv_body": "Weekly insights, tutorials and community highlights, in English and 日本語.",
+    "hv_placeholder": "you@example.com",
+    "hv_success": "Thanks. Your first issue arrives this week.",
+    "email_label": "Email address",
     "overline": "Stay Connected",
     "heading": "Join the Wave",
     "description": "Join 1,000+ entrepreneurs learning AI the HonuVibe way. Weekly insights, tutorials, and community highlights.",

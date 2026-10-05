@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<script src="./image-slot.js"></script>
+<style>
+  body { margin: 0; background: #F6F1E2; color: #16241D; font-family: "Public Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #0E3629; text-decoration: none; }
+  a:hover { color: #C9552F; }
+  @keyframes hv-rise { from { opacity: 0; transform: translateY(0.5em); } to { opacity: 1; transform: none; } }
+  @keyframes hv-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @keyframes hv-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+</style>
+</helmet>
+
+<div style="max-width:100%;overflow-x:hidden">
+
+<header style="position:sticky;top:0;z-index:40;background:#0E3629;color:#F6F1E2;border-bottom:1px solid #16483A">
+  <div style="max-width:1320px;margin:0 auto;padding:12px 32px;display:flex;align-items:center;gap:28px;flex-wrap:wrap">
+    <a href="./01%20Home.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#F6F1E2">HonuVibe</a>
+    <nav style="display:flex;gap:22px;font-size:15px;flex-wrap:wrap"><a href="#top" style="color:#F6F1E2;font-weight:600;border-bottom:2px solid #E9A63B;padding-bottom:2px">Learn</a><a href="./04%20Build.dc.html" style="color:#CBDCD1">Build</a><a href="./05%20Partner.dc.html" style="color:#CBDCD1">Partner</a><a href="#pricing" style="color:#CBDCD1">Pricing</a></nav>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:18px">
+      <div role="group" aria-label="Language" style="display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid #2C5A48;border-radius:999px;background:#0B2E23">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="2">
+          <button type="button" aria-pressed="{{ l.active }}" onClick="{{ l.select }}" style="min-height:36px;min-width:44px;padding:0 12px;border:none;border-radius:999px;background:{{ l.bg }};color:{{ l.fg }};font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer">{{ l.label }}</button>
+        </sc-for>
+      </div>
+      <a href="./06%20Sign%20In.dc.html" style="font-size:15px;color:#F6F1E2">Sign in</a>
+      <a href="#free" style="background:#E9A63B;color:#0E3629;padding:11px 18px;border-radius:8px;font-size:15px;font-weight:600;min-height:44px;display:inline-flex;align-items:center">Get started free</a>
+    </div>
+  </div>
+</header>
+
+<section id="top" style="position:relative;background:#0E3629;color:#F6F1E2;overflow:hidden">
+  <div style="position:absolute;inset:0 0 0 38%">
+    <image-slot id="learnB-hero-bg" shape="rect" placeholder="Drop a wide photo: someone learning or building"></image-slot>
+  </div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0E3629 0%,#0E3629 36%,rgba(14,54,41,0.88) 52%,rgba(14,54,41,0.35) 80%,rgba(14,54,41,0.15) 100%)"></div>
+  <div style="position:relative;pointer-events:none;max-width:1320px;margin:0 auto;padding:72px 32px 84px">
+    <div style="max-width:640px;pointer-events:auto">
+      <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:#E9A63B"><span style="width:7px;height:7px;border-radius:50%;background:#E9A63B;animation:hv-pulse 2s ease-in-out infinite"></span>New lessons every month</div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(46px,6vw,84px);line-height:0.98;letter-spacing:-0.045em;margin:18px 0 0">Learn in the Vault</h1>
+      <p style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(22px,2.5vw,32px);letter-spacing:-0.025em;line-height:1.15;margin:18px 0 0;min-height:2.3em">Leave each lesson with {{ rotator }}</p>
+      <p style="font-size:17.5px;line-height:1.6;color:#CBDCD1;margin:14px 0 0;max-width:46ch">Short, practical AI lessons organized by track, in English and 日本語. Every one ends with something finished for your own work.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">
+        <a href="#free" style="background:#E9A63B;color:#0E3629;padding:0 26px;border-radius:10px;font-size:17px;font-weight:600;min-height:56px;display:inline-flex;align-items:center;gap:9px">Try a free lesson <span>→</span></a>
+        <a href="#pricing" style="border:1.5px solid #4E7A66;background:rgba(14,54,41,0.6);color:#F6F1E2;padding:0 24px;border-radius:10px;font-size:17px;font-weight:600;min-height:56px;display:inline-flex;align-items:center">See membership</a>
+      </div>
+      <p style="margin:12px 0 0;font-size:14px;color:#8FAA98">No payment needed for free lessons.</p>
+    </div>
+  </div>
+</section>
+
+<div style="background:#0E3629;padding:0 0 26px;border-top:1px solid #16483A">
+  <div style="padding-top:22px">{{ marquee }}</div>
+</div>
+
+<section id="free" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Try before you join</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;max-width:20ch;text-wrap:balance">Pick a free lesson. Finish it today.</h2>
+    </div>
+    <p style="max-width:40ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">Three lessons from AI Essentials are open to everyone. Same format as the rest of the Vault.</p>
+  </div>
+  <sc-if value="{{ layoutCards }}" hint-placeholder-val="{{ true }}">
+    <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px">
+      <sc-for list="{{ freeTabs }}" as="f" hint-placeholder-count="3">
+        <article style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 18px 40px -18px rgba(14,54,41,0.28)">
+          <div style="position:relative;aspect-ratio:16/10;background:#E4DAC1">
+            <image-slot id="{{ f.slot }}" shape="rect" placeholder="Drop a lesson video still"></image-slot>
+            <span style="position:absolute;top:12px;left:12px;background:#E9A63B;color:#0E3629;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:6px;pointer-events:none">Free · {{ f.num }}</span>
+          </div>
+          <div style="padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px;flex:1">
+            <span style="font-size:13px;color:#8A7C63">{{ f.len }}</span>
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.02em;line-height:1.15;color:#0E3629;margin:0">{{ f.title }}</h3>
+            <p style="margin:0;font-size:15px;line-height:1.5;color:#3E4F45"><strong style="color:#0E3629;font-weight:600">You’ll finish with</strong> {{ f.outcomeLc }}</p>
+            <a href="#free" style="margin-top:auto;padding-top:8px;font-weight:600;color:#C9552F">Start free lesson →</a>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ layoutSplit }}" hint-placeholder-val="{{ false }}">
+    <div role="tablist" style="margin-top:28px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #E4DAC1">
+      <sc-for list="{{ freeTabs }}" as="f" hint-placeholder-count="3">
+        <button type="button" role="tab" aria-selected="{{ f.active }}" onClick="{{ f.select }}" style="display:flex;gap:10px;align-items:baseline;border:none;border-bottom:3px solid {{ f.tabRule }};margin-bottom:-1px;background:transparent;padding:14px 16px;font-family:inherit;cursor:pointer;color:#0E3629;opacity:{{ f.dim }};min-height:52px" style-hover="opacity:1">
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#C9552F">{{ f.num }}</span>
+          <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;letter-spacing:-0.01em;text-align:left">{{ f.title }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="margin-top:20px;background:#0E3629;color:#F6F1E2;border-radius:16px;overflow:hidden;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))">
+      <div style="position:relative;aspect-ratio:16/9;background:#16483A">
+        <sc-for list="{{ freeTabs }}" as="f" hint-placeholder-count="1">
+          <div style="position:absolute;inset:0;opacity:{{ f.opacity }};pointer-events:{{ f.pe }};transition:opacity .4s ease"><image-slot id="{{ f.slot }}" shape="rect" placeholder="Drop a lesson video still"></image-slot></div>
+        </sc-for>
+      </div>
+      <div style="padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="background:#E9A63B;color:#0E3629;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:6px">Free</span><span style="font-size:13.5px;color:#8FAA98">{{ freeActive.len }}</span></div>
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#E9A63B">You’ll finish with</div>
+        <p style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:clamp(20px,2vw,26px);letter-spacing:-0.02em;line-height:1.2;margin:0">{{ freeActive.outcome }}</p>
+        <div style="display:grid;gap:8px">
+          <sc-for list="{{ freeActive.steps }}" as="s" hint-placeholder-count="3"><div style="display:flex;gap:10px;font-size:15px;line-height:1.5;color:#CBDCD1"><span style="color:#E9A63B;font-weight:700">✓</span><span>{{ s }}</span></div></sc-for>
+        </div>
+        <a href="#free" style="margin-top:auto;align-self:flex-start;background:#E9A63B;color:#0E3629;border-radius:10px;padding:0 22px;min-height:52px;display:inline-flex;align-items:center;font-weight:600;font-size:16px">Start this free lesson →</a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ layoutList }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top:28px;display:grid;gap:12px">
+      <sc-for list="{{ freeTabs }}" as="f" hint-placeholder-count="3">
+        <article style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:14px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 18px 40px -18px rgba(14,54,41,0.28)">
+          <div style="position:relative;flex:0 0 220px;max-width:100%;aspect-ratio:16/10;border-radius:10px;overflow:hidden;background:#E4DAC1">
+            <image-slot id="{{ f.slot }}" shape="rect" placeholder="Video still"></image-slot>
+          </div>
+          <div style="flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#C9552F">{{ f.num }}</span><span style="font-size:13px;color:#8A7C63">{{ f.len }}</span></div>
+            <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em;line-height:1.15;color:#0E3629;margin:0">{{ f.title }}</h3>
+            <p style="margin:0;font-size:15px;line-height:1.5;color:#3E4F45">{{ f.outcome }}</p>
+          </div>
+          <div style="flex:1 1 240px;display:grid;gap:6px">
+            <sc-for list="{{ f.steps }}" as="s" hint-placeholder-count="3"><div style="display:flex;gap:8px;font-size:14px;line-height:1.45;color:#5C6B62"><span style="color:#4E7A66;font-weight:700">✓</span><span>{{ s }}</span></div></sc-for>
+          </div>
+          <a href="#free" style="flex:none;background:#0E3629;color:#F6F1E2;border-radius:10px;padding:0 20px;min-height:50px;display:inline-flex;align-items:center;font-weight:600;font-size:15px;margin-right:6px">Start free →</a>
+        </article>
+      </sc-for>
+    </div>
+  </sc-if>
+</section>
+
+<section id="hot" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:700"><span style="width:7px;height:7px;border-radius:50%;background:#C9552F;animation:hv-pulse 2s ease-in-out infinite"></span>Hot topics</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">What’s worth learning this week</h2>
+    </div>
+    <span style="font-size:14px;color:#5C6B62">Short lessons · updated weekly</span>
+  </div>
+  <div style="margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px">
+    <a href="#pricing" style="grid-row:span 2;background:#C9552F;color:#FFF3EA;border-radius:16px;padding:26px;display:flex;flex-direction:column;gap:12px;min-height:320px;transition:box-shadow .25s ease" style-hover="box-shadow:0 14px 40px rgba(138,63,34,0.3)">
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700">01 · This week’s pick</span><span>{{ hotLead.len }}</span></div>
+      <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,3vw,38px);letter-spacing:-0.035em;line-height:1.02;margin:auto 0 0;text-wrap:balance">{{ hotLead.title }}</h3>
+      <p style="margin:0;font-size:15.5px;line-height:1.55;max-width:38ch">{{ hotLead.why }}</p>
+      <span style="font-weight:600">Open in the Vault →</span>
+    </a>
+    <sc-for list="{{ hotRest }}" as="h" hint-placeholder-count="4">
+      <a href="#pricing" style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 18px 40px -18px rgba(14,54,41,0.28)">
+        <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:#8A7C63"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#C9552F">{{ h.num }}</span><span>{{ h.len }}</span></div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;line-height:1.15;color:#0E3629;margin:0">{{ h.title }}</h3>
+        <p style="margin:0;font-size:14.5px;line-height:1.5;color:#5C6B62">{{ h.why }}</p>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section id="inside" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:40px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="position:relative;aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:#0E3629;border:1px solid #16483A">
+        <sc-for list="{{ anatomy }}" as="a" hint-placeholder-count="1">
+          <div aria-hidden="{{ a.hidden }}" style="position:absolute;inset:0;opacity:{{ a.opacity }};pointer-events:{{ a.pe }};transition:opacity .5s ease">
+            <image-slot id="{{ a.slot }}" shape="rect" placeholder="{{ a.ph }}"></image-slot>
+          </div>
+        </sc-for>
+        <div style="position:absolute;left:14px;bottom:14px;background:#0E3629;color:#F6F1E2;border-radius:8px;padding:8px 12px;font-size:13.5px;font-weight:600;pointer-events:none;display:flex;gap:8px"><span style="color:#E9A63B;font-family:'Space Grotesk',sans-serif">{{ slideNum }}</span>{{ slideLabel }}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px;flex:1">
+          <sc-for list="{{ anatomy }}" as="a" hint-placeholder-count="4">
+            <button type="button" onClick="{{ a.select }}" aria-label="{{ a.t }}" style="flex:1;height:24px;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center"><span style="display:block;width:100%;height:4px;border-radius:2px;background:{{ a.bar }};transition:background .3s ease"></span></button>
+          </sc-for>
+        </div>
+        <button type="button" onClick="{{ togglePlay }}" style="min-height:40px;min-width:44px;padding:0 14px;border:1.5px solid #C6B896;background:transparent;border-radius:999px;font-family:inherit;font-size:13.5px;font-weight:600;color:#0E3629;cursor:pointer">{{ playLabel }}</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Inside every lesson</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0;text-wrap:balance">Watch it. Read it. Do it on your own work.</h2>
+      <div style="margin-top:26px;display:grid;gap:0">
+        <sc-for list="{{ anatomy }}" as="a" hint-placeholder-count="4">
+          <button type="button" onClick="{{ a.select }}" aria-pressed="{{ a.active }}" style="text-align:left;display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;border:none;border-top:2px solid {{ a.rule }};background:transparent;padding:16px 0;font-family:inherit;cursor:pointer;opacity:{{ a.dim }};transition:opacity .3s ease,border-color .3s ease" style-hover="opacity:1">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#C9552F">{{ a.num }}</span>
+            <span style="display:block">
+              <span style="display:block;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em;color:#0E3629">{{ a.t }}</span>
+              <span style="display:block;font-size:15px;color:#5C6B62;line-height:1.55;margin-top:4px">{{ a.d }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tracks" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Five tracks</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">Start from the work you do.</h2>
+    </div>
+    <a href="./02%20Learn%20-%20Catalog.dc.html" style="display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 22px;border-radius:10px;border:1.5px solid #0E3629;color:#0E3629;font-weight:600;font-size:16px" style-hover="background:#0E3629;color:#F6F1E2">Browse every lesson →</a>
+  </div>
+  <div style="margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px">
+    <sc-for list="{{ tracks }}" as="t" hint-placeholder-count="5">
+      <a href="./02%20Learn%20-%20Catalog.dc.html" style="background:{{ t.bg }};color:{{ t.fg }};border-radius:14px;padding:22px;min-height:200px;display:flex;flex-direction:column;gap:8px;transition:transform .2s ease" style-hover="transform:translateY(-4px)">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px">{{ t.num }}</span>
+        <span style="margin-top:auto;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em;line-height:1.1">{{ t.name }}</span>
+        <span style="font-size:14px;line-height:1.5">{{ t.note }}</span>
+      </a>
+    </sc-for>
+  </div>
+</section>
+
+<section id="pricing" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#C9552F;font-weight:600">Membership</div>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-0.035em;line-height:1.04;color:#0E3629;margin:10px 0 0">Start free. Open the whole Vault when you’re ready.</h2>
+    </div>
+    <p style="max-width:38ch;font-size:16px;line-height:1.6;color:#3E4F45;margin:0">Both plans are in English and 日本語. Cancel anytime, with a full refund within 14 days.</p>
+  </div>
+  <div style="margin-top:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px">
+    <div style="background:#FFFCF2;border:1px solid #E4DAC1;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;color:#0E3629;margin:0">Honu Community</h3>
+        <div style="font-size:14.5px;color:#5C6B62;margin-top:4px">Learn alongside others and stay current</div>
+      </div>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:46px;letter-spacing:-0.04em;color:#0E3629;line-height:1">Free</span>
+      <div style="display:grid;gap:10px">
+        <sc-for list="{{ freePerks }}" as="f" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-size:15px;line-height:1.5;color:#3E4F45"><span style="color:#4E7A66;font-weight:700">✓</span><span>{{ f }}</span></div></sc-for>
+      </div>
+      <a href="#free" style="margin-top:auto;background:#E9A63B;color:#0E3629;border-radius:10px;min-height:54px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16.5px">Try a free lesson →</a>
+    </div>
+    <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.02em;margin:0">The Vault</h3>
+        <div style="font-size:14.5px;color:#CBDCD1;margin-top:4px">Every course in every track</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:46px;letter-spacing:-0.04em;line-height:1">$99</span><span style="font-size:15.5px;color:#CBDCD1">/ month</span></div>
+      <div style="display:grid;gap:10px">
+        <sc-for list="{{ vaultPerks }}" as="f" hint-placeholder-count="5"><div style="display:flex;gap:10px;font-size:15px;line-height:1.5;color:#CBDCD1"><span style="color:#E9A63B;font-weight:700">✓</span><span>{{ f }}</span></div></sc-for>
+      </div>
+      <a href="#pricing" style="margin-top:auto;border:1.5px solid #4E7A66;color:#F6F1E2;border-radius:10px;min-height:54px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16.5px">Join the Vault →</a>
+    </div>
+  </div>
+</section>
+
+<section id="newsletter" data-reveal="1" style="max-width:1320px;margin:0 auto;padding:80px 32px 0">
+  <div style="background:#0E3629;color:#F6F1E2;border-radius:16px;padding:clamp(24px,3.4vw,40px)">
+    <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-end">
+      <div>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#E9A63B;font-weight:600">Weekly newsletters</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(26px,3vw,36px);letter-spacing:-0.03em;line-height:1.08;margin:10px 0 0">Join the wave.</h2>
+      </div>
+      <p style="margin:0;font-size:15px;color:#CBDCD1;max-width:40ch;line-height:1.55">Two weekly letters, both in English and 日本語. Pick one or both.</p>
+    </div>
+    <sc-if value="{{ notSubscribed }}" hint-placeholder-val="{{ true }}">
+      <form onSubmit="{{ subscribe }}" style="margin-top:24px;display:grid;gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px">
+          <sc-for list="{{ letters }}" as="n" hint-placeholder-count="2">
+            <button type="button" role="checkbox" aria-checked="{{ n.on }}" onClick="{{ n.toggle }}" style="text-align:left;display:grid;grid-template-columns:26px minmax(0,1fr);gap:14px;align-items:start;background:{{ n.bg }};border:1.5px solid {{ n.border }};border-radius:12px;padding:18px;color:#F6F1E2;font-family:inherit;cursor:pointer;transition:background .2s ease,border-color .2s ease">
+              <span style="width:24px;height:24px;border-radius:7px;border:1.5px solid {{ n.border }};background:{{ n.boxBg }};color:#0E3629;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center">{{ n.mark }}</span>
+              <span style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em">{{ n.name }}</span>
+                <span style="font-size:14.5px;line-height:1.5;color:#CBDCD1">{{ n.desc }}</span>
+                <span style="font-size:12.5px;color:#8FAA98">{{ n.when }}</span>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="email" required="required" placeholder="you@example.com" aria-label="Email address" style="flex:1 1 260px;min-height:52px;border-radius:10px;border:1.5px solid #4E7A66;background:#16483A;color:#F6F1E2;padding:0 16px;font-family:inherit;font-size:16px;outline:none" style-focus="border-color:#E9A63B" />
+          <button type="submit" style="min-height:52px;border:none;border-radius:10px;background:#E9A63B;color:#0E3629;padding:0 24px;font-family:inherit;font-weight:600;font-size:16px;cursor:pointer">{{ subscribeLabel }}</button>
+        </div>
+      </form>
+    </sc-if>
+    <sc-if value="{{ subscribed }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:22px;font-size:16px;color:#F6F1E2">Thanks. Your first issue arrives this week.</div>
+    </sc-if>
+  </div>
+</section>
+
+<footer style="max-width:1320px;margin:0 auto;padding:56px 32px 44px;display:flex;flex-wrap:wrap;gap:22px;justify-content:space-between;font-size:14px;color:#5C6B62">
+  <span>© 2026 HonuVibe.AI</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap"><a href="#top">Learn</a><a href="./04%20Build.dc.html">Build</a><a href="./05%20Partner.dc.html">Partner</a><a href="#pricing">Pricing</a><a href="#top">About us</a><a href="#top">Contact</a></div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;freeLayout&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;cards&quot;,&quot;split&quot;,&quot;list&quot;],&quot;default&quot;:&quot;cards&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Free lessons&quot;},&quot;animateHero&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;scrollReveal&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+class Component extends DCLogic {
+  state = { lang: 'en', rot: 0, free: 0, slide: 0, playing: true, letters: { community: true, vault: true }, subscribed: false };
+  componentDidMount() {
+    this.reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!this.reduce && (this.props.animateHero ?? true)) this._t = setInterval(() => this.setState(s => ({ rot: s.rot + 1 })), 2800);
+    if (!this.reduce && (this.props.scrollReveal ?? true)) setTimeout(() => this.reveal(), 60);
+    if (this.reduce) this.setState({ playing: false });
+    this._s = setInterval(() => { if (this.state.playing) this.setState(s => ({ slide: (s.slide + 1) % 4 })); }, 4500);
+  }
+  componentWillUnmount() { clearInterval(this._t); clearInterval(this._s); this._io && this._io.disconnect(); }
+  reveal() {
+    const io = this._io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.style.opacity = '1'; en.target.style.transform = 'none'; io.unobserve(en.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('[data-reveal]').forEach(el => {
+      if (el.getBoundingClientRect().top < window.innerHeight) return;
+      el.style.opacity = '0'; el.style.transform = 'translateY(22px)'; el.style.transition = 'opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)';
+      io.observe(el);
+    });
+  }
+  rotator(items) {
+    const e = React.createElement, i = this.state.rot % items.length;
+    return e('span', { style: { display: 'inline-block', overflow: 'hidden', verticalAlign: 'bottom' } },
+      e('span', { key: i, style: { display: 'inline-block', color: '#E9A63B', animation: this.reduce ? 'none' : 'hv-rise .55s cubic-bezier(.2,.7,.2,1) both' } }, items[i]));
+  }
+  marquee(items) {
+    const e = React.createElement;
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pill = (t, i) => e('span', { key: i, style: { flex: 'none', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 18px', minHeight: 44, borderRadius: 999, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 600, fontSize: 16, color: '#CBDCD1', border: '1px solid #2C5A48' } }, e('span', { style: { width: 6, height: 6, borderRadius: '50%', background: '#E9A63B' } }), t);
+    const list = reduce ? items : items.concat(items);
+    const track = e('div', { style: { display: 'flex', gap: 10, width: 'max-content', paddingRight: 10, animation: reduce ? 'none' : `hv-marquee ${items.length * 3.4}s linear infinite` } }, list.map(pill));
+    const set = s => ev => { const t = ev.currentTarget.firstChild; if (t) t.style.animationPlayState = s; };
+    return e('div', { 'aria-label': 'Tools and topics covered', onMouseEnter: set('paused'), onMouseLeave: set('running'), style: { overflowX: reduce ? 'auto' : 'hidden', padding: '0 32px', maskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)' } }, track);
+  }
+  renderVals() {
+    if (!this._mq) this._mq = this.marquee(['Claude', 'ChatGPT', 'Gemini', 'Prompting', 'Claude Code', 'Automation', 'Cursor', 'AI agents', 'n8n', 'Second brain', 'Zapier', 'Notion', 'Customer research', 'Perplexity']);
+    const freeDefs = [
+      { title: 'Ten prompts you’ll reuse every week', len: 'AI Essentials · 3 short lessons', outcome: 'A prompt kit built around the work you already repeat.', steps: ['List the tasks you redo each week', 'Write and test a prompt for each', 'Save them where you’ll actually find them'] },
+      { title: 'Notes into a client-ready document', len: 'AI Essentials · 4 short lessons', outcome: 'A formatted one-pager made from a messy call recap.', steps: ['Paste in your raw notes', 'Shape them with a reusable template', 'Edit for your voice and send'] },
+      { title: 'Write faster without sounding like a robot', len: 'AI Essentials · 3 short lessons', outcome: 'A first draft in your own voice, and a shorter edit.', steps: ['Give the model samples of your writing', 'Draft from an outline, not a blank page', 'Cut the phrases that give it away'] }
+    ];
+    const fi = this.state.free;
+    const freeLayout = this.props.freeLayout ?? 'cards';
+    const si = this.state.slide;
+    const anat = [
+      { num: '01', slot: 'learnB-inside-video', ph: 'Drop a screenshot of the lesson video', t: 'A short video', d: 'Watch the work being done, start to finish. Most run 10 to 20 minutes.' },
+      { num: '02', slot: 'learnB-inside-guide', ph: 'Drop a screenshot of the written guide', t: 'A written guide', d: 'The same steps in text, in English and 日本語.' },
+      { num: '03', slot: 'learnB-inside-templates', ph: 'Drop a screenshot of templates and tools', t: 'Templates and tools', d: 'Prompts and files you copy straight into your own work.' },
+      { num: '04', slot: 'learnB-inside-workbench', ph: 'Drop a screenshot of the Workbench', t: 'A Workbench task', d: 'Run the lesson on your own business, right in the browser, before you move on.' }
+    ];
+    const hot = [
+      { title: 'Build a second brain for your business', why: 'Put notes, calls and documents somewhere you can ask questions of.', len: '18 min' },
+      { title: 'This month’s model comparison', why: 'Which model to reach for, by task.', len: '12 min' },
+      { title: 'AI agents for small teams', why: 'What an agent can safely take off your plate.', len: '15 min' },
+      { title: 'Voice AI for customer calls', why: 'Answer, route and summarize calls.', len: '14 min' },
+      { title: 'Claude Code for non-engineers', why: 'Build a small tool by describing it.', len: '20 min' }
+    ];
+    const L = this.state.letters;
+    const nCount = (L.community ? 1 : 0) + (L.vault ? 1 : 0);
+    const letterDefs = [
+      { key: 'community', name: 'Honu Community Weekly', desc: 'Prompts and tools to try, plus highlights from members.', when: 'Every Tuesday · free' },
+      { key: 'vault', name: 'The Vault Weekly', desc: 'New lessons, this week’s hot topics, and what changed in AI.', when: 'Every Friday · free to subscribe' }
+    ];
+    return {
+      rotator: this.rotator(['a prompt kit you’ll reuse.', 'a booking page that works.', 'a Monday report that writes itself.', 'a lead funnel you can measure.']),
+      marquee: this._mq,
+      langs: [['en', 'EN'], ['ja', '日本語']].map(([k, label]) => { const on = this.state.lang === k; return { label, active: on, bg: on ? '#F6F1E2' : 'transparent', fg: on ? '#0E3629' : '#CBDCD1', select: () => this.setState({ lang: k }) }; }),
+      layoutCards: freeLayout === 'cards', layoutSplit: freeLayout === 'split', layoutList: freeLayout === 'list',
+      freeTabs: freeDefs.map((f, i) => { const a = i === fi; return { ...f, num: '0' + (i + 1), slot: 'learnB-free-' + (i + 1), outcomeLc: f.outcome.charAt(0).toLowerCase() + f.outcome.slice(1), tabRule: a ? '#C9552F' : 'transparent', dim: a ? 1 : 0.6, opacity: a ? 1 : 0, pe: a ? 'auto' : 'none', active: a, bg: a ? '#0E3629' : '#FFFCF2', fg: a ? '#F6F1E2' : '#0E3629', border: a ? '#0E3629' : '#E4DAC1', numColor: a ? '#E9A63B' : '#C9552F', sub: a ? '#8FAA98' : '#5C6B62', select: () => this.setState({ free: i }) }; }),
+      freeActive: freeDefs[fi],
+      hotLead: hot[0],
+      hotRest: hot.slice(1).map((h, i) => ({ ...h, num: '0' + (i + 2) })),
+      anatomy: anat.map((a, i) => { const on = i === si; return { ...a, active: on, hidden: !on, opacity: on ? 1 : 0, pe: on ? 'auto' : 'none', bar: on ? '#C9552F' : '#E4DAC1', rule: on ? '#0E3629' : '#E4DAC1', dim: on ? 1 : 0.6, select: () => this.setState({ slide: i, playing: false }) }; }),
+      slideNum: anat[si].num, slideLabel: anat[si].t,
+      playLabel: this.state.playing ? 'Pause' : 'Play',
+      togglePlay: () => this.setState(s => ({ playing: !s.playing })),
+      tracks: [
+        { num: '01', name: 'AI Essentials', note: 'Confidence with AI in everyday work', bg: '#E9A63B', fg: '#0E3629' },
+        { num: '02', name: 'Marketing & Growth', note: 'Reach customers and grow sales', bg: '#8A3F22', fg: '#FFE9DC' },
+        { num: '03', name: 'Build with AI', note: 'Websites, prototypes and business tools', bg: '#0E3629', fg: '#F6F1E2' },
+        { num: '04', name: 'Research & Insights', note: 'Understand customers and decide well', bg: '#2C5A48', fg: '#F2DCA8' },
+        { num: '05', name: 'Workflow & Automation', note: 'Hand off the work that repeats', bg: '#7A5C2E', fg: '#FFF3EA' }
+      ],
+      freePerks: ['Three free AI Essentials lessons', 'Join the Honu Community', 'Weekly prompts and tools', 'Honu Community Weekly newsletter'],
+      vaultPerks: ['All five tracks, every lesson', 'Every lesson in English and 日本語', 'The Workbench: apply each lesson to your own work', 'New lessons added every month', 'Includes the Honu Community'],
+      letters: letterDefs.map(d => { const on = !!L[d.key]; return { ...d, on, mark: on ? '✓' : '', bg: on ? '#16483A' : 'transparent', border: on ? '#E9A63B' : '#2C5A48', boxBg: on ? '#E9A63B' : 'transparent', toggle: () => this.setState(s => ({ letters: { ...s.letters, [d.key]: !s.letters[d.key] } })) }; }),
+      subscribeLabel: nCount === 2 ? 'Subscribe to both' : 'Subscribe',
+      subscribed: this.state.subscribed, notSubscribed: !this.state.subscribed,
+      subscribe: e => { e.preventDefault(); if (nCount) this.setState({ subscribed: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
