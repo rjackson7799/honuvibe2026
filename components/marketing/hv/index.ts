@@ -17,6 +17,7 @@ export { HvTestimonialCarousel, type Testimonial } from './testimonial-carousel'
 export { HvTierCard, HvTierGrid, type TierCardProps, type TierPrice } from './tier-cards';
 export { HvNewsletterBand } from './newsletter-band';
 export { HvCtaBand } from './cta-band';
+export { HvLangToggle } from './lang-toggle';
 export { HvRotatingWord } from './motion/rotating-word';
 export { HvMarquee } from './motion/marquee';
 export { HvReveal } from './motion/reveal';

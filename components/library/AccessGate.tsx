@@ -24,8 +24,8 @@ export function AccessGate({
 }: AccessGateProps) {
   const prefix = locale === 'ja' ? '/ja' : '';
   const redirectPath = `${prefix}/learn/library/${videoSlug}`;
-  const signupUrl = `${prefix}/learn/auth?redirect=${encodeURIComponent(redirectPath)}`;
-  const loginUrl = `${prefix}/learn/auth?mode=login&redirect=${encodeURIComponent(redirectPath)}`;
+  const signupUrl = `${prefix}/signup?redirect=${encodeURIComponent(redirectPath)}`;
+  const loginUrl = `${prefix}/signin?redirect=${encodeURIComponent(redirectPath)}`;
 
   useEffect(() => {
     trackEvent('access_gate_shown', { video_slug: videoSlug, locale });

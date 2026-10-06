@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { LayoutDashboard, LogOut, Shield, User } from 'lucide-react';
+import { LayoutDashboard, LogOut, Shield } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -19,18 +19,25 @@ export type MarketingUserMenuLabels = {
 
 type Props = {
   labels: MarketingUserMenuLabels;
+  /** 'down' (header) opens the dropdown below; 'up' (mobile sheet footer) opens above. */
+  placement?: 'down' | 'up';
 };
 
+/** /signin (or /ja/signin) carrying the current page as ?redirect=, except on the auth pages themselves. */
+export function signInHref(locale: string, pathname: string | null): string {
+  const base = locale === 'ja' ? '/ja/signin' : '/signin';
+  if (!pathname || /^\/(ja\/)?(signin|signup)(\/|$)/.test(pathname)) return base;
+  return `${base}?redirect=${encodeURIComponent(pathname)}`;
+}
+
 /**
- * Light-themed avatar dropdown for the marketing nav. Mirrors the logic in
- * components/layout/user-menu.tsx (variant="dropdown") but renders against
- * the --m-* token set so it composes with the marketing shell.
+ * Account control for the green marketing header (README "Header": "Sign in"
+ * in #F6F1E2). Same session logic as components/layout/user-menu.tsx.
  *
- * Logged out: renders a teal "Student Login" pill linking to /learn/auth.
- * Logged in: shows a circular initial avatar; click opens a dropdown with
- * Dashboard / Admin / Sign out.
+ * Logged out: a "Sign in" text link to /signin?redirect=<current page>.
+ * Logged in: a circular initial avatar; click opens Dashboard / Admin / Sign out.
  */
-export function MarketingUserMenu({ labels }: Props) {
+export function MarketingUserMenu({ labels, placement = 'down' }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
@@ -107,26 +114,15 @@ export function MarketingUserMenu({ labels }: Props) {
     router.refresh();
   }
 
-  if (loading) return <div className="h-9 w-9" />;
+  if (loading) return <div className="h-11 w-11" />;
 
   if (!user) {
-    const authBase = locale === 'ja' ? '/ja/learn/auth' : '/learn/auth';
-    const authHref =
-      pathname && pathname !== authBase
-        ? `${authBase}?redirect=${encodeURIComponent(pathname)}`
-        : authBase;
     return (
       <NextLink
-        href={authHref}
-        className={cn(
-          'inline-flex items-center gap-1.5 rounded-md px-3 py-1.5',
-          'border border-[var(--m-border-teal)] bg-[var(--m-accent-teal-soft)]',
-          'text-[13px] font-semibold text-[var(--m-accent-teal)]',
-          'transition-colors hover:bg-[rgba(15,169,160,0.14)]',
-        )}
+        href={signInHref(locale, pathname)}
+        className="inline-flex min-h-[44px] items-center text-[15px] text-hv-sand-100 transition-colors hover:text-hv-amber"
       >
-        <User size={15} />
-        <span>{labels.signIn}</span>
+        {labels.signIn}
       </NextLink>
     );
   }
@@ -134,9 +130,8 @@ export function MarketingUserMenu({ labels }: Props) {
   const initial = (user.name || user.email || '?').trim().charAt(0).toUpperCase();
 
   const itemClass = cn(
-    'flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm',
-    'text-[var(--m-ink-secondary)] transition-colors',
-    'hover:bg-[var(--m-sand)] hover:text-[var(--m-ink-primary)]',
+    'flex min-h-[44px] w-full items-center gap-3 rounded-[8px] px-3 text-left text-[15px]',
+    'text-hv-ink-700 transition-colors hover:bg-hv-sand-200 hover:text-hv-green-900',
   );
 
   return (
@@ -148,11 +143,10 @@ export function MarketingUserMenu({ labels }: Props) {
         aria-expanded={open}
         aria-label={labels.account}
         className={cn(
-          'inline-flex h-9 w-9 items-center justify-center rounded-full',
-          'border border-[var(--m-border-default)] bg-[var(--m-white)]',
-          'text-sm font-bold text-[var(--m-ink-primary)]',
-          'transition-all hover:border-[var(--m-border-teal)] hover:shadow-[var(--m-shadow-xs)]',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--m-accent-teal)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--m-canvas)]',
+          'inline-flex h-11 w-11 items-center justify-center rounded-full',
+          'border border-hv-green-600 bg-hv-green-800 font-hv-display text-[16px] font-bold text-hv-sand-100',
+          'transition-colors hover:border-hv-amber',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-amber',
         )}
       >
         {initial}
@@ -162,35 +156,29 @@ export function MarketingUserMenu({ labels }: Props) {
         <div
           role="menu"
           className={cn(
-            'absolute right-0 top-full z-[210] mt-2 min-w-[220px]',
-            'rounded-xl border border-[var(--m-border-soft)] bg-[var(--m-white)]',
-            'p-1.5 shadow-[var(--m-shadow-md)]',
+            'absolute right-0 z-[210] min-w-[230px] rounded-[14px] border border-hv-sand-300 bg-hv-sand-50 p-1.5 shadow-hv-panel',
+            placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
           )}
         >
-          <div className="mb-1 border-b border-[var(--m-border-soft)] px-3 py-2">
-            <div className="truncate text-sm font-semibold text-[var(--m-ink-primary)]">{user.name}</div>
-            <div className="truncate text-xs text-[var(--m-ink-tertiary)]">{user.email}</div>
+          <div className="mb-1 border-b border-hv-sand-300 px-3 py-2">
+            <div className="truncate text-[14px] font-semibold text-hv-green-900">{user.name}</div>
+            <div className="truncate text-[13px] text-hv-ink-500">{user.email}</div>
           </div>
 
           <Link href="/learn/dashboard" onClick={() => setOpen(false)} className={itemClass} role="menuitem">
-            <LayoutDashboard size={16} />
+            <LayoutDashboard size={16} aria-hidden />
             {labels.dashboard}
           </Link>
 
           {isAdmin && (
             <Link href="/admin" onClick={() => setOpen(false)} className={itemClass} role="menuitem">
-              <Shield size={16} />
+              <Shield size={16} aria-hidden />
               {labels.admin}
             </Link>
           )}
 
-          <button
-            type="button"
-            onClick={() => void handleSignOut()}
-            className={itemClass}
-            role="menuitem"
-          >
-            <LogOut size={16} />
+          <button type="button" onClick={() => void handleSignOut()} className={itemClass} role="menuitem">
+            <LogOut size={16} aria-hidden />
             {labels.signOut}
           </button>
         </div>

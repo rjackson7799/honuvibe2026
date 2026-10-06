@@ -298,7 +298,7 @@ export default async function GlossaryTermPage({ params }: Props) {
           </Container>
         </Section>
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="glossary_term" />
       <MarketingFooter />
     </MarketingShell>
   );

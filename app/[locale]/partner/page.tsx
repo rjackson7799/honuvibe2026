@@ -1,211 +1,60 @@
-import { setRequestLocale } from 'next-intl/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Users, DollarSign, BookOpen, JapaneseYen, ExternalLink, Library, Eye } from 'lucide-react';
-import { StatCard } from '@/components/admin/StatCard';
-import { PartnerPortalLayout } from '@/components/partner-portal/PartnerPortalLayout';
-import { EnrollmentTrendChart } from '@/components/partner-portal/EnrollmentTrendChart';
+import { setRequestLocale, getTranslations } from 'next-intl/server';
+import { MarketingShell } from '@/components/marketing/shell';
+import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
+import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
+import { MarketingNewsletter } from '@/components/marketing/newsletter/marketing-newsletter';
 import {
-  resolvePartnerScope,
-  getPartnerStats,
-  getPartnerCourses,
-  getPartnerDailyEnrollments,
-  getPartnerVaultStats,
-  getPartnerOwnedCourses,
-} from '@/lib/partner-portal/queries';
+  PartnershipsEditorialHero,
+  PartnershipsGrowingCycle,
+  PartnershipsCohortChapter,
+  PartnershipsMonetize,
+  PartnershipsMembersTeachers,
+  PartnershipsStudioRouter,
+  PartnershipsMethodTable,
+  PartnershipsNextChapter,
+  PartnershipsApplicationForm,
+} from '@/components/marketing/partnerships';
 
 type Props = {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ as?: string }>;
 };
 
-export default async function PartnerDashboardPage({ params, searchParams }: Props) {
+export async function generateMetadata({ params }: Props) {
   const { locale } = await params;
-  const { as: previewId } = await searchParams;
+  const t = await getTranslations({ locale, namespace: 'partnerships.meta' });
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
+
+/**
+ * Interim public Partner page (redesign Unit 0B): the former /partnerships
+ * content under the new green chrome, so the Learn · Build · Partner nav
+ * resolves. /partnerships, /partnerships/apply and /organizations redirect
+ * here; the enquiry form sits at #apply. Unit 4 rebuilds this page.
+ * (The authenticated partner portal moved to /portal.)
+ */
+export default async function PartnerPage({ params }: Props) {
+  const { locale } = await params;
   setRequestLocale(locale);
 
-  const scope = await resolvePartnerScope({ locale, previewId });
-  if (!scope) {
-    const prefix = locale === 'ja' ? '/ja' : '';
-    redirect(`${prefix}/admin/partners`);
-  }
-
-  const { partner, previewMode } = scope;
-  const [stats, courses, daily, vaultStats, ownedCourses] = await Promise.all([
-    getPartnerStats(partner.id),
-    getPartnerCourses(partner.id),
-    getPartnerDailyEnrollments(partner.id, 30),
-    getPartnerVaultStats(partner.id),
-    getPartnerOwnedCourses(partner.id),
-  ]);
-
-  const ownedCourseIds = new Set(ownedCourses.map((c) => c.id));
-
-  const shareUrl = `https://honuvibe.com/${locale}/partners/${partner.slug}`;
-  const isEmpty = stats.studentCount === 0;
-
   return (
-    <PartnerPortalLayout
-      partnerName={partner.name_en}
-      partnerLogoUrl={partner.logo_url}
-      previewMode={previewMode}
-    >
-      <div className="max-w-[1100px] space-y-8">
-        <header>
-          <h1 className="font-serif text-3xl text-fg-primary">Dashboard</h1>
-          <p className="mt-1 text-sm text-fg-tertiary">
-            Aggregate attribution for enrollments driven by your co-branded page.
-          </p>
-        </header>
-
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard
-            label="Students"
-            value={stats.studentCount}
-            icon={Users}
-            trend={formatDelta(stats.monthOverMonth.students, 'vs last month')}
-          />
-          <StatCard
-            label="Revenue (USD)"
-            value={formatUsd(stats.revenueUsd)}
-            icon={DollarSign}
-            trend={
-              stats.monthOverMonth.revenueUsd !== 0
-                ? `${stats.monthOverMonth.revenueUsd > 0 ? '+' : ''}${formatUsd(stats.monthOverMonth.revenueUsd)} vs last month`
-                : undefined
-            }
-          />
-          <StatCard
-            label="Revenue (JPY)"
-            value={formatJpy(stats.revenueJpy)}
-            icon={JapaneseYen}
-            trend={
-              stats.monthOverMonth.revenueJpy !== 0
-                ? `${stats.monthOverMonth.revenueJpy > 0 ? '+' : ''}${formatJpy(stats.monthOverMonth.revenueJpy)} vs last month`
-                : undefined
-            }
-          />
-          <StatCard label="Courses owned" value={stats.ownedCourseCount} icon={BookOpen} />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard label="Courses featured" value={stats.courseCount} icon={BookOpen} />
-          <StatCard label="Vault items owned" value={vaultStats.itemsOwned} icon={Library} />
-          <StatCard label="Vault series owned" value={vaultStats.seriesOwned} icon={Library} />
-          <StatCard label="Vault views (30d)" value={vaultStats.views30d} icon={Eye} />
-        </div>
-
-        {isEmpty ? (
-          <section className="rounded-lg border border-dashed border-border-default bg-bg-secondary p-8 text-center">
-            <h2 className="font-serif text-xl text-fg-primary">No enrollments yet</h2>
-            <p className="mx-auto mt-2 max-w-lg text-sm text-fg-secondary">
-              Share your co-branded page with your community. Enrollments made through this link
-              (or within 30 days of visiting it) will be attributed to you.
-            </p>
-            <div className="mx-auto mt-4 flex max-w-md items-center gap-2 rounded border border-border-default bg-bg-primary px-3 py-2">
-              <code className="flex-1 truncate text-left font-mono text-xs text-fg-secondary">
-                {shareUrl}
-              </code>
-              <Link
-                href={shareUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-accent-teal hover:underline"
-              >
-                <ExternalLink size={12} /> Open
-              </Link>
-            </div>
-          </section>
-        ) : (
-          <>
-            <EnrollmentTrendChart data={daily} />
-
-            <section>
-              <div className="mb-3 flex items-baseline justify-between">
-                <h2 className="font-serif text-xl text-fg-primary">Course performance</h2>
-                <Link
-                  href="/partner/courses"
-                  className="text-sm text-accent-teal hover:underline"
-                >
-                  View all →
-                </Link>
-              </div>
-
-              {courses.length === 0 ? (
-                <p className="rounded-lg border border-border-default bg-bg-secondary p-6 text-sm text-fg-tertiary">
-                  No courses featured on your page yet.
-                </p>
-              ) : (
-                <div className="overflow-hidden rounded-lg border border-border-default bg-bg-secondary">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border-default text-fg-tertiary">
-                        <th className="px-4 py-3 text-left font-medium">Course</th>
-                        <th className="px-4 py-3 text-left font-medium">Owned</th>
-                        <th className="px-4 py-3 text-right font-medium">Lifetime</th>
-                        <th className="px-4 py-3 text-right font-medium">This month</th>
-                        <th className="px-4 py-3 text-right font-medium">USD</th>
-                        <th className="px-4 py-3 text-right font-medium">JPY</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {courses.map((c) => (
-                        <tr
-                          key={c.course_id}
-                          className="border-b border-border-default last:border-0"
-                        >
-                          <td className="px-4 py-3 text-fg-primary">
-                            {c.title_en}
-                            {!c.is_published && (
-                              <span className="ml-2 rounded bg-bg-tertiary px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-fg-tertiary">
-                                unpublished
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            {ownedCourseIds.has(c.course_id) && (
-                              <span className="rounded bg-accent-teal/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-accent-teal">
-                                Owned
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-right text-fg-secondary">
-                            {c.lifetimeEnrollments}
-                          </td>
-                          <td className="px-4 py-3 text-right text-fg-secondary">
-                            {c.currentMonthEnrollments}
-                          </td>
-                          <td className="px-4 py-3 text-right text-fg-secondary">
-                            {formatUsd(c.lifetimeRevenueUsd)}
-                          </td>
-                          <td className="px-4 py-3 text-right text-fg-secondary">
-                            {formatJpy(c.lifetimeRevenueJpy)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </section>
-          </>
-        )}
-      </div>
-    </PartnerPortalLayout>
+    <MarketingShell>
+      <MarketingNav cta="talk_to_us" />
+      <main>
+        <PartnershipsEditorialHero />
+        <PartnershipsGrowingCycle />
+        <PartnershipsCohortChapter />
+        <PartnershipsMonetize />
+        <PartnershipsMembersTeachers />
+        <PartnershipsStudioRouter />
+        <PartnershipsMethodTable />
+        <PartnershipsNextChapter />
+        <PartnershipsApplicationForm />
+      </main>
+      <MarketingNewsletter source="partner" />
+      <MarketingFooter />
+    </MarketingShell>
   );
-}
-
-function formatUsd(cents: number): string {
-  if (!cents) return '$0';
-  return `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-}
-
-function formatJpy(yen: number): string {
-  if (!yen) return '¥0';
-  return `¥${yen.toLocaleString('en-US')}`;
-}
-
-function formatDelta(value: number, suffix: string): string | undefined {
-  if (value === 0) return undefined;
-  return `${value > 0 ? '+' : ''}${value} ${suffix}`;
 }

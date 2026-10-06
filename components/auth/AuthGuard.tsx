@@ -12,7 +12,7 @@ export async function AuthGuard({ children, locale }: AuthGuardProps) {
 
   if (!user) {
     const prefix = locale === 'ja' ? '/ja' : '';
-    redirect(`${prefix}/learn/auth`);
+    redirect(`${prefix}/signin`);
   }
 
   return <>{children}</>;

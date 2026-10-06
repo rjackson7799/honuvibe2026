@@ -36,7 +36,7 @@ export default async function VerticeSocietyPage({ params }: Props) {
   return (
     <div className={`${inter.variable} ${notoJP.variable} ${instrumentSerif.variable}`}>
       <MarketingShell>
-        <MarketingNav showGetStarted />
+        <MarketingNav />
         <VerticeLanding locale={locale} />
       </MarketingShell>
     </div>

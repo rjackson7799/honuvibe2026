@@ -31,7 +31,7 @@ export default async function HomePage({ params }: Props) {
   return (
     <MarketingShell>
       <RecoveryHashRedirect locale={locale} />
-      <MarketingNav showGetStarted />
+      <MarketingNav />
       <main>
         <HomeHero />
         <ProofBand vaultTotalCount={vaultTotalCount} />
@@ -44,7 +44,7 @@ export default async function HomePage({ params }: Props) {
         <HomeFaq />
         <HomeFinalCta />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="home" />
       <MarketingFooter />
     </MarketingShell>
   );

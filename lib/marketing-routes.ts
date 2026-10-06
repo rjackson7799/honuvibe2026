@@ -1,6 +1,6 @@
 /**
- * Marketing routes — the public marketing surface that uses the new
- * <MarketingShell> design (light-only, Inter, --m-* tokens).
+ * Marketing routes — the public marketing surface that uses <MarketingShell>
+ * (legacy --m-* look or the 2026 green [data-shell="hv"] look).
  *
  * The site has two pathname conventions:
  *  - next-intl's usePathname() from @/i18n/navigation: locale-stripped (e.g. "/learn")
@@ -15,7 +15,24 @@
  *    (e.g. /glossary AND /glossary/<slug>).
  */
 
-const MARKETING_PATHS = ['/', '/learn', '/explore', '/sandbox', '/partnerships', '/organizations', '/free-lesson', '/about', '/contact'] as const;
+// /partner is the public Partner page (the partner portal moved to /portal,
+// which keeps the dark app shell). /signin and /signup are full-viewport
+// split layouts: marketing for padding/companion purposes, and also listed in
+// isAuthShellRoute so the dark global Nav stays off them.
+const MARKETING_PATHS = [
+  '/',
+  '/learn',
+  '/explore',
+  '/sandbox',
+  '/build',
+  '/partner',
+  '/organizations',
+  '/free-lesson',
+  '/about',
+  '/contact',
+  '/signin',
+  '/signup',
+] as const;
 const MARKETING_PATH_PREFIXES = ['/glossary', '/blog', '/partners', '/events'] as const;
 
 /**

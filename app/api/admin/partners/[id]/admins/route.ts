@@ -104,7 +104,7 @@ export async function POST(
 
   if (!targetUser) {
     return NextResponse.json(
-      { error: 'No user with that email. Ask the partner to sign up at /learn/auth first.' },
+      { error: 'No user with that email. Ask the partner to sign up at /signup first.' },
       { status: 404 },
     );
   }

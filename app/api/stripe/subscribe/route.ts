@@ -109,7 +109,7 @@ function buildAuthRedirect(request: NextRequest, originalPath: string): NextResp
   // Defensively sanitize even though originalPath comes from us.
   const safePath = sanitizeRedirect(originalPath, '/learn/dashboard');
   const localePrefix = url.searchParams.get('locale') === 'ja' ? '/ja' : '';
-  const target = `${origin}${localePrefix}/learn/auth?redirect=${encodeURIComponent(safePath)}`;
+  const target = `${origin}${localePrefix}/signin?redirect=${encodeURIComponent(safePath)}`;
   return NextResponse.redirect(target, 302);
 }
 

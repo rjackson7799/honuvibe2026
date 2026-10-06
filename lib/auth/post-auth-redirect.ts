@@ -32,7 +32,7 @@ export function resolvePostAuthRedirect(params: {
     case 'admin':
       return '/admin';
     case 'partner':
-      return '/partner';
+      return '/portal';
     case 'instructor':
       return '/instructor/courses';
     default:

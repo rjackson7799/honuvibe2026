@@ -121,7 +121,18 @@
     "admin": "管理画面",
     "sign_out": "ログアウト",
     "student_view": "学生ビュー",
-    "moderation": "モデレーション"
+    "moderation": "モデレーション",
+    "partner": "パートナー",
+    "signin": "ログイン",
+    "cta_get_started_free": "無料ではじめる",
+    "cta_join_vault": "Vaultに参加する",
+    "cta_start_project": "プロジェクトを始める",
+    "cta_talk_to_us": "相談する",
+    "primary_label": "メインナビゲーション",
+    "language_label": "言語",
+    "open_menu": "メニューを開く",
+    "close_menu": "メニューを閉じる",
+    "menu_label": "メニュー"
   },
   "hero": {
     "headline_en": "A Whole New",
@@ -1064,7 +1075,11 @@
     "glossary_link": "AI用語辞典",
     "newsletter_link": "ニュースレター",
     "studio_link": "スタジオ",
-    "partners_title": "パートナー"
+    "partners_title": "パートナー",
+    "about_us": "私たちについて",
+    "secondary_label": "その他のリンク",
+    "social_label": "ソーシャル",
+    "copyright": "© {year} HonuVibe.AI"
   },
   "auth": {
     "sign_in": "ログイン",
@@ -1106,7 +1121,36 @@
     "hero_line_2": "実践する。",
     "hero_line_3": "前へ進む。",
     "hero_sub": "実務に取り組む人のための、クラフト志向のAIトレーニング・スタジオ。最新のスタックとワークフローを軸に構成されています。",
-    "legal_acknowledgment": "続行することで、<terms>利用規約</terms>と<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。"
+    "legal_acknowledgment": "続行することで、<terms>利用規約</terms>と<privacy>プライバシーポリシー</privacy>に同意したものとみなされます。",
+    "tabs_label": "ログインまたは新規登録",
+    "tab_signin": "ログイン",
+    "tab_signup": "新規登録",
+    "or_with_email": "またはメールアドレスで",
+    "magic_link_instead": "代わりにログインリンクをメールで受け取る",
+    "show": "表示",
+    "hide": "非表示",
+    "email_placeholder": "you@company.com",
+    "home_label": "HonuVibeホーム",
+    "meta_signin_title": "ログイン",
+    "meta_signup_title": "無料アカウントを作成",
+    "signin_eyebrow": "おかえりなさい",
+    "signin_headline": "Vaultに戻ろう",
+    "signin_subhead": "中断したレッスンから再開しましょう。",
+    "signin_body": "コース、トラック、実践課題は前回のまま残っています。",
+    "signin_form_title": "HonuVibeにログイン",
+    "signin_form_note": "登録時のメールアドレスをご使用ください。",
+    "signin_cta": "ログイン",
+    "signin_switch_q": "HonuVibeは初めてですか？",
+    "signin_switch_a": "無料で登録",
+    "signup_eyebrow": "無料ではじめる",
+    "signup_headline": "Vaultに参加しよう",
+    "signup_subhead": "無料ではじめて、AIで本当に何かを完成させよう。",
+    "signup_body": "無料アカウントを作成して、無料レッスンからはじめましょう。準備ができたら、いつでもコースライブラリ全体にアップグレードできます。",
+    "signup_form_title": "無料アカウントを作成",
+    "signup_form_note": "アカウント作成にクレジットカードは不要です。",
+    "signup_cta": "無料アカウントを作成",
+    "signup_switch_q": "すでにアカウントをお持ちですか？",
+    "signup_switch_a": "ログイン"
   },
   "welcome": {
     "set_password_title": "次回ログインを早くするためにパスワードを設定",
@@ -3709,5 +3753,34 @@
     "invite_wrong_account_body": "この招待は {email} 宛です。一度ログアウトし、そのアドレスでログインし直してください。",
     "invite_switch_account": "アカウント設定へ",
     "error_rate_limited": "ネットワークからのリクエストが多すぎます。数分お待ちのうえ、もう一度お試しください。"
+  },
+  "build_holding": {
+    "meta_title": "Studioで作る",
+    "meta_description": "Webサイト、Webアプリ、MVP、ビジネス文書を、コースを教えるメンバーが設計・制作します。着手前に価格を確定します。",
+    "breadcrumb_home": "ホーム",
+    "breadcrumb_current": "ビルド",
+    "headline": "Studioで作る",
+    "rotator_prefix": "私たちが作るのは",
+    "rotator": [
+      "スタジオ向けの予約サイト。",
+      "お客様が使える見積もりツール。",
+      "チームのためのクライアントポータル。",
+      "投資家に見せられるMVP。"
+    ],
+    "lead": "Webサイト、Webアプリ、MVP、ビジネス文書を、コースを教えるメンバーが設計・制作します。着手前に価格を確定します。",
+    "cta_brief": "依頼内容を送る",
+    "cta_work": "制作実績を見る",
+    "we_build": "制作できるもの",
+    "chips": [
+      "Webサイト",
+      "Webアプリ",
+      "MVP",
+      "ビジネス文書"
+    ],
+    "brief_eyebrow": "プロジェクトを始める",
+    "brief_heading": "作りたいものを教えてください。",
+    "brief_body": "簡単な依頼内容をお送りください。作業開始前に、範囲と価格を確定してご連絡します。",
+    "brief_cta": "依頼フォームを開く",
+    "breadcrumb_label": "パンくずリスト"
   }
 }

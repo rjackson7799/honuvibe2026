@@ -11,10 +11,10 @@ import { LangToggle } from '@/components/layout/lang-toggle';
 import { UserMenu } from '@/components/layout/user-menu';
 
 const navItems = [
-  { href: '/partner', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/partner/courses', label: 'Courses', icon: BookOpen },
-  { href: '/partner/vault', label: 'Vault', icon: Library },
-  { href: '/partner/settings', label: 'Settings', icon: Settings },
+  { href: '/portal', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/portal/courses', label: 'Courses', icon: BookOpen },
+  { href: '/portal/vault', label: 'Vault', icon: Library },
+  { href: '/portal/settings', label: 'Settings', icon: Settings },
 ];
 
 type Props = {

@@ -163,7 +163,7 @@ export default async function BlogPostPage({ params }: Props) {
           </Section>
         </article>
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="blog_post" />
       <MarketingFooter />
     </MarketingShell>
   );

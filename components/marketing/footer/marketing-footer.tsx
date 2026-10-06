@@ -1,120 +1,92 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { SOCIAL_LINKS } from '@/lib/constants/social';
-import { STUDIO_URL } from '@/lib/constants/urls';
+import { HvContainer } from '../hv/container';
+
+const primaryLinks = [
+  { href: '/learn', key: 'learn', ns: 'nav' },
+  { href: '/build', key: 'build', ns: 'nav' },
+  { href: '/partner', key: 'partner', ns: 'nav' },
+  { href: '/about', key: 'about_us', ns: 'footer' },
+  { href: '/contact', key: 'contact', ns: 'nav' },
+] as const;
+
+const secondaryLinks = [
+  { href: '/blog', key: 'blog', ns: 'nav' },
+  { href: '/glossary', key: 'glossary_link', ns: 'footer' },
+  { href: '/privacy', key: 'privacy', ns: 'footer' },
+  { href: '/terms', key: 'terms', ns: 'footer' },
+  { href: '/cookies', key: 'cookies', ns: 'footer' },
+] as const;
+
+const social = [
+  { label: 'TikTok', href: SOCIAL_LINKS.tiktok },
+  { label: 'Instagram', href: SOCIAL_LINKS.instagram },
+  { label: 'YouTube', href: SOCIAL_LINKS.youtube },
+  { label: 'LinkedIn', href: SOCIAL_LINKS.linkedin },
+] as const;
+
+const linkClass = 'inline-flex min-h-[44px] items-center transition-colors hover:text-hv-terracotta';
 
 /**
- * Marketing footer — applies the new design treatment (navy dark band,
- * 5-col layout, social icons) to the *current* link inventory used by
- * components/layout/footer.tsx. No new footer-only pages are introduced;
- * only the visual style changes (per project directive).
+ * 2026 green footer (README "Footer"): © line plus Learn · Build · Partner ·
+ * About us · Contact, with a quieter row for Blog · Glossary · legal and the
+ * social links. Carries its own data-shell="hv" scope so it renders on the
+ * sand palette under pages whose body is still the legacy look.
  */
 export function MarketingFooter() {
   const t = useTranslations('footer');
   const nav = useTranslations('nav');
-
-  const linkClass =
-    'block text-[14px] text-white/65 transition-colors hover:text-white';
-  const colTitleClass =
-    'mb-4 text-[11.5px] font-bold uppercase tracking-[0.08em] text-white/40';
-
-  const social: Array<{ label: string; href: string }> = [
-    { label: 'TikTok', href: SOCIAL_LINKS.tiktok },
-    { label: 'IG', href: SOCIAL_LINKS.instagram },
-    { label: 'YT', href: SOCIAL_LINKS.youtube },
-    { label: 'IN', href: SOCIAL_LINKS.linkedin },
-  ];
+  const label = (l: { key: string; ns: 'nav' | 'footer' }) => (l.ns === 'nav' ? nav(l.key) : t(l.key));
 
   return (
-    <footer className="bg-[var(--m-ink-primary)] px-5 pb-10 pt-16 text-white md:px-8 md:pb-10 md:pt-[72px]">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="grid gap-12 md:grid-cols-2 md:gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr] lg:gap-12 mb-14">
-          {/* Brand */}
-          <div>
-            <div className="mb-4 flex items-center">
-              <span className="text-[18px] font-bold">
-                HonuVibe<span className="text-[var(--m-accent-teal)]">.AI</span>
-              </span>
-            </div>
-            <p className="mb-6 max-w-[220px] text-[14px] leading-[1.6] text-white/55">
-              {t('tagline')}
-            </p>
-            <div className="flex gap-3">
-              {social.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.08] text-[11px] font-bold text-white/60 transition-colors hover:bg-white/[0.12] hover:text-white"
-                >
+    <footer data-shell="hv" className="border-t border-hv-sand-300">
+      <HvContainer className="flex flex-col gap-5 pb-11 pt-12 md:pt-14">
+        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+          <Link
+            href="/"
+            className="inline-flex min-h-[44px] items-center font-hv-display text-[20px] font-bold tracking-[-0.02em] text-hv-green-900"
+          >
+            HonuVibe
+          </Link>
+          <nav aria-label={t('nav_title')}>
+            <ul className="flex flex-wrap gap-x-5 text-[15px] font-medium text-hv-green-900">
+              {primaryLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className={linkClass}>
+                    {label(l)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2 border-t border-hv-sand-300 pt-4 text-[14px] text-hv-ink-500">
+          <nav aria-label={t('secondary_label')}>
+            <ul className="flex flex-wrap gap-x-5">
+              {secondaryLinks.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className={linkClass}>
+                    {label(l)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <ul aria-label={t('social_label')} className="flex flex-wrap gap-x-5">
+            {social.map((s) => (
+              <li key={s.label}>
+                <a href={s.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
                   {s.label}
                 </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigate */}
-          <div>
-            <p className={colTitleClass}>{t('nav_title')}</p>
-            <div className="flex flex-col gap-2.5">
-              <Link href="/learn" className={linkClass}>{nav('learn')}</Link>
-              <Link href="/explore" className={linkClass}>{nav('exploration')}</Link>
-              <Link href="/sandbox" className={linkClass}>{nav('sandbox')}</Link>
-              <Link href="/partnerships" className={linkClass}>{nav('partnerships')}</Link>
-              <Link href="/about" className={linkClass}>{nav('about')}</Link>
-              <Link href="/contact" className={linkClass}>{nav('contact')}</Link>
-              <a
-                href={STUDIO_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={linkClass}
-              >
-                {t('studio_link')}
-              </a>
-            </div>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <p className={colTitleClass}>{t('resources_title')}</p>
-            <div className="flex flex-col gap-2.5">
-              <Link href="/learn/library" className={linkClass}>{nav('library')}</Link>
-              <Link href="/glossary" className={linkClass}>{t('glossary_link')}</Link>
-              <Link href="/#newsletter" className={linkClass}>{t('newsletter_link')}</Link>
-              <Link href="/blog" className={linkClass}>{nav('blog')}</Link>
-            </div>
-          </div>
-
-          {/* Partners */}
-          <div>
-            <p className={colTitleClass}>{t('partners_title')}</p>
-            <div className="flex flex-col gap-2.5">
-              <Link href="/partners/vertice-society" locale="ja" className={linkClass}>
-                Vertice Society
-              </Link>
-            </div>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <p className={colTitleClass}>{t('legal_title')}</p>
-            <div className="flex flex-col gap-2.5">
-              <Link href="/privacy" className={linkClass}>{t('privacy')}</Link>
-              <Link href="/terms" className={linkClass}>{t('terms')}</Link>
-              <Link href="/cookies" className={linkClass}>{t('cookies')}</Link>
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex flex-col items-start justify-between gap-3 border-t border-white/[0.08] pt-7 md:flex-row md:items-center">
-          <p className="text-[13px] text-white/40">
-            &copy; {new Date().getFullYear()} HonuVibe.AI &middot; All rights reserved
-          </p>
-        </div>
-      </div>
+        <p className="text-[14px] text-hv-ink-500">{t('copyright', { year: new Date().getFullYear() })}</p>
+      </HvContainer>
     </footer>
   );
 }

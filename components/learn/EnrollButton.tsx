@@ -78,7 +78,7 @@ export function EnrollButton({
     if (!isLoggedIn) {
       const prefix = locale === 'ja' ? '/ja' : '';
       router.push(
-        `${prefix}/learn/auth?redirect=${encodeURIComponent(`${prefix}/learn/${courseSlug}`)}`,
+        `${prefix}/signin?redirect=${encodeURIComponent(`${prefix}/learn/${courseSlug}`)}`,
       );
       return;
     }

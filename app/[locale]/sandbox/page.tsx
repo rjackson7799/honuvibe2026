@@ -53,7 +53,7 @@ export default async function SandboxPage({ params }: Props) {
         <SandboxDemoGrid />
         <SandboxMethodStrip />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="sandbox" />
       <MarketingFooter />
     </MarketingShell>
   );

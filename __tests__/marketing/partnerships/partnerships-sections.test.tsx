@@ -98,7 +98,7 @@ describe('Partnerships page sections', () => {
     const cta = screen.getByRole('link', {
       name: /Apply for a cohort partnership/i,
     });
-    expect(cta).toHaveAttribute('href', '/partnerships/apply?type=cohort');
+    expect(cta).toHaveAttribute('href', '#apply');
     const proofLink = screen.getByRole('link', {
       name: /Read the Vertice case study/i,
     });
@@ -170,7 +170,7 @@ describe('Partnerships page sections', () => {
     const primary = screen.getByRole('link', {
       name: /Apply for a cohort partnership/i,
     });
-    expect(primary).toHaveAttribute('href', '/partnerships/apply?type=cohort');
+    expect(primary).toHaveAttribute('href', '#apply');
     const secondary = screen.getByRole('link', {
       name: /Visit HonuVibe Studio/i,
     });

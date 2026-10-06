@@ -1,6 +1,6 @@
 /**
  * Send-login-link endpoint — general-purpose magic-link sender for the
- * /learn/auth login page.
+ * /signin page.
  *
  * Distinct from /api/auth/magic-link which is Stripe-session-gated (only
  * callable from the partner-checkout thanks page). This one is anonymous

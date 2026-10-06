@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   MarketingUserMenu,
+  signInHref,
   type MarketingUserMenuLabels,
 } from '@/components/marketing/nav/marketing-user-menu';
 
@@ -68,7 +69,7 @@ vi.mock('@/lib/supabase/client', () => ({
 }));
 
 const labels: MarketingUserMenuLabels = {
-  signIn: 'Student Login',
+  signIn: 'Sign in',
   account: 'Account',
   dashboard: 'Dashboard',
   admin: 'Admin',
@@ -81,11 +82,11 @@ describe('MarketingUserMenu', () => {
     currentRole = null;
   });
 
-  it('renders the Sign In pill linking to /learn/auth with locale-aware redirect when logged out', async () => {
+  it('renders a Sign in link to /signin carrying the current page when logged out', async () => {
     render(<MarketingUserMenu labels={labels} />);
-    const label = await screen.findByText('Student Login');
+    const label = await screen.findByText('Sign in');
     const anchor = label.closest('a');
-    expect(anchor?.getAttribute('href')).toBe('/learn/auth?redirect=%2F');
+    expect(anchor?.getAttribute('href')).toBe('/signin?redirect=%2F');
     expect(screen.queryByRole('button', { name: 'Account' })).not.toBeInTheDocument();
   });
 
@@ -102,7 +103,7 @@ describe('MarketingUserMenu', () => {
     render(<MarketingUserMenu labels={labels} />);
     const button = await screen.findByRole('button', { name: 'Account' });
     expect(button.textContent).toBe('J');
-    expect(screen.queryByText('Student Login')).not.toBeInTheDocument();
+    expect(screen.queryByText('Sign in')).not.toBeInTheDocument();
   });
 
   it('opens a dropdown with Dashboard + Sign out (no Admin) for non-admin users', async () => {
@@ -141,5 +142,18 @@ describe('MarketingUserMenu', () => {
 
     const adminLink = screen.getByText('Admin').closest('a');
     expect(adminLink?.getAttribute('href')).toBe('/admin');
+  });
+});
+
+describe('signInHref', () => {
+  it('prefixes /ja and keeps the locale-prefixed return path', () => {
+    expect(signInHref('ja', '/ja/learn')).toBe('/ja/signin?redirect=%2Fja%2Flearn');
+  });
+
+  it('drops the redirect on the auth pages themselves', () => {
+    expect(signInHref('en', '/signin')).toBe('/signin');
+    expect(signInHref('en', '/signup')).toBe('/signin');
+    expect(signInHref('ja', '/ja/signup')).toBe('/ja/signin');
+    expect(signInHref('en', null)).toBe('/signin');
   });
 });

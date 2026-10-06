@@ -31,8 +31,8 @@ type JoinShellProps = {
  * lands `safeAccentColorOn(value, surfaces)`, switch this call to the
  * learn-zone surfaces so dark-branded partners keep their colour here too.
  *
- * Chrome: `data-shell="marketing" learn-zone` mirrors /learn/auth — the surface
- * a joiner lands on seconds later. Without it this page fell through to the
+ * Chrome: `data-shell="marketing" learn-zone`, a light surface like the
+ * /signin page a joiner lands on seconds later. Without it this page fell through to the
  * retired dark `:root` palette while every other surface renders light. The
  * legacy global Nav and HonuCompanion are suppressed for /join in
  * components/layout/conditional-nav.tsx and components/ocean/honu-companion.tsx.

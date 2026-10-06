@@ -17,6 +17,14 @@ const ALLOWLIST_PREFIXES = [
   // join/invite page so the code or token is still in hand after sign-in.
   '/join',
   '/ja/join',
+  // Partner portal (sign-in from a portal deep link lands back on it) and the
+  // public Build / Partner pages (nav "Sign in" carries the current page).
+  '/portal',
+  '/ja/portal',
+  '/build',
+  '/ja/build',
+  '/partner',
+  '/ja/partner',
 ] as const;
 
 export function isSafeInternalRedirect(

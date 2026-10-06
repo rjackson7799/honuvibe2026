@@ -401,7 +401,7 @@ export default async function CourseDetailPage({ params }: Props) {
           priceJpy={course.price_jpy}
         />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="course" />
       <MarketingFooter />
 
       {/* Sticky Mobile Bar */}

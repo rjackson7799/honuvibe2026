@@ -70,7 +70,7 @@ export default async function PartnershipsApplyPage({ params, searchParams }: Pr
         </Section>
         <PartnershipsApplicationForm />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="partner_apply" />
       <MarketingFooter />
     </MarketingShell>
   );

@@ -54,7 +54,7 @@ beforeEach(() => {
 });
 
 describe('GET /api/stripe/subscribe', () => {
-  it('redirects unauthenticated visitors to /learn/auth with redirect= preserved', async () => {
+  it('redirects unauthenticated visitors to /signin with redirect= preserved', async () => {
     getUserMock.mockResolvedValue({ data: { user: null }, error: null });
 
     const res = await GET(
@@ -63,7 +63,7 @@ describe('GET /api/stripe/subscribe', () => {
 
     expect(res.status).toBe(302);
     const location = res.headers.get('location') ?? '';
-    expect(location).toContain('/learn/auth');
+    expect(location).toContain('/signin?');
     expect(location).toContain(
       'redirect=%2Fapi%2Fstripe%2Fsubscribe%3Ftier%3Dcommunity',
     );

@@ -30,7 +30,12 @@ describe('ConditionalMain padding gate', () => {
     '/explore',
     '/about',
     '/contact',
-    '/partnerships',
+    '/partner',
+    '/ja/partner',
+    '/build',
+    '/ja/build',
+    '/signin',
+    '/ja/signup',
     '/glossary',
     '/ja/glossary',
     '/glossary/transformer',
@@ -83,7 +88,7 @@ describe('ConditionalMain padding gate', () => {
     },
   );
 
-  it.each(['/honuhub', '/privacy', '/terms'])(
+  it.each(['/honuhub', '/privacy', '/terms', '/portal', '/ja/portal/courses'])(
     'keeps dark-Nav padding on legacy public route %s',
     (pathname) => {
       mockUsePathname.mockReturnValue(pathname);

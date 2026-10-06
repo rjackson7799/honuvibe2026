@@ -26,7 +26,7 @@ describe('resolvePostAuthRedirect', () => {
 
   it('applies role-based defaults for an onboarded user with no explicit redirect', () => {
     expect(resolvePostAuthRedirect({ explicitRedirect: null, onboarded: true, role: 'admin' })).toBe('/admin');
-    expect(resolvePostAuthRedirect({ explicitRedirect: null, onboarded: true, role: 'partner' })).toBe('/partner');
+    expect(resolvePostAuthRedirect({ explicitRedirect: null, onboarded: true, role: 'partner' })).toBe('/portal');
     expect(
       resolvePostAuthRedirect({ explicitRedirect: null, onboarded: true, role: 'instructor' }),
     ).toBe('/instructor/courses');

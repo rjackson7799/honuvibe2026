@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { sendStudentOnboardingEmail } from '@/lib/email/send';
 import { resolvePostAuthRedirect } from '@/lib/auth/post-auth-redirect';
+import { isSafeInternalRedirect } from '@/lib/auth/safe-redirect';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -72,6 +73,11 @@ export async function GET(request: Request) {
     }
   }
 
-  // Return to auth page on error
-  return NextResponse.redirect(new URL('/learn/auth', origin));
+  // Return to the sign-in page on error. Magic links (implicit flow, no ?code)
+  // also land here; the browser carries their #access_token hash across this
+  // redirect, and AuthForm on /signin turns it into a session — keeping a safe
+  // ?redirect so the visitor lands back on the join page / portal they came from.
+  const signIn = new URL('/signin', origin);
+  if (isSafeInternalRedirect(explicitRedirect)) signIn.searchParams.set('redirect', explicitRedirect!);
+  return NextResponse.redirect(signIn);
 }

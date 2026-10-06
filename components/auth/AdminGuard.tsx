@@ -12,7 +12,7 @@ export async function AdminGuard({ children, locale }: AdminGuardProps) {
 
   if (!user) {
     const prefix = locale === 'ja' ? '/ja' : '';
-    redirect(`${prefix}/learn/auth`);
+    redirect(`${prefix}/signin`);
   }
 
   const { data: profile } = await supabase

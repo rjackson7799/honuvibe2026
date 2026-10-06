@@ -1,153 +1,106 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Menu } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
-import { MarketingLangToggle } from './marketing-lang-toggle';
+import { HvLangToggle } from '../hv/lang-toggle';
 import { MarketingUserMenu, type MarketingUserMenuLabels } from './marketing-user-menu';
-import { MarketingMobileMenu, type MobileNavLink } from './marketing-mobile-menu';
+import { MarketingMobileSheet } from './marketing-mobile-sheet';
 import { MarketingEventStrip } from '../event-strip';
+import { isActiveNavHref } from './nav-cta';
+import {
+  NavCtaAnchor,
+  navCtaClass,
+  type MarketingNavLabels,
+  type NavCtaLink,
+  type NavLink,
+} from './nav-cta-anchor';
 import type { PublicEvent } from '@/lib/events/public-events';
 
 type Props = {
-  links: MobileNavLink[];
-  /** Show the "Get Started" CTA — homepage only per design. */
-  showGetStarted: boolean;
-  getStartedLabel: string;
+  links: NavLink[];
+  /** Page CTA (amber, 44px). null hides it. */
+  cta: NavCtaLink | null;
   userMenuLabels: MarketingUserMenuLabels;
+  labels: MarketingNavLabels;
   /** Featured announcement-strip event, resolved server-side. null hides the strip. */
   bannerEvent: PublicEvent | null;
 };
 
-export function MarketingNavClient({
-  links,
-  showGetStarted,
-  getStartedLabel,
-  userMenuLabels,
-  bannerEvent,
-}: Props) {
+/**
+ * README "Header": sticky #0E3629 bar with a #16483A bottom border. Fixed (not
+ * sticky) so it can sit under the admin-toggled event strip, which publishes
+ * its height to --m-strip-h; 68px tall so every page's existing top padding
+ * still clears it.
+ */
+export function MarketingNavClient({ links, cta, userMenuLabels, labels, bannerEvent }: Props) {
   const pathname = usePathname();
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      requestAnimationFrame(() => {
-        setScrolled((prev) => {
-          const next = window.scrollY > 20;
-          return prev === next ? prev : next;
-        });
-        ticking = false;
-      });
-      ticking = true;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Determine active link by exact pathname match (locale-stripped via next-intl).
-  const activeHref = links.find((l) => l.href === pathname)?.href ?? null;
-
-  // Per design, the Partnerships link uses coral active accent; everything else teal.
-  const partnershipsActive = activeHref === '/partnerships';
-  const activeColor = partnershipsActive
-    ? 'var(--m-accent-coral)'
-    : 'var(--m-accent-teal)';
 
   return (
     <>
       <MarketingEventStrip event={bannerEvent} />
-      <nav
-        className={cn(
-          'fixed inset-x-0 top-[var(--m-strip-h)] z-[200] h-[68px] bg-[var(--m-canvas)]',
-          'transition-[border-color,box-shadow] duration-300',
-          scrolled
-            ? 'border-b border-[rgba(26,43,51,0.1)] shadow-[0_2px_20px_rgba(26,43,51,0.06)]'
-            : 'border-b border-transparent shadow-none',
-        )}
-      >
-        <div className="mx-auto flex h-full max-w-[1200px] items-center justify-between px-5 md:px-8">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-[18px] font-bold tracking-[-0.01em] text-[var(--m-ink-primary)]">
-              HonuVibe<span className="text-[var(--m-accent-teal)]">.AI</span>
-            </span>
+      <header className="fixed inset-x-0 top-[var(--m-strip-h)] z-[200] h-[68px] border-b border-hv-green-800 bg-hv-green-900 text-hv-sand-100">
+        <div className="mx-auto flex h-full max-w-[var(--hv-container)] items-center gap-7 px-5 md:px-8">
+          <Link
+            href="/"
+            className="inline-flex min-h-[44px] items-center font-hv-display text-[20px] font-bold tracking-[-0.02em] text-hv-sand-100"
+          >
+            HonuVibe
           </Link>
 
-          {/* Desktop links */}
-          <div className="hidden items-center gap-8 lg:flex">
+          <nav aria-label={labels.primary} className="hidden items-center gap-[22px] text-[15px] lg:flex">
             {links.map((link) => {
-              const isActive = link.href === activeHref;
+              const active = isActiveNavHref(pathname, link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'pb-0.5 text-[14.5px] transition-colors duration-200',
-                    isActive
-                      ? 'font-semibold'
-                      : 'font-medium text-[var(--m-ink-secondary)] hover:text-[var(--m-ink-primary)]',
+                    'inline-flex min-h-[44px] items-center transition-colors duration-200',
+                    active
+                      ? 'text-hv-sand-100 shadow-[inset_0_-2px_0_var(--hv-amber)]'
+                      : 'text-hv-green-200 hover:text-hv-sand-100',
                   )}
-                  style={
-                    isActive
-                      ? {
-                          color: activeColor,
-                          borderBottom: `2px solid ${activeColor}`,
-                        }
-                      : undefined
-                  }
                 >
                   {link.label}
                 </Link>
               );
             })}
-          </div>
+          </nav>
 
-          {/* Right controls */}
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-3 lg:flex">
-              <MarketingLangToggle />
+          <div className="ml-auto flex items-center gap-3 sm:gap-[18px]">
+            <div className="hidden items-center gap-[18px] lg:flex">
+              <HvLangToggle tone="dark" label={labels.language} />
               <MarketingUserMenu labels={userMenuLabels} />
-              {showGetStarted && (
-                <Link
-                  href="/learn#vault"
-                  className={cn(
-                    'inline-flex items-center gap-2 rounded-lg px-5 py-2',
-                    'bg-[var(--m-accent-teal)] text-[14px] font-semibold text-white',
-                    'shadow-[var(--m-shadow-teal-sm)] transition-colors',
-                    'hover:bg-[var(--m-accent-teal-dark)]',
-                  )}
-                >
-                  {getStartedLabel}
-                </Link>
-              )}
             </div>
-
-            {/* Mobile hamburger */}
+            {cta && (
+              <NavCtaAnchor cta={cta} className={cn(navCtaClass, 'px-3.5 text-[14px] sm:px-[18px] sm:text-[15px]')} />
+            )}
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
-              className="flex h-10 w-10 items-center justify-center rounded-md text-[var(--m-ink-primary)] transition-colors hover:bg-[var(--m-sand)] lg:hidden"
+              aria-label={labels.openMenu}
+              aria-expanded={mobileOpen}
+              aria-haspopup="dialog"
+              className="flex h-11 w-11 items-center justify-center rounded-[8px] text-hv-sand-100 transition-colors hover:bg-hv-green-800 lg:hidden"
             >
-              <Menu size={22} />
+              <Menu size={22} aria-hidden />
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <MarketingMobileMenu
+      <MarketingMobileSheet
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         links={links}
-        activeHref={activeHref}
-        showGetStarted={showGetStarted}
-        getStartedLabel={getStartedLabel}
+        pathname={pathname}
+        cta={cta}
         userMenuLabels={userMenuLabels}
+        labels={labels}
       />
     </>
   );

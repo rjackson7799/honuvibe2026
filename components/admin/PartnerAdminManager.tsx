@@ -95,7 +95,7 @@ export function PartnerAdminManager({ partnerId, initialAdmins }: Props) {
     <SectionCard id="portal-access" number={5} title="Portal access">
       <p className="text-sm text-fg-tertiary">
         Users listed here can sign in and see this partner&apos;s aggregate metrics at
-        <code className="mx-1 rounded bg-bg-tertiary px-1.5 py-0.5 text-xs">/partner/</code>.
+        <code className="mx-1 rounded bg-bg-tertiary px-1.5 py-0.5 text-xs">/portal</code>.
         They cannot see individual student data.
       </p>
 
@@ -145,7 +145,7 @@ export function PartnerAdminManager({ partnerId, initialAdmins }: Props) {
       {error && <p className="text-sm text-red-500">{error}</p>}
       {message && <p className="text-sm text-accent-teal">{message}</p>}
       <p className="text-xs text-fg-tertiary">
-        The user must sign up at <code>/learn/auth</code> first. Granting access promotes their role
+        The user must sign up at <code>/signup</code> first. Granting access promotes their role
         to <code>partner</code>.
       </p>
     </SectionCard>

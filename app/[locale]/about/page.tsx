@@ -52,7 +52,7 @@ export default async function AboutPage({ params }: Props) {
         <AboutMissionVision />
         <AboutFinalCta />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="about" />
       <MarketingFooter />
     </MarketingShell>
   );

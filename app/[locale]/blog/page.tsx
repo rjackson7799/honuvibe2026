@@ -127,7 +127,7 @@ export default async function BlogPage({ params, searchParams }: Props) {
           </Container>
         </Section>
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="blog" />
       <MarketingFooter />
     </MarketingShell>
   );

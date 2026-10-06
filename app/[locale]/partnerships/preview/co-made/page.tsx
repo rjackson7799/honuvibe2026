@@ -42,7 +42,7 @@ export default async function PartnershipsComadePreview({ params }: Props) {
         <ComadeCurrentlyMaking />
         <ComadeLetsMakeSomething />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="partner_comade" />
       <MarketingFooter />
     </MarketingShell>
   );

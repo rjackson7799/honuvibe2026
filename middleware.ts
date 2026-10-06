@@ -10,7 +10,8 @@ const PROTECTED_PREFIXES = [
   '/learn/dashboard',
   '/learn/account',
   '/admin',
-  '/partner',
+  // Partner portal (moved from /partner, which is now the public Partner page).
+  '/portal',
   '/instructor',
 ];
 
@@ -18,7 +19,7 @@ const PROTECTED_PREFIXES = [
 const ADMIN_PREFIXES = ['/admin'];
 
 // Routes that require partner (or admin, for preview) role
-const PARTNER_PREFIXES = ['/partner'];
+const PARTNER_PREFIXES = ['/portal'];
 
 // Routes that require instructor (or admin) role
 const INSTRUCTOR_PREFIXES = ['/instructor'];
@@ -205,7 +206,7 @@ export default async function middleware(request: NextRequest) {
     const locale = pathname.startsWith('/ja') ? 'ja' : 'en';
     const prefix = locale === 'ja' ? '/ja' : '';
     const redirectUrl = new URL(
-      `${prefix}/learn/auth`,
+      `${prefix}/signin`,
       request.url,
     );
     redirectUrl.searchParams.set('redirect', pathname);

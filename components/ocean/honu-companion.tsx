@@ -43,9 +43,10 @@ export function HonuCompanion() {
   // Marketing pages have a light canvas — the dark-mode honu glows
   // would visually clash, so suppress on those routes.
   if (isMarketingPathWithLocale(pathname)) return null;
-  // Auth shell routes (/learn/auth, /learn/dashboard, /learn/vault, /admin,
-  // /join) own their full viewport and shouldn't have a floating decoration.
-  if (/^\/(ja\/)?(learn\/(dashboard|vault|auth)|admin|join)(\/|$)/.test(pathname)) return null;
+  // App and auth shells (/signin, /signup, /learn/dashboard, /learn/vault,
+  // /learn/paths, /learn/plans, /admin, /join, /portal) own their full
+  // viewport and shouldn't have a floating decoration.
+  if (/^\/(ja\/)?(learn\/(dashboard|vault|auth|paths|plans)|signin|signup|admin|join|portal)(\/|$)/.test(pathname)) return null;
 
   const rotation = Math.sin(scrollProgress * Math.PI * 4) * 12;
   const yPosition = 10 + scrollProgress * 70; // 10% to 80% of viewport

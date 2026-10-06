@@ -1,11 +1,13 @@
 import { getTranslations } from 'next-intl/server';
 import { NavClient } from './nav-client';
 
+// Same doors as the green marketing header (Learn · Build · Partner) plus
+// About and Contact, for the routes still on this dark Nav (/honuhub, legal
+// pages, /learn/library, /portal …).
 const navLinks = [
-  { href: '/honuhub', key: 'honuhub' },
-  { href: '/explore', key: 'exploration' },
-  { href: '/build', key: 'build' },
   { href: '/learn', key: 'learn' },
+  { href: '/build', key: 'build' },
+  { href: '/partner', key: 'partner' },
   { href: '/about', key: 'about' },
   { href: '/contact', key: 'contact' },
 ] as const;

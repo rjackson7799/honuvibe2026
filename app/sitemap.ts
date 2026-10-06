@@ -12,6 +12,7 @@ const routes = [
   '/explore',
   '/sandbox',
   '/build',
+  '/partner',
   '/about',
   '/community',
   '/contact',

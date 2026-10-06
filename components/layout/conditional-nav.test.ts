@@ -9,6 +9,11 @@ import { isAuthShellRoute } from './conditional-nav';
 // dark Nav is exact-match only; these tests pin both sides of it.
 
 const CHROMELESS = [
+  // Split-screen sign in / sign up — own wordmark, own language pill.
+  '/signin',
+  '/signup',
+  '/ja/signin',
+  '/ja/signup',
   '/join',
   '/join/abc123',
   '/ja/join/abc123',
@@ -41,6 +46,13 @@ const CHROMELESS = [
 
 const KEEPS_NAV = [
   '/',
+  // The partner portal keeps the global dark Nav, as /partner/* did before
+  // the move.
+  '/portal',
+  '/portal/courses',
+  '/ja/portal/settings',
+  '/signing',
+  '/signups',
   '/learn',
   '/learn/courses',
   '/about',

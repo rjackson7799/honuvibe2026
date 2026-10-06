@@ -102,7 +102,7 @@ export default async function JoinCodePage({ params }: Props) {
   } = await supabase.auth.getUser();
 
   const returnPath = `${prefix}/join/${normalized}`;
-  const authHref = `${prefix}/learn/auth?redirect=${encodeURIComponent(returnPath)}`;
+  const authHref = `${prefix}/signin?redirect=${encodeURIComponent(returnPath)}`;
 
   return (
     <JoinShell

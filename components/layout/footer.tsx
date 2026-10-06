@@ -21,26 +21,23 @@ export function Footer() {
             <p className="text-[13px] text-fg-tertiary">{t('tagline')}</p>
           </div>
 
-          {/* Link groups — 4 columns side by side */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-10 lg:gap-x-14 gap-y-6">
+          {/* Link groups — 3 columns side by side */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-10 lg:gap-x-14 gap-y-6">
             {/* Navigate */}
             <div className="flex flex-col gap-1.5">
               <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('nav_title')}</h4>
-              <Link href="/honuhub" className={linkClass}>{nav('honuhub')}</Link>
-              <Link href="/explore" className={linkClass}>{nav('exploration')}</Link>
               <Link href="/learn" className={linkClass}>{nav('learn')}</Link>
-              <Link href="/community" className={linkClass}>{nav('community')}</Link>
-              <Link href="/about" className={linkClass}>{nav('about')}</Link>
+              <Link href="/build" className={linkClass}>{nav('build')}</Link>
+              <Link href="/partner" className={linkClass}>{nav('partner')}</Link>
+              <Link href="/about" className={linkClass}>{t('about_us')}</Link>
               <Link href="/contact" className={linkClass}>{nav('contact')}</Link>
             </div>
 
             {/* Resources */}
             <div className="flex flex-col gap-1.5">
               <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('resources_title')}</h4>
-              <Link href="/learn/library" className={linkClass}>{nav('library')}</Link>
-              <Link href="/glossary" className={linkClass}>{t('glossary_link')}</Link>
-              <Link href="/newsletter" className={linkClass}>{t('newsletter_link')}</Link>
               <Link href="/blog" className={linkClass}>{nav('blog')}</Link>
+              <Link href="/glossary" className={linkClass}>{t('glossary_link')}</Link>
             </div>
 
             {/* Legal */}
@@ -49,12 +46,6 @@ export function Footer() {
               <Link href="/privacy" className={linkClass}>{t('privacy')}</Link>
               <Link href="/terms" className={linkClass}>{t('terms')}</Link>
               <Link href="/cookies" className={linkClass}>{t('cookies')}</Link>
-            </div>
-
-            {/* Partners */}
-            <div className="flex flex-col gap-1.5">
-              <h4 className="text-xs font-semibold text-fg-primary uppercase tracking-wider mb-1">{t('partners_title')}</h4>
-              <Link href="/partners/vertice-society" locale="ja" className={linkClass}>Vertice Society</Link>
             </div>
           </div>
         </div>

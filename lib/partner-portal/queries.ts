@@ -52,8 +52,8 @@ export type DailyEnrollmentPoint = { date: string; count: number };
  * - role 'partner' → their partner_admins row
  * - role 'admin'   → the partner specified by `previewId` (admin preview mode)
  *
- * Redirects unauthenticated callers to /learn/auth and unauthorized callers
- * to /learn/dashboard. Returns null only when an admin is on /partner/* without
+ * Redirects unauthenticated callers to /signin and unauthorized callers
+ * to /learn/dashboard. Returns null only when an admin is on /portal/* without
  * a preview id (so the caller can redirect to /admin/partners).
  */
 export async function resolvePartnerScope(opts: {
@@ -67,7 +67,7 @@ export async function resolvePartnerScope(opts: {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect(`${prefix}/learn/auth`);
+  if (!user) redirect(`${prefix}/signin?redirect=${encodeURIComponent(`${prefix}/portal`)}`);
 
   const { data: profile } = await supabase
     .from('users')

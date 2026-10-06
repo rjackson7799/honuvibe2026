@@ -43,7 +43,7 @@ export default async function ExplorationPage({ params }: Props) {
         <ExploreQuestions />
         <ExploreNextIssue />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="explore" />
       <MarketingFooter />
     </MarketingShell>
   );

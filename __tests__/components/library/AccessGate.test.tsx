@@ -38,8 +38,14 @@ describe('AccessGate', () => {
   it('has correct signup URL with redirect', () => {
     render(<AccessGate {...defaultProps} />);
     const signupLink = screen.getByText('Sign Up Free').closest('a');
-    expect(signupLink?.getAttribute('href')).toContain('/learn/auth');
+    expect(signupLink?.getAttribute('href')).toContain('/signup?');
     expect(signupLink?.getAttribute('href')).toContain('redirect=');
+  });
+
+  it('sends returning members to /signin with the same redirect', () => {
+    render(<AccessGate {...defaultProps} />);
+    const loginLink = screen.getByText('Already have an account? Log in').closest('a');
+    expect(loginLink?.getAttribute('href')).toMatch(/^(\/ja)?\/signin\?redirect=/);
   });
 
   it('renders thumbnail as blurred background', () => {

@@ -37,7 +37,7 @@ export default async function ContactPage({ params }: Props) {
         <ContactInfoStrip />
         <ContactSocialSection />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="contact" />
       <MarketingFooter />
     </MarketingShell>
   );

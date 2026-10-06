@@ -12,7 +12,7 @@ export function LearnVaultPreviewCards({ items }: { items: VaultContentItem[] })
   const handleLockedClick = (slug: string) => {
     const prefix = locale === 'ja' ? '/ja' : '';
     const redirect = `${prefix}/learn/vault/${slug}`;
-    router.push(`/learn/auth?intent=vault&redirect=${encodeURIComponent(redirect)}`);
+    router.push(`${prefix}/signup?intent=vault&redirect=${encodeURIComponent(redirect)}`);
   };
 
   return (

@@ -2,24 +2,25 @@ import { getTranslations } from 'next-intl/server';
 import { getCachedBannerSetting } from '@/lib/marketing/banner';
 import { publicEventBySlug } from '@/lib/events/public-events';
 import { MarketingNavClient } from './marketing-nav-client';
-
-const navLinks = [
-  { href: '/learn', key: 'learn' },
-  { href: '/explore', key: 'exploration' },
-  { href: '/sandbox', key: 'sandbox' },
-  { href: '/partnerships', key: 'partnerships' },
-  { href: '/about', key: 'about' },
-  { href: '/contact', key: 'contact' },
-] as const;
+import { NAV_CTA_HREF, PRIMARY_NAV_LINKS, type NavCta } from './nav-cta';
 
 type MarketingNavProps = {
-  /** Show the "Get Started" CTA. Defaults to true; pass false to opt out (e.g. checkout flows). */
-  showGetStarted?: boolean;
+  /**
+   * Page-specific amber CTA (README "Header"). Defaults to "Get started free"
+   * → /signup. Pass null to hide it (e.g. checkout flows).
+   */
+  cta?: NavCta | null;
 };
 
-export async function MarketingNav({ showGetStarted = true }: MarketingNavProps = {}) {
+/**
+ * 2026 green header (docs/design_2026_green README "Header"): dark green
+ * sticky bar, Learn · Build · Partner, EN/日本語 pill, Sign in, page CTA.
+ * It carries its own data-shell="hv" scope so it renders green on pages whose
+ * body is still on the legacy --m-* look (the accepted cutover state).
+ */
+export async function MarketingNav({ cta = 'get_started_free' }: MarketingNavProps = {}) {
   const t = await getTranslations('nav');
-  const links = navLinks.map((l) => ({ href: l.href, label: t(l.key) }));
+  const links = PRIMARY_NAV_LINKS.map((l) => ({ href: l.href, label: t(l.key) }));
 
   // Resolve the featured banner event server-side: content is hand-authored in
   // lib/events/public-events.ts; visibility + selection come from site_settings.
@@ -28,7 +29,7 @@ export async function MarketingNav({ showGetStarted = true }: MarketingNavProps 
     banner.enabled && banner.slug ? publicEventBySlug(banner.slug) : null;
 
   const userMenuLabels = {
-    signIn: t('sign_in'),
+    signIn: t('signin'),
     account: t('account'),
     dashboard: t('dashboard'),
     admin: t('admin'),
@@ -36,12 +37,20 @@ export async function MarketingNav({ showGetStarted = true }: MarketingNavProps 
   };
 
   return (
-    <MarketingNavClient
-      links={links}
-      showGetStarted={showGetStarted}
-      getStartedLabel={t('get_started')}
-      userMenuLabels={userMenuLabels}
-      bannerEvent={bannerEvent}
-    />
+    <div data-shell="hv" className="contents">
+      <MarketingNavClient
+        links={links}
+        cta={cta ? { label: t(`cta_${cta}`), href: NAV_CTA_HREF[cta] } : null}
+        userMenuLabels={userMenuLabels}
+        labels={{
+          primary: t('primary_label'),
+          language: t('language_label'),
+          openMenu: t('open_menu'),
+          closeMenu: t('close_menu'),
+          menu: t('menu_label'),
+        }}
+        bannerEvent={bannerEvent}
+      />
+    </div>
   );
 }

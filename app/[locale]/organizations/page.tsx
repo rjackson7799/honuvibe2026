@@ -131,7 +131,7 @@ export default async function OrganizationsPage({ params }: Props) {
           </Container>
         </Section>
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="organizations" />
       <MarketingFooter />
     </MarketingShell>
   );

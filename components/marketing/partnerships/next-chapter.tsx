@@ -34,7 +34,7 @@ export function PartnershipsNextChapter() {
               <p className="text-[16px] leading-[1.7] text-white/85">{t('lede')}</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Button
-                  href="/partnerships/apply?type=cohort"
+                  href="#apply"
                   variant="primary-teal"
                   size="md"
                   withArrow

@@ -5,6 +5,7 @@ import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 
 // Routes that have their own dedicated chrome (e.g. StudentDashboardLayout's
 // sidebar) and should NOT render the marketing top nav.
+// /signin and /signup (split-screen auth with their own wordmark),
 // /learn/auth, /join/*, the client discovery questionnaire (/discovery/<id>,
 // slice 2 of the engagement spine), the client proposal page
 // (/proposal/<id>, slice 3) and the tokenized survey pages
@@ -15,7 +16,7 @@ import { isMarketingPathWithLocale } from '@/lib/marketing-routes';
 // built for the dark Nav, so it is deliberately excluded; /events/<slug>
 // itself keeps the Nav — only its /survey child is a card.
 export function isAuthShellRoute(pathname: string) {
-  return /^\/(ja\/)?(learn\/(dashboard|vault|auth|paths)|admin|join|discovery|proposal|survey\/(?!ai-essentials(?:\/|$))[^/]+|events\/[^/]+\/survey)(\/|$)/.test(
+  return /^\/(ja\/)?(learn\/(dashboard|vault|auth|paths)|admin|join|signin|signup|discovery|proposal|survey\/(?!ai-essentials(?:\/|$))[^/]+|events\/[^/]+\/survey)(\/|$)/.test(
     pathname,
   );
 }

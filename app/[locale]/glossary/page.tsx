@@ -61,7 +61,7 @@ export default async function GlossaryPage({ params }: Props) {
         />
         <GlossaryIndexContent terms={terms} />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="glossary" />
       <MarketingFooter />
     </MarketingShell>
   );

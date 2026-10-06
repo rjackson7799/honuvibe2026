@@ -10,6 +10,18 @@ describe('isSafeInternalRedirect', () => {
     expect(isSafeInternalRedirect('/api/stripe/subscribe?tier=vault&locale=ja')).toBe(true);
     expect(isSafeInternalRedirect('/join/ABCD2345')).toBe(true);
     expect(isSafeInternalRedirect('/ja/join/invite/deadbeef')).toBe(true);
+    expect(isSafeInternalRedirect('/portal')).toBe(true);
+    expect(isSafeInternalRedirect('/ja/portal/courses')).toBe(true);
+    expect(isSafeInternalRedirect('/build')).toBe(true);
+    expect(isSafeInternalRedirect('/ja/partner')).toBe(true);
+    expect(isSafeInternalRedirect('/partner?ref=nav')).toBe(true);
+  });
+
+  it('does not let /partner or /portal widen to similar prefixes', () => {
+    expect(isSafeInternalRedirect('/partners/vertice-society')).toBe(false);
+    expect(isSafeInternalRedirect('/partnerships')).toBe(false);
+    expect(isSafeInternalRedirect('/portals')).toBe(false);
+    expect(isSafeInternalRedirect('/builder')).toBe(false);
   });
 
   it('rejects protocol-relative URLs', () => {

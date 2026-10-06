@@ -15,7 +15,7 @@ export async function InstructorGuard({ children, locale }: Props) {
   const prefix = locale === 'ja' ? '/ja' : '';
 
   if (!user) {
-    redirect(`${prefix}/learn/auth?redirect=${prefix}/instructor/courses`);
+    redirect(`${prefix}/signin?redirect=${prefix}/instructor/courses`);
   }
 
   const { data: profile } = await supabase

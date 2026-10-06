@@ -121,7 +121,18 @@
     "admin": "Admin",
     "sign_out": "Sign Out",
     "student_view": "Student View",
-    "moderation": "Moderation"
+    "moderation": "Moderation",
+    "partner": "Partner",
+    "signin": "Sign in",
+    "cta_get_started_free": "Get started free",
+    "cta_join_vault": "Join the Vault",
+    "cta_start_project": "Start a project",
+    "cta_talk_to_us": "Talk to us",
+    "primary_label": "Main",
+    "language_label": "Language",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "menu_label": "Menu"
   },
   "hero": {
     "headline_en": "A Whole New",
@@ -1064,7 +1075,11 @@
     "glossary_link": "AI Glossary",
     "newsletter_link": "Newsletter",
     "studio_link": "Studio",
-    "partners_title": "Partners"
+    "partners_title": "Partners",
+    "about_us": "About us",
+    "secondary_label": "More links",
+    "social_label": "Social",
+    "copyright": "© {year} HonuVibe.AI"
   },
   "auth": {
     "sign_in": "Sign In",
@@ -1106,7 +1121,36 @@
     "hero_line_2": "Practice it.",
     "hero_line_3": "Move forward.",
     "hero_sub": "A craft-focused training studio for the people doing the actual work — built around modern stacks and workflows.",
-    "legal_acknowledgment": "By continuing, you agree to our <terms>Terms</terms> and <privacy>Privacy Policy</privacy>."
+    "legal_acknowledgment": "By continuing, you agree to our <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+    "tabs_label": "Sign in or sign up",
+    "tab_signin": "Sign in",
+    "tab_signup": "Sign up",
+    "or_with_email": "or with email",
+    "magic_link_instead": "Email me a sign-in link instead",
+    "show": "Show",
+    "hide": "Hide",
+    "email_placeholder": "you@company.com",
+    "home_label": "HonuVibe home",
+    "meta_signin_title": "Sign in",
+    "meta_signup_title": "Create your free account",
+    "signin_eyebrow": "Welcome back",
+    "signin_headline": "Back to the Vault",
+    "signin_subhead": "Pick up the lesson you left off.",
+    "signin_body": "Your courses, tracks and practice tasks are where you left them.",
+    "signin_form_title": "Sign in to HonuVibe",
+    "signin_form_note": "Use the email you joined with.",
+    "signin_cta": "Sign in",
+    "signin_switch_q": "New to HonuVibe?",
+    "signin_switch_a": "Join for free",
+    "signup_eyebrow": "Start free",
+    "signup_headline": "Join the Vault",
+    "signup_subhead": "Start free. Finish something real with AI.",
+    "signup_body": "Create a free account and start with the free lessons. Upgrade to the full course library whenever you’re ready.",
+    "signup_form_title": "Create your free account",
+    "signup_form_note": "No card needed to create an account.",
+    "signup_cta": "Create free account",
+    "signup_switch_q": "Already a member?",
+    "signup_switch_a": "Sign in"
   },
   "welcome": {
     "set_password_title": "Set a password for faster sign-in",
@@ -3709,5 +3753,34 @@
     "invite_wrong_account_body": "This invitation was sent to {email}. Sign out and sign back in with that address to accept it.",
     "invite_switch_account": "Go to account settings",
     "error_rate_limited": "Too many attempts from your network right now. Please wait a few minutes and try again."
+  },
+  "build_holding": {
+    "meta_title": "Build in our Studio",
+    "meta_description": "Websites, web apps, MVPs and business documents, designed and shipped by the people who teach the courses. Fixed price before we start.",
+    "breadcrumb_home": "Home",
+    "breadcrumb_current": "Build",
+    "headline": "Build in our Studio",
+    "rotator_prefix": "We’ll build",
+    "rotator": [
+      "a booking site for your studio.",
+      "a quote tool customers can use.",
+      "a client portal for your team.",
+      "an MVP you can show investors."
+    ],
+    "lead": "Websites, web apps, MVPs and business documents, designed and shipped by the people who teach the courses. Fixed price before we start.",
+    "cta_brief": "Start a brief",
+    "cta_work": "See our work",
+    "we_build": "We build",
+    "chips": [
+      "Websites",
+      "Web apps",
+      "MVPs",
+      "Business documents"
+    ],
+    "brief_eyebrow": "Start a project",
+    "brief_heading": "Tell us what you want built.",
+    "brief_body": "Send a short brief. We reply with a fixed scope and price before any work starts.",
+    "brief_cta": "Open the project brief",
+    "breadcrumb_label": "Breadcrumb"
   }
 }

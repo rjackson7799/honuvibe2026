@@ -72,7 +72,7 @@ export default async function LearnPage({ params, searchParams }: Props) {
         <LearnFAQ />
         <LearnStartTonight />
       </main>
-      <MarketingNewsletter />
+      <MarketingNewsletter source="learn" />
       <MarketingFooter />
     </MarketingShell>
   );

@@ -93,25 +93,25 @@ export function MarketingEventStrip({ event }: { event: PublicEvent | null }) {
       ref={ref}
       role="region"
       aria-label={t('strip_aria')}
-      className="fixed inset-x-0 top-0 z-[201] bg-[var(--m-ink-primary)] text-white motion-safe:transition-colors"
+      className="fixed inset-x-0 top-0 z-[201] border-b border-hv-green-800 bg-hv-green-950 text-hv-sand-100 motion-safe:transition-colors"
     >
-      <div className="mx-auto flex max-w-[1200px] items-center gap-2 px-5 md:px-8">
+      <div className="mx-auto flex max-w-[var(--hv-container)] items-center gap-2 px-5 md:px-8">
         <Link
           href={`/events/${active.slug}`}
           className="group flex min-w-0 flex-1 items-center gap-2.5 py-2.5"
         >
           <CalendarDays
             size={16}
-            className="shrink-0 text-[var(--m-accent-teal)]"
+            className="shrink-0 text-hv-amber"
             aria-hidden
           />
           <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px] leading-snug md:text-[13.5px]">
             <span className="font-semibold">{blurb}</span>
-            <span className="text-white/80">
+            <span className="text-hv-green-200">
               {title} · {when}
             </span>
           </span>
-          <span className="ml-1 hidden shrink-0 items-center gap-1 text-[13px] font-semibold text-[var(--m-accent-teal)] sm:inline-flex">
+          <span className="ml-1 hidden shrink-0 items-center gap-1 text-[13px] font-semibold text-hv-amber sm:inline-flex">
             {t('strip_cta')}
             <ArrowRight
               size={14}
@@ -124,7 +124,7 @@ export function MarketingEventStrip({ event }: { event: PublicEvent | null }) {
           type="button"
           onClick={handleDismiss}
           aria-label={t('strip_dismiss')}
-          className="-mr-2.5 flex h-11 w-11 shrink-0 items-center justify-center text-white/60 transition-colors hover:text-white"
+          className="-mr-2.5 flex h-11 w-11 shrink-0 items-center justify-center text-hv-green-400 transition-colors hover:text-hv-sand-100"
         >
           <X size={18} aria-hidden />
         </button>

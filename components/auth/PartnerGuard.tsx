@@ -14,7 +14,7 @@ export async function PartnerGuard({ children, locale }: PartnerGuardProps) {
 
   if (!user) {
     const prefix = locale === 'ja' ? '/ja' : '';
-    redirect(`${prefix}/learn/auth`);
+    redirect(`${prefix}/signin?redirect=${encodeURIComponent(`${prefix}/portal`)}`);
   }
 
   const { data: profile } = await supabase

@@ -2,23 +2,40 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, EyeOff } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useTranslations, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { sanitizeRedirect } from '@/lib/auth/safe-redirect';
+import { isSafeInternalRedirect, sanitizeRedirect } from '@/lib/auth/safe-redirect';
 
 type AuthMode = 'sign-in' | 'sign-up' | 'forgot';
+export type AuthTabMode = 'sign-in' | 'sign-up';
 
-export function AuthForm() {
+type AuthFormProps = {
+  /** Which tab opens first (/signin → sign-in, /signup → sign-up). Re-syncs when it changes. */
+  initialMode?: AuthTabMode;
+  /** Called when the visitor switches tabs, so the page can move between /signin and /signup. */
+  onModeChange?: (mode: AuthTabMode) => void;
+  /** Design flag `showMagicLink`: the "Email me a sign-in link instead" button (sign-in mode). */
+  showMagicLink?: boolean;
+};
+
+/**
+ * Sign in / sign up / forgot-password form for /signin and /signup
+ * (docs/design_2026_green "06 Sign In"). Renders inside the [data-shell="hv"]
+ * scope of AuthSplitLayout. The auth logic (password, Google OAuth, magic
+ * link, forgot password, hash handling) predates the redesign; only the
+ * presentation and the mode props are new.
+ */
+export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink = true }: AuthFormProps = {}) {
   const t = useTranslations('auth');
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const explicitRedirect = searchParams.get('redirect');
-  const redirectTo = explicitRedirect || '/learn/dashboard';
+  // Only allowlisted internal paths survive; anything else (off-site URLs,
+  // "/" from the header Sign in link) falls back to the role default.
+  const rawRedirect = searchParams.get('redirect');
+  const explicitRedirect = isSafeInternalRedirect(rawRedirect) ? rawRedirect : null;
+  const redirectTo = sanitizeRedirect(explicitRedirect, '/learn/dashboard');
 
   async function resolvePostLoginRedirect(userId: string): Promise<string> {
     if (explicitRedirect) return explicitRedirect;
@@ -28,12 +45,23 @@ export function AuthForm() {
       .eq('id', userId)
       .single();
     if (profile?.role === 'admin') return '/admin';
-    if (profile?.role === 'partner') return '/partner';
+    if (profile?.role === 'partner') return '/portal';
     if (profile?.role === 'instructor') return '/instructor/courses';
     return '/learn/dashboard';
   }
 
-  const [mode, setMode] = useState<AuthMode>('sign-in');
+  const [mode, setMode] = useState<AuthMode>(initialMode);
+
+  // Browser back/forward between /signin and /signup changes initialMode.
+  useEffect(() => {
+    setMode((current) => (current === 'forgot' ? current : initialMode));
+  }, [initialMode]);
+
+  function switchMode(next: AuthTabMode) {
+    setMode(next);
+    setError(null);
+    if (next !== initialMode) onModeChange?.(next);
+  }
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -78,7 +106,8 @@ export function AuthForm() {
   // Supabase magic links (admin.generateLink with type='magiclink') use the
   // implicit flow — tokens land in the URL hash, NOT as a ?code= query param,
   // so /api/auth/callback can't read them server-side and falls through to
-  // /learn/auth#access_token=... Handle both magic-link and recovery hashes
+  // /signin#access_token=... (old /learn/auth links 307 to /signin and keep
+  // the hash). Handle both magic-link and recovery hashes
   // here:
   //   - recovery → forward hash to /learn/auth/reset (existing behavior)
   //   - magiclink (or any other non-recovery access_token) → setSession from
@@ -113,7 +142,7 @@ export function AuthForm() {
         }
         // Use window.location.assign for a hard navigation: router.push +
         // router.refresh after an async setSession was firing intermittently
-        // on Turbopack/Windows, leaving the user stuck on /learn/auth even
+        // on Turbopack/Windows, leaving the user stuck on /signin even
         // though the session was active. A full navigation also forces the
         // server to re-read auth cookies on the dashboard request, ensuring
         // the WelcomeScreen renders consistently for new users.
@@ -229,51 +258,62 @@ export function AuthForm() {
     setLoading(false);
   }
 
+  const tabMode: AuthTabMode = mode === 'sign-up' ? 'sign-up' : 'sign-in';
+  const copyKey = tabMode === 'sign-up' ? 'signup' : 'signin';
+
+  const labelClass = 'text-[14px] font-semibold text-hv-green-900';
+  const inputClass = cn(
+    'w-full min-h-[50px] rounded-[10px] border-[1.5px] border-hv-sand-300 bg-hv-sand-50 px-3.5',
+    'text-[16px] text-hv-ink outline-none transition-colors placeholder:text-hv-taupe',
+    'focus:border-hv-green-900 disabled:opacity-60',
+  );
+  const primaryClass = cn(
+    'flex w-full min-h-[54px] items-center justify-center gap-[9px] rounded-[10px] bg-hv-amber',
+    'text-[17px] font-semibold text-hv-green-900',
+    'transition-[transform,box-shadow] duration-[250ms] ease-hv hover:-translate-y-0.5 hover:shadow-hv-cta',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900 focus-visible:ring-offset-2',
+    'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none',
+  );
+  const textButtonClass =
+    'font-semibold text-hv-terracotta transition-colors hover:text-hv-terracotta-dark focus-visible:outline-none focus-visible:underline';
+
   return (
     <div className="w-full">
-      {/* Pill tab toggle */}
       <div
-        className="mb-4 inline-flex w-full items-center gap-1 rounded-full p-1"
-        style={{ backgroundColor: 'var(--m-accent-teal-soft)' }}
+        role="tablist"
+        aria-label={t('tabs_label')}
+        className="grid grid-cols-2 gap-1 rounded-[12px] bg-hv-sand-200 p-1"
       >
-        <button
-          type="button"
-          onClick={() => { setMode('sign-in'); setError(null); }}
-          className={cn(
-            'flex-1 rounded-full py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast)]',
-            mode === 'sign-in'
-              ? 'text-[var(--m-ink-primary)]'
-              : 'text-[var(--m-ink-tertiary)] hover:text-[var(--m-ink-secondary)]',
-          )}
-          style={mode === 'sign-in' ? { backgroundColor: '#FDFBF7' } : undefined}
-        >
-          {t('sign_in')}
-        </button>
-        <button
-          type="button"
-          onClick={() => { setMode('sign-up'); setError(null); }}
-          className={cn(
-            'flex-1 rounded-full py-1.5 text-sm font-medium transition-colors duration-[var(--duration-fast)]',
-            mode === 'sign-up'
-              ? 'text-white'
-              : 'text-[var(--m-ink-tertiary)] hover:text-[var(--m-ink-secondary)]',
-          )}
-          style={mode === 'sign-up' ? { backgroundColor: 'var(--m-ink-primary)' } : undefined}
-        >
-          {t('sign_up')}
-        </button>
+        {(['sign-in', 'sign-up'] as const).map((tab) => {
+          const active = tabMode === tab;
+          return (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => switchMode(tab)}
+              className={cn(
+                'min-h-[44px] rounded-[9px] text-[15px] font-semibold transition-colors duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900',
+                active ? 'bg-hv-sand-50 text-hv-green-900 shadow-hv-tab' : 'text-hv-ink-500 hover:text-hv-green-900',
+              )}
+            >
+              {tab === 'sign-in' ? t('tab_signin') : t('tab_signup')}
+            </button>
+          );
+        })}
       </div>
 
         {/* Email confirmation pending state */}
         {confirmationPending ? (
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="text-4xl">📧</div>
-            <p className="text-sm font-semibold text-fg-primary">Check your email</p>
-            <p className="text-sm text-fg-secondary">
-              We sent a confirmation link to <span className="text-fg-primary font-medium">{email}</span>. Click it to activate your account, then come back to sign in.
+          <div role="status" className="mt-8 flex flex-col items-center gap-4 py-4 text-center">
+            <p className="font-hv-display text-[22px] font-bold tracking-[-0.02em] text-hv-green-900">Check your email</p>
+            <p className="text-[15px] leading-[1.6] text-hv-ink-700">
+              We sent a confirmation link to <span className="font-semibold text-hv-green-900">{email}</span>. Click it to activate your account, then come back to sign in.
             </p>
             {confirmationFailed && (
-              <p className="text-sm text-red-500">
+              <p className="text-[14px] text-hv-terracotta">
                 We had trouble sending the email. Please try resending below.
               </p>
             )}
@@ -295,14 +335,14 @@ export function AuthForm() {
                 }
                 setResending(false);
               }}
-              className="text-sm text-accent-teal hover:underline"
+              className={cn('min-h-[44px] text-[15px]', textButtonClass)}
             >
               {resending ? 'Sending...' : 'Resend confirmation email'}
             </button>
             <button
               type="button"
-              onClick={() => { setConfirmationPending(false); setConfirmationFailed(false); setMode('sign-in'); setError(null); }}
-              className="text-sm text-fg-tertiary hover:text-fg-secondary"
+              onClick={() => { setConfirmationPending(false); setConfirmationFailed(false); switchMode('sign-in'); }}
+              className="min-h-[44px] text-[15px] text-hv-ink-500 transition-colors hover:text-hv-green-900"
             >
               Back to sign in
             </button>
@@ -310,15 +350,26 @@ export function AuthForm() {
         ) : (
         <>
 
+        <h2 className="hv-display mt-7 font-hv-display text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-hv-green-900">
+          {mode === 'forgot' ? t('reset_password') : t(`${copyKey}_form_title`)}
+        </h2>
+        {mode !== 'forgot' && (
+          <p className="mt-1.5 text-[15px] text-hv-ink-500">{t(`${copyKey}_form_note`)}</p>
+        )}
+
         {/* Google OAuth */}
-        <Button
-          variant="ghost"
-          fullWidth
+        <button
+          type="button"
           onClick={handleGoogleAuth}
           disabled={loading}
-          className="mb-4"
+          className={cn(
+            'mt-6 flex w-full min-h-[52px] items-center justify-center gap-3 rounded-[10px]',
+            'border-[1.5px] border-hv-sand-300 bg-hv-sand-50 text-[16px] font-semibold text-hv-green-900',
+            'transition-colors hover:border-hv-green-900 disabled:opacity-60',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900',
+          )}
         >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+          <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
               fill="#4285F4"
@@ -337,53 +388,51 @@ export function AuthForm() {
             />
           </svg>
           {t('continue_google')}
-        </Button>
+        </button>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex-1 h-px bg-border-default" />
-          <span className="text-sm text-fg-tertiary">{t('or')}</span>
-          <div className="flex-1 h-px bg-border-default" />
+        <div className="my-[22px] grid grid-cols-[1fr_auto_1fr] items-center gap-3.5 text-[13.5px] text-hv-taupe">
+          <span aria-hidden className="h-px bg-hv-sand-300" />
+          <span>{t('or_with_email')}</span>
+          <span aria-hidden className="h-px bg-hv-sand-300" />
         </div>
 
         {/* Forgot password form */}
         {mode === 'forgot' ? (
           <div className="flex flex-col gap-4">
             {resetSent ? (
-              <p className="text-sm text-green-400 text-center">{t('reset_success')}</p>
+              <p role="status" className="text-center text-[15px] text-hv-green-900">{t('reset_success')}</p>
             ) : (
-              <form onSubmit={handleForgotPassword} className="flex flex-col gap-4">
-                <Input
-                  label={t('email')}
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  locale={locale}
-                  autoComplete="email"
-                />
+              <form onSubmit={handleForgotPassword} className="grid gap-4">
+                <div className="grid gap-[7px]">
+                  <label htmlFor="auth-forgot-email" className={labelClass}>{t('email')}</label>
+                  <input
+                    id="auth-forgot-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    placeholder={t('email_placeholder')}
+                    className={inputClass}
+                  />
+                </div>
 
                 {error && (
-                  <p className="text-sm text-red-500 text-center">{error}</p>
+                  <p role="alert" className="text-center text-[14px] text-hv-terracotta">{error}</p>
                 )}
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  fullWidth
-                  disabled={loading}
-                  className="mt-2"
-                >
+                <button type="submit" disabled={loading} className={cn(primaryClass, 'mt-1.5')}>
                   {loading ? '...' : t('send_reset_link')}
-                </Button>
+                </button>
               </form>
             )}
 
-            <p className="text-sm text-fg-tertiary text-center">
+            <p className="text-center text-[15px]">
               <button
                 type="button"
                 onClick={() => { setMode('sign-in'); setError(null); setResetSent(false); }}
-                className="text-accent-teal hover:underline"
+                className={cn('min-h-[44px]', textButtonClass)}
               >
                 {t('back_to_sign_in')}
               </button>
@@ -392,89 +441,92 @@ export function AuthForm() {
         ) : (
           <>
             {/* Email form */}
-            <form onSubmit={handleEmailAuth} className="flex flex-col gap-2.5">
+            <form onSubmit={handleEmailAuth} className="grid gap-4">
               {mode === 'sign-up' && (
-                <Input
-                  label={t('name')}
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  locale={locale}
-                  autoComplete="name"
-                />
+                <div className="grid gap-[7px]">
+                  <label htmlFor="auth-name" className={labelClass}>{t('name')}</label>
+                  <input
+                    id="auth-name"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                    autoComplete="name"
+                    className={inputClass}
+                  />
+                </div>
               )}
-              <Input
-                label={t('email')}
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                locale={locale}
-                autoComplete="email"
-              />
-              <div className="relative">
-                <Input
-                  label={t('password')}
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+              <div className="grid gap-[7px]">
+                <label htmlFor="auth-email" className={labelClass}>{t('email')}</label>
+                <input
+                  id="auth-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  locale={locale}
-                  minLength={6}
-                  autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
-                  className="pr-11"
+                  autoComplete="email"
+                  placeholder={t('email_placeholder')}
+                  className={inputClass}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? t('hide_password') : t('show_password')}
-                  aria-pressed={showPassword}
-                  className={cn(
-                    'absolute right-2 bottom-2 flex h-8 w-8 items-center justify-center rounded',
-                    'text-fg-tertiary hover:text-fg-primary',
-                    'transition-colors duration-[var(--duration-fast)]',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal',
+              </div>
+              <div className="grid gap-[7px]">
+                <div className="flex items-baseline justify-between gap-3">
+                  <label htmlFor="auth-password" className={labelClass}>{t('password')}</label>
+                  {mode === 'sign-in' && (
+                    <button
+                      type="button"
+                      onClick={() => { setMode('forgot'); setError(null); }}
+                      className={cn('inline-flex min-h-[44px] items-center text-[14px]', textButtonClass)}
+                    >
+                      {t('forgot_password')}
+                    </button>
                   )}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                </div>
+                <div className="relative">
+                  <input
+                    id="auth-password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    autoComplete={mode === 'sign-up' ? 'new-password' : 'current-password'}
+                    className={cn(inputClass, 'pr-[72px]')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? t('hide_password') : t('show_password')}
+                    aria-pressed={showPassword}
+                    className={cn(
+                      'absolute right-[3px] top-1/2 min-h-[44px] min-w-[56px] -translate-y-1/2 rounded-[8px]',
+                      'text-[13.5px] font-semibold text-hv-ink-500 transition-colors hover:text-hv-green-900',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900',
+                    )}
+                  >
+                    {showPassword ? t('hide') : t('show')}
+                  </button>
+                </div>
               </div>
 
-              {mode === 'sign-in' && (
-                <button
-                  type="button"
-                  onClick={() => { setMode('forgot'); setError(null); }}
-                  className="text-sm text-fg-tertiary hover:text-accent-teal text-right -mt-2"
-                >
-                  {t('forgot_password')}
-                </button>
-              )}
-
               {error && (
-                <p className="text-sm text-red-500 text-center">{error}</p>
+                <p role="alert" className="text-center text-[14px] text-hv-terracotta">{error}</p>
               )}
 
-              <Button
-                type="submit"
-                variant="primary"
-                fullWidth
-                disabled={loading}
-                className="mt-1"
-              >
-                {loading
-                  ? '...'
-                  : mode === 'sign-in'
-                    ? t('sign_in')
-                    : t('sign_up')}
-              </Button>
+              <button type="submit" disabled={loading} className={cn(primaryClass, 'mt-1.5')}>
+                {loading ? '...' : (
+                  <>
+                    {t(`${copyKey}_cta`)} <span aria-hidden>→</span>
+                  </>
+                )}
+              </button>
             </form>
 
-            {/* Magic-link alternative (sign-in only) */}
-            {mode === 'sign-in' && (
+            {/* Magic-link alternative (sign-in only: the link signs in an existing account) */}
+            {showMagicLink && mode === 'sign-in' && (
               <div className="mt-3">
                 {magicLinkSent ? (
-                  <p className="text-sm text-accent-teal text-center">
+                  <p role="status" className="text-center text-[15px] text-hv-green-900">
                     ✓ {t('magic_link_check_email')}
                   </p>
                 ) : (
@@ -482,23 +534,27 @@ export function AuthForm() {
                     type="button"
                     onClick={handleSendMagicLink}
                     disabled={magicLinkSending}
-                    className="w-full text-sm text-fg-tertiary hover:text-accent-teal transition-colors py-2"
+                    className={cn(
+                      'w-full min-h-[50px] rounded-[10px] border-[1.5px] border-hv-green-900 bg-transparent',
+                      'text-[15.5px] font-semibold text-hv-green-900 transition-colors hover:bg-hv-sand-200 disabled:opacity-60',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900',
+                    )}
                   >
-                    {magicLinkSending ? '...' : t('or_use_magic_link')}
+                    {magicLinkSending ? '...' : t('magic_link_instead')}
                   </button>
                 )}
               </div>
             )}
 
-            {/* Toggle prompt */}
-            <p className="mt-3 text-sm text-fg-tertiary text-center">
-              {mode === 'sign-in' ? t('no_account') : t('has_account')}{' '}
+            {/* Switch mode */}
+            <p className="mt-6 text-center text-[15px] text-hv-ink-700">
+              {t(`${copyKey}_switch_q`)}{' '}
               <button
                 type="button"
-                onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setError(null); }}
-                className="text-accent-teal hover:underline"
+                onClick={() => switchMode(mode === 'sign-in' ? 'sign-up' : 'sign-in')}
+                className={cn('min-h-[44px]', textButtonClass)}
               >
-                {mode === 'sign-in' ? t('sign_up') : t('sign_in')}
+                {t(`${copyKey}_switch_a`)}
               </button>
             </p>
           </>

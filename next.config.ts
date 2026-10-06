@@ -23,7 +23,7 @@ export const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Phase 6 marketing-rebuild retirements: /build, /community, /resources,
+      // Phase 6 marketing-rebuild retirements: /community, /resources,
       // /newsletter, /become-an-instructor are deleted; redirect to their new
       // homes. next-intl middleware passes the full path through, so register
       // both /path and /ja/path explicitly.
@@ -32,8 +32,6 @@ export const nextConfig: NextConfig = {
       // need to roll back to the legacy dark design (legacy-dark-design-prod
       // tag, branch legacy-dark-design at 08736f5). Promote back to 308
       // (permanent: true) after ~1–2 weeks of clean prod metrics.
-      { source: '/build', destination: '/explore', permanent: false },
-      { source: '/ja/build', destination: '/ja/explore', permanent: false },
       { source: '/community', destination: '/about#aloha', permanent: false },
       { source: '/ja/community', destination: '/ja/about#aloha', permanent: false },
       { source: '/resources', destination: '/learn', permanent: false },
@@ -43,8 +41,30 @@ export const nextConfig: NextConfig = {
       // Catch-all for old issue archive permalinks.
       { source: '/newsletter/:slug*', destination: '/#newsletter', permanent: false },
       { source: '/ja/newsletter/:slug*', destination: '/ja/#newsletter', permanent: false },
-      { source: '/become-an-instructor', destination: '/partnerships', permanent: false },
-      { source: '/ja/become-an-instructor', destination: '/ja/partnerships', permanent: false },
+      { source: '/become-an-instructor', destination: '/partner', permanent: false },
+      { source: '/ja/become-an-instructor', destination: '/ja/partner', permanent: false },
+
+      // 2026 green redesign, Unit 0B (docs/plans/2026-10-05-marketing-redesign-green.md).
+      // Same 307 soak policy as above. The business door is now /partner; the
+      // enquiry form lives on it at #apply until Unit 4 rebuilds the page.
+      { source: '/partnerships', destination: '/partner', permanent: false },
+      { source: '/ja/partnerships', destination: '/ja/partner', permanent: false },
+      { source: '/partnerships/apply', destination: '/partner#apply', permanent: false },
+      { source: '/ja/partnerships/apply', destination: '/ja/partner#apply', permanent: false },
+      { source: '/organizations', destination: '/partner', permanent: false },
+      { source: '/ja/organizations', destination: '/ja/partner', permanent: false },
+      // The authenticated partner portal moved from /partner/* to /portal/*.
+      // /partner itself is NOT redirected: it is the public Partner page now.
+      { source: '/partner/:section(courses|vault|settings)', destination: '/portal/:section', permanent: false },
+      { source: '/ja/partner/:section(courses|vault|settings)', destination: '/ja/portal/:section', permanent: false },
+      { source: '/partner/:slug/community', destination: '/portal/:slug/community', permanent: false },
+      { source: '/ja/partner/:slug/community', destination: '/ja/portal/:slug/community', permanent: false },
+      // Sign in / sign up moved to /signin and /signup. Next keeps the query
+      // string (?redirect=…) and browsers keep the #access_token hash across
+      // the 307, so magic-link landings still reach AuthForm. /learn/auth/reset
+      // is a different source and stays where it is.
+      { source: '/learn/auth', destination: '/signin', permanent: false },
+      { source: '/ja/learn/auth', destination: '/ja/signin', permanent: false },
 
       // Resources alias chain → terminate directly at /learn (was /resources, now deleted).
       { source: '/tools', destination: '/learn', permanent: true },
@@ -71,10 +91,10 @@ export const nextConfig: NextConfig = {
       { source: '/exploration', destination: '/explore', permanent: true },
       { source: '/ja/exploration', destination: '/ja/explore', permanent: true },
 
-      // Canonical B2B route is /organizations; keep a /learn/organizations alias
+      // The canonical B2B route is /partner; keep a /learn/organizations alias
       // (it would otherwise resolve to the course-slug page).
-      { source: '/learn/organizations', destination: '/organizations', permanent: true },
-      { source: '/ja/learn/organizations', destination: '/ja/organizations', permanent: true },
+      { source: '/learn/organizations', destination: '/partner', permanent: true },
+      { source: '/ja/learn/organizations', destination: '/ja/partner', permanent: true },
     ];
   },
   async headers() {

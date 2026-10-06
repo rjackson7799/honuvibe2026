@@ -28,7 +28,7 @@ export default async function VerticeThanksPage({ params, searchParams }: Props)
   return (
     <div className={`${inter.variable} ${notoJP.variable} ${instrumentSerif.variable}`}>
       <MarketingShell>
-        <MarketingNav showGetStarted />
+        <MarketingNav />
         <ThanksContent
           tier={safeTier}
           sessionId={session_id ?? null}

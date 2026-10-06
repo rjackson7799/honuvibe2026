@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 function useAuthHref() {
   const locale = useLocale();
   const pathname = usePathname();
-  const base = locale === 'ja' ? '/ja/learn/auth' : '/learn/auth';
+  const base = locale === 'ja' ? '/ja/signin' : '/signin';
   if (!pathname || pathname === base) return base;
   return `${base}?redirect=${encodeURIComponent(pathname)}`;
 }
