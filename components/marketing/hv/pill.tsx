@@ -2,10 +2,12 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export type PillTone = 'dark' | 'light';
+/** Static pills also come as outline-dark: transparent with a green-700 border, for chips on a dark section. */
+export type StaticPillTone = PillTone | 'outline-dark';
 
 type PillProps = {
   children: ReactNode;
-  tone?: PillTone;
+  tone?: StaticPillTone;
   /** Leading 6px dot (marquee pills, add-on chips). */
   dot?: boolean;
   className?: string;
@@ -17,16 +19,20 @@ export function HvPill({ children, tone = 'light', dot = false, className }: Pil
     <span
       className={cn(
         'inline-flex min-h-10 items-center gap-2 whitespace-nowrap rounded-full px-[14px] text-[14.5px] font-medium',
+        // Tone owns the colours outright: cn() can't de-duplicate custom hv-*
+        // colours, so a className override would compete instead of winning.
         tone === 'dark'
           ? 'bg-hv-green-900 text-hv-sand-100 border border-hv-green-900'
-          : 'bg-hv-sand-50 text-hv-green-900 border border-hv-sand-300',
+          : tone === 'outline-dark'
+            ? 'bg-transparent text-hv-sand-100 border border-hv-green-700'
+            : 'bg-hv-sand-50 text-hv-green-900 border border-hv-sand-300',
         className,
       )}
     >
       {dot && (
         <span
           aria-hidden
-          className={cn('h-1.5 w-1.5 rounded-full', tone === 'dark' ? 'bg-hv-amber' : 'bg-hv-terracotta')}
+          className={cn('h-1.5 w-1.5 rounded-full', tone === 'light' ? 'bg-hv-terracotta' : 'bg-hv-amber')}
         />
       )}
       {children}

@@ -11,7 +11,7 @@ export { HvHeading } from './heading';
 export { HvButton, type HvButtonVariant, type HvButtonSize } from './button';
 export { HvBreadcrumb, type BreadcrumbItem } from './breadcrumb';
 export { HvCard } from './card';
-export { HvPill, HvPillToggle, type PillTone } from './pill';
+export { HvPill, HvPillToggle, type PillTone, type StaticPillTone } from './pill';
 export { HvFaqAccordion, type FaqItem } from './faq-accordion';
 export { HvTestimonialCarousel, type Testimonial } from './testimonial-carousel';
 export { HvTierCard, HvTierGrid, type TierCardProps, type TierPrice } from './tier-cards';

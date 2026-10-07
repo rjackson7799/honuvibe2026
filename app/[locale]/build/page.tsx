@@ -73,7 +73,7 @@ export default async function BuildPage({ params }: Props) {
                   {t('we_build')}
                 </HvEyebrow>
                 {chips.map((chip) => (
-                  <HvPill key={chip} tone="dark" className="border-hv-green-700 bg-transparent">
+                  <HvPill key={chip} tone="outline-dark">
                     {chip}
                   </HvPill>
                 ))}
