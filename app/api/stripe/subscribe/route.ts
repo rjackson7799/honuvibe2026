@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { TIER_REGISTRY, getSubscriptionPriceId } from '@/lib/stripe/tiers';
 import { hasActiveSubscription } from '@/lib/access/checks';
 import { parseTier, fetchUserAccessRow } from '@/lib/stripe/subscribe-helpers';
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         metadata: { user_id: user.id },
       });
       customerId = customer.id;
-      const { error: customerSaveError } = await supabase
+      const { error: customerSaveError } = await createAdminClient()
         .from('users')
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id);
@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
         metadata: { user_id: user.id },
       });
       customerId = customer.id;
-      const { error: customerSaveError } = await supabase
+      const { error: customerSaveError } = await createAdminClient()
         .from('users')
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id);

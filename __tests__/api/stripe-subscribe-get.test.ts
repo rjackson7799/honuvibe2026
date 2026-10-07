@@ -15,6 +15,7 @@ const {
 }));
 
 vi.mock('@/lib/supabase/server', () => ({
+  createAdminClient: () => ({ from: fromMock }),
   createClient: async () => ({
     auth: { getUser: getUserMock },
     from: fromMock,
