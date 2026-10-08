@@ -2,6 +2,14 @@
   "name": "honuvibe",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "basic-ftp": "5.3.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "basic-ftp": "5.3.1"
+    }
+  },
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next dev",
     "build": "next build",
@@ -37,8 +45,8 @@
     "ipaddr.js": "^2.4.0",
     "lucide-react": "^0.575.0",
     "motion": "^12.34.3",
-    "next": "16.1.6",
-    "next-intl": "^4.8.3",
+    "next": "16.3.4",
+    "next-intl": "4.9.2",
     "next-sanity": "^12.1.0",
     "openai": "^6.35.0",
     "react": "19.2.3",
@@ -67,7 +75,7 @@
     "@vitejs/plugin-react": "^5.1.4",
     "cross-env": "^10.1.0",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.3.4",
     "jsdom": "^28.1.0",
     "pg": "^8.23.0",
     "tailwindcss": "^4",
