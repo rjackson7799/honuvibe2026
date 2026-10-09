@@ -29,11 +29,29 @@ vi.mock('@/lib/stripe/client', () => ({
   },
 }));
 
-import { GET } from '@/app/api/stripe/subscribe/route';
+import { GET, POST } from '@/app/api/stripe/subscribe/route';
 
 function makeRequest(url: string): Request {
   return new Request(url, { method: 'GET' });
 }
+
+function makePost(body: unknown): Request {
+  return new Request('http://localhost/api/stripe/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+const freeProfile = {
+  stripe_customer_id: 'cus_existing',
+  subscription_tier: null,
+  subscription_status: null,
+  subscription_expires_at: null,
+  email: 'a@b.com',
+  full_name: 'A B',
+  role: null,
+};
 
 beforeEach(() => {
   process.env.STRIPE_COMMUNITY_PRICE_USD = 'price_community_test';
@@ -59,14 +77,14 @@ describe('GET /api/stripe/subscribe', () => {
     getUserMock.mockResolvedValue({ data: { user: null }, error: null });
 
     const res = await GET(
-      makeRequest('http://localhost/api/stripe/subscribe?tier=community') as never,
+      makeRequest('http://localhost/api/stripe/subscribe?tier=vault') as never,
     );
 
     expect(res.status).toBe(302);
     const location = res.headers.get('location') ?? '';
     expect(location).toContain('/signin?');
     expect(location).toContain(
-      'redirect=%2Fapi%2Fstripe%2Fsubscribe%3Ftier%3Dcommunity',
+      'redirect=%2Fapi%2Fstripe%2Fsubscribe%3Ftier%3Dvault',
     );
   });
 
@@ -170,7 +188,7 @@ describe('GET /api/stripe/subscribe', () => {
     });
 
     const res = await GET(
-      makeRequest('http://localhost/api/stripe/subscribe?tier=community') as never,
+      makeRequest('http://localhost/api/stripe/subscribe?tier=vault') as never,
     );
 
     expect(res.status).toBe(302);
@@ -205,38 +223,30 @@ describe('GET /api/stripe/subscribe', () => {
     expect(sessionsCreateMock).toHaveBeenCalledTimes(1);
   });
 
-  it('creates a Stripe session with trial for community and 302s to checkout', async () => {
-    getUserMock.mockResolvedValue({
-      data: { user: { id: 'u1', email: 'a@b.com' } },
-      error: null,
-    });
-    selectSingleMock.mockResolvedValue({
-      data: {
-        stripe_customer_id: 'cus_existing',
-        subscription_tier: null,
-        subscription_status: null,
-        subscription_expires_at: null,
-        email: 'a@b.com',
-        full_name: 'A B',
-        role: null,
-      },
-      error: null,
-    });
-
+  it('sends tier=community to the free Community feed without touching Stripe', async () => {
     const res = await GET(
       makeRequest('http://localhost/api/stripe/subscribe?tier=community') as never,
     );
 
-    expect(sessionsCreateMock).toHaveBeenCalledTimes(1);
-    const args = sessionsCreateMock.mock.calls[0][0];
-    expect(args.line_items[0].price).toBe('price_community_test');
-    expect(args.subscription_data?.trial_period_days).toBe(14);
-    expect(args.metadata.type).toBe('community_subscription');
+    expect(res.status).toBe(302);
+    expect(res.headers.get('location')).toBe('http://localhost/learn/dashboard/community');
+    expect(getUserMock).not.toHaveBeenCalled();
+    expect(customersCreateMock).not.toHaveBeenCalled();
+    expect(sessionsCreateMock).not.toHaveBeenCalled();
+  });
+
+  it('keeps the ja prefix when sending tier=community to the feed', async () => {
+    const res = await GET(
+      makeRequest(
+        'http://localhost/api/stripe/subscribe?tier=community&locale=ja',
+      ) as never,
+    );
 
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toBe(
-      'https://checkout.stripe.com/c/test_session',
+      'http://localhost/ja/learn/dashboard/community',
     );
+    expect(sessionsCreateMock).not.toHaveBeenCalled();
   });
 
   it('creates a Stripe session without trial for vault', async () => {
@@ -289,7 +299,7 @@ describe('GET /api/stripe/subscribe', () => {
 
     const res = await GET(
       makeRequest(
-        'http://localhost/api/stripe/subscribe?tier=community&locale=ja',
+        'http://localhost/api/stripe/subscribe?tier=vault&locale=ja',
       ) as never,
     );
 
@@ -298,5 +308,41 @@ describe('GET /api/stripe/subscribe', () => {
     expect(args.cancel_url).toContain('/ja/learn/dashboard/billing');
     expect(args.locale).toBe('ja');
     expect(res.status).toBe(302);
+  });
+});
+
+describe('POST /api/stripe/subscribe', () => {
+  beforeEach(() => {
+    getUserMock.mockResolvedValue({
+      data: { user: { id: 'u1', email: 'a@b.com' } },
+      error: null,
+    });
+    selectSingleMock.mockResolvedValue({ data: freeProfile, error: null });
+  });
+
+  it('rejects tier=community as retired, without touching Stripe', async () => {
+    const res = await POST(makePost({ tier: 'community', locale: 'en' }) as never);
+
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'tier_retired' });
+    expect(sessionsCreateMock).not.toHaveBeenCalled();
+  });
+
+  it('defaults a missing tier to vault', async () => {
+    const res = await POST(makePost({ locale: 'en' }) as never);
+
+    expect(res.status).toBe(200);
+    const args = sessionsCreateMock.mock.calls[0][0];
+    expect(args.line_items[0].price).toBe('price_vault_test');
+    expect(args.metadata.type).toBe('vault_subscription');
+  });
+
+  it('starts a vault checkout for tier=vault', async () => {
+    const res = await POST(makePost({ tier: 'vault', locale: 'ja' }) as never);
+
+    expect(res.status).toBe(200);
+    const args = sessionsCreateMock.mock.calls[0][0];
+    expect(args.line_items[0].price).toBe('price_vault_test');
+    expect(args.success_url).toContain('/ja/learn/dashboard/billing');
   });
 });

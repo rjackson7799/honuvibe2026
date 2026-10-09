@@ -107,12 +107,73 @@ describe('community RLS leak tests', () => {
     expect(data).toEqual([]);
   });
 
-  test('5. Free user (no qualifying tier) cannot SELECT any post', async () => {
-    await seedMainPost();
+  test('5. Free account reads the main feed (Community is free, 078) — never a partner feed', async () => {
+    const mainId = await seedMainPost();
     await seedVerticePost();
     const client = await userClient(USERS.honuvibe_free);
+    const { data, error } = await client.from('community_posts').select('id');
+    expect(error).toBeNull();
+    expect(data).toEqual([{ id: mainId }]);
+  });
+
+  test('5b. Free account can post and comment in the main feed', async () => {
+    const client = await userClient(USERS.honuvibe_free);
+    const { data: post, error } = await client
+      .from('community_posts')
+      .insert({
+        partner_id: null,
+        author_id: USERS.honuvibe_free,
+        category: 'general',
+        body_md: 'free member post',
+      })
+      .select('id')
+      .single();
+    expect(error).toBeNull();
+
+    const { error: commentErr } = await client.from('community_comments').insert({
+      post_id: post!.id,
+      author_id: USERS.honuvibe_free,
+      body_md: 'free member comment',
+    });
+    expect(commentErr).toBeNull();
+  });
+
+  test('5c. Anonymous client reads nothing and cannot post', async () => {
+    await seedMainPost();
+    const client = anonClient();
     const { data } = await client.from('community_posts').select('id');
-    expect(data).toEqual([]);
+    expect(data ?? []).toEqual([]);
+
+    const { error } = await client.from('community_posts').insert({
+      partner_id: null,
+      author_id: USERS.honuvibe_free,
+      category: 'general',
+      body_md: 'anon spoof',
+    });
+    expect(error).not.toBeNull();
+  });
+
+  // D3 has no DB-level gate: a confirmed session is what stands between an
+  // unconfirmed sign-up and auth.uid(). This pins that GoTrue precondition (it
+  // needs "Confirm email" ON in the test project); 5c covers the no-session post.
+  test('5d. GoTrue issues no session to an unconfirmed email account (D3 precondition)', async () => {
+    const admin = serviceClient();
+    const email = `unconfirmed-${Date.now()}@fixture.local`;
+    const password = 'fixture-pass-unconfirmed';
+    const { data: created, error: createErr } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: false,
+    });
+    expect(createErr).toBeNull();
+    try {
+      const client = anonClient();
+      const { data, error } = await client.auth.signInWithPassword({ email, password });
+      expect(error).not.toBeNull();
+      expect(data.session).toBeNull();
+    } finally {
+      await admin.auth.admin.deleteUser(created.user!.id);
+    }
   });
 
   test('6. Banned-from-Vertice user cannot INSERT in Vertice scope', async () => {
@@ -179,5 +240,48 @@ describe('community RLS leak tests', () => {
     await admin
       .from('partner_members')
       .insert({ partner_id: PARTNERS.vertice, user_id: USERS.banned_vertice });
+  });
+});
+
+// --- D2 posting throttle (078) ---------------------------------------------
+
+async function postAs(userId: string, n: number) {
+  const client = await userClient(userId);
+  const errors = [];
+  for (let i = 0; i < n; i++) {
+    const { error } = await client.from('community_posts').insert({
+      partner_id: null,
+      author_id: userId,
+      category: 'general',
+      body_md: `throttle probe ${i}`,
+    });
+    errors.push(error);
+  }
+  return errors;
+}
+
+describe('community posting throttle (078, D2)', () => {
+  test('a member can post 10 times in an hour; the 11th is rate limited', async () => {
+    const errors = await postAs(USERS.honuvibe_free, 11);
+    expect(errors.slice(0, 10)).toEqual(Array(10).fill(null));
+    expect(errors[10]?.code).toBe('PT429');
+    expect(errors[10]?.message).toBe('community_rate_limited');
+  });
+
+  test('admins are exempt', async () => {
+    const errors = await postAs(USERS.honuvibe_admin, 11);
+    expect(errors).toEqual(Array(11).fill(null));
+  });
+
+  test('service-role writes are not throttled', async () => {
+    const admin = serviceClient();
+    const rows = Array.from({ length: 11 }, (_, i) => ({
+      partner_id: null,
+      author_id: USERS.honuvibe_free,
+      category: 'general',
+      body_md: `seed ${i}`,
+    }));
+    const { error } = await admin.from('community_posts').insert(rows);
+    expect(error).toBeNull();
   });
 });

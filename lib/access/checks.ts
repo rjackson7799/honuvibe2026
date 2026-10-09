@@ -6,14 +6,15 @@
  * pre-fetched rows.
  *
  * Stacked ladder:
- *   - 'community' tier → community access
- *   - 'vault' tier → vault + community access
- *   - active cohort enrollment → vault + community access for the bundle window
- *   - active partner membership → community access (seats are Vault-only)
+ *   - any signed-in account → community access (Community is free, 078)
+ *   - 'vault' tier → vault access
+ *   - active cohort enrollment → vault access for the bundle window
  *   - sponsored partner seat → vault access for the block window
+ *   Partner membership no longer changes community *access*, only the feed
+ *   scope (community_scope_for); seats are Vault-only.
  *
  * These mirror the SQL helpers has_vault_access() / has_community_access()
- * (migrations 041, 042, 064). The parity test suite walks a shared case matrix
+ * (migrations 041, 042, 064, 078). The parity test suite walks a shared case matrix
  * across both — if you change a rule here, change it there in the same commit.
  */
 
@@ -99,36 +100,21 @@ export function hasActiveSeatAccess(
 
 /**
  * Returns true if the user can see Community-tier content/features.
- * Granted by: active community sub, active vault sub, active cohort, OR an
- * active partner membership. Admins bypass.
  *
- * `hasActiveMembership` closes a pre-existing TypeScript/SQL divergence: SQL
- * `has_community_access()` has granted access on membership alone since 042,
- * but this function never did. Callers that know the membership state pass it
- * in; the default (`false`) preserves the old behaviour for callers that don't.
+ * Honu Community is free for every signed-in account (locked decision #2,
+ * migration 078), so any user object qualifies. Being handed a user row means
+ * the caller already resolved a session; signed-out visitors never reach here.
  *
- * Note there is deliberately no seat input here: seats sponsor Vault only, and
- * every seat holder is an active member anyway (a seat can only be granted
- * alongside membership).
+ * The signature is kept so existing callers and the parity matrix don't churn;
+ * enrollments, membership and `now` no longer affect the answer.
  */
 export function hasCommunityAccess(
-  user: SubscriptionCheckUser,
-  enrollments: readonly CohortEnrollmentRow[] = [],
-  hasActiveMembership: boolean = false,
-  now: Date = new Date(),
+  _user: SubscriptionCheckUser,
+  _enrollments: readonly CohortEnrollmentRow[] = [],
+  _hasActiveMembership: boolean = false,
+  _now: Date = new Date(),
 ): boolean {
-  if (user.role === 'admin') return true;
-
-  if (hasActiveMembership) return true;
-
-  if (
-    hasActiveSubscription(user, now) &&
-    (user.subscription_tier === 'community' || user.subscription_tier === 'vault')
-  ) {
-    return true;
-  }
-
-  return hasActiveCohortAccess(enrollments, now);
+  return true;
 }
 
 /**

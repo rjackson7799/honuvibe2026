@@ -2047,11 +2047,11 @@ function Testimonials() {
   );
 }
 
-// ——— Pricing (3 tiers: Community / Vault highlighted / Live Cohort) ———
+// ——— Pricing (Vault highlighted / Live Cohort — Honu Community is free, 078) ———
 type PriceFeature = { jp: string; en: string; bold?: boolean };
 
 type PriceCardProps = {
-  tier: 'community' | 'vault' | 'cohort';
+  tier: 'vault' | 'cohort';
   highlighted?: boolean;
   badge?: React.ReactNode;
   badgeVariant?: 'default' | 'cohort';
@@ -2188,42 +2188,6 @@ function Pricing() {
         </div>
 
         <div className="vertice-pr-grid">
-          <PriceCard
-            tier="community"
-            jpName="Honu Community"
-            enName="Online Community"
-            jpTagline="学び続ける場所"
-            enTagline="The place to keep learning"
-            price={
-              <>
-                <span className="vertice-pr-price-amt">$29</span>
-                <span className="vertice-pr-price-suffix">/month</span>
-              </>
-            }
-            sub="14-day free trial · cancel anytime"
-            features={[
-              {
-                jp: '困った時は月次Q&Aでプロから直接答えがもらえる',
-                en: 'Get answers direct from pros every month',
-              },
-              {
-                jp: '毎週、業務で使える新プロンプト・ツールが届く',
-                en: 'New ready-to-use prompts and tools every week',
-              },
-              {
-                jp: '英語も日本語も、自分のペースで強化',
-                en: 'Build English + Japanese AI fluency at your pace',
-              },
-              {
-                jp: 'メンバー限定リソースで最新動向に置いていかれない',
-                en: 'Member-only resources keep you current',
-              },
-              { jp: 'キャンセルいつでも可・契約縛りなし', en: 'Cancel anytime · no lock-in' },
-            ]}
-            ctaJp="コミュニティに参加する"
-            ctaEn="Join the Community"
-          />
-
           <PriceCard
             tier="vault"
             highlighted

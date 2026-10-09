@@ -7,8 +7,21 @@
  * because each cohort has its own Stripe product and date metadata.
  */
 
+/**
+ * Every tier a Stripe subscription can resolve to. Includes 'community' so
+ * renewal / cancellation / invoice.paid events for legacy $29 subs still
+ * resolve — legacy, until the last $29 sub ends (out-of-band Stripe step in
+ * docs/plans/2026-10-07-b1-community-free.md).
+ */
 export type SubscriptionTier = 'community' | 'vault';
 export type Tier = SubscriptionTier | 'cohort';
+
+/**
+ * Tiers a NEW checkout may be started for. Honu Community is free since
+ * migration 078, so The Vault is the only one.
+ */
+export const CHECKOUT_TIERS = ['vault'] as const;
+export type CheckoutTier = (typeof CHECKOUT_TIERS)[number];
 
 interface TierConfig {
   mode: 'subscription' | 'payment';
@@ -18,6 +31,7 @@ interface TierConfig {
 }
 
 export const TIER_REGISTRY: Record<SubscriptionTier, TierConfig> = {
+  // Legacy — resolvable only, never sold. Keep until the last $29 sub ends.
   community: {
     mode: 'subscription',
     trialDays: 14,
@@ -48,7 +62,7 @@ export const LEGACY_VAULT_PRICE_IDS: readonly string[] = [
  * Throws if the env var is missing — fail loud at request time, not at runtime
  * with a confusing Stripe error.
  */
-export function getSubscriptionPriceId(tier: SubscriptionTier): string {
+export function getSubscriptionPriceId(tier: CheckoutTier): string {
   const config = TIER_REGISTRY[tier];
   const priceId = process.env[config.priceEnvVar];
   if (!priceId) {

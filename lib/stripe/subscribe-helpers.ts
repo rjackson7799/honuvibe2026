@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
-import type { SubscriptionTier } from '@/lib/stripe/tiers';
+import type { CheckoutTier } from '@/lib/stripe/tiers';
 
-export function parseTier(value: unknown): SubscriptionTier | null {
-  return value === 'community' || value === 'vault' ? value : null;
+/** Only checkout-eligible tiers parse. 'community' is retired (078) — see the route. */
+export function parseTier(value: unknown): CheckoutTier | null {
+  return value === 'vault' ? value : null;
 }
 
 /** Fetch the user fields needed for access checks + checkout. Single source of truth. */

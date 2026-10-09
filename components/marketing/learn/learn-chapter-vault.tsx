@@ -47,10 +47,8 @@ export function LearnChapterVault({
               t('community.bullet_4'),
             ]}
             cta={t('community.cta')}
-            // Plain anchor (no next/link) — /api/stripe/subscribe is side-effectful
-            // (creates Stripe Customer + Checkout Session). next/link would prefetch
-            // and create ghost sessions on hover/viewport.
-            ctaHref={`/api/stripe/subscribe?tier=community${locale === 'ja' ? '&locale=ja' : ''}`}
+            // Honu Community is free with any account (078) — sign up, no checkout.
+            ctaHref={`${locale === 'ja' ? '/ja' : ''}/signup`}
           />
           <PricingCard
             recommended

@@ -129,8 +129,9 @@ describe('Learn page sections', () => {
   it('ChapterVault renders the anchored 3-card ladder with correct CTAs', () => {
     render(<LearnChapterVault locale="en" vaultTotalCount={42} />);
 
-    // Three price points, one pricing moment.
-    expect(screen.getByText('$29')).toBeInTheDocument();
+    // Three price points, one pricing moment. Community is free (078).
+    expect(screen.getByText('Free')).toBeInTheDocument();
+    expect(screen.queryByText('$29')).not.toBeInTheDocument();
     expect(screen.getByText('$99')).toBeInTheDocument();
     expect(screen.getByText('$1,250+')).toBeInTheDocument();
 
@@ -146,10 +147,11 @@ describe('Learn page sections', () => {
       screen.getByText('Best for learning live, with a group'),
     ).toBeInTheDocument();
 
-    // Community + Vault route to Stripe; Live Cohorts routes in-page to #courses.
+    // Community is free → sign-up; Vault routes to Stripe; Live Cohorts
+    // routes in-page to #courses.
     expect(
-      screen.getByRole('link', { name: /Join the Community/i }),
-    ).toHaveAttribute('href', '/api/stripe/subscribe?tier=community');
+      screen.getByRole('link', { name: /Join free/i }),
+    ).toHaveAttribute('href', '/signup');
     expect(
       screen.getByRole('link', { name: /Join the Vault/i }),
     ).toHaveAttribute('href', '/api/stripe/subscribe?tier=vault');

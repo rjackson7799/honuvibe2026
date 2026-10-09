@@ -12,6 +12,10 @@
  *
  * Every window is expressed as an offset in days from "now" so both suites can
  * materialize concrete timestamps against the same instant.
+ *
+ * Since migration 078 Honu Community is free for any account, so every case
+ * expects Community. The cases stay so a regression in either direction (SQL or
+ * TypeScript re-gating Community on a sub, cohort or membership) shows up here.
  */
 
 export type MembershipState = 'none' | 'active' | 'removed';
@@ -55,13 +59,13 @@ const student = (
 export const ACCESS_CASES: readonly AccessCase[] = [
   {
     id: 'free_nothing',
-    description: 'Free account with no membership, cohort or seat',
+    description: 'Free account with no membership, cohort or seat — Community, no Vault',
     user: student('free', null),
     membership: 'none',
     cohort: null,
     seat: null,
     expectVault: false,
-    expectCommunity: false,
+    expectCommunity: true,
   },
   {
     id: 'admin',
@@ -111,11 +115,11 @@ export const ACCESS_CASES: readonly AccessCase[] = [
     cohort: null,
     seat: null,
     expectVault: false,
-    expectCommunity: false,
+    expectCommunity: true,
   },
   {
     id: 'community_sub',
-    description: 'Community subscribers do NOT get Vault',
+    description: 'Legacy $29 Community subscribers do NOT get Vault',
     user: student('community', 'active'),
     membership: 'none',
     cohort: null,
@@ -141,11 +145,11 @@ export const ACCESS_CASES: readonly AccessCase[] = [
     cohort: { startDays: -60, endDays: -30 },
     seat: null,
     expectVault: false,
-    expectCommunity: false,
+    expectCommunity: true,
   },
   {
     id: 'membership_active_only',
-    description: 'Active membership alone grants Community, never Vault',
+    description: 'Active membership never grants Vault',
     user: student('free', null),
     membership: 'active',
     cohort: null,
@@ -155,13 +159,13 @@ export const ACCESS_CASES: readonly AccessCase[] = [
   },
   {
     id: 'membership_removed_only',
-    description: 'A removed membership grants nothing',
+    description: 'A removed membership grants no Vault',
     user: student('free', null),
     membership: 'removed',
     cohort: null,
     seat: null,
     expectVault: false,
-    expectCommunity: false,
+    expectCommunity: true,
   },
   {
     id: 'seat_active',
@@ -216,14 +220,14 @@ export const ACCESS_CASES: readonly AccessCase[] = [
   {
     id: 'seat_without_membership',
     description:
-      'A seat grants Vault on its own. Community still needs membership or a sub. ' +
+      'A seat grants Vault on its own; Community comes with any account. ' +
       'Only reachable by direct DB writes — remove_partner_member revokes grants.',
     user: student('free', null),
     membership: 'none',
     cohort: null,
     seat: { startDays: -1, endDays: 30, revoked: false, blockActive: true },
     expectVault: true,
-    expectCommunity: false,
+    expectCommunity: true,
   },
   {
     id: 'seat_plus_community_sub',

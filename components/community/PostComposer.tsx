@@ -71,7 +71,7 @@ export function PostComposer({ partnerScope }: { partnerScope: string }) {
       });
       if (!res.ok) {
         const json = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(json.error ?? 'error');
+        setError(json.error === 'rate_limited' ? t('rate_limited') : (json.error ?? 'error'));
         setSubmitting(false);
         return;
       }

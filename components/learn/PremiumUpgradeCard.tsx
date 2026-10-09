@@ -22,12 +22,15 @@ export function PremiumUpgradeCard({
       const response = await fetch('/api/stripe/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currency: locale === 'ja' ? 'jpy' : 'usd' }),
+        body: JSON.stringify({ locale, tier: 'vault' }),
       });
 
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
+      } else if (data.upgrade_url) {
+        // Already subscribed (incl. a legacy Community plan): billing explains the path.
+        window.location.href = `${locale === 'ja' ? '/ja' : ''}${data.upgrade_url}`;
       }
     } catch {
       console.error('Failed to start subscription checkout');
@@ -75,7 +78,7 @@ export function PremiumUpgradeCard({
         onClick={handleUpgrade}
         disabled={loading}
       >
-        {locale === 'ja' ? t('price_monthly_jpy') : t('price_monthly')} — {t('upgrade_cta')}
+        {t('price_monthly')} — {t('upgrade_cta')}
       </Button>
     </div>
   );

@@ -22,6 +22,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as { locale?: string; tier?: string };
+    // Honu Community is free since 078 — there is nothing to buy.
+    if (body.tier === 'community') {
+      return NextResponse.json({ error: 'tier_retired' }, { status: 400 });
+    }
     const tier = parseTier(body.tier) ?? 'vault';
     const locale = body.locale ?? 'en';
     const isJapanese = locale === 'ja';
@@ -116,6 +120,19 @@ function buildAuthRedirect(request: NextRequest, originalPath: string): NextResp
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
+
+    // Old emails, bookmarks and cached pages still link here with
+    // tier=community. Community is free since 078: send the visitor to the
+    // feed instead of Stripe. Signed-out visitors bounce through /signin via
+    // the dashboard's own auth guard.
+    if (url.searchParams.get('tier') === 'community') {
+      const localePrefix = url.searchParams.get('locale') === 'ja' ? '/ja' : '';
+      return NextResponse.redirect(
+        new URL(`${localePrefix}/learn/dashboard/community`, url.origin),
+        302,
+      );
+    }
+
     const tier = parseTier(url.searchParams.get('tier'));
     if (!tier) {
       return NextResponse.json({ error: 'Invalid or missing tier' }, { status: 400 });

@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import type { SubscriptionTier } from '@/lib/stripe/tiers';
+import type { CheckoutTier } from '@/lib/stripe/tiers';
 
 type Props = {
-  tier?: SubscriptionTier;
+  tier?: CheckoutTier;
 };
 
 export function SubscribeButton({ tier = 'vault' }: Props) {
@@ -34,11 +34,9 @@ export function SubscribeButton({ tier = 'vault' }: Props) {
     }
   }
 
-  const label = tier === 'community' ? t('subscribe_community') : t('subscribe_vault');
-
   return (
     <Button variant="gold" onClick={handleSubscribe} disabled={loading}>
-      {loading ? '...' : label}
+      {loading ? '...' : t('subscribe_vault')}
     </Button>
   );
 }

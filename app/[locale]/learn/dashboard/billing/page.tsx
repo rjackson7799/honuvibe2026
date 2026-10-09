@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { getUserPayments } from '@/lib/payments/queries';
 import { checkVaultAccess } from '@/lib/vault/access';
+import { hasActiveSubscription } from '@/lib/access/checks';
 import { VaultStatusCard } from '@/components/billing/VaultStatusCard';
 import { PaymentHistoryTable } from '@/components/billing/PaymentHistoryTable';
 import { Card } from '@/components/ui/card';
@@ -38,11 +39,21 @@ export default async function BillingPage({ params }: Props) {
   // Fetch user subscription data
   const { data: profile } = await supabase
     .from('users')
-    .select('subscription_status, subscription_expires_at, stripe_customer_id')
+    .select('subscription_tier, subscription_status, subscription_expires_at, stripe_customer_id')
     .eq('id', user.id)
     .single();
 
   const vaultAccess = await checkVaultAccess(user.id);
+
+  // Legacy $29 Community subscriber (D4): Community is free now, so the plan just
+  // runs out. Show it until it ends; Stripe cancellation is an out-of-band step.
+  const hasLegacyCommunityPlan =
+    profile?.subscription_tier === 'community' &&
+    hasActiveSubscription({
+      subscription_tier: profile.subscription_tier,
+      subscription_status: profile.subscription_status,
+      subscription_expires_at: profile.subscription_expires_at,
+    });
   const payments = await getUserPayments(user.id);
 
   // Sponsor label for a partner-seat account. JP falls back to the EN name when
@@ -65,6 +76,7 @@ export default async function BillingPage({ params }: Props) {
         hasBillingAccount={Boolean(profile?.stripe_customer_id)}
         sponsorName={sponsorName}
         sponsorAccessEndsAt={vaultAccess.sponsor?.accessEndsAt ?? null}
+        hasLegacyCommunityPlan={hasLegacyCommunityPlan}
       />
 
       <Card variant="learn" padding="lg">

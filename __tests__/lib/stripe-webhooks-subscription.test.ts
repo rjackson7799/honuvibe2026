@@ -43,3 +43,17 @@ describe('handleCheckoutCompleted — subscription checkouts', () => {
     expect(errorMessages).not.toContain('Missing user_id or course_id');
   });
 });
+
+describe('legacy $29 Community price (retired in 078)', () => {
+  it('a STRIPE_COMMUNITY_PRICE_USD renewal still resolves to community', async () => {
+    process.env.STRIPE_COMMUNITY_PRICE_USD = 'price_community_legacy';
+    process.env.STRIPE_VAULT_PRICE_USD = 'price_vault_current';
+    const { resolveSubscriptionTier, paymentTypeForRenewal, CHECKOUT_TIERS } =
+      await import('@/lib/stripe/tiers');
+
+    expect(resolveSubscriptionTier('price_community_legacy')).toBe('community');
+    expect(paymentTypeForRenewal('community')).toBe('community_renewal');
+    // Resolvable for renewals, but no longer sold.
+    expect(CHECKOUT_TIERS).toEqual(['vault']);
+  });
+});

@@ -53,7 +53,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ post }, { status: 201 });
   } catch (err) {
     if (err instanceof CommunityError) {
-      return NextResponse.json({ error: err.code }, { status: 400 });
+      return NextResponse.json(
+        { error: err.code },
+        { status: err.code === 'rate_limited' ? 429 : 400 },
+      );
     }
     throw err;
   }

@@ -1,6 +1,10 @@
 /**
- * Partner-checkout endpoint — guest-friendly Stripe Checkout for the three
- * paid tiers (community / vault / cohort) sold via partner landing pages.
+ * Partner-checkout endpoint — guest-friendly Stripe Checkout for the paid
+ * tiers (vault / cohort) sold via partner landing pages.
+ *
+ * 'community' is no longer accepted for NEW sessions (Honu Community is free
+ * since migration 078, decision D1). In-flight community sessions still
+ * fulfil — lib/partner-checkout/fulfill.ts keeps handling them.
  *
  * No HonuVibe auth required. The user provides email at the landing-page
  * interstitial; the server looks up an existing Stripe Customer (to avoid
@@ -18,7 +22,7 @@ import { findReusableStripeCustomerByEmail } from '@/lib/partner-checkout/fulfil
 import {
   TIER_REGISTRY,
   getSubscriptionPriceId,
-  type SubscriptionTier,
+  type CheckoutTier,
 } from '@/lib/stripe/tiers';
 import {
   getCohortPriceId,
@@ -27,7 +31,7 @@ import {
 } from '@/lib/stripe/cohorts';
 
 const BodySchema = z.object({
-  tier: z.enum(['community', 'vault', 'cohort']),
+  tier: z.enum(['vault', 'cohort']),
   cohortId: z.string().optional(),
   email: z.string().email(),
   locale: z.enum(['en', 'ja']).default('en'),
@@ -66,7 +70,7 @@ export async function POST(request: NextRequest) {
       priceId = getCohortPriceId(cohortId);
       mode = 'payment';
     } else {
-      const subscriptionTier = tier as SubscriptionTier;
+      const subscriptionTier: CheckoutTier = tier;
       priceId = getSubscriptionPriceId(subscriptionTier);
       mode = 'subscription';
       trialDays = TIER_REGISTRY[subscriptionTier].trialDays;

@@ -102,7 +102,7 @@ describe('hasActiveSeatAccess window boundaries', () => {
   });
 });
 
-describe('hasCommunityAccess membership input', () => {
+describe('Honu Community is free (migration 078)', () => {
   const freeUser: SubscriptionCheckUser = {
     role: 'student',
     subscription_tier: 'free',
@@ -110,12 +110,9 @@ describe('hasCommunityAccess membership input', () => {
     subscription_expires_at: null,
   };
 
-  it('defaults to false so existing callers keep their old behaviour', () => {
-    expect(hasCommunityAccess(freeUser)).toBe(false);
-  });
-
-  it('grants access on active membership alone (SQL has done this since 042)', () => {
-    expect(hasCommunityAccess(freeUser, [], true)).toBe(true);
+  it('a free account with nothing else gets Community but not Vault', () => {
+    expect(hasCommunityAccess(freeUser)).toBe(true);
+    expect(hasVaultAccess(freeUser)).toBe(false);
   });
 });
 

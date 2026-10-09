@@ -28,6 +28,11 @@ type VaultStatusCardProps = {
   sponsorName?: string | null;
   /** End of the sponsoring seat block's access window (exclusive). */
   sponsorAccessEndsAt?: string | null;
+  /**
+   * Active legacy $29 Community subscription (retired in 078). It is not
+   * renewed for sale; `subscriptionExpiresAt` is when it ends.
+   */
+  hasLegacyCommunityPlan?: boolean;
 };
 
 export function VaultStatusCard({
@@ -39,6 +44,7 @@ export function VaultStatusCard({
   hasBillingAccount,
   sponsorName = null,
   sponsorAccessEndsAt = null,
+  hasLegacyCommunityPlan = false,
 }: VaultStatusCardProps) {
   const t = useTranslations('billing');
   const locale = useLocale();
@@ -137,7 +143,39 @@ export function VaultStatusCard({
         </div>
       )}
 
-      {!hasAccess && (
+      {hasLegacyCommunityPlan && (
+        <div className="space-y-3 pt-1">
+          <BadgePill variant="teal" size="sm">{t('legacy_community_plan')}</BadgePill>
+          {nextBillingFormatted && (
+            <p className="text-sm text-fg-secondary">
+              {subscriptionStatus === 'cancelled'
+                ? t('legacy_community_ends', { date: nextBillingFormatted })
+                : t('legacy_community_renews', { date: nextBillingFormatted })}
+            </p>
+          )}
+          <p className="text-sm text-fg-tertiary">{t('legacy_community_note')}</p>
+          {hasBillingAccount && (
+            <>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleManage}
+                disabled={portalLoading}
+              >
+                {portalLoading ? '...' : t('manage_subscription')}
+              </Button>
+              {portalError && (
+                <p className="text-sm text-accent-coral">{t('portal_error')}</p>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* A legacy subscriber can't start a Vault checkout yet: the subscribe
+          route refuses a second live subscription and the webhook tracks one
+          subscription per user. The note above routes them instead. */}
+      {!hasAccess && !hasLegacyCommunityPlan && (
         <div className="space-y-3 pt-1">
           <p className="text-sm text-fg-secondary">{t('vault_pitch')}</p>
           <SubscribeButton />

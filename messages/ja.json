@@ -1142,12 +1142,12 @@
     "signin_cta": "ログイン",
     "signin_switch_q": "HonuVibeは初めてですか？",
     "signin_switch_a": "無料で登録",
-    "signup_eyebrow": "無料ではじめる",
+    "signup_eyebrow": "コミュニティに参加",
     "signup_headline": "Vaultに参加しよう",
     "signup_subhead": "無料ではじめて、AIで本当に何かを完成させよう。",
-    "signup_body": "無料アカウントを作成して、無料レッスンからはじめましょう。準備ができたら、いつでもコースライブラリ全体にアップグレードできます。",
+    "signup_body": "コミュニティには無料で参加できます。準備ができたら、いつでもコースライブラリ全体にアップグレードできます。",
     "signup_form_title": "無料アカウントを作成",
-    "signup_form_note": "アカウント作成にクレジットカードは不要です。",
+    "signup_form_note": "コミュニティへの参加にクレジットカードは不要です。",
     "signup_cta": "無料アカウントを作成",
     "signup_switch_q": "すでにアカウントをお持ちですか？",
     "signup_switch_a": "ログイン"
@@ -1356,14 +1356,14 @@
         "subtitle": "オンラインコミュニティ",
         "tagline": "みんなで、学びを止めない場所。",
         "best_for": "最新情報を追いたい方に",
-        "price": "$29",
-        "price_unit": "/月",
-        "price_note": "14日間の無料トライアル · いつでも解約可",
+        "price": "無料",
+        "price_unit": "",
+        "price_note": "アカウントがあれば無料",
         "bullet_1": "毎月、実務家に直接質問できる",
         "bullet_2": "そのまま使えるプロンプトとツールが毎週届く",
         "bullet_3": "英語でも日本語でも、自分のペースでAIに強くなる",
         "bullet_4": "メンバー限定リソースは、常に最新の状態に",
-        "cta": "コミュニティに参加する"
+        "cta": "無料で参加する"
       },
       "vault": {
         "title": "The Vault",
@@ -2121,7 +2121,6 @@
     "vault_included": "{courseName}に含まれています",
     "vault_pitch": "プレミアム動画、ウォークスルー、ビルドアロングに無制限アクセス。",
     "subscribe_vault": "The Vaultに登録する",
-    "subscribe_community": "コミュニティに登録",
     "manage_subscription": "サブスクリプション管理",
     "portal_error": "請求ポータルを開けませんでした。もう一度お試しいただくか、サポートにお問い合わせください。",
     "update_payment": "お支払い方法を変更",
@@ -2133,6 +2132,10 @@
     "vault_subscription": "Vaultサブスクリプション",
     "vault_renewal": "Vault更新",
     "subscribed_success": "The Vaultへようこそ！",
+    "legacy_community_plan": "Honu Community（旧プラン）",
+    "legacy_community_ends": "{date}に終了",
+    "legacy_community_renews": "{date}に更新",
+    "legacy_community_note": "Honu Communityはすべてのアカウントで無料になりました。このプランの終了後も引き続きご利用いただけます。The Vaultへは終了後にご登録いただけます。早めに切り替えたい場合はお問い合わせください。",
     "vault_sponsored": "{partner} 提供",
     "vault_sponsored_until": "{date} までスポンサー提供",
     "vault_sponsored_note": "このVaultアクセスは所属組織が負担しています。こちらで管理するサブスクリプションはありません。"
@@ -2509,8 +2512,7 @@
   "subscription": {
     "premium_title": "HonuVibe プレミアム",
     "premium_subtitle": "フルライブラリとAI学習パスをアンロック",
-    "price_monthly": "$29/月",
-    "price_monthly_jpy": "¥3,980/月",
+    "price_monthly": "$99/月",
     "upgrade_cta": "プレミアムにする",
     "manage_subscription": "サブスクリプション管理",
     "current_plan": "現在のプラン",
@@ -3679,24 +3681,11 @@
     "report_note_placeholder": "補足（200文字まで）",
     "report_submit": "報告を送信",
     "report_thanks_toast": "ありがとうございます。モデレーターが確認します。",
-    "paywall_title": "HonuVibeコミュニティに参加",
-    "paywall_subtitle": "仲間のビルダーとつながりましょう。",
-    "paywall_cta_community": "コミュニティを購読",
-    "paywall_cta_vault": "Vaultを購読",
+    "paywall_title": "プロフィールを準備中です",
+    "paywall_subtitle": "少し時間をおいてページを再読み込みしてください。解決しない場合はお問い合わせください。",
+    "paywall_contact": "お問い合わせ",
     "paywall_cta_courses": "コースを見る",
-    "paywall_inline": {
-      "community_bullets": [
-        "フォーラム + 週次オフィスアワー",
-        "毎週新しいプロンプト・ツール",
-        "メンバー限定リソース"
-      ],
-      "vault_bullets": [
-        "全Vaultレッスン — 動画・記事・テンプレート",
-        "バイリンガル EN / 日本語",
-        "Honu Communityも含む"
-      ],
-      "browse_courses_hint": "まずは無料コンテンツから？"
-    },
+    "rate_limited": "投稿のペースが速すぎます。少し時間をおいてから、もう一度お試しください。",
     "banned_banner": "このコミュニティから制限されています。",
     "line_join_title": "LINEグループに参加",
     "line_join_subtitle": "メンバーとリアルタイムで交流しましょう。",

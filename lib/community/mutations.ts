@@ -17,6 +17,16 @@ export class CommunityError extends Error {
   }
 }
 
+/** SQLSTATE raised by the 078 community_insert_throttle() trigger. */
+const THROTTLE_SQLSTATE = 'PT429';
+
+function rethrowInsertError(error: { code?: string; message?: string }): never {
+  if (error.code === THROTTLE_SQLSTATE) {
+    throw new CommunityError('rate_limited', error.message ?? 'community_rate_limited');
+  }
+  throw error;
+}
+
 // --- Posts ----------------------------------------------------------------
 
 export async function createPost(
@@ -46,7 +56,7 @@ export async function createPost(
     })
     .select('*')
     .single();
-  if (error) throw error;
+  if (error) rethrowInsertError(error);
   return data as Post;
 }
 
@@ -127,7 +137,7 @@ export async function addComment(
     })
     .select('*')
     .single();
-  if (error) throw error;
+  if (error) rethrowInsertError(error);
   return data as Comment;
 }
 

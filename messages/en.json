@@ -1142,12 +1142,12 @@
     "signin_cta": "Sign in",
     "signin_switch_q": "New to HonuVibe?",
     "signin_switch_a": "Join for free",
-    "signup_eyebrow": "Start free",
+    "signup_eyebrow": "Join the community",
     "signup_headline": "Join the Vault",
     "signup_subhead": "Start free. Finish something real with AI.",
-    "signup_body": "Create a free account and start with the free lessons. Upgrade to the full course library whenever you’re ready.",
+    "signup_body": "Join the community for free. Upgrade to the full course library whenever you’re ready.",
     "signup_form_title": "Create your free account",
-    "signup_form_note": "No card needed to create an account.",
+    "signup_form_note": "No card needed to join the community.",
     "signup_cta": "Create free account",
     "signup_switch_q": "Already a member?",
     "signup_switch_a": "Sign in"
@@ -1356,14 +1356,14 @@
         "subtitle": "Online Community",
         "tagline": "Stay current, together.",
         "best_for": "Best for staying current",
-        "price": "$29",
-        "price_unit": "/ month",
-        "price_note": "14-day free trial · cancel anytime",
+        "price": "Free",
+        "price_unit": "",
+        "price_note": "Free with any account",
         "bullet_1": "Direct answers from practitioners, every month",
         "bullet_2": "Ready-to-use prompts and tools, every week",
         "bullet_3": "Build AI fluency in English and Japanese, at your pace",
         "bullet_4": "Members-only resources, kept current",
-        "cta": "Join the Community"
+        "cta": "Join free"
       },
       "vault": {
         "title": "The Vault",
@@ -2121,7 +2121,6 @@
     "vault_included": "Included with {courseName}",
     "vault_pitch": "Get unlimited access to premium self-study videos, walkthroughs, and build-alongs.",
     "subscribe_vault": "Subscribe to The Vault",
-    "subscribe_community": "Subscribe to Community",
     "manage_subscription": "Manage Subscription",
     "portal_error": "Couldn't open the billing portal. Please try again or contact support.",
     "update_payment": "Update Payment Method",
@@ -2133,6 +2132,10 @@
     "vault_subscription": "Vault Subscription",
     "vault_renewal": "Vault Renewal",
     "subscribed_success": "Welcome to The Vault!",
+    "legacy_community_plan": "Honu Community (legacy plan)",
+    "legacy_community_ends": "Ends {date}",
+    "legacy_community_renews": "Renews {date}",
+    "legacy_community_note": "Honu Community is now free for every account, so you keep it after this plan ends. You can join The Vault once it ends, or contact us to switch sooner.",
     "vault_sponsored": "Sponsored by {partner}",
     "vault_sponsored_until": "Sponsored access through {date}",
     "vault_sponsored_note": "Your organization covers this Vault access, so there's no subscription to manage here."
@@ -2509,8 +2512,7 @@
   "subscription": {
     "premium_title": "HonuVibe Premium",
     "premium_subtitle": "Unlock the full library and AI-powered study paths",
-    "price_monthly": "$29/month",
-    "price_monthly_jpy": "¥3,980/month",
+    "price_monthly": "$99/month",
     "upgrade_cta": "Go Premium",
     "manage_subscription": "Manage Subscription",
     "current_plan": "Current Plan",
@@ -3679,24 +3681,11 @@
     "report_note_placeholder": "Optional details (200 char max)",
     "report_submit": "Submit report",
     "report_thanks_toast": "Thanks — moderators will review.",
-    "paywall_title": "Join the HonuVibe Community",
-    "paywall_subtitle": "Connect with fellow builders.",
-    "paywall_cta_community": "Subscribe — Community",
-    "paywall_cta_vault": "Subscribe — Vault",
+    "paywall_title": "Your profile is still being set up",
+    "paywall_subtitle": "Refresh the page in a moment. If this keeps happening, contact us and we'll sort it out.",
+    "paywall_contact": "Contact us",
     "paywall_cta_courses": "Browse courses",
-    "paywall_inline": {
-      "community_bullets": [
-        "Forum + weekly office hours",
-        "New prompts & tools every week",
-        "Members-only resources"
-      ],
-      "vault_bullets": [
-        "All Vault lessons — videos, articles, templates",
-        "Bilingual EN / 日本語",
-        "Honu Community included"
-      ],
-      "browse_courses_hint": "Want to see what's free first?"
-    },
+    "rate_limited": "You're posting faster than we allow. Please wait a little and try again.",
     "banned_banner": "You are banned from this community.",
     "line_join_title": "Join the LINE group",
     "line_join_subtitle": "Chat with members in real time.",
