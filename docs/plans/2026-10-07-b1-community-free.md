@@ -135,4 +135,4 @@ Pricing-card redesign (Units 1 and 2), Vault course inclusion (B3), track column
 - `partner_membership_rls.test.ts:111` needed no change (it's the seat-block CHECK, not community access).
 - **D3 test** pins the GoTrue precondition (an unconfirmed account gets no session); the no-session post is covered separately. There is no DB-level gate for D3, by decision.
 
-**Not run:** `pnpm test:rls`. The throwaway project `kmmfssluqbcuhybfrsbn` no longer resolves in DNS (likely paused). Restore it, apply 078 there, run `pnpm test:rls` — **before** applying 078 to prod.
+**`pnpm test:rls` (2026-10-10):** the throwaway project `kmmfssluqbcuhybfrsbn` had been paused; restored, 078 applied there via the IPv4 session pooler (this machine has no IPv6). B1 suites green: `community_rls` 15/15, `partner_entitlement_parity` 22/22, `partner_membership_rls` 30/30. Remaining reds are not B1: `business_upgrade_plans_rls` (known 076 `42501`), and the local-only `course_material_access_rls` / uncommitted `auth_email_security_rls`. `has_community_access` ACL before/after 078 identical (`PUBLIC`, anon, authenticated, service_role EXECUTE).
