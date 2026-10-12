@@ -1,6 +1,8 @@
 // Vault content library TypeScript types
 // Mirrors Supabase schema from supabase/migrations/011 (content_items + related tables)
 
+import type { TrackId } from '@/lib/tracks';
+
 // ---------------------------------------------------------------------------
 // Union types
 // ---------------------------------------------------------------------------
@@ -47,6 +49,8 @@ export interface VaultContentItem {
   language: VaultLanguage;
   tags: string[] | null;
   access_tier: VaultAccessTier;
+  /** Learning track (migration 079). NULL = untracked. */
+  track: TrackId | null;
   source_course_id: string | null;
   source_session_id: string | null;
   partner_id: string | null;
@@ -314,6 +318,7 @@ export interface VaultItemCreateInput {
   language?: VaultLanguage;
   tags?: string[];
   access_tier?: VaultAccessTier;
+  track?: TrackId | null;
   source_course_id?: string;
   partner_id?: string | null;
   admin_notes?: string;

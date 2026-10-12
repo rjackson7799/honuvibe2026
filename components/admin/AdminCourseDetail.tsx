@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { ArrowLeft, Copy, Download, EyeOff, Globe, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Download, EyeOff, Globe, Library, Pencil, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TabNavigation } from '@/components/learn/TabNavigation';
 import { StatusBadge } from './StatusBadge';
@@ -15,6 +15,7 @@ import { InstructorAssignControl } from './InstructorAssignControl';
 import { ESLAdminDashboard } from './ESLAdminDashboard';
 import { CourseRevenueSplitEditor } from './CourseRevenueSplitEditor';
 import type { CourseWithCurriculum, EnrolledStudent } from '@/lib/courses/types';
+import { TRACK_IDS } from '@/lib/tracks';
 
 type InstructorOption = {
   id: string;
@@ -188,6 +189,16 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     setActionLoading(true);
     try {
       await archiveCourse(course.id);
+      router.refresh();
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleVaultIncludedToggle() {
+    setActionLoading(true);
+    try {
+      await updateCourse(course.id, { vault_included: !(course.vault_included ?? false) });
       router.refresh();
     } finally {
       setActionLoading(false);
@@ -554,6 +565,17 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
               defaultEditValue={course.max_enrollment?.toString() ?? ''}
               onSave={async (val) => { await updateCourse(course.id, { max_enrollment: val ? parseInt(val) : null }); router.refresh(); }}
             />
+            <EditableInfoField
+              label="Track"
+              displayValue={course.track ?? '—'}
+              inputType="select"
+              options={[
+                { label: '—', value: '' },
+                ...TRACK_IDS.map((id) => ({ label: id, value: id })),
+              ]}
+              defaultEditValue={course.track ?? ''}
+              onSave={async (val) => { await updateCourse(course.id, { track: val || null }); router.refresh(); }}
+            />
           </div>
 
           <div className="border-t border-border-default pt-4">
@@ -580,6 +602,34 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                 <span
                   className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                     course.is_private ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="mt-4 flex items-start justify-between gap-6">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Library size={16} className="text-fg-tertiary" />
+                  <h3 className="text-sm font-medium text-fg-primary">Included in the Vault</h3>
+                </div>
+                <p className="max-w-[560px] text-xs text-fg-tertiary">
+                  Vault members will be able to open this course without enrolling once course access through the Vault ships (B3). Leave off for cohorts and paid-only courses.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={actionLoading}
+                onClick={handleVaultIncludedToggle}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  course.vault_included ? 'bg-accent-teal' : 'bg-bg-tertiary'
+                } ${actionLoading ? 'opacity-50' : ''}`}
+                aria-pressed={course.vault_included ?? false}
+                aria-label="Toggle whether this course is included in the Vault"
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    course.vault_included ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
               </button>

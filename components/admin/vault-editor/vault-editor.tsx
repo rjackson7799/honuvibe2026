@@ -32,6 +32,7 @@ import { ClassificationSection } from './classification-section';
 import { TagsSection } from './tags-section';
 import { RelationsPublishSection } from './relations-publish-section';
 import type { MachineField } from './machine-filled';
+import type { TrackId } from '@/lib/tracks';
 
 type PartnerOpt = {
   id: string;
@@ -129,6 +130,7 @@ export function VaultEditor({
   );
   const [language, setLanguage] = useState<VaultLanguage>(item?.language ?? 'en');
   const [accessTier, setAccessTier] = useState<VaultAccessTier>(item?.access_tier ?? 'free');
+  const [track, setTrack] = useState<TrackId | null>(item?.track ?? null);
   const [isFeatured, setIsFeatured] = useState(item?.is_featured ?? false);
   const [selectedTags, setSelectedTags] = useState<string[]>(item?.tags ?? []);
   const [seriesId, setSeriesId] = useState(item?.series_id ?? '');
@@ -336,6 +338,7 @@ export function VaultEditor({
         language,
         tags: selectedTags.length > 0 ? selectedTags : undefined,
         access_tier: accessTier,
+        track,
         source_course_id: relatedCourseId || undefined,
         partner_id: partnerId,
         related_item_ids: relatedItemIds.length > 0 ? relatedItemIds : undefined,
@@ -528,6 +531,8 @@ export function VaultEditor({
             setLanguage={setLanguage}
             accessTier={accessTier}
             setAccessTier={setAccessTier}
+            track={track}
+            setTrack={setTrack}
             isFeatured={isFeatured}
             setIsFeatured={setIsFeatured}
           />

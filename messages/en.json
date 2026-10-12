@@ -3771,5 +3771,28 @@
     "brief_body": "Send a short brief. We reply with a fixed scope and price before any work starts.",
     "brief_cta": "Open the project brief",
     "breadcrumb_label": "Breadcrumb"
+  },
+  "tracks": {
+    "all": "All tracks",
+    "ai_essentials": {
+      "label": "AI Essentials",
+      "blurb": "Confidence with AI in everyday work"
+    },
+    "marketing_growth": {
+      "label": "Marketing & Growth",
+      "blurb": "Reach customers and grow sales"
+    },
+    "build_with_ai": {
+      "label": "Build with AI",
+      "blurb": "Websites, prototypes and business tools"
+    },
+    "research_insights": {
+      "label": "Research & Insights",
+      "blurb": "Understand customers and decide well"
+    },
+    "workflow_automation": {
+      "label": "Workflow & Automation",
+      "blurb": "Hand off the work that repeats"
+    }
   }
 }

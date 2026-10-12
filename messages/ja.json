@@ -3771,5 +3771,28 @@
     "brief_body": "簡単な依頼内容をお送りください。作業開始前に、範囲と価格を確定してご連絡します。",
     "brief_cta": "依頼フォームを開く",
     "breadcrumb_label": "パンくずリスト"
+  },
+  "tracks": {
+    "all": "すべてのトラック",
+    "ai_essentials": {
+      "label": "AIの基本",
+      "blurb": "毎日の仕事で、AIを自信を持って使う"
+    },
+    "marketing_growth": {
+      "label": "マーケティングと成長",
+      "blurb": "お客様に届けて、売上を伸ばす"
+    },
+    "build_with_ai": {
+      "label": "AIでつくる",
+      "blurb": "ウェブサイト、試作品、業務ツール"
+    },
+    "research_insights": {
+      "label": "リサーチとインサイト",
+      "blurb": "お客様を理解し、よい判断をする"
+    },
+    "workflow_automation": {
+      "label": "ワークフローと自動化",
+      "blurb": "繰り返しの仕事を手放す"
+    }
   }
 }

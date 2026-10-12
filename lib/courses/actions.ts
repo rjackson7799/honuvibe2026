@@ -2,6 +2,7 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { parseTrackInput } from '@/lib/tracks';
 import type { BonusSessionType, ParsedCourseData } from './types';
 
 export async function invalidateSyllabusCache(courseId: string) {
@@ -22,6 +23,14 @@ export async function updateCourse(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
+
+  // Migration 079 columns: fail with a readable message before the DB CHECK.
+  if ('track' in updates) {
+    updates = { ...updates, track: parseTrackInput(updates.track) };
+  }
+  if ('vault_included' in updates && typeof updates.vault_included !== 'boolean') {
+    throw new Error('Invalid vault_included: expected a boolean');
+  }
 
   const { error } = await supabase
     .from('courses')

@@ -1,6 +1,7 @@
 // Course-related TypeScript types
 // Mirrors Supabase schema from supabase/migrations/001_phase2_schema.sql
 import type { InstructorCardData, CourseInstructorWithProfile } from '@/lib/instructors/types';
+import type { TrackId } from '@/lib/tracks';
 
 // Partner row returned from FK join on courses.partner_id
 export interface PartnerRow {
@@ -120,6 +121,12 @@ export interface Course {
 
   // Partner ownership (migration 035) — null = HonuVibe-owned
   partner_id: string | null;
+
+  // Learning track + Vault inclusion (migration 079). Optional because many
+  // course queries select an explicit column list without them. vault_included
+  // is read by the B3 access predicate; until then only the admin toggle uses it.
+  track?: TrackId | null;
+  vault_included?: boolean;
 
   // Proposal fields (migration 032) — populated when instructor drafts a course
   proposed_by_instructor_id: string | null;

@@ -1,7 +1,9 @@
 'use server';
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { parseTrackInput } from '@/lib/tracks';
+import { VAULT_CATALOG_TAG } from '@/lib/vault/catalog';
 import type {
   VaultAccessTier,
   VaultBookmarkType,
@@ -54,6 +56,9 @@ async function requireAuth() {
 function revalidateVault() {
   revalidatePath('/learn/vault');
   revalidatePath('/admin/vault');
+  // expire: 0, not 'max': an unpublished or deleted item must not be served
+  // from the public catalog even once more.
+  revalidateTag(VAULT_CATALOG_TAG, { expire: 0 });
 }
 
 /**
@@ -137,6 +142,7 @@ export async function createVaultItem(
       language: data.language ?? 'en',
       tags: data.tags ?? null,
       access_tier: data.access_tier ?? 'free',
+      track: parseTrackInput(data.track ?? null),
       source_course_id: data.source_course_id ?? null,
       partner_id: data.partner_id ?? null,
       admin_notes: data.admin_notes ?? null,
@@ -189,6 +195,10 @@ export async function updateVaultItem(
 
   if (data.freshness_status === 'current') {
     updates.freshness_reviewed_at = new Date().toISOString();
+  }
+
+  if ('track' in itemFields) {
+    updates.track = parseTrackInput(itemFields.track);
   }
 
   const { error } = await supabase

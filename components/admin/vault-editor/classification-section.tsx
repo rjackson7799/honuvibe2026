@@ -7,6 +7,7 @@ import type {
   VaultDifficulty,
   VaultLanguage,
 } from '@/lib/vault/types';
+import { TRACK_IDS, type TrackId } from '@/lib/tracks';
 
 const DIFFICULTIES: VaultDifficulty[] = ['beginner', 'intermediate', 'advanced'];
 const LANGUAGES: VaultLanguage[] = ['en', 'ja', 'both'];
@@ -19,6 +20,8 @@ type ClassificationSectionProps = {
   setLanguage: (v: VaultLanguage) => void;
   accessTier: VaultAccessTier;
   setAccessTier: (v: VaultAccessTier) => void;
+  track: TrackId | null;
+  setTrack: (v: TrackId | null) => void;
   isFeatured: boolean;
   setIsFeatured: (v: boolean) => void;
 };
@@ -30,12 +33,14 @@ export function ClassificationSection({
   setLanguage,
   accessTier,
   setAccessTier,
+  track,
+  setTrack,
   isFeatured,
   setIsFeatured,
 }: ClassificationSectionProps) {
   return (
     <SectionCard id="classification" number={3} title="Classification">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label className={labelClass}>Difficulty</label>
           <select
@@ -76,6 +81,23 @@ export function ClassificationSection({
             {ACCESS_TIERS.map((a) => (
               <option key={a} value={a}>
                 {a}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="vault-track" className={labelClass}>Track</label>
+          <select
+            id="vault-track"
+            value={track ?? ''}
+            onChange={(e) => setTrack((e.target.value || null) as TrackId | null)}
+            className={selectClass}
+          >
+            <option value="">None</option>
+            {TRACK_IDS.map((id) => (
+              <option key={id} value={id}>
+                {id}
               </option>
             ))}
           </select>
