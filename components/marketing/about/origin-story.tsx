@@ -62,7 +62,7 @@ export function AboutOriginStory() {
           </div>
 
           <a
-            href="/explore"
+            href="/build"
             className="mt-10 inline-flex items-center gap-2 text-[15.5px] font-bold text-[var(--m-accent-teal)] transition-opacity hover:opacity-80"
           >
             {t('cta_label')}

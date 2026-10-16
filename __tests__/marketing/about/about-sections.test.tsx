@@ -173,7 +173,7 @@ describe('About page sections', () => {
     expect(screen.queryByRole('heading', { name: 'Ryan Jackson' })).toBeNull();
     expect(screen.getByRole('link', { name: /See what we're building/ })).toHaveAttribute(
       'href',
-      '/explore',
+      '/build',
     );
   });
 

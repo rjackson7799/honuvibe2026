@@ -55,3 +55,28 @@ describe('Unit 0B redirects', () => {
     }
   });
 });
+
+/** Unit 1 retires /explore; Home carries its Build and Partner doors. */
+describe('Unit 1 redirects', () => {
+  it.each([
+    ['/explore', '/'],
+    ['/ja/explore', '/ja'],
+  ])('%s → %s, temporary during the soak window', async (source, destination) => {
+    const list = await redirects();
+    expect(find(list, source)).toEqual({ source, destination, permanent: false });
+  });
+
+  it.each([
+    ['/exploration', '/'],
+    ['/ja/exploration', '/ja'],
+  ])('%s → %s in a single hop', async (source, destination) => {
+    const list = await redirects();
+    expect(find(list, source)?.destination).toBe(destination);
+  });
+
+  it('no redirect ends at a removed route', async () => {
+    const list = await redirects();
+    const removed = /^(\/ja)?\/(explore|exploration)(\/|#|$)/;
+    expect(list.filter((r) => removed.test(r.destination))).toEqual([]);
+  });
+});

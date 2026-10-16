@@ -54,6 +54,14 @@ describe('HvTierCard', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
+  it('ctaVariant overrides the default CTA look on either card', () => {
+    const { rerender } = render(<HvTierCard {...base} popular ctaVariant="outline-dark" />);
+    expect(screen.getByRole('link').className).toContain('border-hv-green-600');
+    expect(screen.getByRole('link').className).not.toContain('bg-hv-amber');
+    rerender(<HvTierCard {...base} ctaVariant="amber" />);
+    expect(screen.getByRole('link').className).toContain('bg-hv-amber');
+  });
+
   it('HvTierGrid lays cards out with the auto-fit grid', () => {
     const { container } = render(
       <HvTierGrid>

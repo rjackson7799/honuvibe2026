@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { HvButton } from './button';
+import { HvButton, type HvButtonVariant } from './button';
 
 export type TierPrice = {
   /** "$99", "$1,500", "Free", "Quoted", "Rev share" */
@@ -22,6 +22,8 @@ export type TierCardProps = {
    * pass functions across the boundary).
    */
   cta: { label: string; href?: string; onClick?: () => void };
+  /** Overrides the CTA look (default: amber on the popular card, dark otherwise). */
+  ctaVariant?: HvButtonVariant;
   /** Popular tier: green-900 fill, amber checks, amber button, badge. */
   popular?: boolean;
   /** Badge text for the popular tier ("Most projects", "Most partners"). */
@@ -42,6 +44,7 @@ export function HvTierCard({
   price,
   features,
   cta,
+  ctaVariant,
   popular = false,
   badge,
   showPrice = true,
@@ -52,6 +55,7 @@ export function HvTierCard({
   const sub = popular ? 'text-hv-green-200' : 'text-hv-ink-500';
   const body = popular ? 'text-hv-green-200' : 'text-hv-ink-700';
   const check = popular ? 'text-hv-amber' : 'text-hv-green-600';
+  const buttonVariant = ctaVariant ?? (popular ? 'amber' : 'dark');
 
   return (
     <div
@@ -98,11 +102,11 @@ export function HvTierCard({
 
       <div className="mt-auto pt-2">
         {cta.href ? (
-          <HvButton href={cta.href} variant={popular ? 'amber' : 'dark'} size="hero" arrow className="w-full" onClick={cta.onClick}>
+          <HvButton href={cta.href} variant={buttonVariant} size="hero" arrow className="w-full" onClick={cta.onClick}>
             {cta.label}
           </HvButton>
         ) : (
-          <HvButton variant={popular ? 'amber' : 'dark'} size="hero" arrow className="w-full" onClick={cta.onClick}>
+          <HvButton variant={buttonVariant} size="hero" arrow className="w-full" onClick={cta.onClick}>
             {cta.label}
           </HvButton>
         )}

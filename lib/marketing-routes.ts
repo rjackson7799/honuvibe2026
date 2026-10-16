@@ -22,7 +22,6 @@
 const MARKETING_PATHS = [
   '/',
   '/learn',
-  '/explore',
   '/sandbox',
   '/build',
   '/partner',

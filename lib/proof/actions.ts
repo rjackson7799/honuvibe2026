@@ -5,9 +5,10 @@
 // table admin-write), publish gated by validateProofForPublish, and
 // revalidatePath for every marketing surface that renders proof.
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { PROOF_TAG } from './queries';
 import { validateProofForPublish } from './validation';
 import type {
   CreateProofArtifactInput,
@@ -35,6 +36,8 @@ async function requireAdmin(): Promise<void> {
  * /learn, and course detail, in both locales.
  */
 function revalidateProofPaths(): void {
+  // The public read is cached under PROOF_TAG (lib/proof/queries.ts).
+  revalidateTag(PROOF_TAG, { expire: 0 });
   revalidatePath('/admin/proof');
   for (const prefix of ['', '/ja']) {
     revalidatePath(`${prefix}/`);

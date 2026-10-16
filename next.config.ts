@@ -53,6 +53,9 @@ export const nextConfig: NextConfig = {
       { source: '/ja/partnerships/apply', destination: '/ja/partner#apply', permanent: false },
       { source: '/organizations', destination: '/partner', permanent: false },
       { source: '/ja/organizations', destination: '/ja/partner', permanent: false },
+      // Unit 1 retires the Explore page; Home carries its Build + Partner doors.
+      { source: '/explore', destination: '/', permanent: false },
+      { source: '/ja/explore', destination: '/ja', permanent: false },
       // The authenticated partner portal moved from /partner/* to /portal/*.
       // /partner itself is NOT redirected: it is the public Partner page now.
       { source: '/partner/:section(courses|vault|settings)', destination: '/portal/:section', permanent: false },
@@ -88,8 +91,9 @@ export const nextConfig: NextConfig = {
       { source: '/ja/library', destination: '/ja/learn/library', permanent: true },
       { source: '/videos', destination: '/learn/library', permanent: true },
       { source: '/ja/videos', destination: '/ja/learn/library', permanent: true },
-      { source: '/exploration', destination: '/explore', permanent: true },
-      { source: '/ja/exploration', destination: '/ja/explore', permanent: true },
+      // /explore retired in Unit 1: point straight at Home so there is one hop.
+      { source: '/exploration', destination: '/', permanent: true },
+      { source: '/ja/exploration', destination: '/ja', permanent: true },
 
       // The canonical B2B route is /partner; keep a /learn/organizations alias
       // (it would otherwise resolve to the course-slug page).

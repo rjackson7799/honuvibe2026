@@ -58,11 +58,16 @@ const sizeClasses: Record<HvButtonSize, string> = {
 
 const isTextLink = (v: HvButtonVariant) => v.startsWith('link');
 const isInternal = (href: string) => href.startsWith('/') && !href.startsWith('//');
+const isApiRoute = (href: string) => href.startsWith('/api/');
 
 /**
  * README "Buttons". Text-link variants drop the box sizing. Internal hrefs go
  * through next-intl's Link so /ja routes keep their prefix (the legacy
- * marketing Button rendered a plain <a>, which lost the locale).
+ * marketing Button rendered a plain <a>, which lost the locale). /api/ hrefs
+ * are not pages: they render a plain <a> so the browser does a full
+ * navigation, with no /ja prefix (/ja/api/… does not exist) and no client-side
+ * RSC fetch (a router fetch of a redirecting route handler strands the click).
+ * Callers add the locale with apiHrefForLocale.
  */
 export function HvButton(props: Props) {
   const { children, variant = 'amber', size = 'md', arrow = false, className, ...rest } = props;
@@ -87,7 +92,7 @@ export function HvButton(props: Props) {
 
   if ('href' in rest && typeof rest.href === 'string') {
     const { href, ...anchorRest } = rest as LinkProps;
-    if (isInternal(href)) {
+    if (isInternal(href) && !isApiRoute(href)) {
       return (
         <Link href={href} className={classes} {...anchorRest}>
           {content}

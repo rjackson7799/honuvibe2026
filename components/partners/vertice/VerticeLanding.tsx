@@ -2898,7 +2898,7 @@ function MobileStickyCTA() {
 
 // ——— Footer (dark co-brand, JP+EN paired link grid) ———————————————
 const FOOTER_LINKS: Array<{ jp: string; en: string; href: string }> = [
-  { jp: '探検する', en: 'Explore', href: '/explore' },
+  { jp: '探検する', en: 'Explore', href: '/' },
   { jp: 'ビルド', en: 'Build', href: '/honuhub' },
   { jp: '学ぶ', en: 'Learn', href: '/learn' },
   { jp: '概要', en: 'About', href: '/about' },

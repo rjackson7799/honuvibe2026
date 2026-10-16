@@ -134,87 +134,12 @@
     "close_menu": "Close menu",
     "menu_label": "Menu"
   },
-  "hero": {
-    "headline_en": "A Whole New",
-    "headline_vibe": "Vibe",
-    "headline_en_2": "for AI Learning",
-    "headline_jp": "新しいAI学習のスタイル",
-    "sub": "Where curiosity meets code.",
-    "cta_primary": "Explore Courses",
-    "scroll_hint": "Scroll to discover",
-    "cards": {
-      "badge": "CC",
-      "course_title": "Introduction to Claude Code",
-      "course_modules": "8 modules",
-      "progress": "Progress",
-      "lesson_1": "Claude vs ChatGPT",
-      "lesson_2": "Claude Code Fundamentals",
-      "lesson_3": "Workflow Automation",
-      "achievement_label": "Achievement",
-      "achievement_title": "First Agent",
-      "achievement_desc": "Built an autonomous Claude agent"
-    }
-  },
-  "mission": {
-    "overline": "Why HonuVibe",
-    "items": {
-      "global": {
-        "title": "Learn Anywhere",
-        "description": "In Waikiki or online globally — world-class AI education without borders."
-      },
-      "bilingual": {
-        "title": "EN/JP Bilingual",
-        "description": "A truly bilingual community bridging the US and Japan AI ecosystems."
-      },
-      "projects": {
-        "title": "Real Projects",
-        "description": "Build real applications, ship real products. No theory-only courses."
-      },
-      "practitioners": {
-        "title": "By Practitioners",
-        "description": "Learn from people who build AI products every day, not just teach them."
-      }
-    }
-  },
   "honuhub_feature": {
     "overline": "The Space",
     "heading": "HonuHub Waikiki",
     "description": "A dedicated learning space in the heart of Waikiki — where AI education meets island inspiration. Join in-person workshops, collaborative sessions, and live-streamed events.",
     "coming": "Coming Summer 2026",
     "cta": "Discover HonuHub"
-  },
-  "featured_courses": {
-    "overline": "Start Learning",
-    "heading": "Featured Courses",
-    "sub": "Practical AI education designed for entrepreneurs, builders, and curious minds.",
-    "see_all": "See all courses",
-    "courses": {
-      "ai_foundations": {
-        "title": "AI Foundations for Entrepreneurs",
-        "description": "Master the fundamentals of AI and learn to identify opportunities in your business. No coding required.",
-        "level": "Beginner",
-        "language": "EN"
-      },
-      "claude_code": {
-        "title": "Introduction to Claude Code",
-        "description": "Master Claude Code for AI-powered development. Learn agent building, workflow automation, and professional coding with Anthropic's CLI tool.",
-        "level": "Beginner",
-        "language": "EN"
-      },
-      "micro_saas": {
-        "title": "Build Your First Micro-SaaS",
-        "description": "From idea to launch — build a complete SaaS product using AI-powered development tools.",
-        "level": "Intermediate",
-        "language": "EN"
-      },
-      "ai_automation": {
-        "title": "AI Workflow Automation",
-        "description": "Automate repetitive tasks and build intelligent workflows with N8N, Zapier, and custom AI agents.",
-        "level": "Intermediate",
-        "language": "EN/JP"
-      }
-    },
-    "enroll": "Enroll Now"
   },
   "exploration": {
     "overline": "Our Work",
@@ -422,233 +347,6 @@
       "description": "We're building a global network of HonuHubs. Interested in bringing one to your city?",
       "cta": "Get in Touch"
     }
-  },
-  "exploration_page": {
-    "hero": {
-      "overline": "Our Work",
-      "heading": "Explore",
-      "sub": "Real projects. Real outcomes. Explore what the HonuVibe community has built across five territories of innovation.",
-      "cta": "Work with Us"
-    },
-    "lead_form": {
-      "heading": "Work with Us",
-      "sub": "Tell us about your project and we'll be in touch.",
-      "name": "Name",
-      "email": "Email",
-      "company": "Company (optional)",
-      "message": "Brief project description",
-      "submit": "Send Inquiry",
-      "success": "Thanks! We'll be in touch soon.",
-      "error": "Something went wrong. Please try again."
-    },
-    "featured_builds": {
-      "section_overline": "Featured Builds",
-      "section_heading": "Projects That Define Our Craft",
-      "kwame": {
-        "overline": "Featured Build",
-        "heading": "KwameBrathwaite.com",
-        "sub": "A photography archive gets a modern makeover",
-        "problem": "The legacy site for legendary photographer Kwame Brathwaite needed a complete transformation — mobile-unfriendly, slow, and missing conversion opportunities for print sales, licensing, and exhibition bookings.",
-        "description": "Using Claude, Cursor, and a modern AI-powered workflow, we're rebuilding KwameBrathwaite.com from the ground up. The new site preserves the archive's cultural significance while driving real business outcomes — sales, licensing inquiries, and brand partnerships.",
-        "outcome": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
-        "outcome_stats": {
-          "stat_1": {
-            "value": "3x",
-            "label": "Faster Load Time"
-          },
-          "stat_2": {
-            "value": "Mobile-First",
-            "label": "Responsive Design"
-          },
-          "stat_3": {
-            "value": "AI-Powered",
-            "label": "Modern Workflow"
-          }
-        },
-        "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
-        "challenge_label": "The Challenge",
-        "carousel_label": "Project Screenshots",
-        "slide_alt_1": "KwameBrathwaite.com homepage redesign",
-        "slide_alt_2": "Photo archive gallery view",
-        "slide_alt_3": "Mobile responsive layout",
-        "status": "In Development"
-      },
-      "hci": {
-        "overline": "Featured Build",
-        "heading": "HCI Medical Group",
-        "sub": "Healthcare platform with custom project management",
-        "problem": "HCI Medical Group needed a modern, professional web presence and an internal project management tool to streamline operations across their medical practice.",
-        "description": "We delivered a complete front-end redesign that elevated the brand's digital presence, plus a custom-built project management module in the backend for internal team coordination and workflow tracking.",
-        "outcome": "A polished, conversion-ready healthcare website paired with powerful internal tools that streamline daily operations.",
-        "outcome_stats": {
-          "stat_1": {
-            "value": "Live",
-            "label": "In Production"
-          },
-          "stat_2": {
-            "value": "Custom PM",
-            "label": "Backend Module"
-          },
-          "stat_3": {
-            "value": "Full-Stack",
-            "label": "End-to-End Build"
-          }
-        },
-        "tags": "Next.js,Tailwind CSS,Supabase,Custom PM,Vercel",
-        "challenge_label": "The Challenge",
-        "carousel_label": "Project Screenshots",
-        "slide_alt_1": "HCI Medical Group homepage",
-        "slide_alt_2": "Project management dashboard",
-        "slide_alt_3": "Mobile responsive view",
-        "status": "Live"
-      }
-    },
-    "tech_stack": {
-      "overline": "Our Toolkit",
-      "heading": "Technologies We Work With",
-      "sub": "Modern tools and frameworks for building fast, scalable, and intelligent applications.",
-      "items": {
-        "nextjs": "Next.js",
-        "react": "React",
-        "typescript": "TypeScript",
-        "tailwind": "Tailwind CSS",
-        "supabase": "Supabase",
-        "stripe": "Stripe",
-        "openai": "OpenAI",
-        "nodejs": "Node.js",
-        "vercel": "Vercel",
-        "figma": "Figma",
-        "claude": "Claude AI",
-        "cursor": "Cursor",
-        "lovable": "Lovable"
-      }
-    },
-    "process": {
-      "overline": "How We Work",
-      "heading": "From Idea to Launch",
-      "sub": "A proven process refined across dozens of projects.",
-      "steps": {
-        "discovery": {
-          "title": "Discovery",
-          "description": "We listen, research, and define the problem. Understanding your goals, audience, and constraints shapes everything that follows."
-        },
-        "design": {
-          "title": "Design",
-          "description": "Wireframes, prototypes, and visual direction. We design for conversion, accessibility, and brand alignment before writing a line of code."
-        },
-        "build": {
-          "title": "Build",
-          "description": "AI-accelerated development using modern frameworks. We ship fast without cutting corners on quality or performance."
-        },
-        "launch": {
-          "title": "Launch",
-          "description": "Deployment, testing, and optimization. We ensure your project is fast, secure, and ready for real users from day one."
-        },
-        "support": {
-          "title": "Support",
-          "description": "Ongoing maintenance, analytics review, and iteration. We stay engaged to help you grow and adapt."
-        }
-      }
-    },
-    "territory_grid": {
-      "overline": "Territories",
-      "heading": "Five Areas of Innovation",
-      "sub": "From web design to pro-bono work, we build across the full spectrum."
-    },
-    "territories": {
-      "web": {
-        "title": "Website Design & Redesign",
-        "description": "Visually impactful web experiences — built for performance, accessibility, and conversion.",
-        "projects": {
-          "reef_dashboard": {
-            "title": "Reef Analytics Dashboard",
-            "tagline": "Real-time marine data visualization for conservation teams",
-            "outcome": "40% faster data-driven decisions",
-            "tags": "Next.js,Supabase,D3.js"
-          },
-          "island_eats": {
-            "title": "Island Eats Redesign",
-            "tagline": "Complete rebrand and web redesign for a local restaurant group",
-            "outcome": "85% increase in online orders",
-            "tags": "React,Tailwind,Stripe"
-          }
-        }
-      },
-      "db": {
-        "title": "Database-Driven Applications",
-        "description": "Custom applications that solve real business problems with smart data architecture.",
-        "projects": {
-          "aloha_scheduler": {
-            "title": "Aloha Scheduler",
-            "tagline": "AI-powered booking system for a Waikiki tour operator",
-            "outcome": "60% reduction in manual scheduling",
-            "tags": "React,Node.js,OpenAI"
-          },
-          "inventory_pro": {
-            "title": "Inventory Pro",
-            "tagline": "Multi-location inventory management for a retail chain",
-            "outcome": "Real-time stock visibility across 12 locations",
-            "tags": "Next.js,Supabase,PostgreSQL"
-          }
-        }
-      },
-      "saas": {
-        "title": "SaaS & Efficiency Tools",
-        "description": "Micro-SaaS products and internal tools that save time and drive revenue.",
-        "projects": {
-          "course_pilot": {
-            "title": "CoursePilot",
-            "tagline": "AI-assisted course creation platform for educators",
-            "outcome": "70% faster course production time",
-            "tags": "Next.js,OpenAI,Stripe"
-          }
-        }
-      },
-      "auto": {
-        "title": "Automations",
-        "description": "Intelligent workflows that eliminate repetitive tasks and unlock team capacity.",
-        "projects": {
-          "report_flow": {
-            "title": "ReportFlow",
-            "tagline": "Automated weekly reporting pipeline for a marketing agency",
-            "outcome": "10 hours saved per week",
-            "tags": "N8N,Google Sheets,Slack"
-          }
-        }
-      },
-      "pro": {
-        "title": "Pro-Bono & Nonprofit",
-        "description": "Giving back is core to how we operate. Featured projects for organizations making a difference.",
-        "projects": {
-          "coral_watch": {
-            "title": "CoralWatch Hawaii",
-            "tagline": "Data collection app for volunteer coral reef monitoring teams",
-            "outcome": "3x increase in data collection efficiency",
-            "tags": "React Native,Supabase,MapboxGL"
-          }
-        }
-      }
-    },
-    "cta": {
-      "heading": "Have a Project in Mind?",
-      "sub": "Whether it's a passion project or a business challenge, we'd love to hear about it.",
-      "button": "Get in Touch"
-    },
-    "cta_strip": {
-      "headline": "Inspired by what you see?",
-      "sub": "Let's build something together.",
-      "cta": "Start a Project"
-    },
-    "filter": {
-      "all": "All Projects",
-      "web": "Web Design",
-      "database": "Database Apps",
-      "saas": "SaaS Tools",
-      "automations": "Automations",
-      "pro-bono": "Pro-Bono"
-    },
-    "hero_cta_primary": "Browse Projects",
-    "hero_cta_secondary": "Work With Us"
   },
   "build_page": {
     "hero": {
@@ -2566,330 +2264,189 @@
   },
   "home": {
     "hero": {
-      "eyebrow_label": "Practical AI Training",
-      "eyebrow_lang": "EN / 日本語",
-      "headline_line_1": "Learn AI tonight.",
-      "headline_line_2": "Put it to work",
-      "headline_line_3": "tomorrow.",
-      "subhead": "One membership. Every lesson we teach — practical, self-paced AI training in English and Japanese, with new lessons added every month.",
-      "cta_primary": "Join the Vault — $99/mo",
-      "cta_secondary": "For Organizations",
-      "social_proof": "Join <strong>{count}+</strong> learners across EN & JP",
-      "vault_brand": "The Vault",
-      "vault_library_label": "Library",
-      "vault_progress_label": "Progress",
-      "vault_chapter_title": "Building an Automated Customer Research Agent",
-      "vault_chapter_meta": "12 lessons · ~3 hours",
-      "vault_status": "In progress",
-      "vault_topic_1": "AI Fundamentals",
-      "vault_topic_2": "Prompt Engineering",
-      "vault_topic_3": "AI Agents",
-      "vault_topic_4": "Workflow Automation",
-      "vault_topic_5": "Real-World Projects",
-      "vault_topic_6": "Business Applications",
-      "lesson_1_title": "Defining the agent's job",
-      "lesson_1_desc": "Clarify what to research, who the customer is, and what good output looks like.",
-      "lesson_1_time": "9 min",
-      "lesson_2_title": "Collecting customer signals",
-      "lesson_2_desc": "Gather transcripts, support tickets, and surveys into one workable corpus.",
-      "lesson_2_time": "11 min",
-      "lesson_3_title": "Drafting research briefs",
-      "lesson_3_desc": "Turn raw signals into pain points, themes, and follow-up questions.",
-      "lesson_3_time": "8 min",
-      "lesson_4_title": "Reviewing and shipping insights",
-      "lesson_4_desc": "Sanity-check the brief, package it for stakeholders, and close the loop.",
-      "lesson_4_time": "10 min"
+      "eyebrow": "New in the Vault",
+      "eyebrow_label": "See the latest lessons",
+      "headline": "The online AI school that also builds with you.",
+      "lead": "Learn practical AI through courses organized by track. When you need more, our Studio builds with you and our partner program brings AI education to your team.",
+      "cta_primary": "Get started free",
+      "cta_secondary": "Browse the tracks",
+      "note": "Join the community for free. Upgrade to the full course library whenever you’re ready.",
+      "proof_count": "{count} lessons across five tracks.",
+      "proof_quote": "“{quote}” — {source}"
     },
-    "personas": {
-      "heading": "Who is this for?",
-      "subhead": "Three ways in — pick the one that sounds like you.",
-      "solo_intent": "I want to use AI in my own work",
-      "solo_path": "Professionals & solopreneurs",
-      "solo_desc": "Self-paced, practical lessons in the Vault. Join tonight, put it to work tomorrow — and keep access as the library grows.",
-      "solo_cta": "Join the Vault — $99/mo",
-      "org_intent": "I'm bringing AI to my team or community",
-      "org_path": "Organizations",
-      "org_desc": "Bilingual cohorts and training programs, built around your members, employees, or community.",
-      "org_cta": "Explore partnerships",
-      "build_intent": "I need something built, not taught",
-      "build_path": "HonuVibe Studio",
-      "build_desc": "Websites, tools, and AI workflows, designed and shipped for you. Transparent tiers from $500.",
-      "build_cta": "Visit the Studio",
-      "reassure": "Not sure? Start with the Vault — it's where most people begin."
-    },
-    "membership": {
-      "overline": "Six ways to learn · one place",
-      "heading": "One membership. <em>Everything inside.</em>",
-      "subhead": "Everything below is included in the $99/mo Vault membership — no tiers, no add-ons to unlock the basics.",
-      "tile_1_title": "A practical lesson library",
-      "tile_1_body": "Self-paced AI lessons you can act on the same day — built from real projects, not lecture-hall theory.",
-      "tile_2_title": "Turn lessons into work",
-      "tile_2_body": "The built-in Workbench turns each lesson into a task you run on your own work, right in the browser.",
-      "tile_3_title": "Guided journeys",
-      "tile_3_body": "Study Paths string lessons into a route, so you always know the next step to take.",
-      "tile_4_title": "English & 日本語",
-      "tile_4_body": "Built bilingual — lessons in English and Japanese, side by side.",
-      "tile_5_title": "New lessons every month",
-      "tile_5_body": "The library keeps growing, and your membership includes every lesson we add — at no extra cost.",
-      "tile_6_title": "Learn together",
-      "tile_6_body": "A members' community to compare notes, share prompts, and get unstuck alongside other builders.",
-      "teaser": {
-        "overline": "Peek inside a lesson",
-        "title": "Building a Customer Research Agent",
-        "description": "A reusable prompt that turns messy interview notes into a one-page insights brief. Copy it, run it in any AI chat, and see what a Vault lesson feels like.",
-        "copy_label": "Copy prompt",
-        "copied_label": "Copied to clipboard",
-        "error_label": "Couldn't copy — select the text to copy manually",
-        "manual_label": "Select the prompt below to copy it.",
-        "see_full": "See the full lesson",
-        "prompt": "# Role\nYou are a senior product researcher analyzing customer interviews for {{ company }}.\n\n# Task\nGiven the transcript below, extract:\n\n  1. Top 3 pain points (with verbatim quotes)\n  2. Repeated themes across the conversation\n  3. Implicit needs the customer didn't state directly\n  4. Three follow-up questions worth asking next time\n\n# Format\nReturn as structured markdown. Use blockquotes for verbatim customer language. Tag each pain point with a category from: [workflow, tooling, communication, onboarding, reporting, other].\n\n# Transcript\n{{ transcript }}"
+    "paths": {
+      "label": "Three ways to work with us",
+      "tablist_label": "Ways to work with HonuVibe",
+      "learn": {
+        "title": "Learn AI skills",
+        "tags": [
+          "5 tracks",
+          "Self-paced",
+          "EN / 日本語"
+        ]
+      },
+      "build": {
+        "title": "Build with Studio",
+        "tags": [
+          "Website",
+          "Web app",
+          "MVP"
+        ]
+      },
+      "partner": {
+        "title": "Partner with us",
+        "tags": [
+          "Your business",
+          "Your online community"
+        ]
       }
     },
-    "featured_courses": {
-      "heading": "Featured Courses",
-      "see_all": "See all courses",
-      "track_ribbon": "TRACK",
-      "course_1_title": "AI Essentials",
-      "course_1_level": "Beginner",
-      "course_1_duration": "5 weeks",
-      "course_1_lang": "EN / JP",
-      "course_1_body": "Foundational AI literacy for professionals. Understand how AI works, where it applies to your work, and how to start using it today.",
-      "course_1_cta": "Enroll Now",
-      "course_2_title": "AI Mastery",
-      "course_2_level": "Intermediate",
-      "course_2_duration": "5 weeks",
-      "course_2_lang": "EN / JP",
-      "course_2_body": "Hands-on application and custom AI workflows. Build real systems, automate real tasks, and integrate AI into your actual day-to-day work.",
-      "course_2_cta": "Enroll Now",
-      "course_3_title": "Builder Track",
-      "course_3_level": "Advanced",
-      "course_3_duration": "Multiple courses",
-      "course_3_lang": "EN",
-      "course_3_body": "For learners who want to go deeper. Claude Code, Micro-SaaS development, Workflow Automation, and shipping real AI products.",
-      "course_3_cta": "Explore Track"
+    "panel_learn": {
+      "eyebrow": "01 · Learn in the Vault",
+      "meta": "Self-paced · new lessons added regularly",
+      "heading": "Five tracks. Start with the one that matches your work.",
+      "view": "View",
+      "trending": "Recently added",
+      "trending_meta": "Short, practical lessons",
+      "starter": "New to AI? Start with the free <b>AI Essentials</b> lessons.",
+      "starter_cta": "Get started free"
     },
-    "org_section": {
-      "overline": "For Organizations",
-      "heading": "Bring AI training to your team or community.",
-      "body": "We partner with leading organizations to deliver bilingual AI training programs to their members, employees, and communities — fully tailored to your audience.",
-      "cta": "Explore Partnerships",
-      "image_caption": "Group cohort session · Waikiki"
-    },
-    "founder": {
-      "overline": "From the founder",
-      "heading": "I built HonuVibe because I needed it.",
-      "body_1": "I'm Ryan. I kept moving between Honolulu, Tokyo, and LA to build with AI — and kept hitting the same wall: the good material was scattered, English-only, and written for engineers.",
-      "body_2": "So I started making the lessons I wished existed: practical, bilingual, and short enough to use the same night. That became the Vault.",
-      "body_3": "Everything here is the workflow I actually use, taught the way I'd explain it to a friend over coffee.",
-      "signature": "Ryan — Founder · EN/日本語",
-      "chip_1": "Studio instructor",
-      "chip_2": "Bilingual EN·日本語",
-      "chip_3": "Built in Hawai'i",
-      "cta": "Read the full story",
-      "portrait_label": "Ryan · Founder"
-    },
-    "testimonials": {
-      "heading": "What People Are Saying",
-      "wall_heading": "Proof from people putting AI to work.",
-      "quote_1_text": "I've taken a lot of online courses. HonuVibe is the first one where I actually changed how I work within the first week.",
-      "quote_1_name": "Keiko T.",
-      "quote_1_role": "Marketing Manager · Tokyo",
-      "quote_2_text": "The bilingual format made all the difference for our team. Half speaks English, half Japanese — and everyone got the same depth.",
-      "quote_2_name": "Marcus A.",
-      "quote_2_role": "Operations Lead · Honolulu",
-      "quote_3_text": "The Vault alone is worth it. I went back to the prompt engineering module three times as my projects evolved.",
-      "quote_3_name": "Sarah L.",
-      "quote_3_role": "Freelance Designer · San Francisco"
-    },
-    "faq": {
-      "heading": "Real questions. <em>Straight answers.</em>",
-      "q_1": "How does HonuVibe actually work?",
-      "a_1": "You join the Vault for $99/mo and get a growing library of self-paced AI lessons in English and Japanese. Watch or read a lesson, then use the built-in Workbench to apply it to your own work the same day.",
-      "q_2": "Do I need any experience with AI?",
-      "a_2": "No. Lessons start from the fundamentals and build up, with plain-language explanations and real examples. If you can use a web browser, you can start tonight.",
-      "q_3": "Is HonuVibe really bilingual?",
-      "a_3": "Yes — HonuVibe is built bilingual, with lessons in English and Japanese. Learn in whichever language you think in, and switch anytime.",
-      "q_4": "Who is HonuVibe for?",
-      "a_4": "Professionals and solopreneurs putting AI to work, plus teams and communities training together. If you want practical results over theory, you'll feel at home.",
-      "q_5": "Can I cancel anytime?"
-    },
-    "final_cta": {
-      "eyebrow": "ready to start?",
-      "headline": "Start tonight.",
-      "body": "One membership, every lesson we teach. Your first lesson takes about ten minutes — the Vault never closes.",
-      "cta_primary": "Join the Vault — $99/mo",
-      "link_courses": "Browse live cohorts",
-      "link_team": "Train your team"
-    }
-  },
-  "explore": {
-    "meta": {
-      "title": "Explore — Real projects, real outcomes | HonuVibe",
-      "description": "See what happens when AI education meets real-world application. Featured client work, community builds, and our pro-bono partnerships."
-    },
-    "chart": {
-      "eyebrow": "Exploration log · The work, charted",
-      "headline_1": "The Wayfinding",
-      "headline_2": "Chart",
-      "lede": "Every project is a crossing — open water at the start, a fixed point on the map at the end. Here's the route we've charted so far, plotted in the order we sailed it.",
-      "legend_crossings": "crossings",
-      "legend_industries": "industries",
-      "legend_fog": "under fog",
-      "coords": "21°18′N · 157°49′W",
-      "route_label": "The route",
-      "route_caption": "Plotted in the order we sailed — newest crossings last.",
-      "route_terminus": "End of charted water — the next waypoint is yours",
-      "status_live": "Live",
-      "status_in_progress": "In progress",
-      "status_confidential": "Confidential",
-      "visit_label": "Visit site",
-      "stack_label": "Built with",
-      "fog_name": "Hidden in the fog",
-      "fog_brief": "An active crossing we can't chart in public yet. Details available on request."
-    },
-    "route_cta": {
-      "overline": "Chart a new crossing",
-      "heading": "Have a destination in mind? That's what HonuVibe Studio is for.",
-      "body": "Bring us the where — a website, an internal tool, an AI workflow — and we'll plot the course and sail it with you. Transparent tiers from $500.",
-      "cta": "Visit HonuVibe Studio"
-    },
-    "reel_hero": {
-      "now_playing_label": "Now Playing",
-      "scene_label": "Scene {n} · Take 1",
-      "frame_label": "Frame {current} / {total}",
-      "status_live": "Live",
-      "status_in_progress": "In Progress",
-      "status_confidential": "Confidential",
-      "industry_label": "Industry",
-      "stack_label": "Stack",
-      "visit_label": "Visit site",
-      "no_link_label": "Under wraps",
-      "prev_label": "Previous project",
-      "next_label": "Next project",
-      "projects": {
-        "kwame": {
-          "name": "KwameBrathwaite.com",
-          "subhead": "A photography archive gets a modern makeover.",
-          "quote": "A mobile-first, conversion-optimized photography archive that honors a legendary artist's legacy while growing the business.",
-          "stat_1_value": "3×",
-          "stat_1_label": "Faster load time",
-          "stat_1_caption": "vs. legacy site",
-          "stat_2_value": "Mobile",
-          "stat_2_label": "First responsive",
-          "stat_2_caption": "Print, licensing, bookings",
-          "stat_3_value": "AI",
-          "stat_3_label": "Native workflow",
-          "stat_3_caption": "Claude + Cursor"
+    "panel_build": {
+      "eyebrow": "02 · Build in our Studio",
+      "price": "Transparent tiers from {price}",
+      "heading": "Bring us the idea. We design and build it with you.",
+      "image_alt": "A website the HonuVibe Studio built for a client",
+      "types": [
+        {
+          "name": "Website",
+          "note": "Business sites"
         },
-        "hci": {
-          "name": "HCI Medical Group",
-          "subhead": "A healthcare website paired with an internal project management tool.",
-          "quote": "A polished, conversion-ready healthcare site paired with powerful internal tools that streamline daily operations.",
-          "stat_1_value": "Live",
-          "stat_1_label": "In production",
-          "stat_1_caption": "Patient-facing",
-          "stat_2_value": "Custom",
-          "stat_2_label": "PM backend",
-          "stat_2_caption": "Built for their team",
-          "stat_3_value": "Full",
-          "stat_3_label": "Stack delivery",
-          "stat_3_caption": "End-to-end"
+        {
+          "name": "Web app",
+          "note": "Tools & portals"
+        },
+        {
+          "name": "MVP",
+          "note": "Test an idea fast"
+        },
+        {
+          "name": "Business documents",
+          "note": "Decks, proposals, guides"
         }
-      }
+      ],
+      "cta": "Start a project"
     },
-    "index": {
-      "headline": "Index",
-      "headline_caption": "A catalog of work shipped by HonuVibe and the HonuVibe community.",
-      "meta_strip_left": "HonuVibe · Atlas of Work",
-      "meta_strip_center": "Vol. {vol} · MMXXVI",
-      "meta_strip_right": "{entries} entries · {industries} industries",
-      "filter_label": "Filter by industry",
-      "filter_all": "All work",
-      "filter_cultural": "Cultural",
-      "filter_healthcare": "Healthcare",
-      "filter_community": "Community",
-      "filter_commerce": "Commerce",
-      "filter_enterprise": "Enterprise",
-      "showing_label": "Showing {shown} of {total}",
-      "col_year": "Year",
-      "col_project": "Project · Brief",
-      "col_industry": "Industry · Stack",
-      "col_status": "Status",
-      "status_live": "Live",
-      "status_in_progress": "In Progress",
-      "status_confidential": "Confidential",
-      "end_of_index": "— End of index —",
-      "confidential_name": "Under NDA",
-      "confidential_brief": "Active engagement. Details available on request.",
-      "projects": {
-        "kwame": {
-          "name": "KwameBrathwaite.com",
-          "brief": "A photography archive gets a modern makeover."
+    "panel_partner": {
+      "eyebrow": "03 · Partner with our Platform",
+      "heading": "Bring AI education to the people you lead.",
+      "cards": [
+        {
+          "name": "For your business",
+          "body": "Give your team access to the courses and a learning path matched to their roles."
         },
-        "hci": {
-          "name": "HCI Medical Group",
-          "brief": "A healthcare website + internal project management tool."
-        },
-        "vertice": {
-          "name": "Vertice Society",
-          "brief": "Bilingual member portal for a Tokyo professional network."
+        {
+          "name": "For your community",
+          "body": "Offer HonuVibe courses to the members of your online community or network."
         }
+      ],
+      "note": "Courses run in English and 日本語, so teams in Hawaiʻi, Japan and beyond can learn side by side.",
+      "cta": "Talk about a partnership"
+    },
+    "how": {
+      "eyebrow": "Learn in the Vault",
+      "heading": "Lessons that end with something you’ve done.",
+      "cta": "See a sample lesson",
+      "marquee_tools_label": "Tools covered",
+      "marquee_tools": [
+        "Claude",
+        "ChatGPT",
+        "Gemini",
+        "Claude Code",
+        "Cursor",
+        "Supabase",
+        "Vercel",
+        "n8n",
+        "Zapier",
+        "Notion",
+        "Figma",
+        "Perplexity"
+      ],
+      "marquee_topics_label": "Topics covered",
+      "marquee_topics": [
+        "Prompting",
+        "Automation",
+        "Workflows",
+        "AI agents",
+        "Second brain",
+        "Customer research",
+        "Copywriting",
+        "Prototyping",
+        "Data analysis",
+        "Model comparisons"
+      ],
+      "steps": [
+        {
+          "title": "Pick a track",
+          "body": "Start from the work you do: marketing, building, research or automation. Start with the free AI Essentials lessons if you’re new."
+        },
+        {
+          "title": "Take a short lesson",
+          "body": "Short lessons, in English or 日本語, at your own pace."
+        },
+        {
+          "title": "Run it on your work",
+          "body": "The Workbench turns lessons into tasks you complete on your own business, right in the browser."
+        }
+      ]
+    },
+    "more": {
+      "label": "More ways to work with us",
+      "build": {
+        "eyebrow": "Build in our Studio",
+        "heading": "When you’d rather have it built, we build it with you.",
+        "body": "Websites, web apps, MVPs and business documents, designed and shipped by the people who teach the courses.",
+        "price": "Transparent tiers from {price}",
+        "cta": "Start a project",
+        "image_alt": "A client website designed and built by the HonuVibe Studio"
+      },
+      "partner": {
+        "eyebrow": "Partner with our Platform",
+        "heading": "Bring the courses to your team or community.",
+        "body": "Give your staff or members access to the Vault, with learning paths matched to who they are and how they work.",
+        "meta": "For businesses and online communities",
+        "cta": "Talk to us",
+        "image_alt": "People learning together at HonuHub"
       }
     },
-    "method": {
-      "chapter_label": "How we navigate",
-      "headline": "Three stars we steer by",
-      "discovery_title": "Discovery",
-      "discovery_body": "We start by understanding your goals, your audience, and what success looks like. No assumptions.",
-      "discovery_artifact": "Discovery brief · 30-page competitive audit",
-      "discovery_duration": "1–2 weeks",
-      "design_build_title": "Design & Build",
-      "design_build_body": "AI-native development using Claude, Cursor, and modern tools. Fast iteration, transparent progress, real results.",
-      "design_build_artifact": "Working prototype → production · weekly demos",
-      "design_build_duration": "4–10 weeks",
-      "launch_support_title": "Launch & Support",
-      "launch_support_body": "We ship, we measure, we refine. Every project includes post-launch support and documentation.",
-      "launch_support_artifact": "Analytics dashboard + handoff handbook",
-      "launch_support_duration": "90 days included",
-      "artifact_label": "Artifact"
-    },
-    "giving_back": {
-      "chapter_label": "Ch. V · Colophon",
-      "headline_1": "Work we",
-      "headline_2": "don't invoice.",
-      "body": "Giving back is core to how HonuVibe operates. We dedicate capacity each quarter to nonprofit and community projects — delivering the same quality and care as any commercial engagement.",
-      "stat_capacity_value": "25%",
-      "stat_capacity_label": "of quarterly capacity",
-      "stat_partners_value": "4+",
-      "stat_partners_label": "pro-bono partners / yr",
-      "stat_ratio_value": "1:1",
-      "stat_ratio_label": "commercial ↔ community",
-      "link": "Interested in a community or nonprofit collaboration? Get in touch"
-    },
-    "questions": {
-      "chapter_label": "Soundings · Before you set sail",
-      "headline": "Questions",
-      "note_label": "Note {n}",
-      "q_1_q": "What's the smallest project you take?",
-      "q_1_a": "There's no fixed minimum. Project scope and pricing live with HonuVibe Studio — transparent tiers start at $500, with the full range at studio.honuvibe.ai. Learning engagements for teams and communities are scoped on our partnerships page.",
-      "q_2_q": "Are you locked into a specific stack?",
-      "q_2_a": "We default to Next.js + Tailwind + Supabase + Vercel because it ships fast and stays maintainable. We'll happily work in your stack if you have one.",
-      "q_3_q": "What does \"AI-native development\" actually mean?",
-      "q_3_a": "Claude and Cursor are first-class tools in our build process — not bolt-ons. We design prompts, libraries, and review loops the way a senior engineer designs functions. The result: more shipped, less typed.",
-      "q_4_q": "Do we own the code?",
-      "q_4_a": "Yes — fully. Code, designs, content, and accounts transfer to you at handoff. We retain no exclusive rights.",
-      "q_5_q": "How do you handle Japanese localization?",
-      "q_5_a": "Bilingual EN/JP is core to how HonuVibe operates. Every project can ship with JP-native typography, layout, and copy reviewed by a native speaker — not machine translation."
-    },
-    "next_issue": {
-      "meta_left": "Bearing set",
-      "meta_center": "21°18′N · 157°49′W",
-      "meta_right": "Next crossing",
-      "headline_1": "Chart your next",
-      "headline_2": "voyage.",
-      "subhead": "Every waypoint on this chart began as a conversation. Bring us your destination and we'll plot the course — or start learning and put your own work on the map.",
-      "studio_cta": "Build with our Studio",
-      "secondary_cta": "Start learning"
+    "pricing": {
+      "eyebrow": "Get started",
+      "heading": "Start free. Upgrade when you’re ready.",
+      "note": "Both plans are in English and 日本語. Cancel anytime, with a full refund within 14 days.",
+      "community": {
+        "name": "Honu Community",
+        "tagline": "Learn alongside others and stay current",
+        "price": "Free",
+        "perks": [
+          "Join the Honu Community",
+          "Weekly prompts and tools",
+          "Free AI Essentials lessons"
+        ],
+        "cta": "Get started free"
+      },
+      "vault": {
+        "name": "The Vault",
+        "tagline": "Every course in every track",
+        "price": "$99",
+        "unit": "/ month",
+        "perks": [
+          "All five tracks, every lesson",
+          "Lessons in English and 日本語",
+          "The Workbench: apply lessons to your own work",
+          "New lessons added regularly",
+          "Includes the Honu Community"
+        ],
+        "cta": "Join the Vault"
+      }
     }
   },
   "sandbox": {

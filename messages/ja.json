@@ -134,87 +134,12 @@
     "close_menu": "メニューを閉じる",
     "menu_label": "メニュー"
   },
-  "hero": {
-    "headline_en": "A Whole New",
-    "headline_vibe": "Vibe",
-    "headline_en_2": "for AI Learning",
-    "headline_jp": "新しいAI学習のスタイル",
-    "sub": "好奇心とコードが出会う場所。",
-    "cta_primary": "コースを探す",
-    "scroll_hint": "スクロールして発見",
-    "cards": {
-      "badge": "CC",
-      "course_title": "Claude Code入門",
-      "course_modules": "8モジュール",
-      "progress": "進捗",
-      "lesson_1": "Claude vs ChatGPT",
-      "lesson_2": "Claude Codeの基礎",
-      "lesson_3": "ワークフロー自動化",
-      "achievement_label": "達成",
-      "achievement_title": "初めてのエージェント",
-      "achievement_desc": "自律型Claudeエージェントを構築"
-    }
-  },
-  "mission": {
-    "overline": "HonuVibeの理由",
-    "items": {
-      "global": {
-        "title": "どこでも学べる",
-        "description": "ワイキキでもオンラインでも — 国境のない世界クラスのAI教育。"
-      },
-      "bilingual": {
-        "title": "日英バイリンガル",
-        "description": "米国と日本のAIエコシステムを繋ぐ、真のバイリンガルコミュニティ。"
-      },
-      "projects": {
-        "title": "実践プロジェクト",
-        "description": "実際のアプリケーションを構築し、実際の製品を出荷する。理論だけのコースはありません。"
-      },
-      "practitioners": {
-        "title": "実践者による指導",
-        "description": "教えるだけでなく、毎日AI製品を構築している人々から学ぶ。"
-      }
-    }
-  },
   "honuhub_feature": {
     "overline": "スペース",
     "heading": "HonuHub ワイキキ",
     "description": "ワイキキの中心にある専用学習スペース — AI教育と島のインスピレーションが出会う場所。対面ワークショップ、コラボレーションセッション、ライブ配信イベントに参加しましょう。",
     "coming": "2026年夏オープン予定",
     "cta": "HonuHubを見る"
-  },
-  "featured_courses": {
-    "overline": "学習を始める",
-    "heading": "注目のコース",
-    "sub": "起業家、ビルダー、好奇心旺盛な方のための実践的なAI教育。",
-    "see_all": "すべてのコースを見る",
-    "courses": {
-      "ai_foundations": {
-        "title": "起業家のためのAI基礎",
-        "description": "AIの基礎をマスターし、ビジネスにおける機会を見つける方法を学びます。コーディング不要。",
-        "level": "初級",
-        "language": "EN"
-      },
-      "claude_code": {
-        "title": "Claude Code入門",
-        "description": "AI搭載の開発のためにClaude Codeをマスター。エージェント構築、ワークフロー自動化、AnthropicのCLIツールを使ったプロフェッショナルコーディングを学びます。",
-        "level": "初級",
-        "language": "EN"
-      },
-      "micro_saas": {
-        "title": "初めてのMicro-SaaSを構築",
-        "description": "アイデアからローンチまで — AI搭載の開発ツールを使って完全なSaaS製品を構築。",
-        "level": "中級",
-        "language": "EN"
-      },
-      "ai_automation": {
-        "title": "AIワークフロー自動化",
-        "description": "N8N、Zapier、カスタムAIエージェントを使って、繰り返しタスクを自動化し、インテリジェントなワークフローを構築。",
-        "level": "中級",
-        "language": "EN/JP"
-      }
-    },
-    "enroll": "今すぐ登録"
   },
   "exploration": {
     "overline": "私たちの仕事",
@@ -422,233 +347,6 @@
       "description": "グローバルなHonuHubネットワークを構築中です。あなたの街にも？",
       "cta": "お問い合わせ"
     }
-  },
-  "exploration_page": {
-    "hero": {
-      "overline": "私たちの仕事",
-      "heading": "探検する",
-      "sub": "実際のプロジェクト。実際の成果。HonuVibeコミュニティが5つのイノベーション領域で構築したものを探検してください。",
-      "cta": "お仕事のご相談"
-    },
-    "lead_form": {
-      "heading": "お仕事のご相談",
-      "sub": "プロジェクトについてお聞かせください。折り返しご連絡いたします。",
-      "name": "お名前",
-      "email": "メールアドレス",
-      "company": "会社名（任意）",
-      "message": "プロジェクトの概要",
-      "submit": "送信する",
-      "success": "ありがとうございます！近日中にご連絡いたします。",
-      "error": "エラーが発生しました。もう一度お試しください。"
-    },
-    "featured_builds": {
-      "section_overline": "注目プロジェクト",
-      "section_heading": "私たちの技術を定義するプロジェクト",
-      "kwame": {
-        "overline": "注目プロジェクト",
-        "heading": "KwameBrathwaite.com",
-        "sub": "写真アーカイブのモダンリニューアル",
-        "problem": "伝説的な写真家クワメ・ブラスウェイトのレガシーサイトは完全な変革が必要でした。モバイル非対応、読み込みが遅く、プリント販売やライセンス、展覧会予約のコンバージョン機会を逃していました。",
-        "description": "Claude、Cursor、そしてモダンなAI駆動ワークフローを使用して、KwameBrathwaite.comをゼロから再構築しています。新しいサイトはアーカイブの文化的意義を保ちながら、実際のビジネス成果—販売、ライセンス問い合わせ、ブランドパートナーシップ—を推進しています。",
-        "outcome": "伝説的なアーティストのレガシーを尊重しながら、ビジネスを成長させるモバイルファーストでコンバージョン最適化された写真アーカイブ。",
-        "outcome_stats": {
-          "stat_1": {
-            "value": "3倍",
-            "label": "高速化"
-          },
-          "stat_2": {
-            "value": "モバイル対応",
-            "label": "レスポンシブデザイン"
-          },
-          "stat_3": {
-            "value": "AI活用",
-            "label": "モダンワークフロー"
-          }
-        },
-        "tags": "Next.js,Tailwind CSS,Claude AI,Cursor,Vercel",
-        "challenge_label": "課題",
-        "carousel_label": "プロジェクトスクリーンショット",
-        "slide_alt_1": "KwameBrathwaite.comホームページリデザイン",
-        "slide_alt_2": "フォトアーカイブギャラリービュー",
-        "slide_alt_3": "モバイルレスポンシブレイアウト",
-        "status": "開発中"
-      },
-      "hci": {
-        "overline": "注目プロジェクト",
-        "heading": "HCI Medical Group",
-        "sub": "カスタムプロジェクト管理付きヘルスケアプラットフォーム",
-        "problem": "HCI Medical Groupは、モダンでプロフェッショナルなウェブプレゼンスと、医療実践全体の業務を効率化する内部プロジェクト管理ツールを必要としていました。",
-        "description": "ブランドのデジタルプレゼンスを向上させる完全なフロントエンドリデザインと、チームの連携とワークフロー追跡のためのカスタムビルドのプロジェクト管理モジュールを提供しました。",
-        "outcome": "日常業務を効率化する強力な内部ツールと組み合わされた、洗練されたコンバージョン対応のヘルスケアウェブサイト。",
-        "outcome_stats": {
-          "stat_1": {
-            "value": "公開中",
-            "label": "本番環境"
-          },
-          "stat_2": {
-            "value": "カスタムPM",
-            "label": "バックエンドモジュール"
-          },
-          "stat_3": {
-            "value": "フルスタック",
-            "label": "エンドツーエンド構築"
-          }
-        },
-        "tags": "Next.js,Tailwind CSS,Supabase,Custom PM,Vercel",
-        "challenge_label": "課題",
-        "carousel_label": "プロジェクトスクリーンショット",
-        "slide_alt_1": "HCI Medical Groupホームページ",
-        "slide_alt_2": "プロジェクト管理ダッシュボード",
-        "slide_alt_3": "モバイルレスポンシブビュー",
-        "status": "公開中"
-      }
-    },
-    "tech_stack": {
-      "overline": "ツールキット",
-      "heading": "使用する技術",
-      "sub": "高速でスケーラブル、インテリジェントなアプリケーションを構築するためのモダンツールとフレームワーク。",
-      "items": {
-        "nextjs": "Next.js",
-        "react": "React",
-        "typescript": "TypeScript",
-        "tailwind": "Tailwind CSS",
-        "supabase": "Supabase",
-        "stripe": "Stripe",
-        "openai": "OpenAI",
-        "nodejs": "Node.js",
-        "vercel": "Vercel",
-        "figma": "Figma",
-        "claude": "Claude AI",
-        "cursor": "Cursor",
-        "lovable": "Lovable"
-      }
-    },
-    "process": {
-      "overline": "仕事の進め方",
-      "heading": "アイデアからローンチまで",
-      "sub": "数十のプロジェクトで磨き上げた実証済みのプロセス。",
-      "steps": {
-        "discovery": {
-          "title": "発見",
-          "description": "お客様の目標、ターゲット、制約を理解し、全体の方向性を定めます。"
-        },
-        "design": {
-          "title": "デザイン",
-          "description": "コード作成前に、コンバージョン、アクセシビリティ、ブランド統一を考慮したデザインを行います。"
-        },
-        "build": {
-          "title": "構築",
-          "description": "モダンフレームワークを使用したAI加速開発。品質やパフォーマンスを犠牲にせず、素早くリリースします。"
-        },
-        "launch": {
-          "title": "ローンチ",
-          "description": "デプロイ、テスト、最適化。初日から高速で安全、ユーザーに対応した状態を確保します。"
-        },
-        "support": {
-          "title": "サポート",
-          "description": "継続的なメンテナンス、分析レビュー、改善。成長と適応をお手伝いします。"
-        }
-      }
-    },
-    "territory_grid": {
-      "overline": "テリトリー",
-      "heading": "5つのイノベーション領域",
-      "sub": "ウェブデザインからプロボノまで、幅広い分野で構築しています。"
-    },
-    "territories": {
-      "web": {
-        "title": "ウェブデザイン＆リデザイン",
-        "description": "パフォーマンス、アクセシビリティ、コンバージョンのために構築された、視覚的にインパクトのあるウェブ体験。",
-        "projects": {
-          "reef_dashboard": {
-            "title": "リーフ分析ダッシュボード",
-            "tagline": "保全チームのためのリアルタイム海洋データ可視化",
-            "outcome": "データに基づく意思決定が40%高速化",
-            "tags": "Next.js,Supabase,D3.js"
-          },
-          "island_eats": {
-            "title": "アイランドイーツ リデザイン",
-            "tagline": "地元レストラングループの完全リブランドとウェブリデザイン",
-            "outcome": "オンライン注文が85%増加",
-            "tags": "React,Tailwind,Stripe"
-          }
-        }
-      },
-      "db": {
-        "title": "データベース駆動アプリケーション",
-        "description": "スマートなデータアーキテクチャで実際のビジネス課題を解決するカスタムアプリケーション。",
-        "projects": {
-          "aloha_scheduler": {
-            "title": "アロハスケジューラー",
-            "tagline": "ワイキキツアーオペレーターのためのAI搭載予約システム",
-            "outcome": "手動スケジューリングを60%削減",
-            "tags": "React,Node.js,OpenAI"
-          },
-          "inventory_pro": {
-            "title": "インベントリプロ",
-            "tagline": "小売チェーンのマルチロケーション在庫管理",
-            "outcome": "12拠点のリアルタイム在庫可視化",
-            "tags": "Next.js,Supabase,PostgreSQL"
-          }
-        }
-      },
-      "saas": {
-        "title": "SaaS＆効率化ツール",
-        "description": "時間を節約し、収益を生み出すMicro-SaaS製品と社内ツール。",
-        "projects": {
-          "course_pilot": {
-            "title": "CoursePilot",
-            "tagline": "教育者のためのAI支援コース作成プラットフォーム",
-            "outcome": "コース制作時間を70%短縮",
-            "tags": "Next.js,OpenAI,Stripe"
-          }
-        }
-      },
-      "auto": {
-        "title": "自動化",
-        "description": "繰り返しタスクを排除し、チームの能力を引き出すインテリジェントワークフロー。",
-        "projects": {
-          "report_flow": {
-            "title": "ReportFlow",
-            "tagline": "マーケティング代理店の自動化された週次レポートパイプライン",
-            "outcome": "週10時間の節約",
-            "tags": "N8N,Google Sheets,Slack"
-          }
-        }
-      },
-      "pro": {
-        "title": "プロボノ＆非営利",
-        "description": "社会への還元を大切に、変化をもたらす組織のためのプロジェクト。",
-        "projects": {
-          "coral_watch": {
-            "title": "CoralWatch Hawaii",
-            "tagline": "ボランティアサンゴ礁モニタリングチームのためのデータ収集アプリ",
-            "outcome": "データ収集効率が3倍に向上",
-            "tags": "React Native,Supabase,MapboxGL"
-          }
-        }
-      }
-    },
-    "cta": {
-      "heading": "プロジェクトのアイデアはありますか？",
-      "sub": "パッションプロジェクトでもビジネス課題でも、お気軽にご相談ください。",
-      "button": "お問い合わせ"
-    },
-    "cta_strip": {
-      "headline": "インスピレーションを得ましたか？",
-      "sub": "私たちと一緒に作りましょう。",
-      "cta": "プロジェクトを始める"
-    },
-    "filter": {
-      "all": "すべて",
-      "web": "ウェブデザイン",
-      "database": "データベースアプリ",
-      "saas": "SaaSツール",
-      "automations": "自動化",
-      "pro-bono": "プロボノ"
-    },
-    "hero_cta_primary": "プロジェクトを見る",
-    "hero_cta_secondary": "一緒に作る"
   },
   "build_page": {
     "hero": {
@@ -2566,330 +2264,189 @@
   },
   "home": {
     "hero": {
-      "eyebrow_label": "実践的なAIトレーニング",
-      "eyebrow_lang": "EN / 日本語",
-      "headline_line_1": "今夜、AIを学ぶ。",
-      "headline_line_2": "明日から、",
-      "headline_line_3": "活かす。",
-      "subhead": "ひとつのメンバーシップで、私たちが教える全レッスンへ。英語と日本語で学べる実践的な自習型AIトレーニング。新しいレッスンを毎月追加。",
-      "cta_primary": "Vaultに参加 — $99/月",
-      "cta_secondary": "法人・団体の方へ",
-      "social_proof": "英語・日本語あわせて<strong>{count}+</strong>名の学習者と一緒に学ぼう",
-      "vault_brand": "The Vault",
-      "vault_library_label": "ライブラリ",
-      "vault_progress_label": "進捗",
-      "vault_chapter_title": "顧客リサーチエージェントを構築する",
-      "vault_chapter_meta": "全12レッスン・約3時間",
-      "vault_status": "受講中",
-      "vault_topic_1": "AIの基礎",
-      "vault_topic_2": "プロンプトエンジニアリング",
-      "vault_topic_3": "AIエージェント",
-      "vault_topic_4": "ワークフロー自動化",
-      "vault_topic_5": "実例プロジェクト",
-      "vault_topic_6": "ビジネス活用",
-      "lesson_1_title": "エージェントの役割を定義する",
-      "lesson_1_desc": "リサーチ対象・顧客像・理想のアウトプットを明確にします。",
-      "lesson_1_time": "9分",
-      "lesson_2_title": "顧客の声を集める",
-      "lesson_2_desc": "インタビュー、サポート問い合わせ、アンケートを一つのコーパスにまとめます。",
-      "lesson_2_time": "11分",
-      "lesson_3_title": "リサーチブリーフを作成する",
-      "lesson_3_desc": "生のシグナルを、ペインポイント・テーマ・追加質問に変換します。",
-      "lesson_3_time": "8分",
-      "lesson_4_title": "インサイトを共有する",
-      "lesson_4_desc": "ブリーフを検証し、ステークホルダー向けにパッケージ化して締めくくります。",
-      "lesson_4_time": "10分"
+      "eyebrow": "Vaultの新着",
+      "eyebrow_label": "最新のレッスンを見る",
+      "headline": "一緒につくってくれる、オンラインのAIスクール。",
+      "lead": "トラック別に整理されたコースで、実践的なAIを学べます。さらに必要なときは、Studioが一緒に制作し、パートナープログラムがあなたのチームにAI教育を届けます。",
+      "cta_primary": "無料ではじめる",
+      "cta_secondary": "トラックを見る",
+      "note": "コミュニティへの参加は無料です。準備ができたら、いつでもコースライブラリ全体にアップグレードできます。",
+      "proof_count": "5つのトラックに、{count}本のレッスン。",
+      "proof_quote": "「{quote}」— {source}"
     },
-    "personas": {
-      "heading": "どんな人のため？",
-      "subhead": "入り口は3つ。あなたに合うものを選んでください。",
-      "solo_intent": "自分の仕事でAIを使いたい",
-      "solo_path": "プロフェッショナル＆ソロプレナー",
-      "solo_desc": "Vaultの実践的な自習レッスン。今夜始めて、明日から仕事で。ライブラリが育っても、アクセスはそのまま。",
-      "solo_cta": "Vaultに参加 — $99/月",
-      "org_intent": "チームやコミュニティにAIを届けたい",
-      "org_path": "法人・団体",
-      "org_desc": "メンバー、社員、コミュニティに合わせて設計する、バイリンガルのコホート＆研修プログラム。",
-      "org_cta": "パートナーシップを見る",
-      "build_intent": "教わるより、作ってほしい",
-      "build_path": "HonuVibe Studio",
-      "build_desc": "ウェブサイト、ツール、AIワークフローの設計と開発。料金は$500からの明朗プラン。",
-      "build_cta": "Studioを見る",
-      "reassure": "迷ったらVaultから。ほとんどの方がここから始めています。"
-    },
-    "membership": {
-      "overline": "6つの学び方 · ひとつの場所",
-      "heading": "ひとつのメンバーシップに、<em>すべて。</em>",
-      "subhead": "以下はすべて $99/月 のVaultメンバーシップに含まれます。ティア分けも、基本を使うための追加課金もありません。",
-      "tile_1_title": "実践的なレッスンライブラリ",
-      "tile_1_body": "その日のうちに動かせる自習型AIレッスン。講義室の理論ではなく、実際のプロジェクトから。",
-      "tile_2_title": "レッスンを仕事に変える",
-      "tile_2_body": "内蔵のWorkbenchが、各レッスンをあなた自身の仕事で試せるタスクに。ブラウザ上ですぐに。",
-      "tile_3_title": "ガイド付きの道のり",
-      "tile_3_body": "Study Pathsがレッスンを一本の道につなぎ、次の一歩がいつでも分かります。",
-      "tile_4_title": "英語 & 日本語",
-      "tile_4_body": "最初からバイリンガル設計。英語と日本語のレッスンを並べて。",
-      "tile_5_title": "毎月、新しいレッスン",
-      "tile_5_body": "ライブラリは増え続け、追加するレッスンはすべてメンバーシップに含まれます。追加料金はありません。",
-      "tile_6_title": "仲間と学ぶ",
-      "tile_6_body": "メンバーコミュニティで、気づきを共有し、プロンプトを教え合い、つまずきを一緒に解消。",
-      "teaser": {
-        "overline": "レッスンをのぞいてみる",
-        "title": "カスタマーリサーチエージェントを作る",
-        "description": "散らかったインタビューメモを、1ページのインサイトブリーフに変える再利用可能なプロンプト。コピーして好きなAIチャットで動かせば、Vaultのレッスンの手ざわりが分かります。",
-        "copy_label": "プロンプトをコピー",
-        "copied_label": "クリップボードにコピーしました",
-        "error_label": "コピーできませんでした — テキストを選択して手動でコピーしてください",
-        "manual_label": "下のプロンプトを選択してコピーしてください。",
-        "see_full": "レッスン全体を見る",
-        "prompt": "# Role\nYou are a senior product researcher analyzing customer interviews for {{ company }}.\n\n# Task\nGiven the transcript below, extract:\n\n  1. Top 3 pain points (with verbatim quotes)\n  2. Repeated themes across the conversation\n  3. Implicit needs the customer didn't state directly\n  4. Three follow-up questions worth asking next time\n\n# Format\nReturn as structured markdown. Use blockquotes for verbatim customer language. Tag each pain point with a category from: [workflow, tooling, communication, onboarding, reporting, other].\n\n# Transcript\n{{ transcript }}"
+    "paths": {
+      "label": "HonuVibeとの3つの関わり方",
+      "tablist_label": "HonuVibeとの関わり方",
+      "learn": {
+        "title": "AIスキルを学ぶ",
+        "tags": [
+          "5つのトラック",
+          "自分のペースで",
+          "EN / 日本語"
+        ]
+      },
+      "build": {
+        "title": "Studioでつくる",
+        "tags": [
+          "Webサイト",
+          "Webアプリ",
+          "MVP"
+        ]
+      },
+      "partner": {
+        "title": "パートナーになる",
+        "tags": [
+          "あなたのビジネス",
+          "あなたのオンラインコミュニティ"
+        ]
       }
     },
-    "featured_courses": {
-      "heading": "注目のコース",
-      "see_all": "すべてのコースを見る",
-      "track_ribbon": "TRACK",
-      "course_1_title": "AI Essentials",
-      "course_1_level": "初級",
-      "course_1_duration": "5週間",
-      "course_1_lang": "EN / JP",
-      "course_1_body": "プロフェッショナルのためのAIリテラシーの土台。AIのしくみ、自分の仕事への活かし方、そして今日から使い始める方法を理解します。",
-      "course_1_cta": "今すぐ申し込む",
-      "course_2_title": "AI Mastery",
-      "course_2_level": "中級",
-      "course_2_duration": "5週間",
-      "course_2_lang": "EN / JP",
-      "course_2_body": "AIワークフローの実装と応用。実際に動くシステムを構築し、業務を自動化し、日々の仕事にAIを組み込みます。",
-      "course_2_cta": "今すぐ申し込む",
-      "course_3_title": "Builder Track",
-      "course_3_level": "上級",
-      "course_3_duration": "複数コース",
-      "course_3_lang": "EN",
-      "course_3_body": "もう一歩深く学びたい方へ。Claude Code、マイクロSaaS開発、ワークフロー自動化、そしてAIプロダクトの実装と公開まで。",
-      "course_3_cta": "トラックを見る"
+    "panel_learn": {
+      "eyebrow": "01 · Vaultで学ぶ",
+      "meta": "自分のペースで · 新しいレッスンを随時追加",
+      "heading": "5つのトラック。あなたの仕事に合うものから始めましょう。",
+      "view": "見る",
+      "trending": "最近追加されたレッスン",
+      "trending_meta": "短く、実践的なレッスン",
+      "starter": "AIは初めてですか？無料の<b>AIの基本</b>レッスンから始めましょう。",
+      "starter_cta": "無料ではじめる"
     },
-    "org_section": {
-      "overline": "組織のみなさまへ",
-      "heading": "チームやコミュニティに、AIトレーニングを。",
-      "body": "私たちは各分野をリードする組織と協働し、メンバー・社員・コミュニティ向けのバイリンガルAIトレーニングを、対象に合わせて完全にカスタマイズして提供します。",
-      "cta": "パートナーシップを見る",
-      "image_caption": "グループコホート開催・ワイキキ"
-    },
-    "founder": {
-      "overline": "創業者より",
-      "heading": "自分に必要だったから、HonuVibeを作りました。",
-      "body_1": "Ryanです。ホノルル、東京、ロサンゼルスを行き来しながらAIで開発してきましたが、いつも同じ壁にぶつかりました。良い教材は散らばっていて、英語だけで、エンジニア向けに書かれていたのです。",
-      "body_2": "そこで、自分がほしかったレッスンを作り始めました。実践的で、バイリンガルで、その晩に使えるくらい短いもの。それがVaultになりました。",
-      "body_3": "ここにあるのは、私が実際に使っているワークフローそのもの。友人にコーヒー片手に説明するように伝えています。",
-      "signature": "Ryan — 創業者 · EN/日本語",
-      "chip_1": "Studioインストラクター",
-      "chip_2": "バイリンガル EN·日本語",
-      "chip_3": "ハワイ発",
-      "cta": "全文を読む",
-      "portrait_label": "Ryan · 創業者"
-    },
-    "testimonials": {
-      "heading": "受講者の声",
-      "wall_heading": "AIを実務に活かす人たちの声。",
-      "quote_1_text": "オンラインコースは数多く受けてきましたが、最初の1週間で実際に働き方が変わったのはHonuVibeが初めてでした。",
-      "quote_1_name": "Keiko T.",
-      "quote_1_role": "マーケティングマネージャー・東京",
-      "quote_2_text": "バイリンガル形式が、私たちのチームには本当にぴったりでした。半数が英語、半数が日本語、それでも全員が同じ深さで学べました。",
-      "quote_2_name": "Marcus A.",
-      "quote_2_role": "オペレーションリード・ホノルル",
-      "quote_3_text": "The Vaultだけでも価値があります。プロジェクトが進むにつれて、プロンプトエンジニアリングのモジュールに3回戻りました。",
-      "quote_3_name": "Sarah L.",
-      "quote_3_role": "フリーランスデザイナー・サンフランシスコ"
-    },
-    "faq": {
-      "heading": "率直な質問に、<em>まっすぐな答えを。</em>",
-      "q_1": "HonuVibeはどう使うのですか？",
-      "a_1": "$99/月でVaultに参加すると、英語と日本語の自習型AIレッスンが集まる、増え続けるライブラリを使えます。レッスンを見る・読むだけでなく、内蔵のWorkbenchでその日のうちに自分の仕事に応用できます。",
-      "q_2": "AIの経験がなくても大丈夫ですか？",
-      "a_2": "大丈夫です。レッスンは基礎から始めて段階的に積み上げ、平易な言葉と実例で解説します。ウェブブラウザが使えれば、今夜から始められます。",
-      "q_3": "本当にバイリンガルですか？",
-      "a_3": "はい。HonuVibeは最初からバイリンガルで、英語と日本語のレッスンがあります。自分が考えやすい言語で学べ、いつでも切り替えられます。",
-      "q_4": "HonuVibeは誰のためのものですか？",
-      "a_4": "AIを実務に活かしたいプロフェッショナルやソロプレナー、そして一緒に学ぶチームやコミュニティのためのものです。理論より実践的な成果を求める方に向いています。",
-      "q_5": "いつでも解約できますか？"
-    },
-    "final_cta": {
-      "eyebrow": "始める準備はできましたか",
-      "headline": "今夜から。",
-      "body": "ひとつのメンバーシップで、私たちが教える全レッスンへ。最初のレッスンは約10分 — Vaultは年中無休です。",
-      "cta_primary": "Vaultに参加 — $99/月",
-      "link_courses": "ライブコホートを見る",
-      "link_team": "チーム研修について"
-    }
-  },
-  "explore": {
-    "meta": {
-      "title": "探検 — 本物のプロジェクト、本物の成果 | HonuVibe",
-      "description": "AI教育が実践と出会うとき、何が生まれるのか。クライアントワーク、コミュニティビルド、プロボノ・パートナーシップの事例をご紹介します。"
-    },
-    "chart": {
-      "eyebrow": "探検ログ · 仕事を、海図に",
-      "headline_1": "航海の",
-      "headline_2": "海図",
-      "lede": "プロジェクトは、ひとつの航海です。始まりは大海原、終わりは地図上の確かな一点。これまで私たちが描いてきた航路を、進んだ順にご紹介します。",
-      "legend_crossings": "航海",
-      "legend_industries": "領域",
-      "legend_fog": "霧の中",
-      "coords": "北緯21°18′ · 西経157°49′",
-      "route_label": "航路",
-      "route_caption": "進んだ順に。新しい航海ほど後ろに。",
-      "route_terminus": "海図はここまで — 次の寄港地はあなたの番",
-      "status_live": "公開中",
-      "status_in_progress": "進行中",
-      "status_confidential": "非公開",
-      "visit_label": "サイトを見る",
-      "stack_label": "技術",
-      "fog_name": "霧の中の航海",
-      "fog_brief": "まだ公にはできない進行中の航海です。詳細はお問い合わせください。"
-    },
-    "route_cta": {
-      "overline": "新しい航海を描く",
-      "heading": "目指す先はありますか？そのためのHonuVibe Studioです。",
-      "body": "行き先を教えてください — ウェブサイト、社内ツール、AIワークフロー。私たちが航路を描き、一緒に漕ぎ出します。明朗な料金プランは$500から。",
-      "cta": "HonuVibe Studioを見る"
-    },
-    "reel_hero": {
-      "now_playing_label": "再生中",
-      "scene_label": "シーン {n} · テイク 1",
-      "frame_label": "フレーム {current} / {total}",
-      "status_live": "公開中",
-      "status_in_progress": "進行中",
-      "status_confidential": "非公開",
-      "industry_label": "領域",
-      "stack_label": "技術",
-      "visit_label": "サイトを見る",
-      "no_link_label": "非公開",
-      "prev_label": "前のプロジェクト",
-      "next_label": "次のプロジェクト",
-      "projects": {
-        "kwame": {
-          "name": "KwameBrathwaite.com",
-          "subhead": "写真アーカイブを、現代的にリデザイン。",
-          "quote": "伝説のアーティストのレガシーを尊重しつつ、ビジネスを成長させる。モバイルファーストでコンバージョン最適化された写真アーカイブ。",
-          "stat_1_value": "3×",
-          "stat_1_label": "表示速度",
-          "stat_1_caption": "旧サイト比",
-          "stat_2_value": "Mobile",
-          "stat_2_label": "ファースト設計",
-          "stat_2_caption": "販売・ライセンス・予約",
-          "stat_3_value": "AI",
-          "stat_3_label": "ネイティブ開発",
-          "stat_3_caption": "Claude + Cursor"
+    "panel_build": {
+      "eyebrow": "02 · Studioでつくる",
+      "price": "わかりやすい料金プラン：{price}から",
+      "heading": "アイデアをお持ちください。一緒に設計し、つくります。",
+      "image_alt": "HonuVibe Studioがクライアントのために制作したWebサイト",
+      "types": [
+        {
+          "name": "Webサイト",
+          "note": "ビジネス向けサイト"
         },
-        "hci": {
-          "name": "HCI Medical Group",
-          "subhead": "医療機関のウェブサイトと、社内プロジェクト管理ツール。",
-          "quote": "コンバージョンに直結する洗練された医療サイトと、日々のオペレーションを効率化する強力な社内ツールの組み合わせ。",
-          "stat_1_value": "Live",
-          "stat_1_label": "本番稼働中",
-          "stat_1_caption": "患者向け",
-          "stat_2_value": "Custom",
-          "stat_2_label": "PMバックエンド",
-          "stat_2_caption": "チーム専用設計",
-          "stat_3_value": "Full",
-          "stat_3_label": "フルスタック",
-          "stat_3_caption": "エンドツーエンド"
+        {
+          "name": "Webアプリ",
+          "note": "ツールとポータル"
+        },
+        {
+          "name": "MVP",
+          "note": "アイデアをすばやく検証"
+        },
+        {
+          "name": "ビジネス文書",
+          "note": "資料・提案書・ガイド"
         }
-      }
+      ],
+      "cta": "プロジェクトを始める"
     },
-    "index": {
-      "headline": "Index",
-      "headline_caption": "HonuVibeとコミュニティが手がけた仕事のカタログ。",
-      "meta_strip_left": "HonuVibe · 作品アトラス",
-      "meta_strip_center": "第{vol}巻 · MMXXVI",
-      "meta_strip_right": "{entries} 件 · {industries} 領域",
-      "filter_label": "領域で絞り込む",
-      "filter_all": "すべて",
-      "filter_cultural": "カルチャー",
-      "filter_healthcare": "ヘルスケア",
-      "filter_community": "コミュニティ",
-      "filter_commerce": "コマース",
-      "filter_enterprise": "エンタープライズ",
-      "showing_label": "{shown} / {total} 件を表示",
-      "col_year": "年",
-      "col_project": "プロジェクト · 概要",
-      "col_industry": "領域 · 技術",
-      "col_status": "ステータス",
-      "status_live": "公開中",
-      "status_in_progress": "進行中",
-      "status_confidential": "非公開",
-      "end_of_index": "— 索引ここまで —",
-      "confidential_name": "NDA案件",
-      "confidential_brief": "進行中のエンゲージメント。詳細はお問い合わせください。",
-      "projects": {
-        "kwame": {
-          "name": "KwameBrathwaite.com",
-          "brief": "写真アーカイブを、現代的にリデザイン。"
+    "panel_partner": {
+      "eyebrow": "03 · プラットフォームで提携する",
+      "heading": "あなたが率いる人たちに、AI教育を。",
+      "cards": [
+        {
+          "name": "ビジネス向け",
+          "body": "チームにコースへのアクセスと、それぞれの役割に合った学習パスを提供します。"
         },
-        "hci": {
-          "name": "HCI Medical Group",
-          "brief": "医療機関のウェブサイトと、社内プロジェクト管理ツール。"
-        },
-        "vertice": {
-          "name": "Vertice Society",
-          "brief": "東京のプロフェッショナル向け、バイリンガル・メンバーポータル。"
+        {
+          "name": "コミュニティ向け",
+          "body": "オンラインコミュニティやネットワークのメンバーに、HonuVibeのコースを提供します。"
         }
+      ],
+      "note": "コースは英語と日本語で受講できるため、ハワイ、日本、そして世界中のチームが一緒に学べます。",
+      "cta": "パートナーシップについて相談する"
+    },
+    "how": {
+      "eyebrow": "Vaultで学ぶ",
+      "heading": "学び終えたとき、ひとつ形になっているレッスン。",
+      "cta": "サンプルレッスンを見る",
+      "marquee_tools_label": "扱うツール",
+      "marquee_tools": [
+        "Claude",
+        "ChatGPT",
+        "Gemini",
+        "Claude Code",
+        "Cursor",
+        "Supabase",
+        "Vercel",
+        "n8n",
+        "Zapier",
+        "Notion",
+        "Figma",
+        "Perplexity"
+      ],
+      "marquee_topics_label": "扱うトピック",
+      "marquee_topics": [
+        "プロンプト",
+        "自動化",
+        "ワークフロー",
+        "AIエージェント",
+        "セカンドブレイン",
+        "顧客リサーチ",
+        "コピーライティング",
+        "プロトタイピング",
+        "データ分析",
+        "モデル比較"
+      ],
+      "steps": [
+        {
+          "title": "トラックを選ぶ",
+          "body": "マーケティング、制作、リサーチ、自動化など、あなたの仕事から始めましょう。初めての方は、無料のAIの基本レッスンからどうぞ。"
+        },
+        {
+          "title": "短いレッスンを受ける",
+          "body": "英語または日本語の短いレッスンを、自分のペースで。"
+        },
+        {
+          "title": "自分の仕事で実践する",
+          "body": "Workbenchが、レッスンをあなた自身のビジネスで取り組むタスクに変えます。ブラウザの中で完結します。"
+        }
+      ]
+    },
+    "more": {
+      "label": "ほかの関わり方",
+      "build": {
+        "eyebrow": "Studioでつくる",
+        "heading": "つくってほしいときは、一緒につくります。",
+        "body": "Webサイト、Webアプリ、MVP、ビジネス文書を、コースを教えるメンバーが設計・制作します。",
+        "price": "わかりやすい料金プラン：{price}から",
+        "cta": "プロジェクトを始める",
+        "image_alt": "HonuVibe Studioが設計・制作したクライアントのWebサイト"
+      },
+      "partner": {
+        "eyebrow": "プラットフォームで提携する",
+        "heading": "コースを、あなたのチームやコミュニティへ。",
+        "body": "スタッフやメンバーにVaultへのアクセスを。一人ひとりの立場や働き方に合った学習パスを用意します。",
+        "meta": "企業とオンラインコミュニティ向け",
+        "cta": "相談する",
+        "image_alt": "HonuHubで一緒に学ぶ人たち"
       }
     },
-    "method": {
-      "chapter_label": "航海のしかた",
-      "headline": "指針とする三つの星",
-      "discovery_title": "ディスカバリー",
-      "discovery_body": "まずはゴール、対象、成功の定義を理解することから。前提を置かずにスタートします。",
-      "discovery_artifact": "ディスカバリーブリーフ · 30ページの競合監査",
-      "discovery_duration": "1〜2週間",
-      "design_build_title": "設計と構築",
-      "design_build_body": "Claude、Cursor、最新ツールを使ったAIネイティブな開発。素早い反復、透明な進捗、確かな成果。",
-      "design_build_artifact": "プロトタイプ → 本番 · 毎週デモ",
-      "design_build_duration": "4〜10週間",
-      "launch_support_title": "ローンチと支援",
-      "launch_support_body": "リリースし、計測し、磨き込む。すべてのプロジェクトに、ローンチ後のサポートとドキュメントが付属します。",
-      "launch_support_artifact": "アナリティクスダッシュボード + 引き継ぎハンドブック",
-      "launch_support_duration": "90日間サポート込み",
-      "artifact_label": "アーティファクト"
-    },
-    "giving_back": {
-      "chapter_label": "第V章 · コロフォン",
-      "headline_1": "私たちが請求しない、",
-      "headline_2": "仕事。",
-      "body": "社会への還元は、HonuVibeの根幹にあります。毎四半期、NPOや地域プロジェクトに枠を確保し、商業案件と同じ品質と心配りでお届けしています。",
-      "stat_capacity_value": "25%",
-      "stat_capacity_label": "四半期キャパシティ",
-      "stat_partners_value": "4+",
-      "stat_partners_label": "年間プロボノ・パートナー",
-      "stat_ratio_value": "1:1",
-      "stat_ratio_label": "商業 ↔ コミュニティ",
-      "link": "コミュニティやNPOとの協働にご興味のある方はお気軽にどうぞ"
-    },
-    "questions": {
-      "chapter_label": "出航前に · よくある質問",
-      "headline": "Questions",
-      "note_label": "ノート {n}",
-      "q_1_q": "最小規模の案件は？",
-      "q_1_a": "決まった最低金額はありません。制作の範囲と料金はHonuVibe Studioが担当し、明朗な料金プランは$500から。詳しい料金はstudio.honuvibe.aiをご覧ください。チームやコミュニティ向けの学習プログラムは、パートナーシップのページでご案内しています。",
-      "q_2_q": "使うツールは固定？",
-      "q_2_a": "デフォルトはNext.js + Tailwind + Supabase + Vercel。素早く出荷でき、保守しやすい組み合わせです。既存スタックがある場合はそれに合わせます。",
-      "q_3_q": "「AIネイティブ開発」って何が違うの？",
-      "q_3_a": "ClaudeとCursorをビルドプロセスの一級品として扱います。後付けではなく、プロンプト・ライブラリ・レビューループを、シニアエンジニアが関数を設計するように設計します。結果、書く量は減り、出荷量は増えます。",
-      "q_4_q": "コードは渡してもらえる？",
-      "q_4_a": "もちろんです。コード、デザイン、コンテンツ、アカウントすべて引き渡します。私たちが独占的な権利を保持することはありません。",
-      "q_5_q": "日本語対応はどう？",
-      "q_5_a": "バイリンガルEN/JPはHonuVibeの根幹です。すべてのプロジェクトで、ネイティブによるレビュー前提のJPタイポグラフィ・レイアウト・コピーで出荷可能です。機械翻訳ではありません。"
-    },
-    "next_issue": {
-      "meta_left": "針路、定まる",
-      "meta_center": "北緯21°18′ · 西経157°49′",
-      "meta_right": "次の航海へ",
-      "headline_1": "次の",
-      "headline_2": "航海へ。",
-      "subhead": "この海図のすべての寄港地は、一つの会話から始まりました。行き先を教えてください、私たちが航路を描きます — あるいは学びを始めて、あなたの作品をこの地図に。",
-      "studio_cta": "スタジオで制作する",
-      "secondary_cta": "学びを始める"
+    "pricing": {
+      "eyebrow": "はじめる",
+      "heading": "無料ではじめて、準備ができたらアップグレード。",
+      "note": "どちらのプランも英語と日本語に対応しています。いつでも解約でき、14日以内なら全額返金します。",
+      "community": {
+        "name": "Honu Community",
+        "tagline": "仲間と学び、最新の情報をキャッチ",
+        "price": "無料",
+        "perks": [
+          "Honu Communityに参加",
+          "毎週のプロンプトとツール",
+          "無料のAIの基本レッスン"
+        ],
+        "cta": "無料ではじめる"
+      },
+      "vault": {
+        "name": "The Vault",
+        "tagline": "すべてのトラックの、すべてのコース",
+        "price": "$99",
+        "unit": "/ 月",
+        "perks": [
+          "5つのトラックの全レッスン",
+          "英語と日本語のレッスン",
+          "Workbench：レッスンを自分の仕事に活かす",
+          "新しいレッスンを随時追加",
+          "Honu Community付き"
+        ],
+        "cta": "Vaultに参加する"
+      }
     }
   },
   "sandbox": {

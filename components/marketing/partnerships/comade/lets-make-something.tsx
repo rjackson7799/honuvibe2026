@@ -33,7 +33,7 @@ export function ComadeLetsMakeSomething() {
                 {t('cta_primary')}
               </Button>
               <Button
-                href="/explore"
+                href="/build"
                 variant="outline-teal"
                 size="md"
                 className="!border-white/30 !text-white hover:!bg-white/10"

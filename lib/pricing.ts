@@ -101,6 +101,11 @@ export const PRICING = {
 
 export const AI_NATIVE_FROM = { build: 7500, monthly: 200 } as const;
 
+/** Lowest one-time Studio build price (USD), for "from $X" marketing copy. Never hardcode it. */
+export function studioFromPrice(): number {
+  return Math.min(...Object.values(PRICING).map((tier) => tier.build));
+}
+
 /** À la carte, opt-in, value-framed add-ons (§10.3). */
 export const ADDONS = {
   copywriting_full: {

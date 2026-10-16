@@ -17,7 +17,7 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
   it.each([
     ['/', true],
     ['/learn', true],
-    ['/explore', true],
+    ['/explore', false], // retired in Unit 1 (redirects to Home)
     ['/sandbox', true],
     ['/sandbox/', true],
     ['/organizations', true],
@@ -97,7 +97,6 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/ja/', true],
     // Marketing routes prefixed with /ja
     ['/ja/learn', true],
-    ['/ja/explore', true],
     ['/ja/sandbox', true],
     ['/ja/partner', true],
     ['/ja/build', true],
@@ -107,7 +106,6 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/ja/contact', true],
     // EN versions (no prefix) still match
     ['/learn', true],
-    ['/explore', true],
     ['/sandbox', true],
     ['/partner', true],
     ['/about', true],
@@ -137,6 +135,9 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     // Honuhub kept public but out-of-scope for marketing rebuild
     ['/honuhub', false],
     ['/ja/honuhub', false],
+    // Explore was retired in Unit 1 (redirects to Home)
+    ['/explore', false],
+    ['/ja/explore', false],
   ])('does not match %s', (path) => {
     expect(isMarketingPathWithLocale(path)).toBe(false);
   });

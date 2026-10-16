@@ -27,7 +27,6 @@ describe('ConditionalMain padding gate', () => {
     '/ja',
     '/learn',
     '/ja/learn',
-    '/explore',
     '/about',
     '/contact',
     '/partner',

@@ -8,7 +8,7 @@ HonuVibe.AI is a bilingual (EN/JP) AI education platform founded by Ryan Jackson
 ## Key Pages
 - Homepage: https://honuvibe.ai
 - HonuHub (Waikiki learning space): https://honuvibe.ai/honuhub
-- Exploration Island (project portfolio): https://honuvibe.ai/exploration
+- Build with our Studio (websites, web apps, MVPs): https://honuvibe.ai/build
 - About Ryan: https://honuvibe.ai/about
 - Community: https://honuvibe.ai/community
 - Apply to Work Together: https://honuvibe.ai/apply

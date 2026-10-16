@@ -3,8 +3,17 @@ import {
   calculatePricing,
   answersToPricingInput,
   PRICING,
+  studioFromPrice,
   type PricingInput,
 } from './pricing';
+
+describe('studioFromPrice', () => {
+  it('is the lowest base-tier build price', () => {
+    const builds = Object.values(PRICING).map((tier) => tier.build);
+    expect(studioFromPrice()).toBe(Math.min(...builds));
+    expect(studioFromPrice()).toBe(PRICING.starter.build);
+  });
+});
 
 describe('calculatePricing — base tiers (spec §10.2)', () => {
   it('Starter / 5 pages / no add-ons → $500 build, $25/mo, no upgrade nudge', () => {

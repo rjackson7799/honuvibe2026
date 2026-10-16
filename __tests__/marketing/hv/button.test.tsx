@@ -62,6 +62,13 @@ describe('HvButton', () => {
     expect(screen.getByRole('link', { name: 'Brief' })).not.toHaveAttribute('data-intl-link');
   });
 
+  it('renders /api/ hrefs unprefixed, outside the locale-aware Link', () => {
+    render(<HvButton href="/api/stripe/subscribe?tier=vault&locale=ja">Join</HvButton>);
+    const link = screen.getByRole('link', { name: 'Join' });
+    expect(link).toHaveAttribute('href', '/api/stripe/subscribe?tier=vault&locale=ja');
+    expect(link).not.toHaveAttribute('data-intl-link');
+  });
+
   it('keeps an explicit submit type', () => {
     render(<HvButton type="submit">Send</HvButton>);
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
