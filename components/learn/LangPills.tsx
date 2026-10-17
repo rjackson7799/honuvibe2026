@@ -1,28 +1,34 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState } from 'react';
 import { useLocale } from 'next-intl';
-import { useRouter as useI18nRouter, usePathname as useI18nPathname } from '@/i18n/navigation';
+import { usePathname as useI18nPathname, getPathname } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 
 /**
  * EN / 日本語 locale switcher for the member area, styled as filled-teal pills to
  * match the top bar's teal controls (avatar, active nav). Lives in MemberTopBar so
  * it renders on mobile too — the member sidebar is desktop-only. Sets NEXT_LOCALE
- * and replaces the current path in the target locale.
+ * and loads the current path in the target locale.
+ *
+ * Deliberately a full document navigation, not router.replace: a soft navigation
+ * across the [locale] root layout on these dynamic, auth-gated pages refreshed only
+ * the page segment, leaving the JA shell (sidebar, top bar, intl provider) wrapped
+ * around an EN body — the toggle looked stuck.
  */
 export function LangPills() {
   const locale = useLocale();
   const i18nPathname = useI18nPathname();
-  const i18nRouter = useI18nRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isSwitching, setIsSwitching] = useState(false);
 
   const switchLocale = (newLocale: 'en' | 'ja') => {
-    if (newLocale === locale) return;
+    if (newLocale === locale || isSwitching) return;
+    setIsSwitching(true);
     document.cookie = `NEXT_LOCALE=${newLocale};max-age=${60 * 60 * 24 * 30};path=/`;
-    startTransition(() => {
-      i18nRouter.replace(i18nPathname, { locale: newLocale });
-    });
+    const path = getPathname({ href: i18nPathname, locale: newLocale });
+    // replace, not assign: no extra history entry (matches the old router.replace),
+    // so Back can't restore this page from bfcache with the pills still disabled.
+    window.location.replace(`${path}${window.location.search}${window.location.hash}`);
   };
 
   const pillClass = (active: boolean) =>
@@ -34,7 +40,7 @@ export function LangPills() {
     );
 
   return (
-    <div className={cn('flex items-center gap-1', isPending && 'opacity-50 pointer-events-none')}>
+    <div className={cn('flex items-center gap-1', isSwitching && 'opacity-50 pointer-events-none')}>
       <button type="button" onClick={() => switchLocale('en')} className={pillClass(locale === 'en')}>
         EN
       </button>
