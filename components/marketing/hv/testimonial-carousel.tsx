@@ -13,6 +13,8 @@ type TestimonialCarouselProps = {
   interval?: number;
   /** light = sand-50 card beside a FAQ; dark = green-800 card (Sign In left panel). */
   tone?: 'light' | 'dark';
+  /** Tighter padding and quote area on short viewports (≤820px tall), e.g. the Sign In panel. */
+  compact?: boolean;
   className?: string;
 };
 
@@ -26,7 +28,7 @@ type TestimonialCarouselProps = {
  * picks a quote by hand. Reduced motion: no timer, no entrance animation,
  * dots still work.
  */
-export function HvTestimonialCarousel({ quotes, interval = 6500, tone = 'light', className }: TestimonialCarouselProps) {
+export function HvTestimonialCarousel({ quotes, interval = 6500, tone = 'light', compact = false, className }: TestimonialCarouselProps) {
   const t = useTranslations('hv');
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
@@ -77,14 +79,24 @@ export function HvTestimonialCarousel({ quotes, interval = 6500, tone = 'light',
       className={cn(
         'flex max-w-[480px] flex-col gap-[18px] rounded-[16px] px-7 py-[26px]',
         dark ? 'bg-hv-green-800 text-hv-sand-100' : 'border border-hv-sand-300 bg-hv-sand-50 text-hv-green-900',
+        compact && '[@media(max-height:820px)]:gap-3 [@media(max-height:820px)]:py-5',
         className,
       )}
     >
       <span aria-hidden className="h-[22px] font-hv-display text-[44px] font-bold leading-[0.6] text-hv-amber">
         “
       </span>
-      <div ref={quoteRef} aria-live="off" className="flex min-h-[190px] flex-col gap-[18px]">
-        <blockquote className="m-0 font-hv-display text-[20px] font-medium leading-[1.4] tracking-[-0.01em] [text-wrap:pretty]">
+      <div
+        ref={quoteRef}
+        aria-live="off"
+        className={cn('flex min-h-[190px] flex-col gap-[18px]', compact && '[@media(max-height:820px)]:min-h-[136px] [@media(max-height:820px)]:gap-3')}
+      >
+        <blockquote
+          className={cn(
+            'm-0 font-hv-display text-[20px] font-medium leading-[1.4] tracking-[-0.01em] [text-wrap:pretty]',
+            compact && '[@media(max-height:820px)]:text-[18px]',
+          )}
+        >
           {quote.text}
         </blockquote>
         <figcaption className="mt-auto flex flex-col gap-0.5">

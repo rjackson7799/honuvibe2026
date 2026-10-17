@@ -261,14 +261,17 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
   const tabMode: AuthTabMode = mode === 'sign-up' ? 'sign-up' : 'sign-in';
   const copyKey = tabMode === 'sign-up' ? 'signup' : 'signin';
 
+  // Short viewports (≤700px tall): tighter controls and gaps so both submit buttons stay above
+  // the fold. Controls never drop below the 44px touch minimum (the Forgot link's 28px row keeps a
+  // 44px hit area through its ::before).
   const labelClass = 'text-[14px] font-semibold text-hv-green-900';
   const inputClass = cn(
-    'w-full min-h-[50px] rounded-[10px] border-[1.5px] border-hv-sand-300 bg-hv-sand-50 px-3.5',
+    'w-full min-h-[50px] [@media(max-height:700px)]:min-h-[44px] rounded-[10px] border-[1.5px] border-hv-sand-300 bg-hv-sand-50 px-3.5',
     'text-[16px] text-hv-ink outline-none transition-colors placeholder:text-hv-taupe',
     'focus:border-hv-green-900 disabled:opacity-60',
   );
   const primaryClass = cn(
-    'flex w-full min-h-[54px] items-center justify-center gap-[9px] rounded-[10px] bg-hv-amber',
+    'flex w-full min-h-[54px] [@media(max-height:700px)]:min-h-[46px] items-center justify-center gap-[9px] rounded-[10px] bg-hv-amber',
     'text-[17px] font-semibold text-hv-green-900',
     'transition-[transform,box-shadow] duration-[250ms] ease-hv hover:-translate-y-0.5 hover:shadow-hv-cta',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900 focus-visible:ring-offset-2',
@@ -350,7 +353,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
         ) : (
         <>
 
-        <h2 className="hv-display mt-7 font-hv-display text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-hv-green-900">
+        <h2 className="hv-display mt-7 [@media(max-height:700px)]:mt-3.5 font-hv-display text-[28px] [@media(max-height:700px)]:text-[24px] font-bold leading-[1.1] tracking-[-0.03em] text-hv-green-900">
           {mode === 'forgot' ? t('reset_password') : t(`${copyKey}_form_title`)}
         </h2>
         {mode !== 'forgot' && (
@@ -363,7 +366,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
           onClick={handleGoogleAuth}
           disabled={loading}
           className={cn(
-            'mt-6 flex w-full min-h-[52px] items-center justify-center gap-3 rounded-[10px]',
+            'mt-6 [@media(max-height:700px)]:mt-3.5 flex w-full min-h-[52px] [@media(max-height:700px)]:min-h-[44px] items-center justify-center gap-3 rounded-[10px]',
             'border-[1.5px] border-hv-sand-300 bg-hv-sand-50 text-[16px] font-semibold text-hv-green-900',
             'transition-colors hover:border-hv-green-900 disabled:opacity-60',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900',
@@ -391,7 +394,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
         </button>
 
         {/* Divider */}
-        <div className="my-[22px] grid grid-cols-[1fr_auto_1fr] items-center gap-3.5 text-[13.5px] text-hv-taupe">
+        <div className="my-[22px] [@media(max-height:700px)]:my-2.5 grid grid-cols-[1fr_auto_1fr] items-center gap-3.5 text-[13.5px] text-hv-taupe">
           <span aria-hidden className="h-px bg-hv-sand-300" />
           <span>{t('or_with_email')}</span>
           <span aria-hidden className="h-px bg-hv-sand-300" />
@@ -441,7 +444,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
         ) : (
           <>
             {/* Email form */}
-            <form onSubmit={handleEmailAuth} className="grid gap-4">
+            <form onSubmit={handleEmailAuth} className="grid gap-4 [@media(max-height:700px)]:gap-3">
               {mode === 'sign-up' && (
                 <div className="grid gap-[7px]">
                   <label htmlFor="auth-name" className={labelClass}>{t('name')}</label>
@@ -476,7 +479,10 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
                     <button
                       type="button"
                       onClick={() => { setMode('forgot'); setError(null); }}
-                      className={cn('inline-flex min-h-[44px] items-center text-[14px]', textButtonClass)}
+                      className={cn(
+                        "relative inline-flex min-h-[44px] [@media(max-height:700px)]:min-h-[28px] items-center text-[14px] before:absolute before:inset-x-0 before:-inset-y-2 before:content-['']",
+                        textButtonClass,
+                      )}
                     >
                       {t('forgot_password')}
                     </button>
@@ -524,7 +530,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
 
             {/* Magic-link alternative (sign-in only: the link signs in an existing account) */}
             {showMagicLink && mode === 'sign-in' && (
-              <div className="mt-3">
+              <div className="mt-3 [@media(max-height:700px)]:mt-2">
                 {magicLinkSent ? (
                   <p role="status" className="text-center text-[15px] text-hv-green-900">
                     ✓ {t('magic_link_check_email')}
@@ -535,7 +541,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
                     onClick={handleSendMagicLink}
                     disabled={magicLinkSending}
                     className={cn(
-                      'w-full min-h-[50px] rounded-[10px] border-[1.5px] border-hv-green-900 bg-transparent',
+                      'w-full min-h-[50px] [@media(max-height:700px)]:min-h-[44px] rounded-[10px] border-[1.5px] border-hv-green-900 bg-transparent',
                       'text-[15.5px] font-semibold text-hv-green-900 transition-colors hover:bg-hv-sand-200 disabled:opacity-60',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-green-900',
                     )}
@@ -547,7 +553,7 @@ export function AuthForm({ initialMode = 'sign-in', onModeChange, showMagicLink 
             )}
 
             {/* Switch mode */}
-            <p className="mt-6 text-center text-[15px] text-hv-ink-700">
+            <p className="mt-6 [@media(max-height:700px)]:mt-1 text-center text-[15px] text-hv-ink-700">
               {t(`${copyKey}_switch_q`)}{' '}
               <button
                 type="button"

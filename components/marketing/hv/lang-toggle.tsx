@@ -17,6 +17,8 @@ type LangToggleProps = {
   tone?: 'dark' | 'light';
   /** Accessible name for the group ("Language"). */
   label: string;
+  /** sm = 30px visual height (Sign In panel); the hit area still extends to 44px. */
+  size?: 'md' | 'sm';
   className?: string;
 };
 
@@ -25,7 +27,7 @@ type LangToggleProps = {
  * least 36×44px, active segment inverted. Switching keeps the query string
  * and hash so /signin?redirect=… and in-page anchors survive the hop.
  */
-export function HvLangToggle({ tone = 'dark', label, className }: LangToggleProps) {
+export function HvLangToggle({ tone = 'dark', label, size = 'md', className }: LangToggleProps) {
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const router = useRouter();
@@ -68,7 +70,10 @@ export function HvLangToggle({ tone = 'dark', label, className }: LangToggleProp
             onFocus={active ? undefined : () => router.prefetch(pathname, { locale: option.locale })}
             className={cn(
               // 36px visual height (README); the ::before extends the hit area to 44px.
-              "relative min-h-[36px] min-w-[44px] rounded-full px-3 text-[13.5px] font-semibold before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
+              "relative rounded-full font-semibold before:absolute before:inset-x-0 before:content-['']",
+              size === 'sm'
+                ? 'min-h-[30px] min-w-[44px] px-2.5 text-[12.5px] before:-inset-y-[7px]'
+                : 'min-h-[36px] min-w-[44px] px-3 text-[13.5px] before:-inset-y-1',
               'transition-colors duration-200 ease-hv',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-amber',
               active
