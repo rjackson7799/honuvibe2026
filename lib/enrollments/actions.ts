@@ -2,7 +2,6 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { resolveEnrollmentPartnerId } from '@/lib/partner-attribution/resolve';
 
 export async function simulatedEnroll(courseId: string, locale: string) {
   const supabase = await createClient();
@@ -12,61 +11,18 @@ export async function simulatedEnroll(courseId: string, locale: string) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
-  // Check if already enrolled
-  const { data: existing } = await supabase
-    .from('enrollments')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('course_id', courseId)
-    .maybeSingle();
-
-  if (existing) {
-    return { success: true, alreadyEnrolled: true };
-  }
-
-  // Check course capacity
-  const { data: course } = await supabase
-    .from('courses')
-    .select('max_enrollment, current_enrollment, slug, partner_id')
-    .eq('id', courseId)
-    .single();
-
-  if (!course) throw new Error('Course not found');
-
-  if (
-    course.max_enrollment &&
-    course.current_enrollment >= course.max_enrollment
-  ) {
-    throw new Error('Course is full');
-  }
-
-  // Partner attribution — ownership wins over cookie.
-  // Free enrollments don't read the hv_partner cookie here; cookie attribution
-  // for free courses is handled by Slice B's existing wiring at cookie-set time.
-  const partnerId = resolveEnrollmentPartnerId({
-    coursePartnerId: course.partner_id ?? null,
-    cookiePartnerId: null,
+  // The database validates pricing and publication and reserves capacity in
+  // one transaction. A client-supplied course id never bypasses checkout.
+  const { data: result, error: enrollError } = await supabase.rpc('enroll_in_free_course', {
+    p_course_id: courseId,
+    p_locale: locale === 'ja' ? 'ja' : 'en',
   });
-
-  // Create enrollment (simulated — no real payment)
-  const { error: enrollError } = await supabase.from('enrollments').insert({
-    user_id: user.id,
-    course_id: courseId,
-    amount_paid: 0,
-    currency: locale === 'ja' ? 'jpy' : 'usd',
-    status: 'active',
-    partner_id: partnerId,
-  });
-
   if (enrollError) throw enrollError;
+  if (!result?.success) throw new Error('Enrollment failed');
+  if (result.alreadyEnrolled) return result;
+  const course = { slug: result.courseSlug as string };
 
-  // Increment enrollment count
-  await supabase
-    .from('courses')
-    .update({ current_enrollment: course.current_enrollment + 1 })
-    .eq('id', courseId);
-
-  // Send enrollment confirmation emails (fire-and-forget)
+  // Complete best-effort email work before the server action ends.
   const { data: userProfile } = await supabase
     .from('users')
     .select('full_name, email, locale_preference')
@@ -90,7 +46,7 @@ export async function simulatedEnroll(courseId: string, locale: string) {
       const { sendEnrollmentConfirmation, sendEnrollmentAdminNotification } =
         await import('@/lib/email/send');
 
-      void Promise.all([
+      await Promise.all([
         sendEnrollmentConfirmation({
           locale: emailLocale,
           studentName: userProfile.full_name ?? 'Student',

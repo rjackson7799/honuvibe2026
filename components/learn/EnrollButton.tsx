@@ -40,11 +40,9 @@ export function EnrollButton({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Determine if this is a paid course based on locale
-  const isPaid =
-    locale === 'ja'
-      ? priceJpy != null && priceJpy > 0
-      : priceUsd != null && priceUsd > 0;
+  // Missing pricing or a price in either currency must go through checkout.
+  const isPaid = (priceUsd ?? 0) !== 0 || (priceJpy ?? 0) !== 0
+    || (priceUsd == null && priceJpy == null);
 
   if (isEnrolled) {
     const prefix = locale === 'ja' ? '/ja' : '';
@@ -73,6 +71,7 @@ export function EnrollButton({
   }
 
   async function handleEnroll() {
+    if (loading) return;
     trackCourseEnrollCtaClick({ course_slug: courseSlug, is_paid: isPaid, locale });
 
     if (!isLoggedIn) {
