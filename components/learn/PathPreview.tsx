@@ -111,6 +111,7 @@ export function PathPreview({
             onChange={(e) => setFeedback(e.target.value)}
             placeholder={t('regenerate_feedback')}
             rows={2}
+            maxLength={300}
             className="w-full rounded-lg border border-border-primary bg-bg-secondary px-4 py-3 text-fg-primary placeholder:text-fg-muted focus:border-accent-teal focus:outline-none focus:ring-1 focus:ring-accent-teal text-sm resize-none"
           />
           <div className="flex justify-end">

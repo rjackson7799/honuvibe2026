@@ -2,6 +2,7 @@ import { buildCatalog } from './catalog';
 import { buildGenerationPrompt, GENERATION_PROMPT_VERSION } from './prompt';
 import type { StudentContext } from './prompt';
 import { claudePathResponseSchema } from './schemas';
+import { reservePathGeneration } from './quota';
 import { createClient } from '@/lib/supabase/server';
 import type {
   PathIntakeInput,
@@ -19,7 +20,7 @@ const REQUEST_TIMEOUT_MS = 45_000;
 export class PathGenerationError extends Error {
   constructor(
     message: string,
-    public code: 'API_ERROR' | 'PARSE_ERROR' | 'VALIDATION_ERROR' | 'CATALOG_TOO_SMALL',
+    public code: 'API_ERROR' | 'PARSE_ERROR' | 'VALIDATION_ERROR' | 'CATALOG_TOO_SMALL' | 'QUOTA_EXCEEDED',
   ) {
     super(message);
     this.name = 'PathGenerationError';
@@ -58,7 +59,15 @@ export async function generateStudyPath(
     studentContext,
   );
 
-  // 4. Call Claude API
+  // 4. Reserve a daily slot only once a billed model call is certain.
+  if (!await reservePathGeneration(userId)) {
+    throw new PathGenerationError(
+      'Daily path generation limit reached (3 attempts per UTC day)',
+      'QUOTA_EXCEEDED',
+    );
+  }
+
+  // 5. Call Claude API
   const startTime = Date.now();
 
   let response: Response;
@@ -109,7 +118,7 @@ export async function generateStudyPath(
     );
   }
 
-  // 5. Extract JSON (may be wrapped in ```json blocks)
+  // 6. Extract JSON (may be wrapped in ```json blocks)
   let jsonStr = textBlock.text.trim();
   const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (jsonMatch) {
@@ -126,7 +135,7 @@ export async function generateStudyPath(
     );
   }
 
-  // 6. Validate with Zod
+  // 7. Validate with Zod
   const validated = claudePathResponseSchema.safeParse(parsed);
   if (!validated.success) {
     throw new PathGenerationError(
@@ -135,7 +144,7 @@ export async function generateStudyPath(
     );
   }
 
-  // 7. Cross-validate: all content_item_ids exist in catalog
+  // 8. Cross-validate: all content_item_ids exist in catalog
   const catalogIds = new Set(catalog.map((item: CatalogItem) => item.id));
   const invalidIds = validated.data.items.filter(
     (item) => !catalogIds.has(item.content_item_id),
@@ -148,7 +157,7 @@ export async function generateStudyPath(
     );
   }
 
-  // 8. Extract token usage
+  // 9. Extract token usage
   const inputTokens = result.usage?.input_tokens ?? 0;
   const outputTokens = result.usage?.output_tokens ?? 0;
 

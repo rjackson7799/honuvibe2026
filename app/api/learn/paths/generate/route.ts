@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateStudyPath, PathGenerationError } from '@/lib/paths/generate';
-import { createPath, saveGenerationLog, getPathGenerationCount } from '@/lib/paths/queries';
+import { createPath, saveGenerationLog } from '@/lib/paths/queries';
+import { pathIntakeSchema } from '@/lib/paths/validation';
 import { GENERATION_PROMPT_VERSION } from '@/lib/paths/prompt';
 import { hasPremiumAccess } from '@/lib/paths/access';
 import type { PathIntakeInput } from '@/lib/paths/types';
 
 export const maxDuration = 60;
-
-const MAX_GENERATIONS_PER_DAY = 3;
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,48 +23,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse and validate body
-    const body = await request.json();
-    const { goal_description, difficulty_preference, language_preference, focus_areas } =
-      body as PathIntakeInput;
-
-    if (!goal_description || goal_description.trim().length === 0) {
-      return NextResponse.json(
-        { error: 'Goal description is required' },
-        { status: 400 },
-      );
-    }
-
-    if (goal_description.length > 500) {
-      return NextResponse.json(
-        { error: 'Goal description must be 500 characters or less' },
-        { status: 400 },
-      );
-    }
-
-    const validDifficulties = ['beginner', 'intermediate', 'advanced'];
-    if (!validDifficulties.includes(difficulty_preference)) {
-      return NextResponse.json(
-        { error: 'Invalid difficulty preference' },
-        { status: 400 },
-      );
-    }
-
-    const validLanguages = ['en', 'ja'];
-    if (!validLanguages.includes(language_preference)) {
-      return NextResponse.json(
-        { error: 'Invalid language preference' },
-        { status: 400 },
-      );
-    }
-
-    // Rate limit check
-    const todayCount = await getPathGenerationCount(user.id, new Date());
-    if (todayCount >= MAX_GENERATIONS_PER_DAY) {
-      return NextResponse.json(
-        { error: 'Daily path generation limit reached (3 per day)' },
-        { status: 429 },
-      );
-    }
+    const parsed = pathIntakeSchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) return NextResponse.json({ error: 'Invalid path preferences' }, { status: 400 });
 
     // Get user tier (mirrors the viewer's premium check: admin/trialing/grace included)
     const { data: profile } = await supabase
@@ -86,12 +45,7 @@ export async function POST(request: NextRequest) {
         : 'free';
 
     // Generate path via Claude
-    const input: PathIntakeInput = {
-      goal_description: goal_description.trim(),
-      difficulty_preference,
-      language_preference,
-      focus_areas: focus_areas ?? [],
-    };
+    const input: PathIntakeInput = parsed.data;
 
     const generationResult = await generateStudyPath(input, user.id, userTier);
 
@@ -129,6 +83,7 @@ export async function POST(request: NextRequest) {
         PARSE_ERROR: 502,
         VALIDATION_ERROR: 502,
         CATALOG_TOO_SMALL: 422,
+        QUOTA_EXCEEDED: 429,
       } as const;
 
       return NextResponse.json(
