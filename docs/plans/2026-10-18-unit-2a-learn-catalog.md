@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** DRAFT for Ryan's review (2026-10-18). Nothing built.
+**Status:** SHIPPED 2026-10-18 as a30e73b (pushed, live). See "Execution record" at the end.
 **Baseline:** `main` at `5e0e141` (Slice E). The execution session re-checks `origin/main` first; another session pushes to main.
 **Roadmap:** `docs/plans/2026-10-05-marketing-redesign-green.md` §Unit 2 + review amendments. Its locked decisions are not reopened. Unit 2 is split (Ryan, 2026-10-18): **2a = `/learn` catalog + retirements (this plan)**; **2b = course detail `/learn/[slug]`, after B3** (needs `hasCourseAccess` + migration 081).
 **Design source of truth:** `docs/design_2026_green/pages/02 Learn - Catalog.dc.html` (README §02 at `README.md:157-162`, screenshot `screenshots/02 Learn - Catalog.png`). Line refs below (`:NN`) are into that `.dc.html`.
@@ -299,3 +299,30 @@ Build in a clean worktree from `origin/main` (hoisted `.npmrc`, copy `.env.local
 1. Review this plan; answer D1–D11 (recommendations marked).
 2. EN copy sign-off before commit (Task 7 Step 5); JA native review after ship.
 3. Approve the push (Task 7 Step 6).
+
+## Execution record (2026-10-18)
+
+**Shipped:** a30e73b on `main` (one squashed commit of the worktree's 10; tree hash matched the worktree's exactly), pushed 5e0e141..a30e73b, Vercel success. No migration; prod DB untouched.
+
+**Decisions:** D1–D11 as recommended. EN copy signed off by Ryan with one change: the all-tracks heading is "Every lesson and course, in one place" (no "five tracks"). JA machine-drafted — native review owed.
+
+**Gates (clean worktree):** type-check 0; vitest app 193 files / 2152 tests; build 0. Prerender proof: build with a temporary `dynamic = 'error'` passed; `/en/learn`, `/ja/learn` in the prerender manifest. Route table vs baseline: only `/[locale]/learn` ƒ → ●, and `/free-lesson`, the `/sandbox` landing and `/api/free-lesson/subscribe` removed.
+
+**Prod checks:** `/learn`, `/ja/learn` → `x-vercel-cache: PRERENDER`, then `HIT`; `/free-lesson`, `/ja/free-lesson`, `/sandbox`, `/ja/sandbox` → single 307 to `/learn` / `/ja/learn`; `/sandbox/miles-chaser` 200; 27 lesson links + 1 course in the HTML; headless Chromium: `?track=marketing_growth` → 3 lessons, `/ja/learn?free=1` → 8.
+
+**Changes against this plan (rulings):**
+- F11: hot chip "Second brain" matched nothing on prod → "Research" / "リサーチ"; "Automation" queries `automation`.
+- Copy softened beyond D2 for truth: FAQ Free-vs-Vault says "every lesson" (courses join the Vault in B3); "How long does a track take?" drops the 2–4 week claim; "A written guide" drops "in English and 日本語".
+- `LearnPricingStrip` takes `hasFreeLesson` ("Get started free" when it points at `/signup`); Join the Vault uses `apiHrefForLocale` on `/ja`.
+- Small captions use ink-500 (design taupe fails AA at 12px); cover tone 5 = amber + green-900.
+- Adversarial review (fresh reviewer) found one Important bug, fixed with tests: `history.replaceState(history.state, …)` never synced Next's router (the state carries Next's `__NA` marker) → now `replaceState(null, …)`, plus `CatalogUrlSync` (`useSearchParams` in its own `<Suspense fallback={null}>`) so router navigations re-sync the filters. The page stays ●.
+- About final CTA links moved from the dead `/learn#vault` / `/learn#courses` to `/learn` and `/learn#catalog`.
+- Duplicate brand in the meta title removed (the layout template adds it).
+
+**Owed:**
+- Ryan: browser smoke EN + `/ja` (real clicks, reduced motion, console). The Chrome extension could not attach this session, so the smoke ran in headless Chromium only.
+- PSI mobile on `/learn` (pagespeed.web.dev).
+- JA native review of `learn_catalog`.
+- `components/marketing/nav/marketing-mobile-menu.tsx:97` still links `/learn#vault` (dirty WIP file, not touched).
+
+**Deferred minors:** "{n} lessons" also counts the course card; a fetch error is cached as an empty catalog for 600 s (same as `getPublicCatalog`); "Clear filters" drops keyboard focus; one-frame stale filter on a second soft visit with a different `?track=`; dead `.learn-chapter` CSS (Unit 6); the 100-char query cap can split an emoji.
