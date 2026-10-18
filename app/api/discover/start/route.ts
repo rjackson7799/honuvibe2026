@@ -37,6 +37,9 @@ const schema = z.object({
 const THIRTY_DAYS_MS = 1000 * 60 * 60 * 24 * 30;
 
 export async function POST(req: NextRequest) {
+  if (process.env.DISCOVERY_ENABLED !== 'true') {
+    return NextResponse.json({ error: 'Discovery is not available' }, { status: 503 });
+  }
   let payload: unknown;
   try {
     payload = await req.json();

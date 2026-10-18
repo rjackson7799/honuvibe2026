@@ -57,6 +57,7 @@ export interface SessionRow {
   current_step: number;
   locale: string;
   session_secret_hash: string;
+  expires_at: string | null;
 }
 
 export type AuthorizeResult =
@@ -69,6 +70,7 @@ export type AuthorizeResult =
  * Returns a service-role client for the caller to do its DB work.
  */
 export async function authorizeSession(sessionId: string): Promise<AuthorizeResult> {
+  if (process.env.DISCOVERY_ENABLED !== 'true') return { ok: false, status: 503 };
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return { ok: false, status: 503 };
   }
@@ -78,12 +80,14 @@ export async function authorizeSession(sessionId: string): Promise<AuthorizeResu
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('discovery_sessions')
-    .select('id, lead_id, current_step, locale, session_secret_hash')
+    .select('id, lead_id, current_step, locale, session_secret_hash, expires_at')
     .eq('id', sessionId)
     .single<SessionRow>();
 
   if (error || !data) return { ok: false, status: 404 };
   if (!secretMatches(cookie.secret, data.session_secret_hash)) return { ok: false, status: 403 };
+  const expiresAt = data.expires_at ? Date.parse(data.expires_at) : NaN;
+  if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) return { ok: false, status: 403 };
 
   return { ok: true, session: data, supabase };
 }
