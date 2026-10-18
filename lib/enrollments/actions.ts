@@ -31,7 +31,7 @@ export async function simulatedEnroll(courseId: string, locale: string) {
 
   if (userProfile?.email) {
     const { data: courseForEmail } = await supabase
-      .from('courses')
+      .from('course_catalog')
       .select('title_en, title_jp, course_type, start_date, price_usd, price_jpy')
       .eq('id', courseId)
       .single();

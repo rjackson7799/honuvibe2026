@@ -363,7 +363,7 @@ export async function getResumePoint(userId: string): Promise<ResumePoint> {
       .in('course_id', enrollmentOrder)
       .order('completed_at', { ascending: false }),
     supabase
-      .from('courses')
+      .from('course_catalog')
       .select('id, slug, title_en, title_jp')
       .in('id', enrollmentOrder),
   ]);

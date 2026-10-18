@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { signLessonAudio } from '@/lib/esl/audio-access';
 
 export async function GET(
   _request: NextRequest,
@@ -38,13 +39,19 @@ export async function GET(
       return NextResponse.json({ error: 'Lesson not found' }, { status: 404 });
     }
 
-    // Include audio records for preview support
-    const { data: audio } = await supabase
+    const { data: canManage, error: accessError } = await supabase.rpc('can_manage_course', { p_course: data.course_id });
+    if (accessError || canManage !== true) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
+    // Preview uses the same private storage boundary as learner playback.
+    const { data: audio, error: audioError } = await supabase
       .from('esl_audio')
       .select('*')
       .eq('esl_lesson_id', lessonId);
 
-    return NextResponse.json({ data: { ...data, audio: audio ?? [] } });
+    if (audioError) throw new Error('Could not load lesson audio');
+    return NextResponse.json({ data: { ...data, audio: await signLessonAudio(supabase, audio ?? []) } }, {
+      headers: { 'Cache-Control': 'private, no-store' },
+    });
   } catch (error) {
     console.error('[Admin ESL GET] Error:', error);
     return NextResponse.json(

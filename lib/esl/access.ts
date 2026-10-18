@@ -7,20 +7,13 @@ export async function checkESLAccess(
 ): Promise<ESLAccessResult> {
   const supabase = await createClient();
 
-  // Admin / instructor bypass
-  const { data: user } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', userId)
-    .single();
-
-  if (user?.role === 'admin' || user?.role === 'instructor') {
-    return { hasAccess: true, source: 'admin' };
-  }
+  // A global instructor role is not access to another teacher's materials.
+  const { data: canManage } = await supabase.rpc('can_manage_course', { p_course: courseId });
+  if (canManage === true) return { hasAccess: true, source: 'admin' };
 
   // Check if course has ESL included with enrollment
   const { data: course } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('esl_enabled, esl_included')
     .eq('id', courseId)
     .single();

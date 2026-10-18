@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getTutoringAccess } from '@/lib/tutoring/auth';
 import { getAdminCourseById } from '@/lib/courses/queries';
 import { generatePresentation } from '@/lib/teaching-materials/generate-presentation';
 import type { TeachingMaterialInput } from '@/lib/teaching-materials/types';
@@ -19,22 +19,8 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
   }
 
-  // Auth check
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (profile?.role !== 'admin' && profile?.role !== 'instructor') {
-    return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
-  }
+  const access = await getTutoringAccess(courseId);
+  if (!access.ok) return NextResponse.json({ error: access.error }, { status: access.status });
 
   // Fetch course with curriculum
   const course = await getAdminCourseById(courseId);
@@ -108,6 +94,7 @@ export async function GET(
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
+        'Cache-Control': 'private, no-store',
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
       },

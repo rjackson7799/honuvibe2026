@@ -179,7 +179,7 @@ async function fetchStudentContext(
   // Fetch enrolled courses
   const { data: enrollments } = await supabase
     .from('enrollments')
-    .select('status, courses(title_en, title_jp)')
+    .select('status, courses:course_catalog(title_en, title_jp)')
     .eq('user_id', userId)
     .in('status', ['active', 'completed']);
 

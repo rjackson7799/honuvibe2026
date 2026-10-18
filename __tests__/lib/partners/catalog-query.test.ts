@@ -50,7 +50,7 @@ function makeClient(featured: Outcome, owned: Outcome) {
   const client = {
     from: (table: string) => {
       if (table === 'partner_courses') return featuredQ.chain;
-      if (table === 'courses') return ownedQ.chain;
+      if (table === 'course_catalog') return ownedQ.chain;
       throw new Error(`Unexpected table: ${table}`);
     },
   } as unknown as SupabaseClient;
@@ -108,7 +108,7 @@ describe('getPartnerCatalog — SQL contract', () => {
     );
     await getPartnerCatalog(client, 'p-1', 'en');
 
-    expect(String(featuredQ.argsFor('select')[0][0])).toContain('courses:course_id!inner');
+    expect(String(featuredQ.argsFor('select')[0][0])).toContain('courses:course_catalog!inner');
   });
 
   it('does NOT filter is_private (D6)', async () => {

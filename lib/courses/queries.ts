@@ -13,7 +13,7 @@ export async function getPublishedCourses(): Promise<Course[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('*')
     .eq('is_published', true)
     .eq('is_private', false)
@@ -29,7 +29,7 @@ export async function getPublishedCoursesWithPartners(
   const supabase = await createClient();
 
   let query = supabase
-    .from('courses')
+    .from('course_catalog')
     .select(
       `id, slug, course_id_code, course_type, title_en, title_jp,
        description_en, description_jp, instructor_name, instructor_id,
@@ -107,7 +107,7 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('*')
     .eq('is_published', true)
     .eq('is_private', false)
@@ -123,7 +123,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
@@ -140,7 +140,7 @@ export async function getCourseWithCurriculum(
 
   // Fetch course with partner FK join
   const { data: courseRaw, error: courseError } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select(
       `*, partners!courses_partner_id_fkey ( slug, name_en, name_jp, logo_url )`,
     )
@@ -174,7 +174,7 @@ export async function getCourseWithCurriculum(
     const lead = instructors.find((i) => i.role === 'lead') ?? instructors[0] ?? null;
     // Fetch bonus sessions even when there are no weeks
     const { data: bonusRaw } = await supabase
-      .from('course_sessions')
+      .from('course_session_catalog')
       .select('*')
       .eq('course_id', course.id)
       .eq('is_bonus', true)
@@ -195,13 +195,13 @@ export async function getCourseWithCurriculum(
   const [sessionsRes, assignmentsRes, vocabularyRes, resourcesRes, bonusRes, instructors] =
     await Promise.all([
       supabase
-        .from('course_sessions')
+        .from('course_session_catalog')
         .select('*')
         .in('week_id', weekIds)
         .eq('is_bonus', false)
         .order('session_number', { ascending: true }),
       supabase
-        .from('course_assignments')
+        .from('course_assignment_catalog')
         .select('*')
         .in('week_id', weekIds)
         .order('sort_order', { ascending: true }),
@@ -211,12 +211,12 @@ export async function getCourseWithCurriculum(
         .in('week_id', weekIds)
         .order('sort_order', { ascending: true }),
       supabase
-        .from('course_resources')
+        .from('course_resource_catalog')
         .select('*')
-        .in('week_id', weekIds)
+        .eq('course_id', course.id)
         .order('sort_order', { ascending: true }),
       supabase
-        .from('course_sessions')
+        .from('course_session_catalog')
         .select('*')
         .eq('course_id', course.id)
         .eq('is_bonus', true)
@@ -251,7 +251,7 @@ export async function getCourseWithCurriculum(
       })),
     assignments: assignments.filter((a) => a.week_id === week.id),
     vocabulary: vocabulary.filter((v) => v.week_id === week.id),
-    resources: resources.filter((r) => r.week_id === week.id),
+    resources: resources.filter((r) => r.week_id === week.id || sessions.some((s) => s.week_id === week.id && s.id === r.session_id)),
   }));
 
   // Lead instructor for backward compat
@@ -332,9 +332,9 @@ export async function getAdminCourseById(
         .in('week_id', weekIds)
         .order('sort_order', { ascending: true }),
       supabase
-        .from('course_resources')
+        .from('course_resource_catalog')
         .select('*')
-        .in('week_id', weekIds)
+        .eq('course_id', course.id)
         .order('sort_order', { ascending: true }),
       supabase
         .from('course_sessions')
@@ -369,7 +369,7 @@ export async function getAdminCourseById(
     vocabulary: (vocabularyRes.data ?? []).filter(
       (v) => v.week_id === week.id,
     ),
-    resources: (resourcesRes.data ?? []).filter((r) => r.week_id === week.id),
+    resources: (resourcesRes.data ?? []).filter((r) => r.week_id === week.id || (sessionsRes.data ?? []).some((s) => s.week_id === week.id && s.id === r.session_id)),
   }));
 
   // Lead instructor for backward compat

@@ -178,7 +178,7 @@ export async function getPartnerCatalog(
     // !inner so an unpublished course EXCLUDES its parent row instead of
     // yielding a null embed the caller has to filter — which is what makes the
     // 51-row prefix meaningful.
-    .select(`display_order, courses:course_id!inner(${COURSE_COLUMNS}, is_published)`)
+    .select(`display_order, courses:course_catalog!inner(${COURSE_COLUMNS}, is_published)`)
     .eq('partner_id', partnerId)
     .eq('courses.is_published', true)
     .order('display_order', { ascending: true, nullsFirst: false })
@@ -187,7 +187,7 @@ export async function getPartnerCatalog(
     .limit(SOURCE_LIMIT);
 
   const ownedQuery = supabase
-    .from('courses')
+    .from('course_catalog')
     .select(COURSE_COLUMNS)
     .eq('partner_id', partnerId)
     .eq('is_published', true)

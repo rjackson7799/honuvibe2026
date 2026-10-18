@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'courseId is required' }, { status: 400 });
     }
 
+    const { data: canManage, error: accessError } = await supabase.rpc('can_manage_course', { p_course: courseId });
+    if (accessError || canManage !== true) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+
     // Fetch course with weeks
     const { data: course } = await supabase
       .from('courses')

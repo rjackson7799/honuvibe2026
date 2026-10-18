@@ -183,7 +183,7 @@ export async function getOwnInstructorPayouts(
       payout_reference,
       enrollments:enrollment_id (
         amount_paid,
-        courses:course_id ( title_en )
+        courses:course_catalog ( title_en )
       ),
       instructor_profiles:instructor_id ( display_name )
     `)

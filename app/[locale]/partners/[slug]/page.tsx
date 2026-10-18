@@ -46,7 +46,7 @@ async function fetchPartnerWithCourses(slug: string): Promise<
     supabase
       .from('partner_courses')
       .select(
-        'display_order, courses:course_id(id, slug, title_en, title_jp, description_en, description_jp, thumbnail_url, level, language, total_weeks, is_published)',
+        'display_order, courses:course_catalog(id, slug, title_en, title_jp, description_en, description_jp, thumbnail_url, level, language, total_weeks, is_published)',
       )
       .eq('partner_id', partner.id)
       .order('display_order', { ascending: true }),

@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch course from DB
     const { data: course, error: courseError } = await supabase
-      .from('courses')
+      .from('course_catalog')
       .select(
         'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published',
       )
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       .select('id')
       .eq('user_id', user.id)
       .eq('course_id', courseId)
-      .eq('status', 'active')
+      .in('status', ['active', 'completed'])
       .maybeSingle();
 
     if (existing) {

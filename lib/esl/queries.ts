@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { signLessonAudio } from './audio-access';
 import type {
   ESLLesson,
   ESLLessonWithAudio,
@@ -18,15 +19,13 @@ export async function getESLLessonForWeek(
 
   if (!lesson) return null;
 
-  const { data: audio } = await supabase
+  const { data: audio, error: audioError } = await supabase
     .from('esl_audio')
     .select('*')
     .eq('esl_lesson_id', lesson.id);
 
-  return {
-    ...lesson,
-    audio: audio ?? [],
-  } as ESLLessonWithAudio;
+  if (audioError) throw new Error('Could not load lesson audio');
+  return { ...lesson, audio: await signLessonAudio(supabase, audio ?? []) } as ESLLessonWithAudio;
 }
 
 export async function getESLLessonsForCourse(

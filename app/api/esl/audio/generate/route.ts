@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Admin-only
+    // Require a staff role and, below, management of this lesson's course.
     const {
       data: { user },
       error: authError,
@@ -44,6 +44,11 @@ export async function POST(request: NextRequest) {
 
     if (!lesson) {
       return NextResponse.json({ error: 'ESL lesson not found' }, { status: 404 });
+    }
+
+    const { data: canManage, error: accessError } = await supabase.rpc('can_manage_course', { p_course: lesson.course_id });
+    if (accessError || canManage !== true) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get course ESL settings for TTS voice

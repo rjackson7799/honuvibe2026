@@ -83,7 +83,7 @@ function enrolledTables(status = 'active') {
   return {
     course_sessions: [{ id: SESSION, week_id: WEEK }],
     course_weeks: [{ id: WEEK, course_id: COURSE }],
-    courses: [{ id: COURSE, slug: 'course-slug' }],
+    course_catalog: [{ id: COURSE, slug: 'course-slug' }],
     enrollments: [{ id: 'enr-1', user_id: USER, course_id: COURSE, status }],
   };
 }

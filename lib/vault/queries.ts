@@ -1309,7 +1309,7 @@ export async function getVaultCourseRecommendations(
 
     // Get tags from enrolled courses
     const { data: courses } = await supabase
-      .from('courses')
+      .from('course_catalog')
       .select('tags')
       .in('id', courseIds);
 

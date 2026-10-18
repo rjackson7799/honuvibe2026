@@ -160,7 +160,7 @@ export async function checkVaultAccess(userId: string): Promise<VaultAccessResul
   // access the purchase granted.
   const { data: enrollment } = await supabase
     .from('enrollments')
-    .select('id, course:courses(title_en)')
+    .select('id, course:course_catalog(title_en)')
     .eq('user_id', userId)
     .in('status', ['active', 'completed'])
     .limit(1)

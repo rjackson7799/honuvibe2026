@@ -57,7 +57,7 @@ async function resolveItemCourse(
   if (!week?.course_id) throw new Error('Course not found for item');
 
   const { data: course } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('slug')
     .eq('id', week.course_id)
     .maybeSingle();

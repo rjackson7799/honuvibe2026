@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server';
-import { getAdminCourseById } from '@/lib/courses/queries';
+import { getAdminCourseById, getCourseWithCurriculum } from '@/lib/courses/queries';
+import { getTutoringAccess } from '@/lib/tutoring/auth';
 import { generateSyllabusPdf } from '@/lib/syllabus/generate-pdf';
 
 export const runtime = 'nodejs';
@@ -20,8 +21,15 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid locale' }, { status: 400 });
   }
 
-  // Fetch course with curriculum (admin query — no is_published filter)
-  const course = await getAdminCourseById(courseId);
+  // Draft previews require scoped staff access; published PDFs use the catalog.
+  if (isPreview) {
+    const access = await getTutoringAccess(courseId);
+    if (!access.ok) return NextResponse.json({ error: access.error }, { status: access.status });
+  }
+  const supabase = await createClient();
+  const { data: catalogCourse } = await supabase.from('course_catalog').select('slug').eq('id', courseId).maybeSingle();
+  const course = isPreview ? await getAdminCourseById(courseId)
+    : catalogCourse ? await getCourseWithCurriculum(catalogCourse.slug) : null;
   if (!course) {
     return NextResponse.json({ error: 'Course not found' }, { status: 404 });
   }
@@ -50,31 +58,35 @@ export async function GET(
     );
   }
 
-  // Upload to Supabase Storage and cache the URL
-  const storagePath = `${courseId}/syllabus-${locale}.pdf`;
-  const adminClient = createAdminClient();
+  // A draft preview must never become a publicly cached artifact.
+  if (!isPreview) {
+    // Upload to Supabase Storage and cache the URL
+    const storagePath = `${courseId}/syllabus-${locale}.pdf`;
+    const adminClient = createAdminClient();
 
-  const { error: uploadError } = await adminClient.storage
-    .from('course-syllabi')
-    .upload(storagePath, pdfBuffer, {
-      contentType: 'application/pdf',
-      upsert: true,
-    });
-
-  if (!uploadError) {
-    const { data: publicUrlData } = adminClient.storage
+    const { error: uploadError } = await adminClient.storage
       .from('course-syllabi')
-      .getPublicUrl(storagePath);
+      .upload(storagePath, pdfBuffer, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
 
-    if (publicUrlData?.publicUrl) {
-      // Update cached URL on course record
-      const urlColumn = locale === 'ja' ? 'syllabus_url_jp' : 'syllabus_url_en';
-      await adminClient
-        .from('courses')
-        .update({ [urlColumn]: publicUrlData.publicUrl })
-        .eq('id', courseId);
+    if (!uploadError) {
+      const { data: publicUrlData } = adminClient.storage
+        .from('course-syllabi')
+        .getPublicUrl(storagePath);
+
+      if (publicUrlData?.publicUrl) {
+        // Update cached URL on course record
+        const urlColumn = locale === 'ja' ? 'syllabus_url_jp' : 'syllabus_url_en';
+        await adminClient
+          .from('courses')
+          .update({ [urlColumn]: publicUrlData.publicUrl })
+          .eq('id', courseId);
+      }
     }
-  }
+
+    }
 
   // Return the PDF directly
   const filename = `${course.slug}-syllabus-${locale}.pdf`;
@@ -82,7 +94,7 @@ export async function GET(
     headers: {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control': isPreview ? 'private, no-store' : 'public, max-age=3600',
     },
   });
 }

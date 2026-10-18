@@ -59,7 +59,7 @@ export async function getUpcomingSessionsForStudent(
 
   // Get courses for slug/title lookup
   const { data: courses } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('id, slug, title_en, title_jp')
     .in('id', courseIds);
 
@@ -128,7 +128,7 @@ export async function getPendingAssignmentsForStudent(
 
   // Get courses for slug/title lookup
   const { data: courses } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('id, slug, title_en, title_jp')
     .in('id', courseIds);
 
@@ -197,7 +197,7 @@ export async function getCommunityLinksForStudent(
 
   const { data: enrollments } = await supabase
     .from('enrollments')
-    .select('course:courses(id, slug, title_en, title_jp, community_platform, community_link, community_duration_months, zoom_link, thumbnail_url)')
+    .select('course:course_catalog(id, slug, title_en, title_jp, community_platform, community_link, community_duration_months, zoom_link, thumbnail_url)')
     .eq('user_id', userId)
     .in('status', ['active', 'completed']);
 

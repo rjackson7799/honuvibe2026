@@ -175,7 +175,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'refunded', '2026-07-01T00:00:00Z'),
         enrollment('course-b', 'cancelled', '2026-07-02T00:00:00Z'),
       ],
-      courses: [a.course],
+      course_catalog: [a.course],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: a.weeks,
@@ -189,7 +189,7 @@ describe('getResumePoint', () => {
     const a = simpleCourse('course-a');
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [a.course],
+      course_catalog: [a.course],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: a.weeks,
@@ -214,7 +214,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'active', '2026-07-01T00:00:00Z'),
         enrollment('course-b', 'active', '2026-07-02T00:00:00Z'),
       ],
-      courses: [a.course, b.course],
+      course_catalog: [a.course, b.course],
       // Opened A most recently; but progressed in B most recently.
       course_session_opens: [open('course-a', 'course-a-s1', '2026-07-10T00:00:00Z')],
       course_item_completions: [completion('course-b', 'course-b-s1', '2026-07-11T00:00:00Z')],
@@ -237,7 +237,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'active', '2026-07-01T00:00:00Z'),
         enrollment('course-b', 'active', '2026-07-05T00:00:00Z'),
       ],
-      courses: [a.course, b.course],
+      course_catalog: [a.course, b.course],
       course_session_opens: [],
       course_item_completions: [completion('course-a', 'course-a-s1', '2026-07-11T00:00:00Z')],
       course_weeks: [...a.weeks, ...b.weeks],
@@ -260,7 +260,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'active', '2026-07-01T00:00:00Z'),
         enrollment('course-b', 'active', '2026-07-05T00:00:00Z'),
       ],
-      courses: [a.course, b.course],
+      course_catalog: [a.course, b.course],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: [...a.weeks, ...b.weeks],
@@ -281,7 +281,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'completed', '2026-07-05T00:00:00Z'),
         enrollment('course-b', 'active', '2026-07-01T00:00:00Z'),
       ],
-      courses: [a.course, b.course],
+      course_catalog: [a.course, b.course],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: [...a.weeks, ...b.weeks],
@@ -298,7 +298,7 @@ describe('getResumePoint', () => {
   it('skips sessions in locked weeks and counts only unlocked ones', async () => {
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [course('course-a')],
+      course_catalog: [course('course-a')],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: [
@@ -323,7 +323,7 @@ describe('getResumePoint', () => {
   it('ignores bonus sessions', async () => {
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [course('course-a')],
+      course_catalog: [course('course-a')],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: [week('w1', 'course-a', 1)],
@@ -347,7 +347,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'active', '2026-07-05T00:00:00Z'), // newest, but empty
         enrollment('course-b', 'active', '2026-07-01T00:00:00Z'),
       ],
-      courses: [course('course-a'), b.course],
+      course_catalog: [course('course-a'), b.course],
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: [...b.weeks],
@@ -363,7 +363,7 @@ describe('getResumePoint', () => {
   it('orders by week_number, then session_number, then id', async () => {
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [course('course-a')],
+      course_catalog: [course('course-a')],
       course_session_opens: [],
       course_item_completions: [],
       // Deliberately inserted out of order.
@@ -388,7 +388,7 @@ describe('getResumePoint', () => {
   it('walks to the first incomplete session, not the first session', async () => {
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [course('course-a')],
+      course_catalog: [course('course-a')],
       course_session_opens: [],
       course_item_completions: [
         completion('course-a', 's1', '2026-07-10T00:00:00Z'),
@@ -409,7 +409,7 @@ describe('getResumePoint', () => {
   it('reports a finished course as completed, never as resume', async () => {
     useTables({
       enrollments: [enrollment('course-a', 'completed', '2026-07-01T00:00:00Z')],
-      courses: [course('course-a')],
+      course_catalog: [course('course-a')],
       course_session_opens: [],
       course_item_completions: [completion('course-a', 's1', '2026-07-10T00:00:00Z')],
       course_weeks: [week('w1', 'course-a', 1)],
@@ -425,7 +425,7 @@ describe('getResumePoint', () => {
   it('reports an active course with every unlocked session done as caught_up, not completed', async () => {
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [course('course-a')],
+      course_catalog: [course('course-a')],
       course_session_opens: [],
       course_item_completions: [completion('course-a', 's1', '2026-07-10T00:00:00Z')],
       course_weeks: [
@@ -448,7 +448,7 @@ describe('getResumePoint', () => {
         enrollment('course-a', 'completed', '2026-07-05T00:00:00Z'),
         enrollment('course-b', 'active', '2026-07-01T00:00:00Z'),
       ],
-      courses: [course('course-a'), b.course],
+      course_catalog: [course('course-a'), b.course],
       course_session_opens: [],
       course_item_completions: [completion('course-a', 'a-s1', '2026-07-10T00:00:00Z')],
       course_weeks: [week('wa', 'course-a', 1), ...b.weeks],
@@ -466,7 +466,7 @@ describe('getResumePoint', () => {
   it.each([
     ['enrollments', 'connection reset'],
     ['course_session_opens', 'opens unavailable'],
-    ['courses', 'courses unavailable'],
+    ['course_catalog', 'courses unavailable'],
     ['course_weeks', 'weeks unavailable'],
     ['course_sessions', 'sessions unavailable'],
   ])('throws when the %s read fails rather than degrading to none', async (table, message) => {
@@ -474,7 +474,7 @@ describe('getResumePoint', () => {
     useTables(
       {
         enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-        courses: [a.course],
+        course_catalog: [a.course],
         course_session_opens: [],
         course_item_completions: [],
         course_weeks: a.weeks,
@@ -491,7 +491,7 @@ describe('getResumePoint', () => {
     useTables(
       {
         enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-        courses: [a.course],
+        course_catalog: [a.course],
         course_session_opens: [],
         course_weeks: a.weeks,
         course_sessions: a.sessions,
@@ -503,12 +503,12 @@ describe('getResumePoint', () => {
   });
 
   it('throws when an enrolled course cannot be read at all', async () => {
-    // courses_public_read hides unpublished rows, so an enrolled student can hold
+    // course_catalog hides unpublished rows, so an enrolled student can hold
     // an enrolment whose course reads back as missing. That is an anomaly, not an
     // empty dashboard — it must not degrade into "start your first course".
     useTables({
       enrollments: [enrollment('course-a', 'active', '2026-07-01T00:00:00Z')],
-      courses: [], // hidden by RLS
+      course_catalog: [], // hidden by RLS
       course_session_opens: [],
       course_item_completions: [],
       course_weeks: [],

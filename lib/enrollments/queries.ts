@@ -16,7 +16,7 @@ export async function getUserEnrollments(
 
   const { data, error } = await supabase
     .from('enrollments')
-    .select('*, course:courses(*)')
+    .select('*, course:course_catalog(*)')
     .eq('user_id', userId)
     .in('status', statuses)
     .order('enrolled_at', { ascending: false });
@@ -33,7 +33,7 @@ export async function checkEnrollment(
 
   // First get course ID from slug
   const { data: course } = await supabase
-    .from('courses')
+    .from('course_catalog')
     .select('id')
     .eq('slug', courseSlug)
     .single();

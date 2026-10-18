@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch course
     const { data: course } = await supabase
-      .from('courses')
+      .from('course_catalog')
       .select('id, slug, title_en, title_jp, esl_enabled, esl_included, esl_price_usd, esl_price_jpy')
       .eq('id', courseId)
       .single();
