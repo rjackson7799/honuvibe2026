@@ -4,39 +4,31 @@ import {
   sendHonuHubContactAdminNotification,
 } from '@/lib/email/send';
 import type { HonuHubContactEmailData } from '@/lib/email/types';
+import { inquirySchema } from '@/lib/email/inquiry-validation';
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json();
-
-    if (!data.name || !data.email || !data.message) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-    if (!data.email.includes('@')) {
-      return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
-    }
-
-    const validTypes = ['group', 'corporate', 'partnership', 'other'];
-    const type = validTypes.includes(data.type) ? data.type : 'other';
+    const parsed = inquirySchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
+    const data = parsed.data;
 
     const referer = request.headers.get('referer') ?? '';
-    const locale = referer.includes('/ja/') ? 'ja' : 'en';
+    const locale = data.source_locale ?? (referer.includes('/ja/') ? 'ja' : 'en');
 
     const emailData: HonuHubContactEmailData = {
       locale: locale as 'en' | 'ja',
       name: data.name,
       email: data.email,
-      type,
+      type: data.type,
       message: data.message,
     };
 
-    void Promise.all([
-      sendHonuHubContactConfirmation(emailData),
-      sendHonuHubContactAdminNotification(emailData),
-    ]);
+    await sendHonuHubContactAdminNotification(emailData);
+    await sendHonuHubContactConfirmation(emailData);
 
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (err) {
+    console.error('[honuhub] inquiry delivery failed:', err);
+    return NextResponse.json({ error: 'Could not deliver your inquiry. Please try again later.' }, { status: 503 });
   }
 }

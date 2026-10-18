@@ -43,6 +43,7 @@ vi.mock('next-intl', () => {
   }
 
   return {
+    useLocale: () => 'en',
     useTranslations: (namespace: string) => tFor(namespace),
   };
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { ArrowRight, Check, ChevronDown, Loader2 } from 'lucide-react';
 import { Container, Section } from '@/components/marketing/primitives';
 
@@ -33,6 +33,7 @@ const initialForm: FormState = {
 };
 
 export function ContactForm() {
+  const locale = useLocale();
   const t = useTranslations('contact.contact_form');
   const [form, setForm] = useState<FormState>(initialForm);
   const [status, setStatus] = useState<Status>('idle');
@@ -42,12 +43,13 @@ export function ContactForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (status === 'loading') return;
     setStatus('loading');
     try {
       const res = await fetch('/api/contact/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, source_locale: locale }),
       });
       setStatus(res.ok ? 'success' : 'error');
     } catch {

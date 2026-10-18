@@ -83,6 +83,9 @@ export async function POST(req: NextRequest) {
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceRoleKey) {
+    return NextResponse.json({ error: 'Inquiries are temporarily unavailable' }, { status: 503 });
+  }
   if (supabaseUrl && serviceRoleKey) {
     const supabase = createAdminClient();
     const { error } = await supabase.from('partnership_inquiries').insert({
@@ -98,6 +101,7 @@ export async function POST(req: NextRequest) {
     });
     if (error) {
       console.error('[Organizations] DB insert failed:', error.message);
+      return NextResponse.json({ error: 'Could not save your inquiry. Please try again.' }, { status: 503 });
     }
   }
 
@@ -122,7 +126,7 @@ export async function POST(req: NextRequest) {
     referralSourceLabel: null,
   };
 
-  void Promise.all([
+  await Promise.all([
     sendPartnershipInquiryConfirmation(emailData),
     sendPartnershipInquiryAdminNotification(emailData),
   ]);

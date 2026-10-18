@@ -49,9 +49,13 @@ async function sendEmail(options: {
   html: string;
   replyTo?: string;
   attachments?: { filename: string; content: Buffer; contentType?: string }[];
+  required?: boolean;
 }): Promise<void> {
   const resend = getResendClient();
-  if (!resend || !options.to) return;
+  if (!resend || !options.to) {
+    if (options.required) throw new Error('Email delivery is not configured');
+    return;
+  }
 
   try {
     const { error } = await resend.emails.send({
@@ -65,9 +69,11 @@ async function sendEmail(options: {
 
     if (error) {
       console.error('[HonuVibe Email] Send failed:', error.name, error.message);
+      if (options.required) throw new Error('Email delivery failed');
     }
   } catch (err) {
     console.error('[HonuVibe Email] Unexpected error:', err);
+    if (options.required) throw err;
   }
 }
 
@@ -79,14 +85,14 @@ export async function sendContactConfirmation(data: ContactEmailData): Promise<v
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
 
   const body = [
-    heading(isJP ? `${name} さん、お問い合わせありがとうございます` : `Thank you, ${name}`),
+    heading(isJP ? `${escapeHtml(name)} さん、お問い合わせありがとうございます` : `Thank you, ${escapeHtml(name)}`),
     paragraph(
       isJP
         ? 'お問い合わせを受け付けました。通常2営業日以内にご返信いたします。'
         : "We've received your message and will get back to you within 2 business days.",
     ),
     divider(),
-    paragraph(isJP ? `件名: ${subject}` : `Subject: ${subject}`),
+    paragraph(isJP ? `件名: ${escapeHtml(subject)}` : `Subject: ${escapeHtml(subject)}`),
     paragraph(
       isJP
         ? 'その間、AIに関する最新のコースもご覧ください。'
@@ -113,19 +119,19 @@ export async function sendContactConfirmation(data: ContactEmailData): Promise<v
 
 export async function sendContactAdminNotification(data: ContactEmailData): Promise<void> {
   const adminEmail = getAdminEmail();
-  if (!adminEmail) return;
+  if (!adminEmail) throw new Error('Contact recipient is not configured');
 
   const body = [
     accentBanner('New Contact Form Submission'),
     detailsTable([
-      { label: 'Name', value: data.name },
-      { label: 'Email', value: data.email },
-      { label: 'Subject', value: data.subject },
+      { label: 'Name', value: escapeHtml(data.name) },
+      { label: 'Email', value: escapeHtml(data.email) },
+      { label: 'Subject', value: escapeHtml(data.subject) },
       { label: 'Locale', value: data.locale },
     ]),
     divider(),
     heading('Message'),
-    paragraph(data.message),
+    paragraph(escapeHtml(data.message)),
   ].join('');
 
   await sendEmail({
@@ -133,6 +139,7 @@ export async function sendContactAdminNotification(data: ContactEmailData): Prom
     subject: `[Contact] ${data.subject} — from ${data.name}`,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
+    required: true,
   });
 }
 
@@ -598,8 +605,8 @@ export async function sendApplicationConfirmation(data: ApplicationEmailData): P
   const body = [
     heading(
       isJP
-        ? `${name} さん、お申し込みありがとうございます`
-        : `Thank you for applying, ${name}`,
+        ? `${escapeHtml(name)} さん、お申し込みありがとうございます`
+        : `Thank you for applying, ${escapeHtml(name)}`,
     ),
     paragraph(
       isJP
@@ -642,19 +649,19 @@ export async function sendApplicationAdminNotification(
   const body = [
     accentBanner('New Consulting Application'),
     detailsTable([
-      { label: 'Name', value: data.name },
-      { label: 'Email', value: data.email },
-      { label: 'Company', value: data.company ?? '' },
-      { label: 'Website', value: data.website ?? '' },
-      { label: 'Engagement', value: data.engagement ?? '' },
-      { label: 'Timeline', value: data.timeline ?? '' },
-      { label: 'Budget', value: data.budget ?? '' },
-      { label: 'Referral', value: data.referralSource ?? '' },
+      { label: 'Name', value: escapeHtml(data.name) },
+      { label: 'Email', value: escapeHtml(data.email) },
+      { label: 'Company', value: escapeHtml(data.company ?? '') },
+      { label: 'Website', value: escapeHtml(data.website ?? '') },
+      { label: 'Engagement', value: escapeHtml(data.engagement ?? '') },
+      { label: 'Timeline', value: escapeHtml(data.timeline ?? '') },
+      { label: 'Budget', value: escapeHtml(data.budget ?? '') },
+      { label: 'Referral', value: escapeHtml(data.referralSource ?? '') },
       { label: 'Locale', value: data.locale },
     ]),
     divider(),
     heading('Project Description'),
-    paragraph(data.project),
+    paragraph(escapeHtml(data.project)),
     ctaButton({
       href: `${siteUrl}/admin/applications`,
       label: 'View in Admin Panel',
@@ -681,8 +688,8 @@ export async function sendPartnershipInquiryConfirmation(
   const body = [
     heading(
       isJP
-        ? `${fullName} さん、お問い合わせありがとうございます`
-        : `Thank you, ${fullName}`,
+        ? `${escapeHtml(fullName)} さん、お問い合わせありがとうございます`
+        : `Thank you, ${escapeHtml(fullName)}`,
     ),
     paragraph(
       isJP
@@ -727,22 +734,22 @@ export async function sendPartnershipInquiryAdminNotification(
   const body = [
     accentBanner('New Partnership Inquiry'),
     detailsTable([
-      { label: 'Name', value: data.fullName },
-      { label: 'Email', value: data.email },
-      { label: 'Organization', value: data.organization },
-      { label: 'Website', value: data.website ?? '' },
-      { label: 'Org Type', value: data.orgTypeLabel },
-      { label: 'Audience Size', value: data.audienceSizeLabel ?? '' },
-      { label: 'Language', value: data.languageLabel ?? '' },
-      { label: 'Timeline', value: data.timelineLabel ?? '' },
-      { label: 'Referral', value: data.referralSourceLabel ?? '' },
+      { label: 'Name', value: escapeHtml(data.fullName) },
+      { label: 'Email', value: escapeHtml(data.email) },
+      { label: 'Organization', value: escapeHtml(data.organization) },
+      { label: 'Website', value: escapeHtml(data.website ?? '') },
+      { label: 'Org Type', value: escapeHtml(data.orgTypeLabel) },
+      { label: 'Audience Size', value: escapeHtml(data.audienceSizeLabel ?? '') },
+      { label: 'Language', value: escapeHtml(data.languageLabel ?? '') },
+      { label: 'Timeline', value: escapeHtml(data.timelineLabel ?? '') },
+      { label: 'Referral', value: escapeHtml(data.referralSourceLabel ?? '') },
       { label: 'Locale', value: data.locale },
     ]),
     divider(),
     heading('Community'),
-    paragraph(data.communityDescription),
+    paragraph(escapeHtml(data.communityDescription)),
     heading('Program'),
-    paragraph(data.programDescription),
+    paragraph(escapeHtml(data.programDescription)),
     ctaButton({
       href: `${siteUrl}/admin/partnership-inquiries`,
       label: 'View in Admin Panel',
@@ -766,7 +773,7 @@ export async function sendStudioLeadConfirmation(
   const isJP = locale === 'ja';
 
   const body = [
-    heading(isJP ? `${fullName} さん、ありがとうございます` : `Thank you, ${fullName}`),
+    heading(isJP ? `${escapeHtml(fullName)} さん、ありがとうございます` : `Thank you, ${escapeHtml(fullName)}`),
     paragraph(
       isJP
         ? 'プロジェクトのお問い合わせを受け付けました。1営業日以内に、プランとおすすめのプラン、スケジュールをご返信いたします。'
@@ -808,22 +815,22 @@ export async function sendStudioLeadAdminNotification(
   const body = [
     accentBanner('New Studio Project Inquiry'),
     detailsTable([
-      { label: 'Name', value: data.fullName },
-      { label: 'Email', value: data.email },
-      { label: 'Company', value: data.company },
-      { label: 'Industry', value: data.industryLabel ?? '' },
-      { label: 'Project Type', value: data.projectTypeLabel ?? '' },
-      { label: 'Budget', value: data.budgetLabel ?? '' },
-      { label: 'Timeline', value: data.timelineLabel ?? '' },
-      { label: 'Referral', value: data.referralSource ?? '' },
+      { label: 'Name', value: escapeHtml(data.fullName) },
+      { label: 'Email', value: escapeHtml(data.email) },
+      { label: 'Company', value: escapeHtml(data.company) },
+      { label: 'Industry', value: escapeHtml(data.industryLabel ?? '') },
+      { label: 'Project Type', value: escapeHtml(data.projectTypeLabel ?? '') },
+      { label: 'Budget', value: escapeHtml(data.budgetLabel ?? '') },
+      { label: 'Timeline', value: escapeHtml(data.timelineLabel ?? '') },
+      { label: 'Referral', value: escapeHtml(data.referralSource ?? '') },
       { label: 'Locale', value: data.locale },
     ]),
     divider(),
     heading('Project'),
-    paragraph(data.message),
+    paragraph(escapeHtml(data.message)),
     ctaButton({
-      href: `mailto:${data.email}`,
-      label: `Reply to ${data.fullName}`,
+      href: `mailto:${escapeHtml(data.email)}`,
+      label: `Reply to ${escapeHtml(data.fullName)}`,
     }),
   ].join('');
 
@@ -928,7 +935,7 @@ export async function sendHonuHubContactConfirmation(
   const isJP = locale === 'ja';
 
   const body = [
-    heading(isJP ? `${name} さん、お問い合わせありがとうございます` : `Mahalo, ${name}!`),
+    heading(isJP ? `${escapeHtml(name)} さん、お問い合わせありがとうございます` : `Mahalo, ${escapeHtml(name)}!`),
     paragraph(
       isJP
         ? 'HonuHub Waikikiへのお問い合わせを受け付けました。担当者より2営業日以内にご連絡いたします。'
@@ -953,7 +960,7 @@ export async function sendHonuHubContactAdminNotification(
   data: HonuHubContactEmailData,
 ): Promise<void> {
   const adminEmail = getAdminEmail();
-  if (!adminEmail) return;
+  if (!adminEmail) throw new Error('HonuHub recipient is not configured');
 
   const typeLabels: Record<string, string> = {
     group: 'Group Session',
@@ -965,19 +972,20 @@ export async function sendHonuHubContactAdminNotification(
   const body = [
     accentBanner('New HonuHub Inquiry'),
     detailsTable([
-      { label: 'Name', value: data.name },
-      { label: 'Email', value: data.email },
-      { label: 'Type', value: typeLabels[data.type] ?? data.type },
+      { label: 'Name', value: escapeHtml(data.name) },
+      { label: 'Email', value: escapeHtml(data.email) },
+      { label: 'Type', value: escapeHtml(typeLabels[data.type] ?? data.type) },
       { label: 'Locale', value: data.locale },
     ]),
     divider(),
     heading('Message'),
-    paragraph(data.message),
+    paragraph(escapeHtml(data.message)),
   ].join('');
 
   await sendEmail({
     to: adminEmail,
     subject: `[HonuHub] ${typeLabels[data.type] ?? data.type} — from ${data.name}`,
+    required: true,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
   });
@@ -993,7 +1001,7 @@ export async function sendExplorationInquiryConfirmation(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://honuvibe.ai';
 
   const body = [
-    heading(isJP ? `${name} さん、お問い合わせありがとうございます` : `Thank you, ${name}!`),
+    heading(isJP ? `${escapeHtml(name)} さん、お問い合わせありがとうございます` : `Thank you, ${escapeHtml(name)}!`),
     paragraph(
       isJP
         ? 'プロジェクトのお問い合わせを受け付けました。通常2営業日以内にご連絡いたします。'
@@ -1028,24 +1036,25 @@ export async function sendExplorationInquiryAdminNotification(
   data: ExplorationInquiryEmailData,
 ): Promise<void> {
   const adminEmail = getAdminEmail();
-  if (!adminEmail) return;
+  if (!adminEmail) throw new Error('Exploration recipient is not configured');
 
   const body = [
     accentBanner('New Exploration Inquiry'),
     detailsTable([
-      { label: 'Name', value: data.name },
-      { label: 'Email', value: data.email },
-      { label: 'Company', value: data.company ?? '—' },
+      { label: 'Name', value: escapeHtml(data.name) },
+      { label: 'Email', value: escapeHtml(data.email) },
+      { label: 'Company', value: escapeHtml(data.company ?? '—') },
       { label: 'Locale', value: data.locale },
     ]),
     divider(),
     heading('Project Description'),
-    paragraph(data.message),
+    paragraph(escapeHtml(data.message)),
   ].join('');
 
   await sendEmail({
     to: adminEmail,
     subject: `[Exploration] New inquiry from ${data.name}`,
+    required: true,
     html: baseLayout({ locale: 'en', body }),
     replyTo: data.email,
   });
@@ -1707,7 +1716,7 @@ export async function sendConfirmationEmail(data: {
 }): Promise<void> {
   const { email, fullName, confirmLink, locale = 'en' } = data;
   const isJP = locale === 'ja';
-  const name = fullName ?? (isJP ? 'お客様' : 'there');
+  const name = escapeHtml(fullName ?? (isJP ? 'お客様' : 'there'));
 
   const body = [
     heading(isJP ? `${name}さん、こんにちは` : `Hi ${name},`),
@@ -1889,7 +1898,7 @@ export async function sendMagicLoginEmail(data: {
   // fallback instead of rendering "さん、こんにちは" with no name.
   const trimmed = fullName?.trim();
   const name = (trimmed && trimmed.length > 0)
-    ? trimmed
+    ? escapeHtml(trimmed)
     : (isJP ? 'お客様' : 'there');
 
   const body = [
@@ -1932,7 +1941,7 @@ export async function sendPasswordResetEmail(data: {
 }): Promise<void> {
   const { email, fullName, resetLink, locale = 'en' } = data;
   const isJP = locale === 'ja';
-  const name = fullName ?? (isJP ? 'お客様' : 'there');
+  const name = escapeHtml(fullName ?? (isJP ? 'お客様' : 'there'));
 
   const body = [
     heading(isJP ? `${name}さん、こんにちは` : `Hi ${name},`),

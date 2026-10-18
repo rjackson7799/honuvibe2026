@@ -18,6 +18,13 @@ vi.mock('@/lib/email/send', () => ({
 }));
 
 import { POST } from '@/app/api/partnerships/submit/route';
+import { POST as organizationPost } from '@/app/api/organizations/submit/route';
+
+vi.mock('@/lib/community/rate-limit', () => ({ tryConsume: () => true }));
+vi.mock('@/lib/analytics-server', () => ({
+  trackServerEvent: async () => undefined,
+  serverEventContextFromRequest: () => ({}),
+}));
 
 function makeRequest(body: unknown): Request {
   return new Request('http://localhost/api/partnerships/submit', {
@@ -50,6 +57,32 @@ describe('POST /api/partnerships/submit', () => {
     sendAdminNotifyMock.mockReset().mockResolvedValue(undefined);
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'service-role-test-key';
+  });
+
+  it('does not acknowledge or email an inquiry that could not be stored', async () => {
+    insertMock.mockResolvedValue({ error: { message: 'database unavailable' } });
+    const res = await POST(makeRequest(validPayload) as never);
+    expect(res.status).toBe(503);
+    expect(sendConfirmationMock).not.toHaveBeenCalled();
+    expect(sendAdminNotifyMock).not.toHaveBeenCalled();
+  });
+
+  it('also requires durable storage for organization inquiries', async () => {
+    insertMock.mockResolvedValue({ error: { message: 'database unavailable' } });
+    const res = await organizationPost(makeRequest({
+      full_name: 'Visitor', email: 'visitor@example.com', organization: 'Company', about: 'Our team', goal: 'Learn AI',
+    }) as never);
+    expect(res.status).toBe(503);
+    expect(sendConfirmationMock).not.toHaveBeenCalled();
+  });
+
+  it('preserves successful organization submissions and localized email', async () => {
+    const res = await organizationPost(makeRequest({
+      full_name: 'Visitor', email: 'VISITOR@example.com', organization: 'Company', about: 'Our team', goal: 'Learn AI', source_locale: 'ja',
+    }) as never);
+    expect(res.status).toBe(200);
+    expect(insertMock).toHaveBeenCalledWith(expect.objectContaining({ email: 'visitor@example.com', notes: 'Source: Organizations page (team training)' }));
+    expect(sendConfirmationMock).toHaveBeenCalledWith(expect.objectContaining({ locale: 'ja' }));
   });
 
   it('accepts a valid payload, inserts a row, and queues both emails', async () => {
