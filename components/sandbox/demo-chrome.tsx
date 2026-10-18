@@ -38,7 +38,7 @@ export function DemoChrome({ demoName, stateNote }: Props) {
         This is an interactive HonuVibe Sandbox demo running on simulated data. {stateNote}
       </span>
       <Link
-        href="/sandbox"
+        href="/"
         className="flex items-center text-[13px] font-bold tracking-[-0.01em] text-white transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3ec8c0]"
       >
         HonuVibe<span className="text-[#0fa9a0]">&nbsp;Sandbox</span>
@@ -77,7 +77,7 @@ export function DemoChrome({ demoName, stateNote }: Props) {
       </span>
 
       <Link
-        href="/sandbox"
+        href="/"
         aria-label="Exit demo"
         className="inline-flex min-w-[44px] items-center gap-1 rounded-none px-2 text-[12.5px] font-semibold text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3ec8c0]"
       >

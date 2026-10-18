@@ -1,11 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 
 /**
- * Phase A done criterion (docs/plans/2026-07-13-sandbox-master.md): the
- * sitemap contains exactly the two localized Sandbox LANDING entries
- * (/sandbox with an en + /ja/sandbox alternate pair) and no demo entries —
- * demo routes (/sandbox/<slug>) are noindexed standalone apps and must never
- * be advertised to crawlers.
+ * The /sandbox landing was retired in redesign Unit 2a (307 → /learn), so the
+ * sitemap advertises no /sandbox URL at all; demo routes (/sandbox/<slug>) are
+ * noindexed standalone apps and were never listed.
  *
  * The dynamic-content sources (Sanity, Supabase) are mocked empty; only the
  * static `routes` list is under test here.
@@ -30,25 +28,15 @@ vi.mock('@/lib/vault/queries', () => ({
 import sitemap from '@/app/sitemap';
 
 describe('sitemap — sandbox entries', () => {
-  it('contains exactly one /sandbox entry with EN + JA alternates and no demo entries', async () => {
+  it('contains no /sandbox entry in either locale, landing or demo', async () => {
     const entries = await sitemap();
-
-    const sandboxEntries = entries.filter((e) =>
-      new URL(e.url).pathname.startsWith('/sandbox'),
+    const sandboxEntries = entries.filter((e) => /^\/(ja\/)?sandbox(\/|$)/.test(new URL(e.url).pathname));
+    expect(sandboxEntries).toHaveLength(0);
+    const sandboxAlternates = entries.flatMap((e) =>
+      Object.values((e.alternates?.languages ?? {}) as Record<string, string>).filter((u) =>
+        /^\/(ja\/)?sandbox(\/|$)/.test(new URL(u).pathname),
+      ),
     );
-    expect(sandboxEntries).toHaveLength(1);
-
-    const landing = sandboxEntries[0];
-    expect(new URL(landing.url).pathname).toBe('/sandbox');
-    const languages = landing.alternates?.languages as Record<string, string>;
-    expect(new URL(languages.en).pathname).toBe('/sandbox');
-    expect(new URL(languages.ja).pathname).toBe('/ja/sandbox');
-
-    // No demo entries in either locale form.
-    const demoEntries = entries.filter((e) => {
-      const path = new URL(e.url).pathname;
-      return /^\/(ja\/)?sandbox\/.+/.test(path);
-    });
-    expect(demoEntries).toHaveLength(0);
+    expect(sandboxAlternates).toEqual([]);
   });
 });

@@ -29,14 +29,6 @@ export function trackCourseEnrollCtaClick(props: {
   });
 }
 
-export function trackFreeSampleStarted(props: {
-  lesson_slug: string;
-  locale: string;
-}) {
-  // Carries lesson_slug + locale ONLY — never the captured email.
-  trackEvent('free_sample_started', props);
-}
-
 export function trackEventRsvp(props: {
   event_slug: string;
   locale: string;

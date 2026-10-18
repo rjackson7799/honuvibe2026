@@ -208,10 +208,12 @@ describe('About page sections', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: /Start in the Vault/i }),
-    ).toHaveAttribute('href', '/learn#vault');
+    ).toHaveAttribute('href', '/learn');
+    // The green /learn (Unit 2a) has no #vault / #courses chapters; the
+    // catalog is the anchor that lists courses.
     expect(
       screen.getByRole('link', { name: /Join a live cohort/i }),
-    ).toHaveAttribute('href', '/learn#courses');
+    ).toHaveAttribute('href', '/learn#catalog');
     expect(
       screen.getByRole('link', { name: /Bring HonuVibe to your team/i }),
     ).toHaveAttribute('href', '/partnerships');

@@ -68,6 +68,13 @@ export const nextConfig: NextConfig = {
       // is a different source and stays where it is.
       { source: '/learn/auth', destination: '/signin', permanent: false },
       { source: '/ja/learn/auth', destination: '/ja/signin', permanent: false },
+      // Unit 2a retires the free-lesson page and the Sandbox landing into the
+      // Learn catalog. Exact sources only: never /sandbox/:path*, which would
+      // swallow the demo apps under /sandbox/<slug>.
+      { source: '/free-lesson', destination: '/learn', permanent: false },
+      { source: '/ja/free-lesson', destination: '/ja/learn', permanent: false },
+      { source: '/sandbox', destination: '/learn', permanent: false },
+      { source: '/ja/sandbox', destination: '/ja/learn', permanent: false },
 
       // Resources alias chain → terminate directly at /learn (was /resources, now deleted).
       { source: '/tools', destination: '/learn', permanent: true },
@@ -112,8 +119,8 @@ export const nextConfig: NextConfig = {
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
       },
       {
-        // Sandbox demo routes only (:path+ requires ≥1 segment — the /sandbox
-        // landing itself stays indexable). Defense in depth alongside the
+        // Sandbox demo routes (:path+ requires ≥1 segment; the /sandbox landing
+        // itself now redirects to /learn). Defense in depth alongside the
         // per-demo-layout robots meta tag.
         source: '/sandbox/:path+',
         headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],

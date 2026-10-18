@@ -18,10 +18,10 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/', true],
     ['/learn', true],
     ['/explore', false], // retired in Unit 1 (redirects to Home)
-    ['/sandbox', true],
-    ['/sandbox/', true],
+    ['/sandbox', false], // landing retired in Unit 2a (redirects to /learn)
+    ['/sandbox/', false],
     ['/organizations', true],
-    ['/free-lesson', true],
+    ['/free-lesson', false], // retired in Unit 2a (redirects to /learn)
     // 2026 redesign (Unit 0B): public Build + Partner pages and the split-screen
     // auth pages.
     ['/build', true],
@@ -62,7 +62,7 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/learn/some-course-slug', false],
     ['/learn/some-course-slug/checkout', false],
     // Demo routes under /sandbox are standalone root layouts (Phases B/C),
-    // NOT marketing pages — /sandbox is exact-match only.
+    // NOT marketing pages.
     ['/sandbox/miles-chaser', false],
     ['/sandbox/health-hub', false],
     ['/sandboxish', false],
@@ -97,7 +97,6 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/ja/', true],
     // Marketing routes prefixed with /ja
     ['/ja/learn', true],
-    ['/ja/sandbox', true],
     ['/ja/partner', true],
     ['/ja/build', true],
     ['/ja/signin', true],
@@ -106,7 +105,6 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/ja/contact', true],
     // EN versions (no prefix) still match
     ['/learn', true],
-    ['/sandbox', true],
     ['/partner', true],
     ['/about', true],
     ['/contact', true],
@@ -138,6 +136,11 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     // Explore was retired in Unit 1 (redirects to Home)
     ['/explore', false],
     ['/ja/explore', false],
+    // Retired in Unit 2a (redirect to /learn)
+    ['/sandbox', false],
+    ['/ja/sandbox', false],
+    ['/free-lesson', false],
+    ['/ja/free-lesson', false],
   ])('does not match %s', (path) => {
     expect(isMarketingPathWithLocale(path)).toBe(false);
   });

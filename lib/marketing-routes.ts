@@ -22,11 +22,9 @@
 const MARKETING_PATHS = [
   '/',
   '/learn',
-  '/sandbox',
   '/build',
   '/partner',
   '/organizations',
-  '/free-lesson',
   '/about',
   '/contact',
   '/signin',

@@ -103,7 +103,6 @@
     "home": "Home",
     "honuhub": "HonuHub",
     "exploration": "Explore",
-    "sandbox": "Sandbox",
     "learn": "Learn",
     "blog": "Blog",
     "community": "Community",
@@ -1027,170 +1026,163 @@
       "body": "Your seat is confirmed, and your course hub is open right now. Settle in, say hello in the community, and we'll see you when class begins.",
       "next_cta": "Open course hub",
       "email_note": "A confirmation and your receipt are on the way to your inbox."
-    },
+    }
+  },
+  "learn_catalog": {
     "meta": {
-      "title": "Learn AI — Courses, Vault & Private Cohorts | HonuVibe",
-      "description": "Three paths into AI: a self-paced membership library, live cohort-based public courses, and private programs built for organizations. Bilingual EN / 日本語."
+      "title": "Learn AI in the Vault — lessons and courses by track",
+      "description": "Every HonuVibe lesson and course in one catalog, organized into five tracks. Search for what you need, filter for free lessons, and start tonight."
     },
     "hero": {
-      "eyebrow_label": "Practical AI training",
-      "eyebrow_lang": "EN / 日本語",
-      "headline": "Every lesson we teach. One membership.",
-      "subhead": "Self-paced AI lessons in English and 日本語, with new ones added every month. Start today — cancel anytime.",
-      "cta_primary": "Join the Vault — $99/mo",
-      "cta_secondary": "See upcoming cohorts",
-      "social_proof": "Join {count}+ learners across EN & JP",
-      "screenshot_alt": "HonuVibe lesson preview",
-      "screenshot_coming_soon": "Lesson preview coming soon"
+      "breadcrumb_home": "Home",
+      "breadcrumb_learn": "Learn",
+      "title": "Learn in the Vault",
+      "rotator_prefix": "Finish a lesson with",
+      "rotator_items": [
+        "a prompt kit you’ll reuse.",
+        "a booking page that works.",
+        "a Monday report that writes itself.",
+        "a lead funnel you can measure."
+      ],
+      "lead": "Every lesson we’ve published, organized by track — many in both English and 日本語. Search for what you need this week.",
+      "search_placeholder": "Search lessons, tools or topics",
+      "search_label": "Search lessons",
+      "search_button": "Search",
+      "hot_label": "Hot",
+      "hot_chips": [
+        {
+          "label": "Research",
+          "query": "research"
+        },
+        {
+          "label": "Automation",
+          "query": "automation"
+        },
+        {
+          "label": "Prompts",
+          "query": "prompt"
+        }
+      ]
     },
-    "chapter_vault": {
-      "number": "01",
-      "title": "The Vault",
-      "intro": "Pick your way in. The Vault is the one most people keep — always on, in English and 日本語.",
-      "recommended_label": "RECOMMENDED",
-      "includes_label": "Honu Community included",
-      "community": {
-        "title": "Honu Community",
-        "subtitle": "Online Community",
-        "tagline": "Stay current, together.",
-        "best_for": "Best for staying current",
-        "price": "Free",
-        "price_unit": "",
-        "price_note": "Free with any account",
-        "bullet_1": "Direct answers from practitioners, every month",
-        "bullet_2": "Ready-to-use prompts and tools, every week",
-        "bullet_3": "Build AI fluency in English and Japanese, at your pace",
-        "bullet_4": "Members-only resources, kept current",
-        "cta": "Join free"
+    "free_card": {
+      "badge": "Free lesson",
+      "cta": "Try a free lesson"
+    },
+    "hot_topics": {
+      "eyebrow": "Hot topics",
+      "title": "Good places to start",
+      "aside": "Short, practical lessons",
+      "open": "Open"
+    },
+    "catalog": {
+      "eyebrow": "The catalog",
+      "title": "Browse by track",
+      "filter_label": "Filter by track",
+      "all_heading": "Every lesson and course, in one place",
+      "track_heading": "{label}: {blurb}",
+      "results_for": "Results for “{query}”",
+      "count": "{count, plural, one {# lesson} other {# lessons}}",
+      "free_only": "Free lessons only",
+      "empty": "Nothing matches yet. Try another track or clear the filters.",
+      "clear": "Clear filters",
+      "course_tag": "Course",
+      "free_badge": "Free",
+      "cta_free": "Try it free",
+      "cta_start": "Start this",
+      "minutes": "{count} min",
+      "weeks": "{count, plural, one {# week} other {# weeks}}",
+      "levels": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
       },
-      "vault": {
-        "title": "The Vault",
-        "subtitle": "Self-paced Vault",
-        "tagline": "The same teachers as our $1,250 cohorts — at your own pace.",
-        "best_for": "Best for going deep on your own time",
-        "price": "$99",
-        "price_unit": "/ month",
-        "price_note": "Cancel anytime · every future addition included",
-        "bullet_1": "{count} lessons — videos, guides, templates, tools, and class recordings",
-        "bullet_2": "Every lesson in English and 日本語 — switch anytime",
-        "bullet_3": "New lessons added every month",
-        "bullet_4": "Search it, bookmark it, pick up where you left off",
-        "cta": "Join the Vault",
-        "social_proof": "All {count} lessons in both English and Japanese — and the library grows every month."
-      },
-      "cohorts": {
-        "title": "Live Cohorts",
-        "subtitle": "Instructor-led",
-        "tagline": "Learn live, with real classmates and a real deadline.",
-        "best_for": "Best for learning live, with a group",
-        "price": "$1,250+",
-        "price_unit": "per course",
-        "price_note": "Per course · next cohort dates below",
-        "bullet_1": "Live sessions with a real instructor",
-        "bullet_2": "4–5 weeks, real projects, real classmates",
-        "bullet_3": "Class recordings saved to your Vault",
-        "cta": "See upcoming cohorts"
-      },
-      "sample_heading": "Try a Vault lesson, free.",
-      "sample_caption": "A 60-second taste of a real Vault lesson — no signup required.",
-      "sample_link": "See all lessons",
-      "sample_coming_soon": "Sample lesson coming soon",
-      "preview": {
-        "heading": "What's inside the Vault",
-        "total_count": "{count} lessons",
-        "growing_monthly": "growing monthly",
-        "hot_topics_label": "Hot topics",
-        "browse_all": "Browse all {count} lessons"
+      "types": {
+        "video": "Video",
+        "workshop": "Workshop",
+        "article": "Article",
+        "template": "Template",
+        "tool": "Tool",
+        "prompt_pack": "Prompt pack"
       }
     },
-    "chapter_courses": {
-      "number": "02",
-      "title": "Live Cohorts",
-      "intro": "The accelerator. Learn live with an instructor and a cohort — then keep every recording in your Vault.",
-      "see_all": "See all courses",
-      "placeholder_title": "More courses coming soon",
-      "placeholder_description": "We publish new bilingual cohorts on a rolling basis. Drop your email and we'll let you know first.",
-      "placeholder_cta": "Notify me",
-      "placeholder_tag": "COMING SOON"
-    },
-    "chapter_cohorts": {
-      "number": "03",
-      "title": "Private Cohorts",
-      "intro": "Custom AI programs for communities and organizations.",
-      "bullet_1": "Custom curriculum to your audience",
-      "bullet_2": "Bilingual EN / 日本語 delivery",
-      "bullet_3": "Branded co-delivery with your community",
-      "bullet_4": "Cohort sizes from 20 to 200+",
-      "price": "Custom",
-      "price_note": "Founding partner rate",
-      "cta_primary": "Apply for partnership",
-      "cta_secondary": "Read partner stories",
-      "vertice_name": "Vertice Society",
-      "vertice_program": "AI Essentials & Mastery — Bilingual Cohort",
-      "vertice_built_for": "Tokyo-based business professionals and entrepreneurs",
-      "vertice_format": "5-week cohort · Bilingual EN / 日本語 · Hybrid live + recorded",
-      "vertice_status": "IN SESSION",
-      "vertice_quote": "The program gave our members exactly what they needed — real skills, not AI hype. HonuVibe built something that actually fit our community.",
-      "vertice_quote_credit": "— Vertice Society Leadership",
-      "built_for_label": "Built for:",
-      "format_label": "Format:",
-      "apply_next_label": "OPEN FOR 2026",
-      "apply_next_heading": "Training a whole team or community?",
-      "apply_next_body": "If you lead a network, professional society, creative community, or organization that wants AI training tailored to your members, we'd love to talk.",
-      "apply_next_cta": "Apply for partnership"
-    },
-    "partnership_brief": {
-      "label": "PARTNERSHIP BRIEF",
-      "your_community": "Your Community",
-      "tag_cobrand": "Co-branded",
-      "tag_custom": "Custom",
-      "tag_lang": "EN / 日本語",
-      "active_count": "2 active partner cohorts in 2026"
+    "sidebar": {
+      "eyebrow": "Study paths",
+      "title": "Lessons, in order",
+      "sub": "Pick the goal that sounds like you.",
+      "goals": [
+        {
+          "label": "I want to stop retyping the same email",
+          "track": "workflow_automation"
+        },
+        {
+          "label": "I want more people to find my business",
+          "track": "marketing_growth"
+        },
+        {
+          "label": "I want a page or tool of my own, live",
+          "track": "build_with_ai"
+        },
+        {
+          "label": "I want AI skills I can show at work",
+          "track": "ai_essentials"
+        }
+      ],
+      "inside_title": "What a lesson can include",
+      "inside_parts": [
+        {
+          "title": "A short video",
+          "body": "Watch the work being done, start to finish."
+        },
+        {
+          "title": "A written guide",
+          "body": "The same steps in text, to follow at your own pace."
+        },
+        {
+          "title": "Templates and tools",
+          "body": "Prompts and files you copy straight into your own work."
+        },
+        {
+          "title": "A Workbench task",
+          "body": "Run the lesson on your own business before you move on."
+        }
+      ]
     },
     "faq": {
-      "heading": "Read this before you decide.",
-      "contact_line": "Still got questions? hello@honuvibe.ai — we get back within a day.",
-      "q_1": "Are lessons in English or Japanese?",
-      "a_1": "Both. Every Vault lesson + every Public Course has fully bilingual content. Switch any time. Private cohorts can run in either language or fully bilingual.",
-      "q_2": "How long does the Vault membership last?",
-      "a_2": "It's monthly, and you can cancel anytime. And if the first 14 days tell you it's not for you, we'll refund you in full.",
-      "q_3": "Can I switch from the Vault to a cohort later?",
-      "a_3": "Yes — plenty of students take that path. The Vault doubles as cohort prep, so you'll arrive at week one already moving.",
-      "q_4": "Do you offer scholarships or partner pricing?",
-      "a_4": "Yes — apply on the partnerships page if you represent a community, school, or nonprofit.",
-      "q_5": "I'm not in Hawaii or Japan. Can I still join?",
-      "a_5": "Yes. Public Courses run on Pacific time; the Vault is async; Private Cohorts schedule around your community.",
-      "q_6": "What if I'm new to AI?",
-      "a_6": "Start with AI Foundations in the Vault. Three lessons in, you'll know exactly what to do next."
+      "eyebrow": "Questions",
+      "title": "Before you start.",
+      "items": [
+        {
+          "q": "Do I need a technical background?",
+          "a": "No. Tracks start from opening the tool for the first time and end with something built and live."
+        },
+        {
+          "q": "What’s the difference between Free and the Vault?",
+          "a": "Free gives you the community and selected lessons. The Vault unlocks every lesson in every track, plus new lessons as they’re added."
+        },
+        {
+          "q": "Can I cancel anytime?",
+          "a": "Yes. The Vault is billed monthly and you can cancel from your account. You keep access until the end of the period you paid for."
+        },
+        {
+          "q": "Are lessons available in Japanese?",
+          "a": "Many lessons are in both English and 日本語, and we’re adding Japanese versions of the rest."
+        },
+        {
+          "q": "How often are lessons updated?",
+          "a": "We add new lessons and refresh existing ones as tools change."
+        },
+        {
+          "q": "How long does a track take?",
+          "a": "It depends on the track and your pace. Most lessons are short, so a few hours a week goes a long way."
+        }
+      ]
     },
-    "start_tonight": {
-      "eyebrow": "ready to start?",
-      "headline": "Start tonight.",
-      "body": "Start solo in the Vault, join a cohort, or bring HonuVibe to your community. The Vault never closes — even if it's 11:48 pm where you are.",
-      "refund_line": "Not for you? Full refund within 14 days.",
-      "cta_primary": "Join the Vault — $99/mo",
-      "link_courses": "Browse live cohorts",
-      "link_team": "Train your team"
-    },
-    "courses_catalog": {
-      "overline": "Public Courses",
-      "heading": "Browse the catalog.",
-      "subhead": "Per-course enrollment. Live cohorts. Bilingual delivery.",
-      "filter_all": "All Levels",
-      "filter_beginner": "Beginner",
-      "filter_intermediate": "Intermediate",
-      "filter_advanced": "Advanced",
-      "filter_track": "Builder Track",
-      "track_ribbon": "TRACK",
-      "tag_weeks": "{count} WEEKS",
-      "tag_lang_en": "EN",
-      "tag_lang_ja": "日本語",
-      "tag_lang_both": "EN / 日本語",
-      "starts_label": "Starts {date}",
-      "tbd_label": "Schedule TBD",
-      "card_cta": "View Course",
-      "see_all": "See all courses",
-      "empty_state": "No courses match this filter yet — try another track or check back soon."
+    "pricing": {
+      "title": "Start free. Open the whole Vault when you’re ready.",
+      "body": "Honu Community is free. The Vault is $99 / month, includes the Community, and you can cancel anytime.",
+      "cta_free": "Try a free lesson",
+      "cta_signup": "Get started free",
+      "cta_vault": "Join the Vault"
     }
   },
   "resources_page": {
@@ -2447,52 +2439,6 @@
         ],
         "cta": "Join the Vault"
       }
-    }
-  },
-  "sandbox": {
-    "meta": {
-      "title": "Sandbox — Demos you can touch | HonuVibe",
-      "description": "Live, interactive demos of real HonuVibe app builds — running entirely on simulated data. Open one, click around, break nothing."
-    },
-    "hero": {
-      "eyebrow": "The Sandbox",
-      "headline_line_1": "Don't just see the work.",
-      "headline_line_2": "Get your hands on it.",
-      "subhead": "The Sandbox is where you can explore live demos of real apps we've built — right in your browser, no sign-up needed. Every demo runs on 100% simulated data, so click anything.",
-      "note_simulated": "100% simulated data",
-      "note_no_signup": "No sign-up",
-      "note_real_code": "Real product code"
-    },
-    "grid": {
-      "headline": "The demos",
-      "subhead": "Each demo is a working slice of a real product build — the first two are in the works now."
-    },
-    "demos": {
-      "miles_chaser": {
-        "name": "MilesChaser",
-        "tagline": "A travel-rewards dashboard that tracks trips and elite-status progress, with projections that update as you add flights.",
-        "alt": "MilesChaser dashboard showing elite-status progress bars and monthly pacing targets"
-      },
-      "health_hub": {
-        "name": "Clinic CEO Dashboard",
-        "tagline": "An executive dashboard for a private medical practice — P&L at a glance, what-if scenario planning, and AI-assisted analysis.",
-        "alt": "Executive dashboard for a fictional medical practice showing financial charts and scenario controls"
-      }
-    },
-    "card": {
-      "launch": "Launch demo",
-      "coming_soon": "Coming soon",
-      "simulated": "Simulated data",
-      "en_only": "English only"
-    },
-    "method": {
-      "overline": "How the Sandbox works",
-      "real_builds_title": "Ported from real builds",
-      "real_builds_body": "Every demo is a working slice of an app we actually built and shipped — same code, same interactions, same charts.",
-      "simulated_data_title": "100% simulated data",
-      "simulated_data_body": "Names, numbers, and records are all fictional. Nothing you see comes from a real customer, patient, or account.",
-      "safe_to_break_title": "Safe to break",
-      "safe_to_break_body": "Your clicks stay in your browser and reset when you leave. Try every button — you can't damage anything."
     }
   },
   "about": {

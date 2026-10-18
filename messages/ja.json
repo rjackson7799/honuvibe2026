@@ -103,7 +103,6 @@
     "home": "ホーム",
     "honuhub": "HonuHub",
     "exploration": "探検する",
-    "sandbox": "サンドボックス",
     "learn": "学ぶ",
     "blog": "ブログ",
     "community": "コミュニティ",
@@ -1027,170 +1026,163 @@
       "body": "ご参加ありがとうございます。あなたの席が確定し、受講ページはもう開いています。コミュニティに顔を出しながら、初回の授業でお会いしましょう。",
       "next_cta": "受講ページへ",
       "email_note": "確認メールと領収書をお送りしています。届かない場合は迷惑メールフォルダもご確認ください。"
-    },
+    }
+  },
+  "learn_catalog": {
     "meta": {
-      "title": "Learn AI — Courses, Vault & Private Cohorts | HonuVibe",
-      "description": "Three paths into AI: a self-paced membership library, live cohort-based public courses, and private programs built for organizations. Bilingual EN / 日本語."
+      "title": "VaultでAIを学ぶ — トラック別のレッスンとコース",
+      "description": "HonuVibeのレッスンとコースを、5つのトラックに整理した1つのカタログで。必要なものを検索し、無料レッスンに絞り込んで、今夜から始めましょう。"
     },
     "hero": {
-      "eyebrow_label": "実践的なAIトレーニング",
-      "eyebrow_lang": "EN / 日本語",
-      "headline": "私たちの全レッスンを、ひとつのメンバーシップで。",
-      "subhead": "英語と日本語で学べる自習型AIレッスン。毎月新着を追加。今日から始めて、いつでも解約できます。",
-      "cta_primary": "Vaultに参加 — $99/月",
-      "cta_secondary": "開催予定のコホートを見る",
-      "social_proof": "{count}人以上の学習者がEN・日本語で受講中",
-      "screenshot_alt": "HonuVibeのレッスンプレビュー",
-      "screenshot_coming_soon": "レッスンプレビュー準備中"
+      "breadcrumb_home": "ホーム",
+      "breadcrumb_learn": "学ぶ",
+      "title": "Vaultで学ぶ",
+      "rotator_prefix": "レッスンを終えると、手元に",
+      "rotator_items": [
+        "繰り返し使えるプロンプト集。",
+        "ちゃんと動く予約ページ。",
+        "自動で書き上がる月曜レポート。",
+        "効果を測れるリードファネル。"
+      ],
+      "lead": "公開中のレッスンをトラック別に整理しました。多くは英語と日本語の両方で学べます。今週必要なものを検索してください。",
+      "search_placeholder": "レッスン、ツール、トピックを検索",
+      "search_label": "レッスンを検索",
+      "search_button": "検索",
+      "hot_label": "注目",
+      "hot_chips": [
+        {
+          "label": "リサーチ",
+          "query": "リサーチ"
+        },
+        {
+          "label": "自動化",
+          "query": "自動化"
+        },
+        {
+          "label": "プロンプト",
+          "query": "プロンプト"
+        }
+      ]
     },
-    "chapter_vault": {
-      "number": "01",
-      "title": "The Vault",
-      "intro": "あなたに合った入り口を。多くの人が続けるのは Vault — いつでも、英語と日本語で。",
-      "recommended_label": "おすすめ",
-      "includes_label": "Honuコミュニティ付き",
-      "community": {
-        "title": "Honu Community",
-        "subtitle": "オンラインコミュニティ",
-        "tagline": "みんなで、学びを止めない場所。",
-        "best_for": "最新情報を追いたい方に",
-        "price": "無料",
-        "price_unit": "",
-        "price_note": "アカウントがあれば無料",
-        "bullet_1": "毎月、実務家に直接質問できる",
-        "bullet_2": "そのまま使えるプロンプトとツールが毎週届く",
-        "bullet_3": "英語でも日本語でも、自分のペースでAIに強くなる",
-        "bullet_4": "メンバー限定リソースは、常に最新の状態に",
-        "cta": "無料で参加する"
+    "free_card": {
+      "badge": "無料レッスン",
+      "cta": "無料レッスンを試す"
+    },
+    "hot_topics": {
+      "eyebrow": "注目のトピック",
+      "title": "まずはここから",
+      "aside": "短くて実践的なレッスン",
+      "open": "開く"
+    },
+    "catalog": {
+      "eyebrow": "カタログ",
+      "title": "トラックから探す",
+      "filter_label": "トラックで絞り込む",
+      "all_heading": "すべてのレッスンとコースを、ひとつの場所に",
+      "track_heading": "{label}:{blurb}",
+      "results_for": "「{query}」の検索結果",
+      "count": "{count}件のレッスン",
+      "free_only": "無料レッスンのみ",
+      "empty": "一致するものがまだありません。別のトラックを選ぶか、絞り込みを解除してください。",
+      "clear": "絞り込みを解除",
+      "course_tag": "コース",
+      "free_badge": "無料",
+      "cta_free": "無料で試す",
+      "cta_start": "始める",
+      "minutes": "{count}分",
+      "weeks": "{count}週間",
+      "levels": {
+        "beginner": "初級",
+        "intermediate": "中級",
+        "advanced": "上級"
       },
-      "vault": {
-        "title": "The Vault",
-        "subtitle": "自分のペースで学ぶ",
-        "tagline": "$1,250の講座と同じ講師陣から、自分のペースで学ぶ。",
-        "best_for": "自分のペースでじっくり学びたい方に",
-        "price": "$99",
-        "price_unit": "/月",
-        "price_note": "いつでも解約可 · 今後の新着コンテンツもすべて含む",
-        "bullet_1": "{count}本のレッスン — 動画、ガイド、テンプレート、ツール、授業の録画まで",
-        "bullet_2": "全レッスンが英語と日本語の両対応。ワンタップで切り替え",
-        "bullet_3": "毎月、新しいレッスンを追加",
-        "bullet_4": "検索もブックマークも。いつでも続きから再開できます",
-        "cta": "Vaultをはじめる",
-        "social_proof": "{count}本すべてが英語・日本語の両方で読める、毎月育ち続けるライブラリです。"
-      },
-      "cohorts": {
-        "title": "Live Cohorts",
-        "subtitle": "講師によるライブ指導",
-        "tagline": "本物の仲間と締め切りとともに、ライブで学ぶ。",
-        "best_for": "グループでライブで学びたい方に",
-        "price": "$1,250〜",
-        "price_unit": "コースごと",
-        "price_note": "コースごと · 次回コホートの日程は下記に",
-        "bullet_1": "本物の講師によるライブセッション",
-        "bullet_2": "4〜5週間、実践プロジェクト、本物の仲間",
-        "bullet_3": "授業の録画はVaultに保存",
-        "cta": "開催予定のコホートを見る"
-      },
-      "sample_heading": "レッスンを体験してみる。",
-      "sample_caption": "60秒で味わうリアルなVaultのレッスン — 登録不要。",
-      "sample_link": "すべてのレッスンを見る",
-      "sample_coming_soon": "サンプルレッスン準備中",
-      "preview": {
-        "heading": "Vaultの中身",
-        "total_count": "{count}本のレッスン",
-        "growing_monthly": "毎月追加",
-        "hot_topics_label": "注目トピック",
-        "browse_all": "すべての{count}本を見る"
+      "types": {
+        "video": "動画",
+        "workshop": "ワークショップ",
+        "article": "記事",
+        "template": "テンプレート",
+        "tool": "ツール",
+        "prompt_pack": "プロンプト集"
       }
     },
-    "chapter_courses": {
-      "number": "02",
-      "title": "Live Cohorts",
-      "intro": "本気で伸ばすための加速装置。講師と仲間と一緒にライブで学び、録画はすべてVaultに残ります。",
-      "see_all": "すべてのコースを見る",
-      "placeholder_title": "新しいコースが続々公開予定",
-      "placeholder_description": "バイリンガルのコホートを順次公開しています。メールアドレスを登録いただければ、最初にお知らせします。",
-      "placeholder_cta": "通知を受け取る",
-      "placeholder_tag": "近日公開"
-    },
-    "chapter_cohorts": {
-      "number": "03",
-      "title": "Private Cohorts",
-      "intro": "コミュニティや組織向けのカスタムAIプログラム。",
-      "bullet_1": "オーディエンスに合わせたカスタムカリキュラム",
-      "bullet_2": "EN / 日本語 バイリンガル対応",
-      "bullet_3": "コミュニティとの共同ブランド配信",
-      "bullet_4": "20〜200人以上まで対応可能",
-      "price": "カスタム",
-      "price_note": "創設パートナー価格",
-      "cta_primary": "パートナーシップに応募",
-      "cta_secondary": "パートナー事例を読む",
-      "vertice_name": "Vertice Society",
-      "vertice_program": "AI Essentials & Mastery — バイリンガルコホート",
-      "vertice_built_for": "東京を拠点とするビジネスパーソン・起業家",
-      "vertice_format": "5週間コホート · EN / 日本語 · ハイブリッド（ライブ＋録画）",
-      "vertice_status": "開催中",
-      "vertice_quote": "メンバーが本当に必要としていたものを提供してくれました — AIのハイプではなく、本物のスキル。HonuVibeは私たちのコミュニティにぴったりのものを作ってくれました。",
-      "vertice_quote_credit": "— Vertice Society リーダーシップ",
-      "built_for_label": "対象：",
-      "format_label": "形式：",
-      "apply_next_label": "2026年募集中",
-      "apply_next_heading": "チームやコミュニティ全体で学びますか？",
-      "apply_next_body": "ネットワーク、専門団体、クリエイティブコミュニティ、メンバー向けにAIトレーニングをカスタマイズしたい組織のリーダーの方、ぜひお話ししましょう。",
-      "apply_next_cta": "パートナーシップに応募"
-    },
-    "partnership_brief": {
-      "label": "PARTNERSHIP BRIEF",
-      "your_community": "あなたのコミュニティ",
-      "tag_cobrand": "共同ブランド",
-      "tag_custom": "カスタム",
-      "tag_lang": "EN / 日本語",
-      "active_count": "2026年に2つのパートナーコホートが進行中"
+    "sidebar": {
+      "eyebrow": "学習パス",
+      "title": "順番に学ぶ",
+      "sub": "自分に近いゴールを選んでください。",
+      "goals": [
+        {
+          "label": "同じメールを何度も打つのをやめたい",
+          "track": "workflow_automation"
+        },
+        {
+          "label": "もっと多くの人に自分のビジネスを見つけてほしい",
+          "track": "marketing_growth"
+        },
+        {
+          "label": "自分のページやツールを公開したい",
+          "track": "build_with_ai"
+        },
+        {
+          "label": "仕事で見せられるAIスキルを身につけたい",
+          "track": "ai_essentials"
+        }
+      ],
+      "inside_title": "レッスンに含まれるもの",
+      "inside_parts": [
+        {
+          "title": "短い動画",
+          "body": "作業の最初から最後までを見て学べます。"
+        },
+        {
+          "title": "文章のガイド",
+          "body": "同じ手順を文章で、自分のペースで進められます。"
+        },
+        {
+          "title": "テンプレートとツール",
+          "body": "自分の仕事にそのまま使えるプロンプトやファイル。"
+        },
+        {
+          "title": "Workbenchの課題",
+          "body": "次に進む前に、自分のビジネスで実際に試します。"
+        }
+      ]
     },
     "faq": {
-      "heading": "決める前に読んでください。",
-      "contact_line": "ご質問は hello@honuvibe.ai まで — 24時間以内にお返事します。",
-      "q_1": "レッスンは日本語？それとも英語？",
-      "a_1": "どちらも。Vaultのレッスンも公開コースも、すべてバイリンガル対応です。いつでも切り替え可能。プライベートコホートは、どちらの言語、または完全バイリンガルでも実施できます。",
-      "q_2": "Vaultの会員期間はどのくらい？",
-      "a_2": "月額制で、いつでも解約できます。最初の14日以内に合わないと感じたら、全額返金します。",
-      "q_3": "あとからVaultからコホートに切り替えられますか？",
-      "a_3": "はい、その順番で進む方も多いです。Vaultが講座の土台づくりになるので、初週からスムーズに走り出せます。",
-      "q_4": "スカラシップやパートナー価格はありますか？",
-      "a_4": "はい — コミュニティ、学校、非営利組織の方は、パートナーシップページからご応募ください。",
-      "q_5": "ハワイや日本以外からも参加できますか？",
-      "a_5": "はい。公開コースは太平洋時間で実施、Vaultは非同期、プライベートコホートはコミュニティのスケジュールに合わせます。",
-      "q_6": "AI初心者でも大丈夫ですか？",
-      "a_6": "まずはVaultの基礎ライブラリ「AI Foundations」から。3本進む頃には、次にやることが自然と見えてきます。"
+      "eyebrow": "よくある質問",
+      "title": "始める前に。",
+      "items": [
+        {
+          "q": "技術的な知識は必要ですか?",
+          "a": "いいえ。各トラックはツールを初めて開くところから始まり、実際に作って公開するところまで進みます。"
+        },
+        {
+          "q": "無料とVaultの違いは何ですか?",
+          "a": "無料ではコミュニティと一部のレッスンを利用できます。Vaultでは全トラックのすべてのレッスンと、今後追加されるレッスンが利用できます。"
+        },
+        {
+          "q": "いつでも解約できますか?",
+          "a": "はい。Vaultは月額課金で、アカウントからいつでも解約できます。お支払い済みの期間の終わりまでご利用いただけます。"
+        },
+        {
+          "q": "レッスンは日本語で受けられますか?",
+          "a": "多くのレッスンは英語と日本語の両方で受けられます。残りのレッスンにも日本語版を順次追加しています。"
+        },
+        {
+          "q": "レッスンはどのくらいの頻度で更新されますか?",
+          "a": "ツールの変化に合わせて、新しいレッスンを追加し、既存のレッスンを更新しています。"
+        },
+        {
+          "q": "1つのトラックにどのくらいかかりますか?",
+          "a": "トラックとペースによって異なります。ほとんどのレッスンは短いので、週に数時間でも着実に進められます。"
+        }
+      ]
     },
-    "start_tonight": {
-      "eyebrow": "始める準備はできましたか",
-      "headline": "今夜から。",
-      "body": "Vaultでひとりで始めるもよし、コホートに参加するもよし、あなたの職場やコミュニティにHonuVibeを招くもよし。Vaultは年中無休 — たとえ今が夜の11時48分でも。",
-      "refund_line": "合わなければ、14日以内は全額返金。",
-      "cta_primary": "Vaultに参加 — $99/月",
-      "link_courses": "ライブコホートを見る",
-      "link_team": "チームで学ぶ"
-    },
-    "courses_catalog": {
-      "overline": "Public Courses",
-      "heading": "Browse the catalog.",
-      "subhead": "Per-course enrollment. Live cohorts. Bilingual delivery.",
-      "filter_all": "All Levels",
-      "filter_beginner": "Beginner",
-      "filter_intermediate": "Intermediate",
-      "filter_advanced": "Advanced",
-      "filter_track": "Builder Track",
-      "track_ribbon": "TRACK",
-      "tag_weeks": "{count} WEEKS",
-      "tag_lang_en": "EN",
-      "tag_lang_ja": "日本語",
-      "tag_lang_both": "EN / 日本語",
-      "starts_label": "Starts {date}",
-      "tbd_label": "Schedule TBD",
-      "card_cta": "View Course",
-      "see_all": "See all courses",
-      "empty_state": "このフィルターに合うコースはまだありません — 別のトラックを試すか、後日ご確認ください。"
+    "pricing": {
+      "title": "無料で始めて、準備ができたらVaultのすべてを。",
+      "body": "Honuコミュニティは無料です。Vaultは月額99ドルで、コミュニティも含まれ、いつでも解約できます。",
+      "cta_free": "無料レッスンを試す",
+      "cta_signup": "無料で始める",
+      "cta_vault": "Vaultに参加する"
     }
   },
   "resources_page": {
@@ -2447,52 +2439,6 @@
         ],
         "cta": "Vaultに参加する"
       }
-    }
-  },
-  "sandbox": {
-    "meta": {
-      "title": "サンドボックス — 触って試せるデモ | HonuVibe",
-      "description": "HonuVibeが実際に開発したアプリを、ブラウザ上でそのまま操作できるインタラクティブなデモ。データはすべて架空なので、自由にクリックして体験できます。"
-    },
-    "hero": {
-      "eyebrow": "ザ・サンドボックス",
-      "headline_line_1": "見るより、",
-      "headline_line_2": "触ってわかる。",
-      "subhead": "サンドボックスでは、HonuVibeが実際に開発したアプリのデモをブラウザ上でそのまま操作できます。登録は不要。すべて架空のデータで動いているので、安心してクリックしてください。",
-      "note_simulated": "データは100%架空",
-      "note_no_signup": "登録不要",
-      "note_real_code": "実際のプロダクトコード"
-    },
-    "grid": {
-      "headline": "デモ一覧",
-      "subhead": "各デモは、実際に開発したプロダクトの動くスライスです。まずは2つのデモを準備中です。"
-    },
-    "demos": {
-      "miles_chaser": {
-        "name": "MilesChaser",
-        "tagline": "旅行のマイルと上級会員ステータスを一元管理するダッシュボード。フライトを追加すると、獲得予測も更新されます。",
-        "alt": "上級会員ステータスの進捗バーと月間ペース目標を表示したMilesChaserのダッシュボード"
-      },
-      "health_hub": {
-        "name": "クリニック経営ダッシュボード",
-        "tagline": "個人経営クリニックの経営者向けダッシュボード。損益の全体像、What-ifシナリオ検討、AIによる分析アシストを備えています。",
-        "alt": "架空の医療クリニックの財務チャートとシナリオ設定を表示した経営ダッシュボード"
-      }
-    },
-    "card": {
-      "launch": "デモを起動",
-      "coming_soon": "近日公開",
-      "simulated": "架空データ",
-      "en_only": "デモは英語のみ"
-    },
-    "method": {
-      "overline": "サンドボックスの仕組み",
-      "real_builds_title": "実際の開発から移植",
-      "real_builds_body": "各デモは、実際に開発・納品したアプリの動くスライスです。コードも操作感もチャートも本物と同じです。",
-      "simulated_data_title": "データは100%架空",
-      "simulated_data_body": "名前も数字も記録もすべてフィクション。実在する顧客・患者・アカウントのデータは一切含まれていません。",
-      "safe_to_break_title": "壊れる心配なし",
-      "safe_to_break_body": "操作内容はブラウザ内だけに保存され、ページを離れるとリセットされます。どのボタンも気軽に試してください。"
     }
   },
   "about": {
