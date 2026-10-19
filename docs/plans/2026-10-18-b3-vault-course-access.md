@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Status:** PLAN rev 2 — APPROVED by Ryan 2026-10-18 (D1–D6, D8 as recommended; D7: 2b ships with "Join the Vault" even though no course is `vault_included` yet). Rev 2 folds in an adversarial plan review (see "Plan review" at the end): D3 is tightened and D9 is new; Ryan approved D9 as recommended (2026-10-18). **Ready to execute** in a fresh session. Not built, nothing migrated, prod untouched.
+**Status:** SHIPPED 2026-10-19 as `6e11e5f`; 087 applied on prod and verified by query (see "Execution record" below). Was: PLAN rev 2 — APPROVED by Ryan 2026-10-18 (D1–D6, D8 as recommended; D7: 2b ships with "Join the Vault" even though no course is `vault_included` yet). Rev 2 folds in an adversarial plan review (see "Plan review" at the end): D3 is tightened and D9 is new; Ryan approved D9 as recommended (2026-10-18). **Ready to execute** in a fresh session. Not built, nothing migrated, prod untouched.
 **Baseline:** `main` = `origin/main` = `a1c796f` (checked 2026-10-18). The execution session re-checks `origin/main` first, because another session pushes to main.
 **Roadmap:** `docs/plans/2026-10-05-marketing-redesign-green.md`: §B3, the "Review amendments" B3 bullet, and Locked decision #5. Those decisions are not reopened. **Unit 2b** (the course-detail UI) waits on this plan; see `docs/plans/2026-10-18-unit-2a-learn-catalog.md`.
 
@@ -347,6 +347,65 @@ select count(*) filter (where vault_included) as flagged, count(*) filter (where
 ## Plan review (2026-10-18, fresh sub-agent told to refute)
 
 Folded in as rev 2: C1, the §7 probe is now a self-rolling-back `DO` block on a throwaway probe course; I1, the CHECK is self-study-only and the toggle is gated; I2, the 032 write policies are dropped and `updateCourse` gets `requireAdmin`; I3, the seeding uses the partner-spine helpers; I4, the matrix gains a legacy-other-course case and an `expectEsl` column. Minors: 42501 expectations, owner `postgres` in grants, hosted-suite notes, 28-test baseline, schema-prefix and `p_course`, and the new D9. Both of the reviewer's headline claims (no admin check in `updateCourse`; self-study creatable) were checked against the code before acting. Held: the anon path, SECURITY DEFINER/grant preservation, no other SQL reader of enrollments, admin/service writes after D3, ship order, D4 semantics, no further content gate, no per-user caching.
+
+## Execution record (2026-10-18 → 2026-10-19)
+
+**Shipped:** `6e11e5f` feat(learn): B3 Vault course access (087), on top of `718c0ca`. One commit, 30 files (+1386/−80). It was built in the scratch worktree `hv-land-a` as 7 task commits and then patch-applied to main. `git write-tree` matched the worktree tree `d18fbd1`. **087 was applied on prod by Ryan before the push.**
+
+**Gates** (on tree `d18fbd1`):
+- type-check: exit 0.
+- `vitest --project app --maxWorkers=2`: 199 files, 2218/2218.
+- build: exit 0. The route table is unchanged (`/`, `/ja`, `/about`, `/learn`, `/ja/learn` ●; `/learn/[slug]` ƒ).
+- Local stack, fresh replay 001→087: `course_material_access_rls` 36/36 (28 existing + 8 new, including the TS↔SQL `COURSE_ACCESS_CASES` matrix).
+- Hosted throwaway `kmmfssluqbcuhybfrsbn`:
+  - 085/086 were confirmed present first.
+  - 087 was applied twice (a no-op the second time), and history row `087` was inserted.
+  - Baseline vs after-087 differ only in `vault_catalog_rls`. Its B2 fixture set `vault_included` on a default cohort course, which the new CHECK correctly refuses. The fixture is now `course_type: 'self-study'` (6/6).
+  - `business_upgrade_plans_rls` "lets a member read only their own profile…" fails in both runs and isn't caused by B3.
+
+**Prod verification** (§7, results from Ryan's SQL editor, plus my read-only REST checks):
+- Both functions are `prosecdef` and contain the clause.
+- ACL is `postgres, anon, authenticated, service_role`, with no PUBLIC entry.
+- Only `courses_own_proposals_read | SELECT` remains.
+- The constraint is `CHECK ((NOT vault_included) OR (course_type = 'self-study'))`.
+- The probe returned `B3_PROBE before=f after=t`. **Correction to §7:** Postgres prints booleans as `t`/`f`, not `false`/`true`.
+- flagged = 0, probes = 0.
+- From REST: anon rpc returns `false` for both functions, and anon raw `courses` returns `[]`.
+- Note: the SQL editor only shows the last statement's result, so run multi-statement checks one at a time.
+
+**Deviations and judgment calls:**
+- **Progress tests** mock `checkVaultAccess` (`@/lib/vault/access`) rather than `hasCourseAccess`. The real `hasCourseAccess` → `getLiveEnrollment` path therefore runs against the table stub, which is stronger than the plan's mock.
+- **`lib/courses/actions.ts`:** the internal `clearSyllabusCache()` (no admin check) is used by `updateCourse` and `updateCourseSession`. The exported `invalidateSyllabusCache` is admin-gated. This keeps `updateCourseSession`'s behaviour as it was.
+- **D9 in the checkout routes:** `hasCourseAccess` is called only when `course.vault_included`, which avoids a second enrollment query on every checkout. Note that §4 "Not edited: any checkout/webhook file" contradicted D9 rev 2. D9 won, as listed in the file map.
+- **Admin toggle copy:** the stale "(B3)" sentence became "Vault members can open this course without enrolling. Leave off for paid-only courses." The self-study hint is added below it. This is admin-only, English-only UI.
+- **`getLiveEnrollment`** lives in `lib/enrollments/access.ts` and is re-exported from `queries.ts`. This broke an import cycle the review flagged; the interface is unchanged.
+
+**Review** (an independent sub-agent told to refute): no Critical findings.
+- Fixed:
+  - The new RLS block signed in ~26 users against GoTrue's local limit of 30 per 5 minutes. It now uses one user per (Vault state, enrollment) key.
+  - The comments wrongly said "staff/admins are not granted". An admin does get included courses, through the Vault, exactly as SQL `has_vault_access` does.
+  - The import cycle.
+  - An RLS test-order dependency and a cleanup leak.
+- Left as is (minor):
+  - In prod Next, the admin toggle shows a generic error instead of the 23514 text.
+  - A Vault member on a FULL included course gets 400 "Course is full" before the 409.
+  - `api/admin/stripe/send-payment-link` can still charge a Vault member (it's admin-initiated).
+  - `checkEnrollment` now has no callers.
+  - `publish`/`unpublish` run the admin check twice.
+- 9th content gate: none found that over-grants. The under-grants are listings only, within D6: `app/api/dashboard/courses`, `getResumePoint`, `lib/dashboard/queries.ts`, `getVaultCourseRecommendations`.
+- Declined (product call): an `is_private` self-study course flagged `vault_included` is readable by every Vault member.
+
+**Environment notes:**
+- On this 8 GB machine, Docker's VM dies when free RAM is under ~1 GB, so close Chrome first.
+- Docker's auto-restart revived stale stacks, including `harpers-circle-finale`. Those were stopped, not removed.
+- A VM crash left the HonuVibe db container with a corrupt `postgresql.conf`. Fixed by `supabase stop --no-backup` (the local test volume was wiped), then `supabase start -x studio,logflare,vector,imgproxy,edge-runtime,realtime,supavisor,mailpit,postgres-meta`.
+- PowerShell 5.1 `>` writes UTF-16 and breaks git patches; use `git diff --output=`.
+- The 022/025 renames and the `.env.test.local` swap were restored afterwards, and the stack was stopped.
+
+**Owed:**
+- Ryan's logged-in smoke as a Vault member: `/learn/ai-essentials-first-steps-future` must still show the enroll CTA (it's not included).
+- Pick or create the first **self-study** course to flag before 2b (D7). Only self-study courses can be flagged now.
+- Unit 2b: "Join the Vault" CTA, conditional enroll, and the price card. Until then, a Vault reader of an included course sees `EnrollButton`'s enrolled state.
 
 ## Out-of-band (Ryan)
 
