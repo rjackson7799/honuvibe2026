@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { hasCourseAccess } from '@/lib/enrollments/access';
 import {
   resolveCheckoutDiscount,
   isCouponRejection,
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     const { data: course, error: courseError } = await supabase
       .from('course_catalog')
       .select(
-        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published, format',
+        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published, format, vault_included',
       )
       .eq('id', courseId)
       .single();
@@ -76,6 +77,14 @@ export async function POST(request: NextRequest) {
         { error: 'Already enrolled' },
         { status: 400 },
       );
+    }
+
+    // No paying twice: a Vault member already reads a Vault-included course (B3 D9).
+    if (course.vault_included) {
+      const access = await hasCourseAccess(user.id, course);
+      if (access.source === 'vault') {
+        return NextResponse.json({ error: 'included_in_vault' }, { status: 409 });
+      }
     }
 
     // Partner benefits — see app/api/stripe/checkout/route.ts for the full

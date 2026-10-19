@@ -183,5 +183,5 @@ export interface WeekESLContext {
 // Access check result
 export interface ESLAccessResult {
   hasAccess: boolean;
-  source: 'included' | 'purchased' | 'admin' | null;
+  source: 'included' | 'purchased' | 'admin' | 'vault' | null;
 }

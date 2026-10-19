@@ -2,7 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import { setRequestLocale, getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
-import { checkEnrollment } from '@/lib/enrollments/queries';
+import { hasCourseAccess } from '@/lib/enrollments/queries';
 import { CourseCheckoutSummary } from '@/components/learn/CourseCheckoutSummary';
 import { EmbeddedCheckoutForm } from '@/components/learn/EmbeddedCheckoutForm';
 
@@ -42,9 +42,9 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   const course = await getCourseWithCurriculum(slug);
   if (!course) notFound();
 
-  // If already enrolled, send to dashboard
-  const enrollment = await checkEnrollment(user.id, slug);
-  if (enrollment.is_enrolled) {
+  // Already enrolled, or reading it through the Vault (B3 D9): send to the hub
+  const access = await hasCourseAccess(user.id, course);
+  if (access.hasAccess) {
     redirect(`${prefix}/learn/dashboard/${slug}`);
   }
 

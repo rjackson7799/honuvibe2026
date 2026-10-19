@@ -3,6 +3,7 @@ import type Stripe from 'stripe';
 import { stripe } from '@/lib/stripe/client';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { getAttributedPartnerSlug } from '@/lib/partner-attribution';
+import { hasCourseAccess } from '@/lib/enrollments/access';
 import {
   resolveCheckoutDiscount,
   isCouponRejection,
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     const { data: course, error: courseError } = await supabase
       .from('course_catalog')
       .select(
-        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published',
+        'id, slug, title_en, title_jp, price_usd, price_jpy, max_enrollment, current_enrollment, is_published, vault_included',
       )
       .eq('id', courseId)
       .single();
@@ -81,6 +82,14 @@ export async function POST(request: NextRequest) {
         { error: 'Already enrolled' },
         { status: 400 },
       );
+    }
+
+    // No paying twice: a Vault member already reads a Vault-included course (B3 D9).
+    if (course.vault_included) {
+      const access = await hasCourseAccess(user.id, course);
+      if (access.source === 'vault') {
+        return NextResponse.json({ error: 'included_in_vault' }, { status: 409 });
+      }
     }
 
     // Partner benefits — the member's active partner supplies the coupon

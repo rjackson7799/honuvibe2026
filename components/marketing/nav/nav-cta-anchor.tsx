@@ -1,6 +1,5 @@
 'use client';
 
-import NextLink from 'next/link';
 import { useLocale } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
@@ -23,7 +22,11 @@ export const navCtaClass = cn(
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hv-sand-100 focus-visible:ring-offset-2 focus-visible:ring-offset-hv-green-900',
 );
 
-/** The CTA may point at an API route (Join the Vault), which must not get the /ja prefix. */
+/**
+ * The CTA may point at an API route (Join the Vault), which must not get the
+ * /ja prefix and must be a full navigation: a Next Link would do a client-side
+ * RSC fetch of the route and strand the click (mirrors HvButton).
+ */
 export function NavCtaAnchor({
   cta,
   className,
@@ -36,9 +39,9 @@ export function NavCtaAnchor({
   const locale = useLocale();
   if (cta.href.startsWith('/api/')) {
     return (
-      <NextLink href={apiHrefForLocale(cta.href, locale)} prefetch={false} className={className} onClick={onClick}>
+      <a href={apiHrefForLocale(cta.href, locale)} className={className} onClick={onClick}>
         {cta.label}
-      </NextLink>
+      </a>
     );
   }
   return (

@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { writes, revalidateTagMock } = vi.hoisted(() => ({
+const { writes, revalidateTagMock, auth } = vi.hoisted(() => ({
   writes: [] as { table: string; op: string; payload: unknown }[],
   revalidateTagMock: vi.fn(),
+  auth: { role: 'admin' },
 }));
 
 vi.mock('next/cache', () => ({
@@ -16,7 +17,7 @@ function client() {
     auth: { getUser: async () => ({ data: { user: { id: 'admin-1' } } }) },
     from(table: string) {
       const chain: Record<string, (...args: unknown[]) => unknown> = {};
-      const ok = { data: { role: 'admin', id: 'new-id', slug: 'new-slug' }, error: null };
+      const ok = { data: { role: auth.role, id: 'new-id', slug: 'new-slug' }, error: null };
       chain.select = () => chain;
       chain.eq = () => chain;
       chain.is = () => chain;
@@ -46,11 +47,17 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 
 import { createVaultItem, updateVaultItem, unpublishVaultItem } from '@/lib/vault/actions';
-import { updateCourse } from '@/lib/courses/actions';
+import {
+  invalidateSyllabusCache,
+  publishCourse,
+  unpublishCourse,
+  updateCourse,
+} from '@/lib/courses/actions';
 
 beforeEach(() => {
   writes.length = 0;
   revalidateTagMock.mockClear();
+  auth.role = 'admin';
 });
 
 const contentUpdate = () =>
@@ -115,5 +122,21 @@ describe('Course track + vault_included (079)', () => {
     await updateCourse('c1', { vault_included: true });
     expect(courseUpdate().vault_included).toBe(true);
     await expect(updateCourse('c1', { vault_included: 'yes' })).rejects.toThrow(/vault_included/);
+  });
+});
+
+describe('Course actions are admin-only (B3 D3.2)', () => {
+  it('updateCourse rejects a non-admin', async () => {
+    auth.role = 'instructor';
+    await expect(updateCourse('c1', { vault_included: true })).rejects.toThrow('Not authorized');
+    expect(writes.filter((w) => w.table === 'courses')).toHaveLength(0);
+  });
+
+  it('publishCourse, unpublishCourse and invalidateSyllabusCache reject a non-admin', async () => {
+    auth.role = 'instructor';
+    await expect(publishCourse('c1')).rejects.toThrow('Not authorized');
+    await expect(unpublishCourse('c1')).rejects.toThrow('Not authorized');
+    await expect(invalidateSyllabusCache('c1')).rejects.toThrow('Not authorized');
+    expect(writes.filter((w) => w.table === 'courses')).toHaveLength(0);
   });
 });

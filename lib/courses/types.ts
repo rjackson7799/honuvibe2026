@@ -124,7 +124,8 @@ export interface Course {
 
   // Learning track + Vault inclusion (migration 079). Optional because many
   // course queries select an explicit column list without them. vault_included
-  // is read by the B3 access predicate; until then only the admin toggle uses it.
+  // is read by the B3 access predicate (SQL 087, lib/enrollments/access.ts);
+  // absent counts as false. Only self-study courses may set it (087 CHECK).
   track?: TrackId | null;
   vault_included?: boolean;
 

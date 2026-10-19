@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
+import { checkVaultAccess } from '@/lib/vault/access';
+import { isVaultMemberForCourses } from '@/lib/enrollments/access';
 import type { ESLAccessResult } from './types';
 
 export async function checkESLAccess(
@@ -14,7 +16,7 @@ export async function checkESLAccess(
   // Check if course has ESL included with enrollment
   const { data: course } = await supabase
     .from('course_catalog')
-    .select('esl_enabled, esl_included')
+    .select('esl_enabled, esl_included, is_published, vault_included')
     .eq('id', courseId)
     .single();
 
@@ -35,6 +37,16 @@ export async function checkESLAccess(
 
     if (enrollment) {
       return { hasAccess: true, source: 'included' };
+    }
+
+    // ESL included with the course + the course included in the Vault: Vault
+    // access is course access, so ESL comes with it (B3 D2, SQL 087).
+    if (
+      course.is_published &&
+      course.vault_included &&
+      isVaultMemberForCourses(await checkVaultAccess(userId))
+    ) {
+      return { hasAccess: true, source: 'vault' };
     }
   }
 

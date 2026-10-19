@@ -14,8 +14,9 @@
  *   scope (community_scope_for); seats are Vault-only.
  *
  * These mirror the SQL helpers has_vault_access() / has_community_access()
- * (migrations 041, 042, 064, 078). The parity test suite walks a shared case matrix
- * across both — if you change a rule here, change it there in the same commit.
+ * (migrations 041, 042, 064, 078) and can_read_course_materials() (085, 087).
+ * The parity test suites walk shared case matrices across both — if you change
+ * a rule here, change it there in the same commit.
  */
 
 export interface SubscriptionCheckUser {
@@ -138,4 +139,27 @@ export function hasVaultAccess(
   if (hasActiveCohortAccess(enrollments, now)) return true;
 
   return hasActiveSeatAccess(seatGrants, now);
+}
+
+export interface CourseAccessCourse {
+  is_published: boolean;
+  vault_included: boolean;
+}
+
+/**
+ * Returns true if a learner can read a course's paid material: a live
+ * enrollment (active/completed) on THIS course, or Vault access on a published
+ * course that is included in the Vault (B3, migration 087).
+ *
+ * Staff are deliberately not modelled here: SQL also grants admins and assigned
+ * instructors every course through can_manage_course(); the learner pages do
+ * not (plan D5). An admin still has Vault access, so reads included courses.
+ */
+export function canReadCourseContent(input: {
+  enrolled: boolean;
+  hasVault: boolean;
+  course: CourseAccessCourse;
+}): boolean {
+  const { enrolled, hasVault, course } = input;
+  return enrolled || (course.is_published && course.vault_included && hasVault);
 }

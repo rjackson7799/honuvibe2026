@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { redirect, notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
-import { checkEnrollment } from '@/lib/enrollments/queries';
+import { hasCourseAccess } from '@/lib/enrollments/queries';
 import { getCourseCompletion } from '@/lib/progress/queries';
 import { getPublishedReportsForStudent } from '@/lib/tutoring/queries';
 import { CourseHub } from '@/components/learn/CourseHub';
@@ -43,13 +43,14 @@ export default async function CourseHubPage({ params }: Props) {
   const course = await getCourseWithCurriculum(slug);
   if (!course) notFound();
 
-  const enrollmentCheck = await checkEnrollment(user.id, slug);
+  // An enrollment, or the Vault on a Vault-included course (B3).
+  const access = await hasCourseAccess(user.id, course);
 
-  // Real completion data — only meaningful for enrolled/completed students.
+  // Real completion data — only meaningful for learners with course access.
   let completedSessionIds: string[] = [];
   let completedAssignmentIds: string[] = [];
   let percent = 0;
-  if (enrollmentCheck.is_enrolled) {
+  if (access.hasAccess) {
     const completion = await getCourseCompletion(user.id, course.id);
     completedSessionIds = Array.from(completion.completedSessionIds);
     completedAssignmentIds = Array.from(completion.completedAssignmentIds);
@@ -57,8 +58,9 @@ export default async function CourseHubPage({ params }: Props) {
   }
 
   // Published 1v1 session reports (RLS restricts to the caller's own published rows).
+  // 1v1 is enrollment-only; the Vault never includes it.
   let sessionReports: SessionReport[] = [];
-  if (course.course_type === '1v1' && enrollmentCheck.is_enrolled) {
+  if (course.course_type === '1v1' && access.source === 'enrollment') {
     sessionReports = await getPublishedReportsForStudent(course.id, user.id);
   }
 
@@ -66,7 +68,7 @@ export default async function CourseHubPage({ params }: Props) {
     <CourseHub
       course={course}
       locale={locale}
-      isEnrolled={enrollmentCheck.is_enrolled}
+      isEnrolled={access.hasAccess}
       completedSessionIds={completedSessionIds}
       completedAssignmentIds={completedAssignmentIds}
       percent={percent}

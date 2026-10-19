@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
 import { getFreeSessionIds } from '@/lib/courses/utils';
-import { checkEnrollment } from '@/lib/enrollments/queries';
+import { hasCourseAccess } from '@/lib/enrollments/queries';
 import { MarketingShell } from '@/components/marketing/shell';
 import { MarketingNav } from '@/components/marketing/nav/marketing-nav';
 import { MarketingFooter } from '@/components/marketing/footer/marketing-footer';
@@ -56,17 +56,14 @@ export default async function CourseDetailPage({ params }: Props) {
 
   const t = await getTranslations({ locale, namespace: 'learn' });
 
-  // Check auth + enrollment status
+  // Check auth + course access (an enrollment, or the Vault on an included course)
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let isEnrolled = false;
-  if (user) {
-    const enrollment = await checkEnrollment(user.id, slug);
-    isEnrolled = enrollment.is_enrolled;
-  }
+  const access = user ? await hasCourseAccess(user.id, course) : null;
+  const isEnrolled = access?.hasAccess ?? false;
 
   // Compute which sessions are free previews
   const freeSessionIds = getFreeSessionIds(course.free_preview_count, course.weeks);

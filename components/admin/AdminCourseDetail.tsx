@@ -195,11 +195,19 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
     }
   }
 
+  // 087's courses_vault_included_self_study CHECK refuses the flag on cohort and
+  // 1v1 courses; the toggle mirrors it and shows any refusal.
+  const canIncludeInVault = course.course_type === 'self-study';
+  const [vaultToggleError, setVaultToggleError] = useState<string | null>(null);
+
   async function handleVaultIncludedToggle() {
     setActionLoading(true);
+    setVaultToggleError(null);
     try {
       await updateCourse(course.id, { vault_included: !(course.vault_included ?? false) });
       router.refresh();
+    } catch (err) {
+      setVaultToggleError(err instanceof Error ? err.message : 'Could not update Vault inclusion');
     } finally {
       setActionLoading(false);
     }
@@ -614,16 +622,26 @@ export function AdminCourseDetail({ course, instructors = [], enrolledStudents =
                   <h3 className="text-sm font-medium text-fg-primary">Included in the Vault</h3>
                 </div>
                 <p className="max-w-[560px] text-xs text-fg-tertiary">
-                  Vault members will be able to open this course without enrolling once course access through the Vault ships (B3). Leave off for cohorts and paid-only courses.
+                  Vault members can open this course without enrolling. Leave off for paid-only courses.
                 </p>
+                {!canIncludeInVault && (
+                  <p className="max-w-[560px] text-xs text-fg-tertiary">
+                    Only self-study courses can be included in the Vault
+                  </p>
+                )}
+                {vaultToggleError && (
+                  <p role="alert" className="max-w-[560px] text-xs text-red-400">
+                    {vaultToggleError}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
-                disabled={actionLoading}
+                disabled={actionLoading || !canIncludeInVault}
                 onClick={handleVaultIncludedToggle}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none disabled:cursor-not-allowed ${
                   course.vault_included ? 'bg-accent-teal' : 'bg-bg-tertiary'
-                } ${actionLoading ? 'opacity-50' : ''}`}
+                } ${actionLoading || !canIncludeInVault ? 'opacity-50' : ''}`}
                 aria-pressed={course.vault_included ?? false}
                 aria-label="Toggle whether this course is included in the Vault"
               >

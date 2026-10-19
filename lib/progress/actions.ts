@@ -2,6 +2,7 @@
 
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { hasCourseAccess } from '@/lib/enrollments/access';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -41,7 +42,11 @@ async function resolveItemCourse(
   supabase: SupabaseUserClient,
   table: 'course_sessions' | 'course_assignments',
   itemId: string,
-): Promise<{ courseId: string; courseSlug: string }> {
+): Promise<{
+  courseId: string;
+  courseSlug: string;
+  course: { id: string; is_published: boolean; vault_included: boolean | null };
+}> {
   const { data: item } = await supabase
     .from(table)
     .select('week_id')
@@ -58,33 +63,34 @@ async function resolveItemCourse(
 
   const { data: course } = await supabase
     .from('course_catalog')
-    .select('slug')
+    .select('slug, is_published, vault_included')
     .eq('id', week.course_id)
     .maybeSingle();
   if (!course?.slug) throw new Error('Course not found for item');
 
-  return { courseId: week.course_id, courseSlug: course.slug };
+  return {
+    courseId: week.course_id,
+    courseSlug: course.slug,
+    course: {
+      id: week.course_id,
+      is_published: course.is_published === true,
+      vault_included: course.vault_included ?? null,
+    },
+  };
 }
 
 /**
- * Verify the user has a live enrollment (active OR completed — a completed
- * enrollment still owns its progress and may un-mark items). Refunded/cancelled
- * enrollments are rejected. RLS scopes the read to the user's own rows; the
- * explicit user_id filter is belt-and-suspenders.
+ * Verify the user may read the course: a live enrollment (active OR completed —
+ * a completed enrollment still owns its progress and may un-mark items) or
+ * Vault access on a Vault-included course (B3). Refunded/cancelled enrollments
+ * are rejected. Progress rows are own-row only under RLS, so this is the gate.
  */
-async function requireEnrollment(
-  supabase: SupabaseUserClient,
+async function requireCourseAccess(
   userId: string,
-  courseId: string,
+  course: { id: string; is_published: boolean; vault_included: boolean | null },
 ): Promise<void> {
-  const { data: enrollment } = await supabase
-    .from('enrollments')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('course_id', courseId)
-    .in('status', ['active', 'completed'])
-    .maybeSingle();
-  if (!enrollment) throw new Error('Not enrolled in this course');
+  const access = await hasCourseAccess(userId, course);
+  if (!access.hasAccess) throw new Error('No access to this course');
 }
 
 /**
@@ -198,12 +204,12 @@ export async function toggleSessionComplete(
 ): Promise<{ completed: boolean }> {
   const { supabase, userId } = await requireAuth();
 
-  const { courseId, courseSlug } = await resolveItemCourse(
+  const { courseId, courseSlug, course } = await resolveItemCourse(
     supabase,
     'course_sessions',
     sessionId,
   );
-  await requireEnrollment(supabase, userId, courseId);
+  await requireCourseAccess(userId, course);
 
   const completed = await toggleCompletion(
     supabase,
@@ -229,12 +235,12 @@ export async function toggleAssignmentComplete(
 ): Promise<{ completed: boolean }> {
   const { supabase, userId } = await requireAuth();
 
-  const { courseId, courseSlug } = await resolveItemCourse(
+  const { courseId, courseSlug, course } = await resolveItemCourse(
     supabase,
     'course_assignments',
     assignmentId,
   );
-  await requireEnrollment(supabase, userId, courseId);
+  await requireCourseAccess(userId, course);
 
   const completed = await toggleCompletion(
     supabase,
@@ -264,12 +270,12 @@ export async function toggleAssignmentComplete(
 export async function recordSessionOpen(sessionId: string): Promise<void> {
   const { supabase, userId } = await requireAuth();
 
-  const { courseId } = await resolveItemCourse(
+  const { courseId, course } = await resolveItemCourse(
     supabase,
     'course_sessions',
     sessionId,
   );
-  await requireEnrollment(supabase, userId, courseId);
+  await requireCourseAccess(userId, course);
 
   // opened_at is set explicitly: the column DEFAULT only fires on insert, not on
   // the conflict-update path.

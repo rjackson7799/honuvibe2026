@@ -186,9 +186,11 @@ export async function approveProposal(courseId: string): Promise<void> {
     throw new Error(`Cannot approve a course with status "${existing.status}"`);
   }
 
+  // An approved proposal starts as an unpublished draft outside the Vault,
+  // whatever the row held before review (B3 D3.5).
   const { error } = await admin
     .from('courses')
-    .update({ status: 'draft', proposal_review_notes: null })
+    .update({ status: 'draft', proposal_review_notes: null, vault_included: false, is_published: false })
     .eq('id', courseId);
 
   if (error) throw new Error(`Failed to approve: ${error.message}`);

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  canReadCourseContent,
   hasActiveSeatAccess,
   hasCommunityAccess,
   hasVaultAccess,
@@ -7,7 +8,13 @@ import {
   type SeatGrantRow,
   type SubscriptionCheckUser,
 } from '@/lib/access/checks';
-import { ACCESS_CASES, daysFrom, type AccessCase } from '@/lib/access/parity-matrix';
+import {
+  ACCESS_CASES,
+  COURSE_ACCESS_CASES,
+  daysFrom,
+  vaultStateFixture,
+  type AccessCase,
+} from '@/lib/access/parity-matrix';
 
 const NOW = new Date('2026-07-24T12:00:00.000Z');
 
@@ -65,6 +72,60 @@ describe('entitlement parity matrix (TypeScript side)', () => {
     expect(ACCESS_CASES.some((c) => c.seat?.revoked)).toBe(true);
     expect(ACCESS_CASES.some((c) => c.seat && !c.seat.blockActive)).toBe(true);
     expect(ACCESS_CASES.some((c) => c.seat && c.seat.startDays > 0)).toBe(true);
+  });
+});
+
+describe('course access matrix (TypeScript side)', () => {
+  // The SQL side lives in supabase/tests/course_material_access_rls.test.ts and
+  // asserts the same expectations against can_read_course_materials() /
+  // can_access_course_esl(). Cases with an enrollment on another course are
+  // driven through hasCourseAccess in __tests__/lib/enrollments/course-access.test.ts.
+  for (const c of COURSE_ACCESS_CASES) {
+    it(`${c.id}: ${c.description}`, () => {
+      const fixture = vaultStateFixture(c.vault, NOW);
+      const hasVault = fixture
+        ? hasVaultAccess(fixture.user, fixture.cohort, fixture.seats, NOW)
+        : false;
+      const enrolled =
+        !c.enrollmentOnOtherCourse &&
+        (c.enrollment === 'active' || c.enrollment === 'completed');
+      expect(
+        canReadCourseContent({
+          enrolled,
+          hasVault,
+          course: { is_published: c.course.published, vault_included: c.course.vaultIncluded },
+        }),
+      ).toBe(c.expectCourse);
+    });
+  }
+
+  it('has unique ids and at least 17 cases', () => {
+    const ids = COURSE_ACCESS_CASES.map((c) => c.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(COURSE_ACCESS_CASES.length).toBeGreaterThanOrEqual(17);
+  });
+
+  it('anon has no fixture; every other state does', () => {
+    expect(vaultStateFixture('anon', NOW)).toBeNull();
+    expect(vaultStateFixture('none', NOW)).not.toBeNull();
+  });
+});
+
+describe('canReadCourseContent', () => {
+  const published = { is_published: true, vault_included: true };
+
+  it('an enrollment reads any course, included or not', () => {
+    expect(canReadCourseContent({ enrolled: true, hasVault: false, course: { is_published: true, vault_included: false } })).toBe(true);
+  });
+
+  it('Vault reads only a published, included course', () => {
+    expect(canReadCourseContent({ enrolled: false, hasVault: true, course: published })).toBe(true);
+    expect(canReadCourseContent({ enrolled: false, hasVault: true, course: { ...published, is_published: false } })).toBe(false);
+    expect(canReadCourseContent({ enrolled: false, hasVault: true, course: { ...published, vault_included: false } })).toBe(false);
+  });
+
+  it('nothing reads nothing', () => {
+    expect(canReadCourseContent({ enrolled: false, hasVault: false, course: published })).toBe(false);
   });
 });
 

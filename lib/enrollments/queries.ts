@@ -56,6 +56,9 @@ export async function checkEnrollment(
   };
 }
 
+// Course access (B3) lives in ./access so tests can mock checkVaultAccess locally.
+export { getLiveEnrollment, hasCourseAccess } from './access';
+
 export async function getEnrollmentByCourseId(
   userId: string,
   courseId: string,

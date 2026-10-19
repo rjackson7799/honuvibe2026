@@ -98,7 +98,8 @@ describe('079 constraints and defaults', () => {
   test('courses: vault_included defaults false, track CHECK holds, NULL track allowed', async () => {
     const { data, error } = await admin
       .from('courses')
-      .insert({ slug: COURSE_SLUG, title_en: 'B2 fixture course' })
+      // self-study: since 087 only self-study courses may set vault_included.
+      .insert({ slug: COURSE_SLUG, title_en: 'B2 fixture course', course_type: 'self-study' })
       .select('vault_included, track')
       .single();
     expect(error).toBeNull();

@@ -5,7 +5,27 @@ import { revalidatePath } from 'next/cache';
 import { parseTrackInput } from '@/lib/tracks';
 import type { BonusSessionType, ParsedCourseData } from './types';
 
-export async function invalidateSyllabusCache(courseId: string) {
+// These actions write any payload through the caller's client, so RLS alone
+// decides who may write. Since 087 dropped the instructor proposal write
+// policies that is admins only, but the action says so itself (B3 D3.2).
+async function requireAdmin() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profile?.role !== 'admin') throw new Error('Not authorized');
+
+  return { supabase, userId: user.id };
+}
+
+async function clearSyllabusCache(courseId: string) {
   const supabase = await createClient();
   await supabase
     .from('courses')
@@ -13,16 +33,16 @@ export async function invalidateSyllabusCache(courseId: string) {
     .eq('id', courseId);
 }
 
+export async function invalidateSyllabusCache(courseId: string) {
+  await requireAdmin();
+  await clearSyllabusCache(courseId);
+}
+
 export async function updateCourse(
   courseId: string,
   updates: Record<string, unknown>,
 ) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { supabase } = await requireAdmin();
 
   // Migration 079 columns: fail with a readable message before the DB CHECK.
   if ('track' in updates) {
@@ -65,7 +85,7 @@ export async function updateCourse(
   }
 
   // Invalidate cached syllabus PDFs when course content changes
-  await invalidateSyllabusCache(courseId);
+  await clearSyllabusCache(courseId);
 
   revalidatePath('/');
   revalidatePath('/learn');
@@ -73,6 +93,7 @@ export async function updateCourse(
 }
 
 export async function publishCourse(courseId: string) {
+  await requireAdmin();
   return updateCourse(courseId, {
     is_published: true,
     status: 'published',
@@ -80,6 +101,7 @@ export async function publishCourse(courseId: string) {
 }
 
 export async function unpublishCourse(courseId: string) {
+  await requireAdmin();
   return updateCourse(courseId, {
     is_published: false,
     status: 'draft',
@@ -181,7 +203,7 @@ export async function updateCourseSession(
       .eq('id', session.week_id)
       .single();
     if (week?.course_id) {
-      await invalidateSyllabusCache(week.course_id);
+      await clearSyllabusCache(week.course_id);
     }
   }
 

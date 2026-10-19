@@ -26,3 +26,14 @@ export interface EnrollmentCheck {
   is_enrolled: boolean;
   enrollment: Enrollment | null;
 }
+
+/**
+ * Whether a learner can read a course's material, and why (B3). 'vault' means
+ * a Vault member on a Vault-included course: there is no enrollment row, so
+ * billing, rosters, certificates and completion stay enrollment-only.
+ */
+export type CourseAccess = {
+  hasAccess: boolean;
+  source: 'enrollment' | 'vault' | null;
+  enrollment: Enrollment | null;
+};

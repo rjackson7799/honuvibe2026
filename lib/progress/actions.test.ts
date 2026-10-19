@@ -1,15 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { revalidatePathMock } = vi.hoisted(() => ({ revalidatePathMock: vi.fn() }));
+const { revalidatePathMock, checkVaultAccessMock } = vi.hoisted(() => ({
+  revalidatePathMock: vi.fn(),
+  checkVaultAccessMock: vi.fn(),
+}));
 
 vi.mock('next/cache', () => ({ revalidatePath: revalidatePathMock }));
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
   createAdminClient: vi.fn(),
 }));
+vi.mock('@/lib/vault/access', () => ({ checkVaultAccess: checkVaultAccessMock }));
 
-import { createClient } from '@/lib/supabase/server';
-import { recordSessionOpen } from './actions';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
+import { recordSessionOpen, toggleAssignmentComplete, toggleSessionComplete } from './actions';
 
 const USER = 'user-1';
 const SESSION = 'session-1';
@@ -34,12 +38,18 @@ type Options = {
  */
 function useClient({ user = USER, tables = {}, upsertError }: Options = {}) {
   const upserts: { row: Row; options: unknown }[] = [];
+  const inserts: { table: string; row: Row }[] = [];
 
   const resolve = (q: Query) => {
     const upsert = q.calls.find(([m]) => m === 'upsert');
     if (upsert) {
       upserts.push({ row: upsert[1] as Row, options: upsert[2] });
       return { data: null, error: upsertError ? { message: upsertError } : null };
+    }
+    const insert = q.calls.find(([m]) => m === 'insert');
+    if (insert) {
+      inserts.push({ table: q.table, row: insert[1] as Row });
+      return { data: null, error: null };
     }
 
     const rows = tables[q.table];
@@ -64,7 +74,7 @@ function useClient({ user = USER, tables = {}, upsertError }: Options = {}) {
       const builder: Record<string, unknown> = {
         then: (onFulfilled: (v: unknown) => unknown) => Promise.resolve(onFulfilled(resolve(q))),
       };
-      for (const method of ['select', 'eq', 'in', 'upsert', 'maybeSingle']) {
+      for (const method of ['select', 'eq', 'in', 'upsert', 'insert', 'maybeSingle']) {
         builder[method] = (...args: unknown[]) => {
           q.calls.push([method, ...args]);
           return builder;
@@ -75,7 +85,37 @@ function useClient({ user = USER, tables = {}, upsertError }: Options = {}) {
   };
 
   (createClient as ReturnType<typeof vi.fn>).mockResolvedValue(client);
-  return { upserts };
+  return { upserts, inserts };
+}
+
+/**
+ * Service-role stand-in for syncEnrollmentCompletion: one week, one session,
+ * one completion — and NO enrollment row (a Vault reader). Records updates so
+ * a test can prove nothing was written to enrollments.
+ */
+function useAdminClient() {
+  const updates: { table: string; payload: unknown }[] = [];
+  const results: Record<string, unknown> = {
+    course_weeks: { data: [{ id: WEEK }], error: null },
+    course_sessions: { count: 1, error: null },
+    course_item_completions: { count: 1, error: null },
+    enrollments: { data: null, error: null },
+  };
+  const admin = {
+    from: vi.fn((table: string) => {
+      const builder: Record<string, unknown> = {
+        then: (onFulfilled: (v: unknown) => unknown) => Promise.resolve(onFulfilled(results[table])),
+      };
+      for (const method of ['select', 'eq', 'in', 'maybeSingle']) builder[method] = () => builder;
+      builder.update = (payload: unknown) => {
+        updates.push({ table, payload });
+        return builder;
+      };
+      return builder;
+    }),
+  };
+  (createAdminClient as ReturnType<typeof vi.fn>).mockReturnValue(admin);
+  return { updates };
 }
 
 /** A session that resolves cleanly to COURSE, with the user enrolled. */
@@ -83,13 +123,103 @@ function enrolledTables(status = 'active') {
   return {
     course_sessions: [{ id: SESSION, week_id: WEEK }],
     course_weeks: [{ id: WEEK, course_id: COURSE }],
-    course_catalog: [{ id: COURSE, slug: 'course-slug' }],
+    course_catalog: [{ id: COURSE, slug: 'course-slug', is_published: true, vault_included: false }],
     enrollments: [{ id: 'enr-1', user_id: USER, course_id: COURSE, status }],
+    course_item_completions: [],
   };
 }
 
+const ASSIGNMENT = 'assignment-1';
+
+/** A published, Vault-included course with an assignment and NO enrollment. */
+function vaultReaderTables() {
+  return {
+    ...enrolledTables(),
+    course_assignments: [{ id: ASSIGNMENT, week_id: WEEK }],
+    course_catalog: [{ id: COURSE, slug: 'course-slug', is_published: true, vault_included: true }],
+    enrollments: [],
+  };
+}
+
+const vaultResult = (source: string | null) => ({
+  hasAccess: source !== null,
+  source,
+  subscriptionStatus: null,
+  activeCourseName: null,
+  sponsor: null,
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
+});
+
+describe('Vault readers of an included course (B3)', () => {
+  it('toggleSessionComplete succeeds for a Vault reader of an included course', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult('subscription'));
+    const { inserts } = useClient({ tables: vaultReaderTables() });
+    const { updates } = useAdminClient();
+
+    await expect(toggleSessionComplete(SESSION)).resolves.toEqual({ completed: true });
+
+    expect(inserts).toEqual([
+      {
+        table: 'course_item_completions',
+        row: { user_id: USER, course_id: COURSE, item_type: 'session', item_id: SESSION },
+      },
+    ]);
+    // syncEnrollmentCompletion found no enrollment row: a no-op, not a throw.
+    expect(updates).toEqual([]);
+  });
+
+  it('toggleSessionComplete rejects without access', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult(null));
+    useClient({ tables: vaultReaderTables() });
+    await expect(toggleSessionComplete(SESSION)).rejects.toThrow('No access to this course');
+  });
+
+  it('toggleAssignmentComplete succeeds for a Vault reader of an included course', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult('seat'));
+    const { inserts } = useClient({ tables: vaultReaderTables() });
+    await expect(toggleAssignmentComplete(ASSIGNMENT)).resolves.toEqual({ completed: true });
+    expect(inserts[0].row).toMatchObject({ item_type: 'assignment', item_id: ASSIGNMENT });
+  });
+
+  it('toggleAssignmentComplete rejects without access', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult(null));
+    useClient({ tables: vaultReaderTables() });
+    await expect(toggleAssignmentComplete(ASSIGNMENT)).rejects.toThrow('No access to this course');
+  });
+
+  it('recordSessionOpen succeeds for a Vault reader of an included course', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult('cohort'));
+    const { upserts } = useClient({ tables: vaultReaderTables() });
+    await expect(recordSessionOpen(SESSION)).resolves.toBeUndefined();
+    expect(upserts).toHaveLength(1);
+  });
+
+  it('recordSessionOpen rejects without access', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult(null));
+    useClient({ tables: vaultReaderTables() });
+    await expect(recordSessionOpen(SESSION)).rejects.toThrow('No access to this course');
+  });
+
+  it('a legacy buyer of another course is not a Vault reader', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult('enrollment'));
+    useClient({ tables: vaultReaderTables() });
+    await expect(toggleSessionComplete(SESSION)).rejects.toThrow('No access to this course');
+  });
+
+  it('a Vault member on a NON-included course is rejected without a Vault lookup', async () => {
+    checkVaultAccessMock.mockResolvedValue(vaultResult('subscription'));
+    useClient({ tables: { ...enrolledTables(), enrollments: [] } });
+    await expect(recordSessionOpen(SESSION)).rejects.toThrow('No access to this course');
+    expect(checkVaultAccessMock).not.toHaveBeenCalled();
+  });
+
+  it('a refunded buyer is still rejected', async () => {
+    useClient({ tables: enrolledTables('refunded') });
+    await expect(toggleSessionComplete(SESSION)).rejects.toThrow('No access to this course');
+  });
 });
 
 describe('recordSessionOpen', () => {
@@ -134,12 +264,12 @@ describe('recordSessionOpen', () => {
 
   it('rejects a user with no enrolment in the session’s course', async () => {
     useClient({ tables: { ...enrolledTables(), enrollments: [] } });
-    await expect(recordSessionOpen(SESSION)).rejects.toThrow('Not enrolled in this course');
+    await expect(recordSessionOpen(SESSION)).rejects.toThrow('No access to this course');
   });
 
   it.each(['refunded', 'cancelled'])('rejects a %s enrolment', async (status) => {
     useClient({ tables: enrolledTables(status) });
-    await expect(recordSessionOpen(SESSION)).rejects.toThrow('Not enrolled in this course');
+    await expect(recordSessionOpen(SESSION)).rejects.toThrow('No access to this course');
   });
 
   it('accepts a completed enrolment — finishing a course does not revoke access', async () => {
@@ -155,7 +285,7 @@ describe('recordSessionOpen', () => {
         enrollments: [{ id: 'enr-2', user_id: 'someone-else', course_id: COURSE, status: 'active' }],
       },
     });
-    await expect(recordSessionOpen(SESSION)).rejects.toThrow('Not enrolled in this course');
+    await expect(recordSessionOpen(SESSION)).rejects.toThrow('No access to this course');
   });
 
   it('surfaces a write failure', async () => {

@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { anonClient, serviceClient, userClient } from './helpers/clients';
+import { SPINE, resetSpineData, seedSpinePartners, seedUser } from './helpers/partner-spine';
+import { COURSE_ACCESS_CASES, vaultStateFixture } from '../../lib/access/parity-matrix';
 const serverContext = vi.hoisted(() => ({ client: null as SupabaseClient | null }));
 vi.mock('@/lib/supabase/server', () => ({ createClient: async () => serverContext.client }));
 import { getCourseWithCurriculum } from '@/lib/courses/queries';
@@ -179,5 +181,182 @@ describe('paid ESL boundary', () => {
     expect((await clients.buyer.from('esl_lessons').select('id').eq('id', lesson)).data).toEqual([]);
     await ok(service.from('esl_purchases').insert({ user_id: users.buyer, course_id: course, amount_paid: 100, currency: 'usd' }));
     expect((await clients.buyer.from('esl_lessons').select('id').eq('id', lesson).single()).data?.id).toBe(lesson);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// B3 / migration 087: Vault members read Vault-included courses.
+// Own seeds: the ESL block above flips `course.esl_included`, so nothing here
+// leans on the shared course's ESL state.
+// ---------------------------------------------------------------------------
+describe('Vault course access (087)', () => {
+  const included = randomUUID(), includedDraft = randomUUID(), notIncluded = randomUUID(), proposal = randomUUID(), selfStudy = randomUUID();
+  const incWeek = randomUUID(), incPaid = randomUUID(), incResource = randomUUID(), incLesson = randomUUID(), incAudio = randomUUID();
+  const draftWeek = randomUUID(), draftSession = randomUUID();
+  const incPath = `${included}/${incWeek}/audit-${incAudio}.mp3`;
+  type Case = (typeof COURSE_ACCESS_CASES)[number];
+  const targetOf = (c: Case) =>
+    !c.course.published ? includedDraft : c.course.vaultIncluded ? included : notIncluded;
+  // One user per distinct (Vault state, enrollment) pair, not per case: GoTrue
+  // rate-limits password sign-ins (local config: 30 per 5 min per IP), and the
+  // file's top-level setup already signs in 7.
+  const userKey = (c: Pick<Case, 'vault' | 'enrollment' | 'enrollmentOnOtherCourse'>) =>
+    `${c.vault}|${c.enrollment ?? ''}|${c.enrollmentOnOtherCourse ? 'other' : ''}`;
+  const keyUsers = new Map<string, { id: string; c: Case }>();
+  for (const c of COURSE_ACCESS_CASES) {
+    if (c.vault !== 'anon' && !keyUsers.has(userKey(c))) keyUsers.set(userKey(c), { id: randomUUID(), c });
+  }
+  const caseUsers = [...keyUsers.values()].map((u) => u.id);
+  const keyClients = new Map<string, SupabaseClient>();
+  const clientFor = (c: Case) => (c.vault === 'anon' ? anonClient() : keyClients.get(userKey(c))!);
+  const b3Clients = {
+    get vaultMember() { return keyClients.get(userKey({ vault: 'vault_active', enrollment: null }))!; },
+    get lapsed() { return keyClients.get(userKey({ vault: 'vault_cancelled_expired', enrollment: null }))!; },
+  };
+
+  beforeAll(async () => {
+    await seedSpinePartners();
+
+    const base = { is_private: false, free_preview_count: 0, price_usd: 4900, price_jpy: 7000 };
+    await ok(service.from('courses').insert([
+      { ...base, id: included, slug: `vault-inc-${included}`, title_en: 'Included', course_type: 'self-study', is_published: true, vault_included: true, esl_enabled: true, esl_included: true, community_link: 'https://secret.test/inc-community' },
+      { ...base, id: includedDraft, slug: `vault-draft-${includedDraft}`, title_en: 'Included draft', course_type: 'self-study', is_published: false, vault_included: true, esl_enabled: true, esl_included: true },
+      { ...base, id: notIncluded, slug: `vault-not-${notIncluded}`, title_en: 'Not included', course_type: 'self-study', is_published: true, vault_included: false, esl_enabled: true, esl_included: true },
+    ]));
+    await ok(service.from('course_weeks').insert([
+      { id: incWeek, course_id: included, week_number: 1, title_en: 'Week 1' },
+      { id: draftWeek, course_id: includedDraft, week_number: 1, title_en: 'Week 1' },
+    ]));
+    await ok(service.from('course_sessions').insert([
+      { id: incPaid, week_id: incWeek, course_id: included, session_number: 1, title_en: 'Paid', format: 'recorded', is_bonus: false, replay_url: 'https://secret.test/inc-replay' },
+      { id: draftSession, week_id: draftWeek, course_id: includedDraft, session_number: 1, title_en: 'Draft paid', format: 'recorded', is_bonus: false, replay_url: 'https://secret.test/draft-replay' },
+    ]));
+    await ok(service.from('course_resources').insert({ id: incResource, session_id: incPaid, title_en: 'Session-only', url: 'https://secret.test/inc-resource', is_public: false }));
+    await ok(service.from('esl_lessons').insert({ id: incLesson, course_id: included, week_id: incWeek, status: 'published', vocabulary_json: [{ term: 'vault ESL' }] }));
+    await ok(service.from('esl_audio').insert({ id: incAudio, esl_lesson_id: incLesson, reference_key: 'vault', storage_path: incPath, public_url: 'https://obsolete.test/vault' }));
+    await ok(service.storage.from('esl-audio').upload(incPath, new Uint8Array([7, 8, 9]), { contentType: 'audio/mpeg' }));
+
+    // Users seeded from the same fixture the TS side reads.
+    await resetSpineData(caseUsers);
+    const now = new Date();
+    for (const [key, { id, c }] of keyUsers) {
+      const fixture = vaultStateFixture(c.vault, now)!;
+      await seedUser(id, {
+        subscription_tier: fixture.user.subscription_tier,
+        subscription_status: fixture.user.subscription_status,
+        subscription_expires_at: fixture.user.subscription_expires_at,
+      });
+      for (const [n, w] of fixture.cohort.entries()) {
+        await ok(service.from('cohort_enrollments').insert({ user_id: id, cohort_id: `b3-${c.id}-${n}`, stripe_session_id: `cs_b3_${c.id}_${n}`, amount_paid: 0, currency: 'usd', ...w }));
+      }
+      for (const s of fixture.seats) {
+        const { data: block, error } = await service.from('partner_seat_blocks').insert({
+          partner_id: SPINE.partners.alpha, label: `b3 ${c.id}`, seats_total: 1, granted_tier: 'vault',
+          access_starts_at: s.access_starts_at, access_ends_at: s.access_ends_at, source: 'sponsored', is_active: s.block_is_active,
+        }).select('id').single();
+        expect(error).toBeNull();
+        await ok(service.from('partner_seat_grants').insert({ seat_block_id: block!.id, user_id: id, revoked_at: s.revoked_at }));
+      }
+      if (c.enrollment) {
+        const courseId = c.enrollmentOnOtherCourse ? notIncluded : targetOf(c);
+        await ok(service.from('enrollments').insert({ user_id: id, course_id: courseId, status: c.enrollment, amount_paid: 0, currency: 'usd' }));
+      }
+      keyClients.set(key, await userClient(id));
+    }
+  }, 120_000);
+
+  afterAll(async () => {
+    const all = caseUsers;
+    await service.storage.from('esl-audio').remove([incPath]);
+    await service.from('enrollments').delete().in('user_id', all);
+    await service.from('courses').delete().in('id', [included, includedDraft, notIncluded, proposal, selfStudy]);
+    await resetSpineData(all);
+    for (const id of all) await service.auth.admin.deleteUser(id);
+  }, 120_000);
+
+  test('vault member reads paid material on an included course', async () => {
+    const client = b3Clients.vaultMember;
+    const session = await client.from('course_sessions').select('replay_url').eq('id', incPaid).single();
+    expect(session.error).toBeNull(); expect(session.data?.replay_url).toBe('https://secret.test/inc-replay');
+    const resourceRow = await client.from('course_resources').select('url').eq('id', incResource).single();
+    expect(resourceRow.error).toBeNull(); expect(resourceRow.data?.url).toBe('https://secret.test/inc-resource');
+    const catalog = await client.from('course_catalog').select('community_link').eq('id', included).single();
+    expect(catalog.error).toBeNull(); expect(catalog.data?.community_link).toBe('https://secret.test/inc-community');
+    const lessonRow = await client.from('esl_lessons').select('id').eq('id', incLesson).single();
+    expect(lessonRow.error).toBeNull(); expect(lessonRow.data?.id).toBe(incLesson);
+    const signed = await client.storage.from('esl-audio').createSignedUrl(incPath, 60);
+    expect(signed.error).toBeNull(); expect(signed.data?.signedUrl).toContain('token=');
+  });
+
+  test('vault member gets nothing paid on a non-included course', async () => {
+    const client = b3Clients.vaultMember;
+    for (const [table, id] of [['course_sessions', paid], ['course_resources', resource], ['course_assignments', assignment]]) {
+      const result = await client.from(table).select('*').eq('id', id);
+      expect(result.error).toBeNull(); expect(result.data).toEqual([]);
+    }
+    const catalog = await client.from('course_catalog').select('*').eq('id', course).single();
+    expect(catalog.error).toBeNull();
+    expect(catalog.data.zoom_link).toBeNull(); expect(catalog.data.community_link).toBeNull();
+    expect((await client.from('esl_lessons').select('id').eq('id', lesson)).data).toEqual([]);
+    expect((await client.storage.from('esl-audio').createSignedUrl(path, 60)).error).not.toBeNull();
+  });
+
+  test.each(['lapsed', 'anonymous'])('%s subscriber gets nothing on the included course', async role => {
+    const client = role === 'anonymous' ? anonClient() : b3Clients.lapsed;
+    for (const [table, id] of [['course_sessions', incPaid], ['course_resources', incResource], ['esl_lessons', incLesson]]) {
+      const result = await client.from(table).select('*').eq('id', id);
+      expect(result.error).toBeNull(); expect(result.data).toEqual([]);
+    }
+    const catalog = await client.from('course_catalog').select('community_link').eq('id', included).single();
+    expect(catalog.error).toBeNull(); expect(catalog.data?.community_link).toBeNull();
+    expect((await client.storage.from('esl-audio').createSignedUrl(incPath, 60)).error).not.toBeNull();
+  });
+
+  test('vault member cannot read an included draft', async () => {
+    const client = b3Clients.vaultMember;
+    expect((await client.from('course_catalog').select('id').eq('id', includedDraft)).data).toEqual([]);
+    expect((await client.from('course_sessions').select('id').eq('id', draftSession)).data).toEqual([]);
+    expect((await client.rpc('can_read_course_materials', { p_course: includedDraft })).data).toBe(false);
+  });
+
+  test('COURSE_ACCESS_CASES match can_read_course_materials and can_access_course_esl', async () => {
+    const mismatches: string[] = [];
+    for (const c of COURSE_ACCESS_CASES) {
+      const client = clientFor(c);
+      const p_course = targetOf(c);
+      const read = await client.rpc('can_read_course_materials', { p_course });
+      const esl = await client.rpc('can_access_course_esl', { p_course });
+      expect(read.error, c.id).toBeNull(); expect(esl.error, c.id).toBeNull();
+      if (read.data !== c.expectCourse) mismatches.push(`${c.id}: course ${read.data} (expected ${c.expectCourse})`);
+      if (esl.data !== c.expectEsl) mismatches.push(`${c.id}: esl ${esl.data} (expected ${c.expectEsl})`);
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  test('instructor cannot write a proposal row directly', async () => {
+    const inserted = await clients.teacher.from('courses').insert({ id: randomUUID(), slug: `forged-${randomUUID()}`, title_en: 'Forged', status: 'proposal', proposed_by_instructor_id: teacherProfile, course_type: 'self-study', vault_included: true, is_published: true });
+    expect(inserted.error?.code).toBe('42501');
+    await ok(service.from('courses').insert({ id: proposal, slug: `proposal-${proposal}`, title_en: 'Proposal', status: 'proposal', proposed_by_instructor_id: teacherProfile, course_type: 'self-study', is_published: false, is_private: false }));
+    // The proposal is still readable by its author (courses_own_proposals_read)...
+    expect((await clients.teacher.from('courses').select('id').eq('id', proposal)).data).toEqual([{ id: proposal }]);
+    // ...but no longer writable: the UPDATE matches no row.
+    const updated = await clients.teacher.from('courses').update({ vault_included: true, is_published: true }).eq('id', proposal).select('id');
+    expect(updated.error).toBeNull(); expect(updated.data).toEqual([]);
+    const row = await service.from('courses').select('vault_included, is_published').eq('id', proposal).single();
+    expect(row.data).toEqual({ vault_included: false, is_published: false });
+    // Admins keep courses_admin_all: they can still edit the proposal.
+    const reviewed = await clients.admin.from('courses').update({ title_en: 'Reviewed' }).eq('id', proposal).select('title_en');
+    expect(reviewed.error).toBeNull(); expect(reviewed.data).toEqual([{ title_en: 'Reviewed' }]);
+  });
+
+  test('only self-study courses can be vault_included', async () => {
+    for (const course_type of ['cohort', '1v1']) {
+      const id = randomUUID();
+      const result = await service.from('courses').insert({ id, slug: `vault-${course_type}-${id}`, title_en: course_type, course_type, vault_included: true });
+      expect(result.error?.code, course_type).toBe('23514');
+    }
+    await ok(service.from('courses').insert({ id: selfStudy, slug: `vault-self-${selfStudy}`, title_en: 'self-study', course_type: 'self-study', vault_included: true }));
+    // Flipping an existing cohort is refused too.
+    expect((await service.from('courses').update({ vault_included: true }).eq('id', course)).error?.code).toBe('23514');
   });
 });
