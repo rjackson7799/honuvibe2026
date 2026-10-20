@@ -382,3 +382,77 @@ Held as true (reviewer verified): `hasCourseAccess` contract and order; the page
 1. Review this plan; answer D1–D13 (recommendations marked).
 2. EN copy sign-off before commit (Task 6 Step 5); JA native review after ship.
 3. Approve the push (Task 6 Step 6). Logged-in smokes after ship; included-course smoke after a course is flagged.
+
+## Execution record (2026-10-19)
+
+**Shipped:** `d1ced3f` feat(learn): Unit 2b course detail, on top of `750e32d` (origin/main had not moved). It is one commit, 38 files (+3558/−858), squashed from six worktree commits in `hv-land-a` (d5a9847 → ad1ebe0) and applied to main as a patch. `git write-tree` matched the worktree tree `8ddc28f`. Vercel deployed it successfully. No migration.
+
+**Gates** (on the final tree):
+- type-check: exit 0.
+- `vitest --project app --maxWorkers=2`: 204 files, 2333/2333.
+- build: exit 0, route table unchanged (`/`, `/ja`, `/about`, `/learn`, `/ja/learn` ●; `/[locale]/learn/[slug]` ƒ). This was compared against B3's recorded table; no fresh baseline build was run.
+- Build flakiness on this 8 GB machine: one transient Turbopack `next/font/google` error, then three out-of-memory crashes after the review fixes. All passed once other apps were closed.
+
+**Data check** (`pnpm start`, reading prod):
+- All 5 published prod courses return 200 in EN and `/ja`, with no "null", "NaN", "0 weeks" or "undefined".
+- The 4 private courses are noindex.
+- `test-1v1` has no curriculum or syllabus.
+- An unknown slug returns a 404 with the hv not-found page in both locales.
+
+**Browser smoke:** the Chrome extension attached but could not screenshot or run JS ("Cannot attach to this target"), so I used headless Chromium 1243 via playwright-core in a scratch dir.
+- EN and `/ja` at 1440 and 375 px:
+  - Exactly one visible header, 0 `.dark-zone`, no companion, no horizontal scroll.
+  - `<main>` has lost the `pt-14 md:pt-16` padding.
+  - The sub-nav sticks at 68px, and `#curriculum` lands at 136px, below the sub-nav.
+  - The curriculum is multi-open and works with Enter and Space; Expand all and Collapse all work.
+  - The only small targets are the nav EN/日本語 pill (36px). It predates 2b.
+- The console shows only `/_vercel/insights/script.js` 404, which only exists on Vercel.
+- The EN syllabus link returns 200 `application/pdf`.
+- Signed out, R11 on the private paid course goes to `/signin?redirect=%2Flearn%2F…`. The return after sign-in was not smoked (no test credentials).
+- Not smokable on prod data: the Vault-reader and included-course states (no course is included). Task 2 and Task 5 tests cover them.
+
+**Prod checks:**
+- `/learn/ai-essentials-first-steps-future` and its `/ja` page return 200, with no `dark-zone fixed top-0`, no `pt-14 md:pt-16` main padding, `id="curriculum"` present, the closed-state CTA, and no subscribe link.
+- An unknown slug returns 404.
+- `/learn` and `/ja/learn` still serve `x-vercel-cache: PRERENDER`.
+- `/learn/dashboard` returns 307 signed out, as before.
+
+**Changes against this plan (rulings):**
+- Added a shared test fixture, `__tests__/fixtures/course-detail.ts`.
+- The length fact is omitted for a course with zero modules. Hours are rounded, with a minimum of 1.
+- `CourseFaq` takes `{ view, cta, quotes }` and builds the D4 items itself (`buildCourseFaqItems`). `CourseClosing` takes `{ view, cta, ctaLabel }`.
+- `cta.contact` is split into `contact.{one_on_one, other}`, because R6 and R11a carry different labels.
+- New EN strings outside the approved tables (no approved copy changed):
+  - `not_found.{title, body}`
+  - `cta.enrolling`, `cta.enroll_error`
+  - `syllabus.{row_en, row_ja, download}`
+  - The instructors eyebrow is "Instructors". The design's "Your instructors" would duplicate the D11 H2.
+  - Curriculum length and title variants.
+  - FAQ length: ", about one module a week" is added only when modules = weeks.
+- The closing-band body reuses the price-card body for each variant. Vault-join uses the design's closing line. A buy has no body, and closed or full use their notes.
+- The enroll error shows a translated generic message, because prod masks server-action errors.
+- Added `formatCourseDate` (UTC; en-US short, ja-JP long).
+- The price-card button reads "Join the Vault" for vault_join; every other variant uses the §3 label.
+- The error text colour follows its surface (amber on dark, terracotta-dark on light) for AA.
+- `EnrollmentCheck` is still in `lib/enrollments/types.ts`, but nothing uses it.
+- Smooth scroll is not disabled under reduced motion. The cause is the site-wide `html { scroll-behavior: smooth }` in `styles/globals.css`, which has WIP in main, so it was left alone and flagged.
+
+**Review** (a fresh sub-agent told to refute the diff): no Critical. It held the paid-field whitelist, matcher width, CTA precedence vs B3, `/api` links under `/ja`, and that `/learn` still prerenders.
+- Fixed, each with a test that failed first:
+  - "See what's inside ↓" was terracotta on sand at 3.86:1, an AA failure. It now uses the green-900 link variant.
+  - The FAQ answered "Enroll once for $1,250" on a closed cohort, shown on the only public course. "How do I get access?" is now hidden when the course is closed or full.
+- Deferred minors:
+  - The closed-state copy assumes a cohort that is under way. A completed or archived cohort, or a self-study course closed by status, reads wrong. Fixing it needs new EN copy.
+  - `start_date` is compared at UTC midnight, so a Hawaii cohort closes about 10 hours before its local start day.
+  - The enroll button re-enables during `router.push` after success. The RPC is idempotent.
+  - "~1 hrs" is singular-unaware.
+  - The outcomes gap-grid shows empty cells when the last row isn't full (a design pattern).
+
+**JA:** the whole `course_detail` namespace is machine-drafted and needs native review. Known slips: 録画動画で自分のペースで (dangling particle) and 全1モジュール.
+
+**Owed:**
+- Ryan's logged-in smokes: an enrolled learner sees "Go to your course", the free enroll on `teaching-ai-for-teachers`, and the R11 return after sign-in.
+- Flag a self-study course as Vault-included, then smoke the Join the Vault and Vault-reader states.
+- JA native review.
+- Reduced-motion smooth scroll in `globals.css`.
+- **Next: 2c**, Vault-read courses on `/learn/dashboard` and in resume (D8).
