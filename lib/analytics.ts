@@ -29,6 +29,14 @@ export function trackCourseEnrollCtaClick(props: {
   });
 }
 
+/** "Join the Vault" on a Vault-included course page (Unit 2b). */
+export function trackCourseJoinVaultClick(props: { course_slug: string; locale: string }) {
+  trackEvent('course_join_vault_click', {
+    course_slug: props.course_slug,
+    locale: props.locale,
+  });
+}
+
 export function trackEventRsvp(props: {
   event_slug: string;
   locale: string;

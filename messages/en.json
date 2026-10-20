@@ -1185,6 +1185,202 @@
       "cta_vault": "Join the Vault"
     }
   },
+  "course_detail": {
+    "breadcrumb": {
+      "home": "Home",
+      "learn": "Learn"
+    },
+    "not_found": {
+      "title": "We couldn’t find that course",
+      "body": "It may have moved, or it may no longer be available.",
+      "cta": "Browse courses"
+    },
+    "badges": {
+      "level": {
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+      },
+      "format": {
+        "live_cohort": "Live cohort",
+        "self_paced": "Self-paced",
+        "one_on_one": "1-on-1"
+      },
+      "code": "Course code",
+      "with_partner": "with {partner}"
+    },
+    "facts": {
+      "format": "Format",
+      "length": "Length",
+      "language": "Language",
+      "starts": "Starts",
+      "community": "Community",
+      "values": {
+        "live_cohort": "Live cohort",
+        "self_paced": "Self-paced video",
+        "one_on_one": "1-on-1",
+        "length_hours": "{modules, plural, one {# module} other {# modules}} · ~{hours} hrs",
+        "length_weeks": "{weeks, plural, one {# week} other {# weeks}}",
+        "length_modules": "{modules, plural, one {# module} other {# modules}}",
+        "lang_en": "EN",
+        "lang_ja": "日本語",
+        "lang_both": "EN / 日本語",
+        "community_months": "{months, plural, one {# month} other {# months}}"
+      }
+    },
+    "cta": {
+      "join_vault": "Start learning in the Vault",
+      "open_vault": "Open in your Vault",
+      "open_enrolled": "Go to your course",
+      "contact": {
+        "one_on_one": "Ask about 1-on-1",
+        "other": "Ask about this course"
+      },
+      "closed": "Get notified about the next cohort",
+      "full": "Cohort full — get notified",
+      "enroll_free": "Enroll free",
+      "buy": "Enroll — {price}",
+      "enrolling": "Enrolling…",
+      "enroll_error": "We couldn’t enroll you. Please try again, or contact us."
+    },
+    "price_card": {
+      "vault_join": {
+        "eyebrow": "Included in the Vault",
+        "price": "$99",
+        "per": "/ month · cancel anytime",
+        "body": "One membership opens this course and every other course included in the Vault.",
+        "button": "Join the Vault"
+      },
+      "vault_member": {
+        "eyebrow": "Included in your Vault",
+        "body": "You’re a member, so this course is already open to you."
+      },
+      "enrolled": {
+        "eyebrow": "You’re enrolled",
+        "body": "Pick up where you left off."
+      },
+      "course_price": {
+        "eyebrow": "Course",
+        "per": "one-time",
+        "starts": "Starts {date}",
+        "spots": "{n, plural, one {# spot left} other {# spots left}}",
+        "closed_note": "This cohort is under way. Enrollment is closed.",
+        "full_note": "This cohort is full."
+      },
+      "free": {
+        "eyebrow": "Free course",
+        "body": "Create a free account and enroll."
+      },
+      "contact": {
+        "one_on_one": {
+          "eyebrow": "1-on-1 program",
+          "body": "We arrange 1-on-1 programs directly with each learner."
+        },
+        "other": {
+          "eyebrow": "Course",
+          "body": "Get in touch and we’ll tell you how to join."
+        }
+      },
+      "see_inside": "See what’s inside ↓"
+    },
+    "subnav": {
+      "label": "On this page",
+      "overview": "Overview",
+      "outcomes": "Outcomes",
+      "curriculum": "Curriculum",
+      "instructors": "Instructors",
+      "syllabus": "Syllabus",
+      "faq": "FAQ"
+    },
+    "overview": {
+      "eyebrow": "Who it’s for",
+      "title": "Who this course is for",
+      "before": "Before you start",
+      "tools": "Tools you’ll use"
+    },
+    "outcomes": {
+      "eyebrow": "Learning outcomes",
+      "title": "What you’ll be able to do"
+    },
+    "curriculum": {
+      "eyebrow": "Curriculum",
+      "title": "{n, plural, one {One module} other {# modules}}",
+      "title_with_tasks": "{n, plural, one {One module, one practice task} other {# modules, one practice task each}}",
+      "sub_cohort": "One module a week, live with your cohort.",
+      "sub_self_paced": "Suggested pace: one module a week. Go faster or slower as you like.",
+      "module_label": "Module {n}",
+      "module_label_stage": "Module {n} · {stage}",
+      "lessons_length": "{count, plural, one {# lesson} other {# lessons}}",
+      "lessons_length_minutes": "{count, plural, one {# lesson} other {# lessons}} · ~{minutes} min",
+      "lesson_label": "Lesson {code}",
+      "practice_task": "Practice task",
+      "free_preview": "Free preview",
+      "expand_all": "Expand all",
+      "collapse_all": "Collapse all"
+    },
+    "instructors": {
+      "eyebrow": "Instructors",
+      "title_both": "Taught in English and 日本語",
+      "title_one": "Your instructor",
+      "title_many": "Your instructors",
+      "role": {
+        "lead": "Lead instructor",
+        "instructor": "Instructor",
+        "guest": "Guest instructor"
+      }
+    },
+    "syllabus": {
+      "eyebrow": "Syllabus",
+      "title": "Take the full syllabus with you",
+      "body": "Every module, lesson and practice task in one PDF. Useful if you need to share the course with your manager or team.",
+      "row_en": "Syllabus in English",
+      "row_ja": "Syllabus in 日本語",
+      "meta": "PDF",
+      "download": "Download syllabus"
+    },
+    "faq": {
+      "eyebrow": "Questions",
+      "title": "About this course",
+      "items": {
+        "live": {
+          "q": "Is this course live?",
+          "a_live": "Yes. It runs as a live cohort.",
+          "a_live_dated": "Yes. It runs as a live cohort, starting {date}.",
+          "a_self_paced": "No. Every lesson is recorded, so you can start any time and go at your own pace.",
+          "a_one_on_one": "Yes. Sessions are scheduled 1-on-1 with your instructor."
+        },
+        "length": {
+          "q": "How long does it take?",
+          "a": "{n, plural, one {# week} other {# weeks}}.",
+          "a_paced": "{n, plural, one {# week} other {# weeks}}, about one module a week."
+        },
+        "language": {
+          "q": "Is it available in Japanese?",
+          "a_both": "Yes. It’s taught in English and 日本語.",
+          "a_en": "It’s taught in English.",
+          "a_ja": "It’s taught in 日本語."
+        },
+        "access": {
+          "q": "How do I get access?",
+          "a_vault": "It’s included in the Vault ($99 / month). Join, and every included course opens.",
+          "a_price": "Enroll once for {price}.",
+          "a_free": "It’s free. Create an account and enroll.",
+          "a_contact_one_on_one": "Programs are arranged directly. Ask us about 1-on-1.",
+          "a_contact_other": "Get in touch and we’ll tell you how to join."
+        },
+        "cancellation": {
+          "q": "What’s the cancellation policy?"
+        }
+      }
+    },
+    "closing": {
+      "title": "Start {course} today.",
+      "title_closed": "Want the next cohort?",
+      "body": {
+        "vault_join": "Included in the Vault at $99 / month, with every other course. Cancel anytime."
+      }
+    }
+  },
   "resources_page": {
     "title": "Ryan's Toolkit",
     "subtitle": "The tools, platforms, and people I actually use and recommend.",

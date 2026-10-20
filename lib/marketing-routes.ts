@@ -10,7 +10,8 @@
  *
  * Two kinds of entries:
  *  - MARKETING_PATHS: exact-match only. Children of /learn (e.g. /learn/dashboard,
- *    /learn/vault, /learn/auth, /learn/[slug]) keep the dark-themed app shell.
+ *    /learn/vault, /learn/auth) keep the dark-themed app shell, except the
+ *    course detail page /learn/<slug> (isCourseDetailPath).
  *  - MARKETING_PATH_PREFIXES: the path itself AND any nested children are marketing
  *    (e.g. /glossary AND /glossary/<slug>).
  */
@@ -33,12 +34,28 @@ const MARKETING_PATHS = [
 const MARKETING_PATH_PREFIXES = ['/glossary', '/blog', '/partners', '/events'] as const;
 
 /**
+ * Static children of app/[locale]/learn. They keep the dark app shell; every
+ * other single segment under /learn is a course slug (the green course detail
+ * page, Unit 2b). A new /learn/<x> route must be added here, or it would lose
+ * the member nav (__tests__/marketing/marketing-routes.test.ts reads the
+ * directory and fails until it is).
+ */
+export const LEARN_RESERVED_SEGMENTS = ['dashboard', 'vault', 'auth', 'paths', 'plans', 'library'] as const;
+
+/** `/learn/<slug>` exactly (locale-stripped, trailing slash tolerated); not `/learn/<slug>/checkout`. */
+export function isCourseDetailPath(pathname: string): boolean {
+  const match = /^\/learn\/([^/]+)\/?$/.exec(pathname);
+  return match !== null && !(LEARN_RESERVED_SEGMENTS as readonly string[]).includes(match[1]);
+}
+
+/**
  * For pathnames produced by next-intl's usePathname() (locale already stripped).
  */
 export function isMarketingPath(pathname: string): boolean {
   // Trim trailing slash (except for root "/")
   const normalized = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname;
   if ((MARKETING_PATHS as readonly string[]).includes(normalized)) return true;
+  if (isCourseDetailPath(normalized)) return true;
   return MARKETING_PATH_PREFIXES.some(
     (prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`),
   );

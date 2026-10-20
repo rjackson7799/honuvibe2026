@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { isMarketingPath, isMarketingPathWithLocale } from '@/lib/marketing-routes';
+import { readdirSync } from 'node:fs';
+import {
+  LEARN_RESERVED_SEGMENTS,
+  isCourseDetailPath,
+  isMarketingPath,
+  isMarketingPathWithLocale,
+} from '@/lib/marketing-routes';
 
 /**
  * Marketing-route detection is the seam between the existing dark app shell
@@ -59,7 +65,6 @@ describe('isMarketingPath (locale-stripped pathnames from next-intl)', () => {
     ['/learn/vault', false],
     ['/learn/vault/series/abc', false],
     ['/learn/auth', false],
-    ['/learn/some-course-slug', false],
     ['/learn/some-course-slug/checkout', false],
     // Demo routes under /sandbox are standalone root layouts (Phases B/C),
     // NOT marketing pages.
@@ -127,9 +132,6 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
     ['/ja/instructor', false],
     ['/portal', false],
     ['/ja/portal/vault', false],
-    // Course slug deep links
-    ['/learn/ai-essentials', false],
-    ['/ja/learn/ai-essentials', false],
     // Honuhub kept public but out-of-scope for marketing rebuild
     ['/honuhub', false],
     ['/ja/honuhub', false],
@@ -167,5 +169,48 @@ describe('isMarketingPathWithLocale (locale-prefixed pathnames from next/navigat
   it('does not falsely match a route whose first segment merely starts with "ja"', () => {
     expect(isMarketingPathWithLocale('/japan/community')).toBe(false);
     expect(isMarketingPathWithLocale('/jaguar')).toBe(false);
+  });
+});
+
+describe('course detail /learn/<slug> (Unit 2b)', () => {
+  it.each([
+    ['/learn/some-course-slug', true],
+    ['/learn/ai-essentials', true],
+    ['/learn/ai-essentials/', true],
+    ['/learn/ai-essentials/checkout', false],
+    ['/learn/dashboard', false],
+    ['/learn/dashboard/ai-essentials', false],
+    ['/learn/library/x', false],
+    ['/learn/plans', false],
+    ['/learn/paths/x', false],
+    ['/learn/vault', false],
+    ['/learn/auth', false],
+    ['/learn', false],
+    ['/learn/', false],
+  ])('isCourseDetailPath(%s) -> %s', (path, expected) => {
+    expect(isCourseDetailPath(path)).toBe(expected);
+  });
+
+  it.each([
+    ['/learn/some-course-slug', true],
+    ['/learn/ai-essentials', true],
+    ['/ja/learn/ai-essentials', true],
+    ['/ja/learn/ai-essentials/', true],
+    ['/ja/learn/paths/x', false],
+    ['/ja/learn/ai-essentials/checkout', false],
+    ['/ja/learn/dashboard', false],
+  ])('isMarketingPathWithLocale(%s) -> %s', (path, expected) => {
+    expect(isMarketingPathWithLocale(path)).toBe(expected);
+  });
+
+  it('every static /learn child route is reserved', () => {
+    const children = readdirSync('app/[locale]/learn', { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !d.name.startsWith('['))
+      .map((d) => d.name);
+    expect(children.length).toBeGreaterThan(0);
+    for (const name of children) {
+      expect(isCourseDetailPath(`/learn/${name}`), name).toBe(false);
+      expect(LEARN_RESERVED_SEGMENTS as readonly string[], name).toContain(name);
+    }
   });
 });

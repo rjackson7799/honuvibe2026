@@ -323,7 +323,7 @@ async function resolveCourseResume(
  * Course precedence — most recent session open, then most recent session
  * completion, then newest enrolment (matching getUserEnrollments' enrolled_at
  * DESC). Only 'active'/'completed' enrolments are eligible, the same set
- * requireEnrollment and checkEnrollment accept; refunded/cancelled never surface.
+ * requireEnrollment and getLiveEnrollment accept; refunded/cancelled never surface.
  */
 export async function getResumePoint(userId: string): Promise<ResumePoint> {
   const supabase = await createClient();

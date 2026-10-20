@@ -1185,6 +1185,202 @@
       "cta_vault": "Vaultに参加する"
     }
   },
+  "course_detail": {
+    "breadcrumb": {
+      "home": "ホーム",
+      "learn": "学ぶ"
+    },
+    "not_found": {
+      "title": "コースが見つかりません",
+      "body": "移動したか、公開を終了した可能性があります。",
+      "cta": "コース一覧を見る"
+    },
+    "badges": {
+      "level": {
+        "beginner": "初級",
+        "intermediate": "中級",
+        "advanced": "上級"
+      },
+      "format": {
+        "live_cohort": "ライブ講座",
+        "self_paced": "自分のペースで",
+        "one_on_one": "1対1"
+      },
+      "code": "コースコード",
+      "with_partner": "{partner}と共同"
+    },
+    "facts": {
+      "format": "形式",
+      "length": "期間",
+      "language": "言語",
+      "starts": "開始日",
+      "community": "コミュニティ",
+      "values": {
+        "live_cohort": "ライブ講座",
+        "self_paced": "録画動画で自分のペースで",
+        "one_on_one": "1対1",
+        "length_hours": "{modules}モジュール・約{hours}時間",
+        "length_weeks": "{weeks}週間",
+        "length_modules": "{modules}モジュール",
+        "lang_en": "EN",
+        "lang_ja": "日本語",
+        "lang_both": "EN / 日本語",
+        "community_months": "{months}か月"
+      }
+    },
+    "cta": {
+      "join_vault": "Vaultで学びはじめる",
+      "open_vault": "Vaultで開く",
+      "open_enrolled": "コースへ進む",
+      "contact": {
+        "one_on_one": "1対1について問い合わせる",
+        "other": "このコースについて問い合わせる"
+      },
+      "closed": "次回の開講を知らせてもらう",
+      "full": "満席です — 次回のお知らせを受け取る",
+      "enroll_free": "無料で受講する",
+      "buy": "受講する — {price}",
+      "enrolling": "登録しています…",
+      "enroll_error": "受講登録できませんでした。もう一度お試しいただくか、お問い合わせください。"
+    },
+    "price_card": {
+      "vault_join": {
+        "eyebrow": "Vaultに含まれます",
+        "price": "$99",
+        "per": "/ 月・いつでも解約可能",
+        "body": "ひとつのメンバーシップで、このコースとVaultに含まれるすべてのコースが受講できます。",
+        "button": "Vaultに参加する"
+      },
+      "vault_member": {
+        "eyebrow": "あなたのVaultに含まれています",
+        "body": "メンバーなので、このコースはすでに受講できます。"
+      },
+      "enrolled": {
+        "eyebrow": "受講登録済み",
+        "body": "前回の続きから再開できます。"
+      },
+      "course_price": {
+        "eyebrow": "コース",
+        "per": "一括",
+        "starts": "{date}開始",
+        "spots": "残り{n}席",
+        "closed_note": "この講座はすでに始まっています。受付は終了しました。",
+        "full_note": "この講座は満席です。"
+      },
+      "free": {
+        "eyebrow": "無料コース",
+        "body": "無料アカウントを作成して受講登録できます。"
+      },
+      "contact": {
+        "one_on_one": {
+          "eyebrow": "1対1プログラム",
+          "body": "1対1プログラムは、受講者ごとに個別にご案内しています。"
+        },
+        "other": {
+          "eyebrow": "コース",
+          "body": "お問い合わせいただければ、受講方法をご案内します。"
+        }
+      },
+      "see_inside": "内容を見る ↓"
+    },
+    "subnav": {
+      "label": "このページの内容",
+      "overview": "概要",
+      "outcomes": "学べること",
+      "curriculum": "カリキュラム",
+      "instructors": "講師",
+      "syllabus": "シラバス",
+      "faq": "よくある質問"
+    },
+    "overview": {
+      "eyebrow": "対象",
+      "title": "このコースの対象",
+      "before": "始める前に",
+      "tools": "使うツール"
+    },
+    "outcomes": {
+      "eyebrow": "学習成果",
+      "title": "できるようになること"
+    },
+    "curriculum": {
+      "eyebrow": "カリキュラム",
+      "title": "全{n}モジュール",
+      "title_with_tasks": "全{n}モジュール、各モジュールに実践課題",
+      "sub_cohort": "週に1モジュール、仲間と一緒にライブで進みます。",
+      "sub_self_paced": "目安は週に1モジュール。早くもゆっくりも、自分のペースで進められます。",
+      "module_label": "モジュール{n}",
+      "module_label_stage": "モジュール{n}・{stage}",
+      "lessons_length": "{count}レッスン",
+      "lessons_length_minutes": "{count}レッスン・約{minutes}分",
+      "lesson_label": "レッスン{code}",
+      "practice_task": "実践課題",
+      "free_preview": "無料プレビュー",
+      "expand_all": "すべて開く",
+      "collapse_all": "すべて閉じる"
+    },
+    "instructors": {
+      "eyebrow": "講師",
+      "title_both": "英語と日本語で教えます",
+      "title_one": "あなたの講師",
+      "title_many": "あなたの講師陣",
+      "role": {
+        "lead": "メイン講師",
+        "instructor": "講師",
+        "guest": "ゲスト講師"
+      }
+    },
+    "syllabus": {
+      "eyebrow": "シラバス",
+      "title": "シラバスをまとめてダウンロード",
+      "body": "すべてのモジュール、レッスン、実践課題をひとつのPDFにまとめました。上司やチームと共有したいときに便利です。",
+      "row_en": "シラバス（英語）",
+      "row_ja": "シラバス（日本語）",
+      "meta": "PDF",
+      "download": "シラバスをダウンロード"
+    },
+    "faq": {
+      "eyebrow": "よくある質問",
+      "title": "このコースについて",
+      "items": {
+        "live": {
+          "q": "ライブ形式のコースですか？",
+          "a_live": "はい。ライブ講座として開講します。",
+          "a_live_dated": "はい。{date}からライブ講座として開講します。",
+          "a_self_paced": "いいえ。すべてのレッスンが録画なので、いつでも始めて自分のペースで進められます。",
+          "a_one_on_one": "はい。講師と1対1でセッションの日程を決めます。"
+        },
+        "length": {
+          "q": "どのくらいの期間がかかりますか？",
+          "a": "{n}週間です。",
+          "a_paced": "{n}週間です。目安は週に1モジュールです。"
+        },
+        "language": {
+          "q": "日本語で受講できますか？",
+          "a_both": "はい。英語と日本語で教えます。",
+          "a_en": "英語で教えます。",
+          "a_ja": "日本語で教えます。"
+        },
+        "access": {
+          "q": "どうすれば受講できますか？",
+          "a_vault": "Vault（月額$99）に含まれています。参加すると、含まれるすべてのコースが受講できます。",
+          "a_price": "{price}の一括払いで受講登録できます。",
+          "a_free": "無料です。アカウントを作成して受講登録してください。",
+          "a_contact_one_on_one": "プログラムは個別にご案内しています。1対1についてお問い合わせください。",
+          "a_contact_other": "お問い合わせいただければ、受講方法をご案内します。"
+        },
+        "cancellation": {
+          "q": "キャンセルポリシーを教えてください"
+        }
+      }
+    },
+    "closing": {
+      "title": "今日から「{course}」を始めよう。",
+      "title_closed": "次回の開講に参加しませんか？",
+      "body": {
+        "vault_join": "Vault（月額$99）に、ほかのすべてのコースと一緒に含まれています。いつでも解約できます。"
+      }
+    }
+  },
   "resources_page": {
     "title": "Ryanのツールキット",
     "subtitle": "実際に使っているおすすめのツール、プラットフォーム、クリエイター。",

@@ -56,7 +56,8 @@ export function HvNewsletterBand({ source, eyebrow, className }: NewsletterBandP
     <div
       id="newsletter"
       className={cn(
-        'grid items-center gap-6 rounded-[16px] bg-hv-green-900 p-7 text-hv-sand-100 md:p-9',
+        // scroll-mt: #newsletter links (course "Get notified") land below the fixed header.
+        'grid scroll-mt-[calc(var(--m-strip-h)+84px)] items-center gap-6 rounded-[16px] bg-hv-green-900 p-7 text-hv-sand-100 md:p-9',
         '[grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))]',
         className,
       )}
