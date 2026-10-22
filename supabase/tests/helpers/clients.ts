@@ -11,6 +11,12 @@ if (!URL || !ANON || !SERVICE) {
   );
 }
 
+// Prod guard: suites like client_previews_rls delete EVERY row of a table in
+// beforeEach, so a mis-set TEST_SUPABASE_URL must never reach production.
+if (URL.includes('zvfwtndbxshrtpwcwynw')) {
+  throw new Error('Refusing to run RLS tests against production');
+}
+
 /** Service-role client — bypasses RLS. Use only for seed/teardown. */
 export function serviceClient(): SupabaseClient {
   return createClient(URL!, SERVICE!, { auth: { persistSession: false } });
