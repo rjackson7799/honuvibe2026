@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { parse } from 'acorn';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderFeedbackWidget } from '@/lib/previews/feedback-widget';
 
@@ -18,7 +19,13 @@ const BASE = `http://localhost/api/preview/${SLUG}/`;
 const DRAFT_KEY = `hv_pv_fb_draft:${SLUG}`;
 const NAME_KEY = 'hv_pv_feedback_name';
 
-type FetchInit = { method: string; credentials: string; headers: Record<string, string>; body: string };
+type FetchInit = {
+  method: string;
+  credentials: string;
+  headers: Record<string, string>;
+  body: string;
+  signal?: AbortSignal;
+};
 type FetchMock = ReturnType<typeof vi.fn<(url: string, init: FetchInit) => Promise<Response>>>;
 type Page = { dom: JSDOMInstance; win: Win; fetch: FetchMock };
 type Snapshot = { session: Record<string, string>; local: Record<string, string> };
@@ -196,8 +203,11 @@ describe('renderFeedbackWidget', () => {
     const { win } = page;
     page.fetch.mockReturnValueOnce(respond(201));
     fill(win, 'Aiko', 'bug', 'The hero image is cropped.');
+    button(win, 'Send').focus();
     button(win, 'Send').click();
     await flush();
+    // Disabling the fieldset blurs Send; focus returns to the message so Esc keeps working.
+    expect(root(win).activeElement).toBe(messageInput(win));
     expect(page.fetch).toHaveBeenCalledTimes(1);
     const [url, init] = page.fetch.mock.calls[0];
     expect(url).toBe(`/api/preview/${SLUG}/feedback`);
@@ -318,7 +328,14 @@ describe('renderFeedbackWidget', () => {
       button(win, 'Cancel'),
     ];
     for (const c of controls) expect(c.matches(':disabled')).toBe(true);
+    // Esc can't close the panel mid-send, so the outcome is never shown to a closed panel.
+    messageInput(win).dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+    expect(q<HTMLElement>(win, '[role="dialog"]').hidden).toBe(false);
+    // A programmatic write to a disabled control still changes its DOM value
+    // (a real user can't type into it), so the guarantee under test is the
+    // stored draft: the widget ignores input events while sending.
     type(win, messageInput(win), 'Edited mid-send');
+    expect(messageInput(win).value).toBe('Edited mid-send');
     expect(win.sessionStorage.getItem(DRAFT_KEY)).toBe(draftBefore);
 
     resolve(new Response(null, { status: 500 }));
@@ -326,6 +343,7 @@ describe('renderFeedbackWidget', () => {
     for (const c of controls) expect(c.matches(':disabled')).toBe(false);
     expect(win.sessionStorage.getItem(DRAFT_KEY)).toBe(draftBefore);
     expect(status(win)).toBe("Couldn't send. Please try again.");
+    expect(root(win).activeElement).toBe(messageInput(win));
 
     // Same again, resolving with 201.
     type(win, messageInput(win), 'Original note.');
@@ -352,6 +370,53 @@ describe('renderFeedbackWidget', () => {
     expect(status(page.win)).toBe("Couldn't send. Please try again.");
     expect(page.win.sessionStorage.getItem(DRAFT_KEY)).not.toBeNull();
     expect(messageInput(page.win).matches(':disabled')).toBe(false);
+  });
+
+  it('a send that never answers times out after 20s', async () => {
+    const timers: { fn: () => void; ms: number }[] = [];
+    const page = load('concept-a.html', undefined, (win) => {
+      const fake = (fn: () => void, ms: number) => timers.push({ fn, ms });
+      (win as unknown as { setTimeout: typeof fake }).setTimeout = fake;
+      (win as unknown as { clearTimeout: () => void }).clearTimeout = () => {};
+    });
+    const { win } = page;
+    page.fetch.mockReturnValueOnce(new Promise<Response>(() => {}));
+    fill(win, 'Aiko', 'bug', 'Hanging request');
+    const draftBefore = win.sessionStorage.getItem(DRAFT_KEY);
+    button(win, 'Send').click();
+    await flush();
+    const signal = page.fetch.mock.calls[0][1].signal;
+    expect(signal).toBeDefined();
+    expect(messageInput(win).matches(':disabled')).toBe(true);
+    const timeout = timers.find((t) => t.ms === 20000);
+    expect(timeout).toBeDefined();
+    timeout!.fn();
+    await flush();
+    expect(signal!.aborted).toBe(true);
+    expect(status(win)).toBe("Couldn't send. Please try again.");
+    expect(messageInput(win).matches(':disabled')).toBe(false);
+    expect(win.sessionStorage.getItem(DRAFT_KEY)).toBe(draftBefore);
+  });
+
+  it('keystrokes in the panel never reach the page', () => {
+    const { win } = load('concept-a.html');
+    button(win, 'Feedback').click();
+    const seen: string[] = [];
+    for (const t of ['keydown', 'keyup', 'keypress'] as const) {
+      win.document.addEventListener(t, (e) => seen.push(`document:${t}:${e.key}`));
+      win.addEventListener(t, (e) => seen.push(`window:${t}:${e.key}`));
+    }
+    for (const t of ['keydown', 'keypress', 'keyup']) {
+      messageInput(win).dispatchEvent(new win.KeyboardEvent(t, { key: '/', bubbles: true, composed: true }));
+    }
+    nameInput(win).dispatchEvent(new win.KeyboardEvent('keydown', { key: 'a', bubbles: true, composed: true }));
+    expect(seen).toEqual([]);
+    messageInput(win).dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+    expect(q<HTMLElement>(win, '[role="dialog"]').hidden).toBe(true);
+    expect(seen).toEqual([]);
+    // Keys outside the widget still reach the page.
+    win.document.body.dispatchEvent(new win.KeyboardEvent('keydown', { key: '/', bubbles: true }));
+    expect(seen).toEqual(['document:keydown:/', 'window:keydown:/']);
   });
 
   it('emptying the message drops the draft', () => {
@@ -421,6 +486,9 @@ describe('renderFeedbackWidget', () => {
     const { win } = load('concept-a.html');
     const css = q<HTMLStyleElement>(win, 'style').textContent ?? '';
     expect(css).toMatch(/\.panel\s*\{[^}]*max-height:\s*calc\(100vh - 32px\);[^}]*max-height:\s*calc\(100dvh - 32px\)/);
+    expect(css).toMatch(
+      /\.panel\s*\{[^}]*max-height:\s*calc\(100dvh - 32px - env\(safe-area-inset-top, 0px\) - env\(safe-area-inset-bottom, 0px\)\)/,
+    );
     expect(css).toMatch(/\.body\s*\{[^}]*overflow-y:\s*auto/);
     expect(css).toMatch(/prefers-reduced-motion:\s*reduce/);
     expect(css).toMatch(/width:\s*calc\(100vw - 32px\)/);
@@ -439,8 +507,9 @@ describe('renderFeedbackWidget', () => {
 
   it('emits ASCII-only, ES2019-safe source', () => {
     expect(/^[\x00-\x7f]*$/.test(BODY)).toBe(true);
-    expect(BODY).not.toMatch(/\?\.[^\d]/);
-    expect(BODY).not.toContain('??');
+    // A real ES2019 parse: rejects ?., ??, class fields, and anything newer.
+    expect(() => parse(BODY, { ecmaVersion: 2019 })).not.toThrow();
+    expect(() => parse('a?.b', { ecmaVersion: 2019 })).toThrow();
     expect(BODY.toLowerCase()).not.toContain('</script');
     expect(BODY).not.toContain('<!--');
   });

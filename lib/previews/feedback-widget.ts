@@ -4,7 +4,7 @@ import { FEEDBACK_KIND_LABEL, FEEDBACK_KINDS, FEEDBACK_LIMITS } from './feedback
 // previews. The output is inlined into third-party HTML exports, so:
 // - everything embedded goes through jsonForScript (every "<" escaped, ASCII only),
 //   which keeps "</script" and "<!--" out of the script body entirely;
-// - the source below is plain ES2019 (no ?. / ?? / class fields / backticks) —
+// - the source below is plain ES2019 (no ?. / ?? / class fields / backticks) -
 //   it is a string, never transpiled;
 // - the UI lives in an open shadow root so the export's CSS can't reach it.
 // No 'server-only' here: unit tests evaluate the output in jsdom.
@@ -12,7 +12,7 @@ import { FEEDBACK_KIND_LABEL, FEEDBACK_KINDS, FEEDBACK_LIMITS } from './feedback
 function jsonForScript(value: unknown): string {
   return JSON.stringify(value)
     .replace(/</g, '\\u003c')
-    .replace(/[\u007f-￿]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+    .replace(/[^\x00-\x7e]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
 }
 
 // Inline !important styles on the host: the page's own CSS can target the host
@@ -64,6 +64,7 @@ const CSS = `
   width: 340px;
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
+  max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   background: rgba(12,12,16,0.94);
   border: 1px solid rgba(255,255,255,0.10); border-radius: 14px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.55);
@@ -116,7 +117,7 @@ textarea.field { resize: vertical; min-height: 120px; }
 }
 `.trim();
 
-// Static skeleton only — every dynamic value is set via textContent / value.
+// Static skeleton only - every dynamic value is set via textContent / value.
 const MARKUP = [
   '<div class="w">',
   '<button type="button" class="launch" aria-haspopup="dialog" aria-expanded="false">',
@@ -137,8 +138,8 @@ const MARKUP = [
 ].join('');
 
 const MSG = {
-  sending: 'Sending…',
-  sent: 'Thanks — your note was sent.',
+  sending: 'Sending\u2026',
+  sent: 'Thanks \u2014 your note was sent.',
   expiredSaved:
     'Your session has expired. Reload the page and enter the password again. Your note is saved and will be here when you come back.',
   expiredUnsaved:
@@ -156,7 +157,7 @@ var framed = true;
 try { framed = w.top !== w; } catch (e) { framed = true; }
 if (framed) return;
 
-var DRAFT_KEY = 'hv_pv_fb_draft:' + C.slug, NAME_KEY = 'hv_pv_feedback_name';
+var DRAFT_KEY = 'hv_pv_fb_draft:' + C.slug, NAME_KEY = 'hv_pv_feedback_name', TIMEOUT_MS = 20000;
 var PREFIX = '/api/preview/' + C.slug + '/';
 var host = d.createElement('div');
 host.id = 'hv-preview-feedback';
@@ -258,7 +259,9 @@ function openPanel() {
   refresh();
   (fName.value ? fMsg : fName).focus();
 }
+// Closing is blocked mid-send so the outcome always lands in an open panel.
 function closePanel() {
+  if (sending) return;
   panel.hidden = true;
   launch.hidden = false;
   launch.setAttribute('aria-expanded', 'false');
@@ -266,11 +269,22 @@ function closePanel() {
 }
 launch.addEventListener('click', openPanel);
 $('.cancel').addEventListener('click', closePanel);
+// Key events are composed: without this they would bubble out to the export's
+// own window/document handlers (shortcut keys, Esc-closes-menu) with the target
+// retargeted to the host. Capture-phase page listeners can't be blocked from here.
+function isolate(e) { e.stopPropagation(); }
 root.addEventListener('keydown', function (e) {
   if (e.key === 'Escape' && !panel.hidden) { e.preventDefault(); closePanel(); }
+  isolate(e);
 });
+root.addEventListener('keyup', isolate);
+root.addEventListener('keypress', isolate);
 
-function finish(res) {
+var pending = null;
+function finish(token, res) {
+  if (pending !== token) return;
+  pending = null;
+  w.clearTimeout(token.timer);
   sending = false;
   fs.disabled = false;
   var s = res ? res.status : 0;
@@ -291,6 +305,10 @@ function finish(res) {
     say(M.failed);
   }
   refresh();
+  // Disabling the fieldset blurred Send; put focus back so Esc keeps working,
+  // unless the reviewer has since moved focus somewhere else on the page.
+  var a = d.activeElement;
+  if (!panel.hidden && (!a || a === d.body || a === host)) fMsg.focus();
 }
 form.addEventListener('submit', function (e) {
   e.preventDefault();
@@ -304,14 +322,24 @@ form.addEventListener('submit', function (e) {
   sending = true;
   fs.disabled = true;
   say(M.sending);
+  var ctrl = w.AbortController ? new w.AbortController() : null;
+  var token = { timer: 0 };
+  pending = token;
+  token.timer = w.setTimeout(function () {
+    if (ctrl) ctrl.abort();
+    finish(token, null);
+  }, TIMEOUT_MS);
+  var init = {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' }, body: body
+  };
+  if (ctrl) init.signal = ctrl.signal;
   var req;
-  try {
-    req = w.fetch(C.endpoint, {
-      method: 'POST', credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' }, body: body
-    });
-  } catch (err) { req = Promise.reject(err); }
-  Promise.resolve(req).then(finish, function () { finish(null); });
+  try { req = w.fetch(C.endpoint, init); } catch (err) { req = Promise.reject(err); }
+  Promise.resolve(req).then(
+    function (res) { finish(token, res); },
+    function () { finish(token, null); }
+  );
 });
 
 function ensureMounted() {
