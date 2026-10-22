@@ -31,6 +31,9 @@ const HOST_STYLE = [
   'padding:0',
   'border:0',
   'transform:none',
+  'visibility:visible',
+  'opacity:1',
+  'pointer-events:auto',
 ]
   .map((d) => d + ' !important')
   .join(';');
@@ -206,9 +209,13 @@ function refresh() {
   dot.hidden = !fMsg.value;
 }
 function say(t) { statusEl.textContent = t; }
-function saveDraft() {
+// resume = auto-open the panel on the next load (set only at a 401, so the
+// reviewer sees the note on the page they re-enter the password on).
+function saveDraft(resume) {
+  var o = { name: fName.value, page: draftPage, kind: kindVal(), message: fMsg.value };
+  if (resume) o.resume = true;
   try {
-    w.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ name: fName.value, page: draftPage, kind: kindVal(), message: fMsg.value }));
+    w.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(o));
     draftSaved = true;
   } catch (e) { draftSaved = false; }
 }
@@ -295,6 +302,7 @@ function finish(token, res) {
     dropDraft();
     say(M.sent);
   } else if (s === 401) {
+    if (draftSaved) saveDraft(true);
     say(draftSaved ? M.expiredSaved : M.expiredUnsaved);
   } else if (s === 429) {
     var h = res.headers && res.headers.get ? res.headers.get('Retry-After') : null;
@@ -351,6 +359,13 @@ ensureMounted();
 d.addEventListener('DOMContentLoaded', ensureMounted);
 w.addEventListener('load', ensureMounted);
 if (w.MutationObserver) new MutationObserver(ensureMounted).observe(d, { childList: true, subtree: true });
+
+// Auto-open once after a 401 reload, then rewrite the draft without the flag.
+// After mounting, so the focus in openPanel lands.
+if (draft && draft.resume === true) {
+  saveDraft();
+  openPanel();
+}
 `;
 
 /**

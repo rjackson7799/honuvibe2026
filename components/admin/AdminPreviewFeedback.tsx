@@ -85,7 +85,15 @@ export function AdminPreviewFeedback({ preview, items: initialItems }: Props) {
     fallbackRef.current.select();
   }, [fallbackText]);
 
+  // Feedback only works on gated previews (injection + the route require it);
+  // turning it off stays possible so a stale "on" can still be cleared.
+  const isPublic = preview.mode === 'public';
+  const toggleDisabled = isPublic && !enabled;
+
+  // Reverts only undo their own change: if a newer change has landed since,
+  // the current value no longer equals what this call set, so it is left alone.
   async function toggleEnabled() {
+    if (toggleDisabled) return;
     const previous = enabled;
     const next = !previous;
     setEnabled(next);
@@ -93,25 +101,24 @@ export function AdminPreviewFeedback({ preview, items: initialItems }: Props) {
     try {
       await setPreviewFeedbackEnabled(preview.id, next);
     } catch {
-      setEnabled(previous);
+      setEnabled((cur) => (cur === next ? previous : cur));
       setToggleError(true);
     }
   }
 
-  function setItemStatus(id: string, status: FeedbackStatus) {
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
-  }
-
   async function changeStatus(item: PreviewFeedbackItem, status: FeedbackStatus) {
+    const { id } = item;
     const previous = item.status;
     if (status === previous) return;
-    setItemStatus(item.id, status);
-    setItemErrors((prev) => ({ ...prev, [item.id]: false }));
+    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, status } : i)));
+    setItemErrors((prev) => ({ ...prev, [id]: false }));
     try {
-      await setFeedbackStatus(item.id, status);
+      await setFeedbackStatus(id, status);
     } catch {
-      setItemStatus(item.id, previous);
-      setItemErrors((prev) => ({ ...prev, [item.id]: true }));
+      setItems((prev) =>
+        prev.map((i) => (i.id === id && i.status === status ? { ...i, status: previous } : i)),
+      );
+      setItemErrors((prev) => ({ ...prev, [id]: true }));
     }
   }
 
@@ -142,8 +149,10 @@ export function AdminPreviewFeedback({ preview, items: initialItems }: Props) {
           role="switch"
           aria-checked={enabled}
           aria-labelledby="feedback-widget-label"
+          aria-describedby={isPublic ? 'feedback-widget-public-note' : undefined}
+          disabled={toggleDisabled}
           onClick={toggleEnabled}
-          className="inline-flex items-center min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/40 rounded-full"
+          className="inline-flex items-center min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/40 rounded-full disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span
             aria-hidden
@@ -160,9 +169,15 @@ export function AdminPreviewFeedback({ preview, items: initialItems }: Props) {
             />
           </span>
         </button>
-        <span className="text-[13px] text-fg-tertiary">
-          {enabled ? 'On — reviewers can leave notes' : 'Off — the preview serves without the widget'}
-        </span>
+        {isPublic ? (
+          <span id="feedback-widget-public-note" className="text-[13px] text-fg-tertiary">
+            Feedback works on password-protected previews only.
+          </span>
+        ) : (
+          <span className="text-[13px] text-fg-tertiary">
+            {enabled ? 'On — reviewers can leave notes' : 'Off — the preview serves without the widget'}
+          </span>
+        )}
         {toggleError && (
           <p role="alert" className={errorCls}>
             {SAVE_ERROR}

@@ -227,6 +227,44 @@ describe('AdminPreviewFeedback', () => {
     expect(screen.getByText("Couldn't save. Try again.")).toBeInTheDocument();
   });
 
+  it('a stale failed status change does not undo a newer successful one', async () => {
+    let rejectFirst: (e: Error) => void = () => {};
+    setFeedbackStatusMock
+      .mockImplementationOnce(
+        () =>
+          new Promise<void>((_, reject) => {
+            rejectFirst = reject;
+          }),
+      )
+      .mockResolvedValueOnce(undefined);
+    render(<AdminPreviewFeedback preview={PREVIEW} items={ITEMS} />);
+    // 'done' is hidden by the default Open filter.
+    fireEvent.change(screen.getByLabelText('Filter by status'), { target: { value: 'all' } });
+
+    const select = () => screen.getByLabelText('Status for aaaaaaaa') as HTMLSelectElement;
+    expect(select().value).toBe('new');
+    fireEvent.change(select(), { target: { value: 'planned' } });
+    await act(async () => {
+      fireEvent.change(select(), { target: { value: 'done' } });
+    });
+    expect(setFeedbackStatusMock).toHaveBeenCalledTimes(2);
+
+    await act(async () => {
+      rejectFirst(new Error('boom'));
+    });
+    expect(select().value).toBe('done');
+  });
+
+  it('a public preview shows the switch disabled with a note', () => {
+    render(<AdminPreviewFeedback preview={{ ...PREVIEW, mode: 'public' }} items={ITEMS} />);
+    const toggle = screen.getByRole('switch', { name: 'Feedback widget' });
+    expect(toggle).toBeDisabled();
+    expect(screen.getByText('Feedback works on password-protected previews only.')).toBeInTheDocument();
+    expect(screen.queryByText(/reviewers can leave notes/)).not.toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(setPreviewFeedbackEnabledMock).not.toHaveBeenCalled();
+  });
+
   it('a failed toggle reverts and shows an error', async () => {
     let rejectCall: (e: Error) => void = () => {};
     setPreviewFeedbackEnabledMock.mockImplementation(

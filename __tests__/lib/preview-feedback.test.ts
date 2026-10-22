@@ -76,6 +76,25 @@ describe('parseFeedbackInput', () => {
     expect(parseFeedbackInput({ ...base, page: 'p'.repeat(300) }).ok).toBe(true);
   });
 
+  it('rejects control characters in name (newline breaks the markdown line)', () => {
+    const base = { kind: 'bug', message: 'x', page: 'p' };
+    const r = parseFeedbackInput({ ...base, name: 'Ann\nBob' });
+    expect(r).toEqual({ ok: false, error: 'Name contains invalid characters' });
+    expect(parseFeedbackInput({ ...base, name: 'Ann\u0000' }).ok).toBe(false);
+    expect(parseFeedbackInput({ ...base, name: 'Ann\u007f' }).ok).toBe(false);
+    expect(parseFeedbackInput({ ...base, name: 'Ann Bob' }).ok).toBe(true);
+  });
+
+  it('rejects NUL and C0 controls in message but keeps tab and newlines', () => {
+    const base = { name: 'Ann', kind: 'bug', page: 'p' };
+    const nul = parseFeedbackInput({ ...base, message: 'a\u0000b' });
+    expect(nul).toEqual({ ok: false, error: 'Message contains invalid characters' });
+    expect(parseFeedbackInput({ ...base, message: 'a\u0007b' }).ok).toBe(false);
+    expect(parseFeedbackInput({ ...base, message: 'a\u007fb' }).ok).toBe(false);
+    const ws = parseFeedbackInput({ ...base, message: 'line 1\n\tline 2\r\nline 3' });
+    expect(ws.ok && ws.value.message).toBe('line 1\n\tline 2\r\nline 3');
+  });
+
   it('turns a bad viewport into null without rejecting the note', () => {
     const base = { name: 'Ann', kind: 'bug', message: 'x', page: 'p' };
     const r = parseFeedbackInput({ ...base, viewportW: 'wide', viewportH: 12.5 });

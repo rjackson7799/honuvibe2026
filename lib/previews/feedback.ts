@@ -40,6 +40,8 @@ export type FeedbackInput = {
 
 const VIEWPORT_MAX = 20_000;
 const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
+// Message keeps tab / LF / CR; Postgres text cannot hold NUL (would 500).
+const MESSAGE_CONTROL_CHARS = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
 
 // Over-length is REJECTED, never truncated: the widget enforces maxlength, so
 // over-length input means a bypassed client.
@@ -48,13 +50,15 @@ const feedbackSchema = z.object({
     .string({ error: 'Name is required' })
     .trim()
     .min(1, 'Name is required')
-    .max(FEEDBACK_LIMITS.name, `Name must be ${FEEDBACK_LIMITS.name} characters or fewer`),
+    .max(FEEDBACK_LIMITS.name, `Name must be ${FEEDBACK_LIMITS.name} characters or fewer`)
+    .refine((n) => !CONTROL_CHARS.test(n), 'Name contains invalid characters'),
   kind: z.enum(FEEDBACK_KINDS, { error: 'Pick Bug fix or Improvement' }),
   message: z
     .string({ error: 'Message is required' })
     .trim()
     .min(1, 'Message is required')
-    .max(FEEDBACK_LIMITS.message, `Message must be ${FEEDBACK_LIMITS.message} characters or fewer`),
+    .max(FEEDBACK_LIMITS.message, `Message must be ${FEEDBACK_LIMITS.message} characters or fewer`)
+    .refine((m) => !MESSAGE_CONTROL_CHARS.test(m), 'Message contains invalid characters'),
   page: z
     .string({ error: 'Page is required' })
     .trim()

@@ -4,6 +4,7 @@ import { tryConsume } from '@/lib/community/rate-limit';
 import { cookieNameFor, verifyGate } from '@/lib/previews/gate';
 import { parseFeedbackInput, FEEDBACK_LIMITS } from '@/lib/previews/feedback';
 import { readBodyCapped } from '@/lib/previews/read-body';
+import { isSameOriginRequest } from '@/lib/http/same-origin';
 
 // Reviewer feedback for a gated client preview. The widget injected into the
 // served HTML POSTs here with the gate cookie (path /api/preview/<slug>, so the
@@ -61,17 +62,6 @@ function clientIp(request: NextRequest): string {
   return (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim() || 'unknown';
 }
 
-/** True only for a parseable Origin whose host equals the request host. */
-function originAllowed(request: NextRequest): boolean {
-  const origin = request.headers.get('origin');
-  if (origin === null) return true; // non-browser / same-origin GET-style callers send none
-  try {
-    return new URL(origin).host === request.nextUrl.host;
-  } catch {
-    return false;
-  }
-}
-
 function isJsonContentType(value: string | null): boolean {
   if (!value) return false;
   return value.split(';')[0].trim().toLowerCase() === 'application/json';
@@ -86,8 +76,9 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
   // 2. Supabase env (createAdminClient throws a raw 500 without it)
   if (!hasSupabaseEnv()) return fail(503, 'Feedback unavailable');
 
-  // 3. CSRF belt: a browser always sends Origin on a cross-origin POST.
-  if (!originAllowed(request)) return fail(403, 'Forbidden');
+  // 3. CSRF belt: Origin vs the Host header (Sec-Fetch-Site when Origin is
+  // absent). Host, not nextUrl.host — under next dev the latter is the bind host.
+  if (!isSameOriginRequest(request)) return fail(403, 'Forbidden');
 
   // 4. JSON only
   if (!isJsonContentType(request.headers.get('content-type'))) {

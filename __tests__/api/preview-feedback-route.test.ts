@@ -65,10 +65,12 @@ type ReqOpts = {
   stream?: ReadableStream<Uint8Array>;
   headers?: Record<string, string>;
   contentType?: string | null;
+  origin?: string; // request URL origin; default http://localhost
 };
 
 function postReq(slug: string, opts: ReqOpts = {}) {
-  const headers: Record<string, string> = { ...(opts.headers ?? {}) };
+  // Real requests always carry Host; undici's Request does not add one.
+  const headers: Record<string, string> = { host: 'localhost', ...(opts.headers ?? {}) };
   if (opts.contentType !== null) headers['content-type'] = opts.contentType ?? 'application/json';
   if (opts.ip) headers['x-forwarded-for'] = opts.ip;
   if (opts.cookie) headers.cookie = `hv_pv_${slug}=${opts.cookie}`;
@@ -82,7 +84,7 @@ function postReq(slug: string, opts: ReqOpts = {}) {
   } else {
     init.body = typeof opts.body === 'string' ? opts.body : JSON.stringify(opts.body ?? VALID_BODY);
   }
-  const request = new NextRequest(`http://localhost/api/preview/${slug}/feedback`, init);
+  const request = new NextRequest(`${opts.origin ?? 'http://localhost'}/api/preview/${slug}/feedback`, init);
   return { request, ctx: { params: Promise.resolve({ slug }) } };
 }
 
@@ -164,6 +166,42 @@ describe('preview feedback route', () => {
     setRow(feedbackRow(b.slug));
     const none = await send(b.slug, { ip: b.ip, cookie: validCookie(b.slug) });
     expect(none.status).toBe(201);
+  });
+
+  it('compares Origin to the Host header, not the request URL host (next dev on 127.0.0.1 / LAN)', async () => {
+    const { slug, ip } = fresh();
+    setRow(feedbackRow(slug));
+    const res = await send(slug, {
+      ip,
+      cookie: validCookie(slug),
+      origin: 'http://localhost:3000',
+      headers: { host: '127.0.0.1:3000', origin: 'http://127.0.0.1:3000' },
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('403s Sec-Fetch-Site: cross-site when Origin is absent', async () => {
+    const { slug, ip } = fresh();
+    setRow(feedbackRow(slug));
+    const res = await send(slug, { ip, cookie: validCookie(slug), headers: { 'sec-fetch-site': 'cross-site' } });
+    expect(res.status).toBe(403);
+    expect(fromMock).not.toHaveBeenCalled();
+  });
+
+  it('allows Sec-Fetch-Site: same-origin with no Origin, and no Origin + no Sec-Fetch-Site', async () => {
+    const a = fresh();
+    setRow(feedbackRow(a.slug));
+    const same = await send(a.slug, {
+      ip: a.ip,
+      cookie: validCookie(a.slug),
+      headers: { 'sec-fetch-site': 'same-origin' },
+    });
+    expect(same.status).toBe(201);
+
+    const b = fresh();
+    setRow(feedbackRow(b.slug));
+    const neither = await send(b.slug, { ip: b.ip, cookie: validCookie(b.slug), headers: {} });
+    expect(neither.status).toBe(201);
   });
 
   // Step 4

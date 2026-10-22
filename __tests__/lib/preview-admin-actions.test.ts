@@ -7,6 +7,9 @@ const { state, revalidatePathMock } = vi.hoisted(() => ({
     // Rows the update's `.select(...)` returns, per table.
     returned: {} as Record<string, unknown[] | null>,
     updateError: null as unknown,
+    // Row a plain `select(...).eq(...).maybeSingle()` lookup returns, per table.
+    lookup: {} as Record<string, unknown>,
+    lookups: [] as { table: string; calls: [string, unknown[]][] }[],
   },
   revalidatePathMock: vi.fn(),
 }));
@@ -52,6 +55,17 @@ function adminClient() {
           );
         return inner;
       };
+      chain.select = (...selectArgs: unknown[]) => {
+        const entry = { table, calls: [['select', selectArgs]] as [string, unknown[]][] };
+        state.lookups.push(entry);
+        const inner: Record<string, unknown> = {};
+        inner.eq = (...args: unknown[]) => {
+          entry.calls.push(['eq', args]);
+          return inner;
+        };
+        inner.maybeSingle = async () => ({ data: state.lookup[table] ?? null, error: null });
+        return inner;
+      };
       return chain;
     },
   };
@@ -72,6 +86,8 @@ beforeEach(() => {
   state.updates.length = 0;
   state.returned = {};
   state.updateError = null;
+  state.lookup = {};
+  state.lookups.length = 0;
   revalidatePathMock.mockClear();
 });
 
@@ -157,6 +173,31 @@ describe('setPreviewFeedbackEnabled', () => {
   it('an update that matches zero rows throws Preview not found', async () => {
     state.returned.client_previews = [];
     await expect(setPreviewFeedbackEnabled(PREVIEW_ID, false)).rejects.toThrow('Preview not found');
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it('enabling only matches a gated preview; disabling has no mode filter', async () => {
+    state.returned.client_previews = [{ id: PREVIEW_ID }];
+    await setPreviewFeedbackEnabled(PREVIEW_ID, true);
+    await setPreviewFeedbackEnabled(PREVIEW_ID, false);
+    expect(state.updates[0].calls).toContainEqual(['eq', ['mode', 'gated']]);
+    expect(state.updates[1].calls.some(([m, a]) => m === 'eq' && a[0] === 'mode')).toBe(false);
+    expect(state.updates[1].payload).toEqual({ feedback_enabled: false });
+  });
+
+  it('enabling a public preview throws and does not revalidate', async () => {
+    state.returned.client_previews = [];
+    state.lookup.client_previews = { id: PREVIEW_ID };
+    await expect(setPreviewFeedbackEnabled(PREVIEW_ID, true)).rejects.toThrow(
+      'Feedback needs a password-protected preview',
+    );
+    expect(state.lookups[0].calls).toContainEqual(['eq', ['id', PREVIEW_ID]]);
+    expect(revalidatePathMock).not.toHaveBeenCalled();
+  });
+
+  it('enabling a nonexistent preview still throws Preview not found', async () => {
+    state.returned.client_previews = [];
+    await expect(setPreviewFeedbackEnabled(PREVIEW_ID, true)).rejects.toThrow('Preview not found');
     expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 });

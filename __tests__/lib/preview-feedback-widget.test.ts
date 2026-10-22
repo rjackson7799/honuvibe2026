@@ -145,6 +145,11 @@ describe('renderFeedbackWidget', () => {
     expect(host.shadowRoot).not.toBeNull();
     expect(host.getAttribute('style')).toContain('2147483647');
     expect(host.getAttribute('style')).toContain('safe-area-inset-bottom');
+    // M7: page-wide visibility / opacity / pointer-events rules can't hide the host.
+    expect(host.getAttribute('style')).toContain('visibility:visible !important');
+    expect(host.getAttribute('style')).toContain('opacity:1 !important');
+    expect(host.getAttribute('style')).toContain('pointer-events:auto !important');
+    expect(host.parentElement).toBe(page.win.document.body);
   });
 
   it('remounts after documentElement is replaced', async () => {
@@ -257,27 +262,41 @@ describe('renderFeedbackWidget', () => {
     button(first.win, 'Send').click();
     await flush();
     expect(status(first.win)).toContain('Your note is saved');
-    expect(first.win.sessionStorage.getItem(DRAFT_KEY)).not.toBeNull();
+    expect(JSON.parse(first.win.sessionStorage.getItem(DRAFT_KEY)!)).toMatchObject({ resume: true });
 
+    // M1: the reload after re-entering the password auto-opens the panel once,
+    // so the note is visible on the entry page before the reviewer navigates away.
     const second = reload(first, 'index.html');
     expect(hosts(second.win)).toHaveLength(1);
     expect(hosts(second.win)[0].isConnected).toBe(true);
+    expect(q<HTMLElement>(second.win, '[role="dialog"]').hidden).toBe(false);
+    expect(button(second.win, 'Feedback').hidden).toBe(true);
+    expect(root(second.win).activeElement).toBe(messageInput(second.win));
     expect(nameInput(second.win).value).toBe('Kenji');
     expect(radio(second.win, 'bug').checked).toBe(true);
     expect(messageInput(second.win).value).toBe('Footer links overlap on my phone.');
     expect(pageLine(second.win)).toBe('Page: concept-a.html');
     expect(q<HTMLElement>(second.win, '.dot').hidden).toBe(false);
+    const rewritten = JSON.parse(second.win.sessionStorage.getItem(DRAFT_KEY)!) as Record<string, unknown>;
+    expect(rewritten).not.toHaveProperty('resume');
+    expect(rewritten).toMatchObject({ name: 'Kenji', kind: 'bug', page: 'concept-a.html' });
 
-    second.fetch.mockReturnValueOnce(respond(201));
-    button(second.win, 'Feedback').click();
-    expect(root(second.win).activeElement).toBe(messageInput(second.win));
-    button(second.win, 'Send').click();
+    // Only once: a further reload restores the draft behind a closed panel.
+    const third = reload(second, 'index.html');
+    expect(q<HTMLElement>(third.win, '[role="dialog"]').hidden).toBe(true);
+    expect(messageInput(third.win).value).toBe('Footer links overlap on my phone.');
+    expect(q<HTMLElement>(third.win, '.dot').hidden).toBe(false);
+
+    third.fetch.mockReturnValueOnce(respond(201));
+    button(third.win, 'Feedback').click();
+    expect(root(third.win).activeElement).toBe(messageInput(third.win));
+    button(third.win, 'Send').click();
     await flush();
-    const body = sentBody(second);
+    const body = sentBody(third);
     expect(body.page).toBe('concept-a.html');
     expect(body.name).toBe('Kenji');
-    expect(second.win.sessionStorage.getItem(DRAFT_KEY)).toBeNull();
-    expect(q<HTMLElement>(second.win, '.dot').hidden).toBe(true);
+    expect(third.win.sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+    expect(q<HTMLElement>(third.win, '.dot').hidden).toBe(true);
   });
 
   it('a stored draft name wins over the remembered name; malformed drafts are discarded', () => {

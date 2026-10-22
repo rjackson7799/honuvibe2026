@@ -73,13 +73,29 @@ export async function setPreviewFeedbackEnabled(previewId: string, enabled: bool
   await requireAdmin();
   const input = parseInput(enabledInput, { previewId, enabled });
 
-  const { data, error } = await createAdminClient()
+  // Feedback only works on gated previews (injection and the route both require
+  // mode = 'gated'), so enabling filters on mode in the same write. Disabling is
+  // always allowed.
+  const admin = createAdminClient();
+  let update = admin
     .from('client_previews')
     .update({ feedback_enabled: input.enabled })
-    .eq('id', input.previewId)
-    .select('id');
+    .eq('id', input.previewId);
+  if (input.enabled) update = update.eq('mode', 'gated');
+  const { data, error } = await update.select('id');
   if (error) throw new Error(`Could not update preview: ${error.message}`);
-  if (!data || data.length === 0) throw new Error('Preview not found');
+  if (!data || data.length === 0) {
+    if (input.enabled) {
+      // Failure path only: tell a public preview apart from a missing one.
+      const { data: existing } = await admin
+        .from('client_previews')
+        .select('id')
+        .eq('id', input.previewId)
+        .maybeSingle();
+      if (existing) throw new Error('Feedback needs a password-protected preview');
+    }
+    throw new Error('Preview not found');
+  }
 
   revalidatePreviewPaths(input.previewId);
 }
