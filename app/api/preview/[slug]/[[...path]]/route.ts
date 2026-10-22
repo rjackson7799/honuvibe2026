@@ -12,6 +12,8 @@ import {
   renderMessagePage,
   htmlPageHeaders,
 } from '@/lib/previews/gate';
+import { withInjectedSnippet } from '@/lib/previews/inject';
+import { renderFeedbackWidget } from '@/lib/previews/feedback-widget';
 
 // Anonymous, service-role, streaming gate for password-protected client
 // previews. It lives under /api so the middleware matcher (middleware.ts:254,
@@ -47,6 +49,7 @@ type PreviewRow = {
   storage_prefix: string;
   entry_file: string;
   expires_at: string | null;
+  feedback_enabled: boolean;
 };
 
 function hasSupabaseEnv(): boolean {
@@ -208,7 +211,7 @@ async function loadContext(slug: string): Promise<LoadResult> {
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('client_previews')
-    .select('slug, title, mode, password, storage_prefix, entry_file, expires_at')
+    .select('slug, title, mode, password, storage_prefix, entry_file, expires_at, feedback_enabled')
     .eq('slug', slug)
     .maybeSingle<PreviewRow>();
   if (error || !data) {
@@ -228,6 +231,7 @@ type Resolved =
       objectPath: string;
       filename: string;
       isEntry: boolean;
+      feedbackEnabled: boolean;
     };
 
 // GET/HEAD share this: after loadContext, redirect a bare-slug hit to the entry
@@ -281,7 +285,8 @@ async function resolve(
   const objectPath = `${row.storage_prefix}/${segments.join('/')}`;
   const filename = segments[segments.length - 1];
   const isEntry = segments.length === 1 && segments[0] === row.entry_file;
-  return { kind: 'serve', admin, objectPath, filename, isEntry };
+  const feedbackEnabled = row.mode === 'gated' && row.feedback_enabled;
+  return { kind: 'serve', admin, objectPath, filename, isEntry, feedbackEnabled };
 }
 
 export async function GET(request: NextRequest, ctx: RouteContext): Promise<Response> {
@@ -308,10 +313,19 @@ export async function GET(request: NextRequest, ctx: RouteContext): Promise<Resp
   // `private, no-store` on every served object (HTML and assets alike) so a
   // password change / secret rotation revokes access on the next request — no
   // stale cached mockup. Re-download cost is accepted for low-traffic previews.
-  return new NextResponse(blob.stream(), {
+  //
+  // Feedback widget (D1): injected at serve time, never baked into the stored
+  // export, and only for gated previews that opted in. Non-HTML objects and
+  // everything else stream through untouched.
+  const contentType = contentTypeFor(r.filename);
+  const body =
+    r.feedbackEnabled && contentType.startsWith('text/html')
+      ? withInjectedSnippet(blob.stream(), renderFeedbackWidget({ slug }))
+      : blob.stream();
+  return new NextResponse(body, {
     status: 200,
     headers: {
-      'Content-Type': contentTypeFor(r.filename),
+      'Content-Type': contentType,
       'Cache-Control': 'private, no-store',
       'X-Robots-Tag': NOINDEX,
     },

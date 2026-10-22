@@ -1,17 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { fromMock, maybeSingleMock, storageFromMock, downloadMock, rpcMock } = vi.hoisted(() => {
+const { fromMock, maybeSingleMock, storageFromMock, downloadMock, rpcMock, selectMock } = vi.hoisted(() => {
   const maybeSingleMock = vi.fn();
   const downloadMock = vi.fn();
   const rpcMock = vi.fn();
   const storageFromMock = vi.fn(() => ({ download: downloadMock }));
-  const fromMock = vi.fn(() => ({
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({ maybeSingle: maybeSingleMock })),
-    })),
+  const selectMock = vi.fn((_cols: string) => ({
+    eq: vi.fn(() => ({ maybeSingle: maybeSingleMock })),
   }));
-  return { fromMock, maybeSingleMock, storageFromMock, downloadMock, rpcMock };
+  const fromMock = vi.fn(() => ({ select: selectMock }));
+  return { fromMock, maybeSingleMock, storageFromMock, downloadMock, rpcMock, selectMock };
 });
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -52,6 +51,7 @@ function gatedRow(slug: string, overrides: Record<string, unknown> = {}) {
     storage_prefix: slug,
     entry_file: 'index.html',
     expires_at: null,
+    feedback_enabled: false,
     ...overrides,
   };
 }
@@ -371,5 +371,85 @@ describe('preview gate route', () => {
     const { request, ctx } = postReq('acme-postpub1', 'whatever');
     const res = await POST(request, ctx);
     expect(res.status).toBe(404);
+  });
+
+  describe('feedback widget injection', () => {
+    const PAGE = '<html><body><h1>Hi</h1></body></html>';
+    const cookieFor = (slug: string) => `hv_pv_${slug}=${signGate(slug, 'hunter2')}`;
+
+    it('injects the widget into HTML when feedback is enabled', async () => {
+      setRow(gatedRow('acme-fbenable', { feedback_enabled: true }));
+      downloadMock.mockResolvedValue({ data: fakeBlob(PAGE), error: null });
+      const { request, ctx } = getReq('acme-fbenable', ['index.html'], {
+        cookie: cookieFor('acme-fbenable'),
+      });
+      const res = await GET(request, ctx);
+      expect(res.status).toBe(200);
+      const html = await res.text();
+      expect(html.split('hv-preview-feedback').length - 1).toBe(1);
+      expect(html.indexOf('hv-preview-feedback')).toBeLessThan(html.lastIndexOf('</body>'));
+      expect(html).toContain('<h1>Hi</h1>');
+    });
+
+    it('does not inject into non-HTML', async () => {
+      setRow(gatedRow('acme-fbnonhtml', { feedback_enabled: true }));
+      const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x00, 0xff, 0x3c, 0x2f, 0x62, 0x6f, 0x64, 0x79]);
+      downloadMock.mockResolvedValue({
+        data: {
+          stream: () =>
+            new ReadableStream({
+              start(c) {
+                c.enqueue(bytes);
+                c.close();
+              },
+            }),
+        },
+        error: null,
+      });
+      const { request, ctx } = getReq('acme-fbnonhtml', ['hero.png'], {
+        cookie: cookieFor('acme-fbnonhtml'),
+      });
+      const res = await GET(request, ctx);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toBe('image/png');
+      expect(Buffer.from(await res.arrayBuffer()).equals(Buffer.from(bytes))).toBe(true);
+    });
+
+    it('serves HTML byte-identical when feedback is disabled', async () => {
+      setRow(gatedRow('acme-fboff001', { feedback_enabled: false }));
+      downloadMock.mockResolvedValue({ data: fakeBlob(PAGE), error: null });
+      const { request, ctx } = getReq('acme-fboff001', ['index.html'], {
+        cookie: cookieFor('acme-fboff001'),
+      });
+      const res = await GET(request, ctx);
+      expect(res.status).toBe(200);
+      expect(Buffer.from(await res.arrayBuffer()).equals(Buffer.from(PAGE, 'utf8'))).toBe(true);
+    });
+
+    it('does not inject into a public row even if the flag is set', async () => {
+      setRow(gatedRow('acme-fbpublic', { mode: 'public', password: null, feedback_enabled: true }));
+      downloadMock.mockResolvedValue({ data: fakeBlob(PAGE), error: null });
+      const { request, ctx } = getReq('acme-fbpublic', ['index.html']);
+      const res = await GET(request, ctx);
+      expect(Buffer.from(await res.arrayBuffer()).equals(Buffer.from(PAGE, 'utf8'))).toBe(true);
+    });
+
+    it('does not inject into the 401 password page', async () => {
+      setRow(gatedRow('acme-fb401pg1', { feedback_enabled: true }));
+      downloadMock.mockResolvedValue({ data: null, error: { message: 'not found' } });
+      const { request, ctx } = getReq('acme-fb401pg1', ['index.html']);
+      const res = await GET(request, ctx);
+      expect(res.status).toBe(401);
+      expect(await res.text()).not.toContain('hv-preview-feedback');
+    });
+
+    it('selects feedback_enabled from client_previews', async () => {
+      setRow(gatedRow('acme-fbselect'));
+      const { request, ctx } = getReq('acme-fbselect', ['index.html'], {
+        cookie: cookieFor('acme-fbselect'),
+      });
+      await GET(request, ctx);
+      expect(selectMock).toHaveBeenCalledWith(expect.stringContaining('feedback_enabled'));
+    });
   });
 });
