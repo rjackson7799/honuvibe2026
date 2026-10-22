@@ -30,6 +30,7 @@ import {
   Quote,
   Briefcase,
   Milestone,
+  MonitorSmartphone,
   Radar,
   UserRound,
   Route,
@@ -83,6 +84,7 @@ const navGroups: NavGroup[] = [
       // Sibling prefix of /admin/studio/leads — the default startsWith match
       // already disambiguates them, so no isItemActive special case.
       { href: '/admin/studio/engagements', label: 'Engagements', icon: Milestone },
+      { href: '/admin/studio/previews', label: 'Client Previews', icon: MonitorSmartphone },
       { href: '/admin/prospects', label: 'Prospects', icon: Radar },
       { href: '/admin/blue-filler', label: 'Blue Filler', icon: Lightbulb },
     ],
