@@ -574,6 +574,16 @@ Built with subagent-driven development, one implementer and one task review per 
 
 **Known, deferred:** a stale optimistic error in rare A→B→A admin clicks; at 2× pinch-zoom Send is partly clipped; `viewportW/H` records the layout size rather than the visible size; duplicates are possible after a 20-second timeout or a bfcache restore (M3); the D7 edge for a trailing `</body` inside a script string (M6). Neither iOS Safari nor a real phone has been tested yet (Ship step 4).
 
+**Post-ship changes (2026-10-23), found on the first real delivery (`hawaiipalms-site-5240f55d85`, 12-page site):**
+- `9ff4992` + `42cd64f`: **root CSS zoom.** The site fits phones by setting an inline `zoom: 0.2604` on `<html>` (and ~0.889 at 1280 wide). The widget inherited it: on a phone the launcher was 26×11 px and in the wrong place. The host now always carries one explicit counter-zoom (`zoom: 1/z`, or `zoom:1`). It is re-evaluated when html/body attributes change, on resize and on remount.
+- `4de685e`: **right-edge tab, which supersedes the "bottom-right pill" in Task 3.** Ryan's browser window extends ~48 px under the Windows taskbar, which hid the bottom-anchored launcher and the panel's Send button, and the dark pill was hard to see on dark heroes. The launcher is now a cream vertical "Feedback" tab, flush to the right edge and vertically centred in the visual viewport. The panel opens centred against the right edge with a 16 px gap and internal scroll. A one-time "Leave feedback here" hint shows on first visit (`localStorage hv_pv_fb_hint_seen`; never shown when storage throws or on a resumed draft). Task 8's bottom-right check now means right-edge/centred.
+- Each change got an independent adversarial review with real-Chromium re-measurement on both Hawaii Palms exports (site + dashboard) at 375×812, 1280×590 @1.5x and 1440×900, then `pnpm verify`.
+- Deferred hint minors:
+  - the hint can expire during a >5 s bundle unpack;
+  - the hint key is shared across previews;
+  - the resume auto-open doesn't mark the hint as seen;
+  - at 375 px the tab overlaps the right edge of some full-width rows.
+
 **Prod (Ship step 1), 2026-10-23:** Ryan applied 089 in the dashboard SQL editor. It returned "Success. No rows returned". Before that, a read-only baseline confirmed neither the column nor the table existed. Verified by querying prod over REST with the service key:
 - `client_previews`: 4 rows, `feedback_enabled` boolean on all 4, **enabled = 0**. A `select=feedback_enabled` call returns 200, so the schema cache has the column.
 - `preview_feedback`: 0 rows.
