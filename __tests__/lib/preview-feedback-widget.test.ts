@@ -533,3 +533,162 @@ describe('renderFeedbackWidget', () => {
     expect(BODY).not.toContain('<!--');
   });
 });
+
+// A non-responsive export can force the LAYOUT viewport wider/taller than the
+// screen (measured: 568x1230 layout vs a 375x812 visual viewport). Fixed
+// right/bottom anchors to the layout viewport, so the widget follows the
+// visual viewport instead. jsdom has no layout: its scrollbar probe measures 0
+// and documentElement.clientWidth/Height are 0, so the containing block is
+// innerWidth x innerHeight here.
+type FakeVV = EventTarget & { width: number; height: number; offsetLeft: number; offsetTop: number; scale: number };
+
+function withViewport(
+  inner: { w: number; h: number },
+  vv: { width: number; height: number; offsetLeft?: number; offsetTop?: number } | null,
+  extra?: (win: Win) => void,
+): (win: Win) => void {
+  return (win) => {
+    Object.defineProperty(win, 'innerWidth', { configurable: true, value: inner.w });
+    Object.defineProperty(win, 'innerHeight', { configurable: true, value: inner.h });
+    if (vv) {
+      const v = new win.EventTarget() as FakeVV;
+      Object.assign(v, { offsetLeft: 0, offsetTop: 0, scale: 1 }, vv);
+      Object.defineProperty(win, 'visualViewport', { configurable: true, value: v });
+    }
+    extra?.(win);
+  };
+}
+
+function host(win: Win): HTMLElement {
+  const h = win.document.getElementById('hv-preview-feedback');
+  if (!h) throw new Error('widget host missing');
+  return h;
+}
+
+const fakeVV = (win: Win) => (win as unknown as { visualViewport: FakeVV }).visualViewport;
+
+describe('renderFeedbackWidget visual viewport anchoring', () => {
+  it('anchors to the visual viewport when the layout viewport is wider', () => {
+    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }));
+    const h = host(win);
+    expect(h.style.getPropertyValue('transform')).toBe('translate(-193px, -418px)');
+    expect(h.style.getPropertyPriority('transform')).toBe('important');
+    expect(h.style.getPropertyValue('--hv-vw')).toBe('375px');
+    expect(h.style.getPropertyValue('--hv-vh')).toBe('812px');
+    // Still bottom-right anchored by the original host CSS; only the transform moves it.
+    const attr = h.getAttribute('style') ?? '';
+    expect(attr).toContain('right:calc(16px + env(safe-area-inset-right, 0px)) !important');
+    expect(attr).toContain('bottom:calc(16px + env(safe-area-inset-bottom, 0px)) !important');
+    expect(attr).toContain('z-index:2147483647 !important');
+  });
+
+  it('accounts for a panned visual viewport', () => {
+    const { win } = load(
+      'dashboard.html',
+      undefined,
+      withViewport({ w: 568, h: 1230 }, { width: 375, height: 812, offsetLeft: 100, offsetTop: 300 }),
+    );
+    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-93px, -118px)');
+  });
+
+  it('follows visualViewport resize (keyboard up), rAF-throttled', () => {
+    const frames: FrameRequestCallback[] = [];
+    const { win } = load(
+      'dashboard.html',
+      undefined,
+      withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }, (w) => {
+        (w as unknown as { requestAnimationFrame: (cb: FrameRequestCallback) => number }).requestAnimationFrame = (cb) =>
+          frames.push(cb);
+      }),
+    );
+    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -418px)');
+    const vv = fakeVV(win);
+    vv.height = 420;
+    vv.dispatchEvent(new win.Event('resize'));
+    vv.dispatchEvent(new win.Event('resize'));
+    // Not applied until the frame runs, and two events queue one frame.
+    expect(host(win).style.getPropertyValue('--hv-vh')).toBe('812px');
+    expect(frames).toHaveLength(1);
+    frames.shift()!(0);
+    expect(host(win).style.getPropertyValue('--hv-vh')).toBe('420px');
+    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -810px)');
+
+    // Panning (vv scroll) is tracked too.
+    vv.offsetTop = 400;
+    vv.dispatchEvent(new win.Event('scroll'));
+    expect(frames).toHaveLength(1);
+    frames.shift()!(0);
+    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -410px)');
+  });
+
+  it('follows visualViewport resize without requestAnimationFrame', () => {
+    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }));
+    const vv = fakeVV(win);
+    vv.height = 420;
+    vv.dispatchEvent(new win.Event('resize'));
+    expect(host(win).style.getPropertyValue('--hv-vh')).toBe('420px');
+    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -810px)');
+  });
+
+  it('no shift when the visual viewport matches the layout viewport', () => {
+    const { win } = load('dashboard.html', undefined, withViewport({ w: 1280, h: 800 }, { width: 1280, height: 800 }));
+    const h = host(win);
+    expect(h.style.getPropertyValue('transform')).toBe('none');
+    expect(h.style.getPropertyValue('--hv-vw')).toBe('1280px');
+    expect(h.style.getPropertyValue('--hv-vh')).toBe('800px');
+  });
+
+  it('never shifts right/down past the CSS anchor', () => {
+    // A visual viewport reported larger than the containing block (rounding,
+    // a mismeasured scrollbar) must not push the widget off the right edge.
+    const { win } = load('dashboard.html', undefined, withViewport({ w: 1280, h: 800 }, { width: 1290.4, height: 800.6 }));
+    expect(host(win).style.getPropertyValue('transform')).toBe('none');
+  });
+
+  it('no visualViewport: no transform, no size vars, fallback CSS', () => {
+    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, null));
+    const h = host(win);
+    expect((win as unknown as { visualViewport?: unknown }).visualViewport).toBeUndefined();
+    expect(h.style.getPropertyValue('transform')).toBe('none');
+    expect(h.style.getPropertyValue('--hv-vw')).toBe('');
+    expect(h.style.getPropertyValue('--hv-vh')).toBe('');
+  });
+
+  it('re-applies after documentElement replacement', async () => {
+    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }));
+    await flush();
+    // The viewport changes without an event (e.g. while the host was detached).
+    const vv = fakeVV(win);
+    vv.width = 360;
+    vv.height = 700;
+    const doc = new win.DOMParser().parseFromString('<html><body><main>unpacked</main></body></html>', 'text/html');
+    win.document.documentElement.replaceWith(doc.documentElement);
+    await Promise.resolve();
+    const h = host(win);
+    expect(h.isConnected).toBe(true);
+    expect(h.style.getPropertyValue('transform')).toBe('translate(-208px, -530px)');
+    expect(h.style.getPropertyValue('--hv-vw')).toBe('360px');
+    expect(h.style.getPropertyValue('--hv-vh')).toBe('700px');
+  });
+
+  it('panel size follows the visible viewport vars, with the old values as fallback', () => {
+    const { win } = load('dashboard.html');
+    const css = q<HTMLStyleElement>(win, 'style').textContent ?? '';
+    expect(css).toMatch(
+      /\.panel\s*\{[^}]*max-height:\s*calc\(var\(--hv-vh, 100dvh\) - 32px - env\(safe-area-inset-top, 0px\) - env\(safe-area-inset-bottom, 0px\)\)/,
+    );
+    expect(css).toMatch(/\.panel\s*\{[^}]*width:\s*340px;[^}]*width:\s*min\(340px, calc\(var\(--hv-vw, 100vw\) - 32px\)\)/);
+    expect(css).toMatch(/@media \(max-width: 479px\) \{[^}]*width:\s*calc\(var\(--hv-vw, 100vw\) - 32px\)/);
+  });
+
+  it('the fieldset generates no box, so the body (not the actions row) absorbs a short panel', () => {
+    // Measured in Chromium at a 420px-tall visual viewport: as a flex container the
+    // fieldset's anonymous content box did not shrink, pushing Send below the clipped
+    // panel. display:contents makes .body/.status/.actions direct flex items of the form;
+    // fieldset[disabled] still disables every control (that is DOM-based).
+    const { win } = load('dashboard.html');
+    const css = q<HTMLStyleElement>(win, 'style').textContent ?? '';
+    expect(css).toMatch(/(^|\n)fieldset\s*\{\s*display:\s*contents;\s*\}/);
+    expect(css).toMatch(/(^|\n)form\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*min-height:\s*0/);
+  });
+});

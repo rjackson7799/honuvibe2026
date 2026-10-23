@@ -65,9 +65,11 @@ const CSS = `
 .panel {
   display: flex; flex-direction: column;
   width: 340px;
+  width: min(340px, calc(var(--hv-vw, 100vw) - 32px));
   max-height: calc(100vh - 32px);
   max-height: calc(100dvh - 32px);
   max-height: calc(100dvh - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  max-height: calc(var(--hv-vh, 100dvh) - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   background: rgba(12,12,16,0.94);
   border: 1px solid rgba(255,255,255,0.10); border-radius: 14px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.55);
@@ -75,8 +77,10 @@ const CSS = `
   -webkit-backdrop-filter: blur(18px) saturate(120%);
   overflow: hidden;
 }
-@media (max-width: 479px) { .panel { width: calc(100vw - 32px); } }
-form, fieldset { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; min-width: 0; margin: 0; padding: 0; border: 0; }
+@media (max-width: 479px) { .panel { width: calc(100vw - 32px); width: calc(var(--hv-vw, 100vw) - 32px); } }
+.sb { position: absolute; top: 0; left: 0; width: 100px; height: 100px; overflow: scroll; visibility: hidden; pointer-events: none; }
+form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; min-width: 0; margin: 0; padding: 0; border: 0; }
+fieldset { display: contents; }
 .body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px 20px 8px; }
 h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
 .page { margin: 0 0 16px; font-size: 12px; color: rgba(242,239,232,0.62); word-break: break-all; }
@@ -137,7 +141,7 @@ const MARKUP = [
   '</div><p class="status" aria-live="polite"></p>',
   '<div class="actions"><button type="button" class="btn cancel">Cancel</button>',
   '<button type="submit" class="btn send">Send</button></div>',
-  '</fieldset></form></div></div>',
+  '</fieldset></form></div><div class="sb" aria-hidden="true"></div></div>',
 ].join('');
 
 const MSG = {
@@ -350,10 +354,57 @@ form.addEventListener('submit', function (e) {
   );
 });
 
+// Fixed right/bottom anchors to the LAYOUT viewport. A non-responsive export can
+// stretch that far past the screen (measured: 568x1230 layout, 375x812 visible),
+// leaving the widget off-screen; the iOS keyboard shrinks only the VISUAL viewport.
+// So translate the host onto the visual viewport's bottom-right corner and hand
+// the visible size to the panel CSS (--hv-vw / --hv-vh).
+// The fixed containing block is the layout viewport minus classic scrollbars:
+// innerWidth includes a root scrollbar, clientWidth excludes it but on mobile
+// reports the initial containing block (375, not 568). Overlay scrollbars (mobile)
+// measure 0 on the probe, so there the block is innerWidth x innerHeight; on
+// desktop the root scrollbar is min(probe, inner - client), so the block equals
+// clientWidth and a full-window visual viewport yields no shift.
+var vv = w.visualViewport, sbProbe = $('.sb'), placeQueued = false;
+function px(n) { return n + 'px'; }
+function placeNow() {
+  placeQueued = false;
+  if (!vv) return;
+  var de = d.documentElement, sb = 0;
+  try { sb = Math.max(0, sbProbe.offsetWidth - sbProbe.clientWidth) || 0; } catch (e) {}
+  var iw = w.innerWidth || 0, ih = w.innerHeight || 0;
+  var cw = de ? de.clientWidth || 0 : 0, ch = de ? de.clientHeight || 0 : 0;
+  var cbW = iw - Math.min(sb, Math.max(0, iw - cw));
+  var cbH = ih - Math.min(sb, Math.max(0, ih - ch));
+  var vw = Number(vv.width) || 0, vh = Number(vv.height) || 0;
+  if (!(vw > 0 && vh > 0 && cbW > 0 && cbH > 0)) return;
+  // Clamped at 0: the widget only ever moves up/left from its CSS anchor.
+  var dx = Math.min(0, Math.round((Number(vv.offsetLeft) || 0) + vw - cbW));
+  var dy = Math.min(0, Math.round((Number(vv.offsetTop) || 0) + vh - cbH));
+  // The whole attribute is rewritten from HOST_STYLE (its one transform
+  // declaration swapped) rather than round-tripped through the CSSOM.
+  var t = dx || dy ? 'translate(' + px(dx) + ', ' + px(dy) + ')' : 'none';
+  var s = HOST_STYLE.replace('transform:none !important', 'transform:' + t + ' !important') +
+    ';--hv-vw:' + px(Math.floor(vw)) + ' !important;--hv-vh:' + px(Math.floor(vh)) + ' !important';
+  if (host.getAttribute('style') !== s) host.setAttribute('style', s);
+}
+function place() {
+  if (!vv || placeQueued) return;
+  if (w.requestAnimationFrame) { placeQueued = true; w.requestAnimationFrame(placeNow); }
+  else placeNow();
+}
+if (vv && vv.addEventListener) {
+  vv.addEventListener('resize', place);
+  vv.addEventListener('scroll', place);
+}
+
 function ensureMounted() {
   if (host.isConnected) return;
   var parent = d.body || d.documentElement;
-  if (parent) parent.appendChild(host);
+  if (parent) {
+    parent.appendChild(host);
+    placeNow();
+  }
 }
 ensureMounted();
 d.addEventListener('DOMContentLoaded', ensureMounted);
