@@ -535,21 +535,19 @@ describe('renderFeedbackWidget', () => {
 });
 
 // A non-responsive export can force the LAYOUT viewport wider/taller than the
-// screen (measured: 568x1230 layout vs a 375x812 visual viewport). Fixed
-// right/bottom anchors to the layout viewport, so the widget follows the
-// visual viewport instead. jsdom has no layout: its scrollbar probe measures 0
-// and documentElement.clientWidth/Height are 0, so the containing block is
-// innerWidth x innerHeight here.
+// screen (measured on the real export: settles at 568x1230 vs a 375x812 visual
+// viewport, via a transient 669x1447, without any visualViewport event). Fixed
+// right/bottom anchors to the layout viewport, so with visualViewport the host is
+// pinned at the containing block's origin (left/top 0, which never moves as the
+// layout grows) and translated to the visual viewport's bottom-right corner using
+// visualViewport values only; translate(-100%, -100%) backs it off by its own size.
 type FakeVV = EventTarget & { width: number; height: number; offsetLeft: number; offsetTop: number; scale: number };
 
-function withViewport(
-  inner: { w: number; h: number },
+function withVV(
   vv: { width: number; height: number; offsetLeft?: number; offsetTop?: number } | null,
   extra?: (win: Win) => void,
 ): (win: Win) => void {
   return (win) => {
-    Object.defineProperty(win, 'innerWidth', { configurable: true, value: inner.w });
-    Object.defineProperty(win, 'innerHeight', { configurable: true, value: inner.h });
     if (vv) {
       const v = new win.EventTarget() as FakeVV;
       Object.assign(v, { offsetLeft: 0, offsetTop: 0, scale: 1 }, vv);
@@ -565,30 +563,58 @@ function host(win: Win): HTMLElement {
   return h;
 }
 
+/** One declaration from the host's style attribute (all are !important). */
+function decl(win: Win, prop: string): string | null {
+  const attr = host(win).getAttribute('style') ?? '';
+  const parts = attr.split(';').map((x) => x.trim()).filter(Boolean);
+  const hits = parts.filter((x) => x.slice(0, x.indexOf(':')).trim() === prop);
+  if (hits.length > 1) throw new Error(`duplicate ${prop} declarations`);
+  if (!hits.length) return null;
+  const v = hits[0].slice(hits[0].indexOf(':') + 1).trim();
+  if (!v.endsWith('!important')) throw new Error(`${prop} is not !important`);
+  return v.slice(0, -'!important'.length).trim();
+}
+
+/** The transform for a visual viewport whose bottom-right corner is at (x, y). */
+const vvT = (x: number, y: number) =>
+  `translate(calc(${x}px - 16px - env(safe-area-inset-right, 0px)), calc(${y}px - 16px - env(safe-area-inset-bottom, 0px))) translate(-100%, -100%)`;
+
 const fakeVV = (win: Win) => (win as unknown as { visualViewport: FakeVV }).visualViewport;
 
+function setInner(win: Win, w: number, h: number) {
+  Object.defineProperty(win, 'innerWidth', { configurable: true, value: w });
+  Object.defineProperty(win, 'innerHeight', { configurable: true, value: h });
+}
+
 describe('renderFeedbackWidget visual viewport anchoring', () => {
-  it('anchors to the visual viewport when the layout viewport is wider', () => {
-    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }));
-    const h = host(win);
-    expect(h.style.getPropertyValue('transform')).toBe('translate(-193px, -418px)');
-    expect(h.style.getPropertyPriority('transform')).toBe('important');
-    expect(h.style.getPropertyValue('--hv-vw')).toBe('375px');
-    expect(h.style.getPropertyValue('--hv-vh')).toBe('812px');
-    // Still bottom-right anchored by the original host CSS; only the transform moves it.
-    const attr = h.getAttribute('style') ?? '';
-    expect(attr).toContain('right:calc(16px + env(safe-area-inset-right, 0px)) !important');
-    expect(attr).toContain('bottom:calc(16px + env(safe-area-inset-bottom, 0px)) !important');
-    expect(attr).toContain('z-index:2147483647 !important');
+  it('pins the host at the origin and translates it to the visual viewport corner', () => {
+    const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }));
+    expect(decl(win, 'left')).toBe('0');
+    expect(decl(win, 'top')).toBe('0');
+    expect(decl(win, 'right')).toBe('auto');
+    expect(decl(win, 'bottom')).toBe('auto');
+    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, '--hv-vw')).toBe('375px');
+    expect(decl(win, '--hv-vh')).toBe('812px');
+    expect(decl(win, 'position')).toBe('fixed');
+    expect(decl(win, 'z-index')).toBe('2147483647');
+    expect(decl(win, 'visibility')).toBe('visible');
+  });
+
+  it('uses visualViewport values only, never the (transient) layout viewport size', () => {
+    // On the real export innerWidth/innerHeight read 375x812, then 669x1447, then
+    // settle at 568x1230 with no visualViewport event in between.
+    const a = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }, (w) => setInner(w, 669, 1447)));
+    const b = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }, (w) => setInner(w, 375, 812)));
+    expect(a.win.document.getElementById('hv-preview-feedback')!.getAttribute('style')).toBe(
+      b.win.document.getElementById('hv-preview-feedback')!.getAttribute('style'),
+    );
+    expect(decl(a.win, 'transform')).toBe(vvT(375, 812));
   });
 
   it('accounts for a panned visual viewport', () => {
-    const { win } = load(
-      'dashboard.html',
-      undefined,
-      withViewport({ w: 568, h: 1230 }, { width: 375, height: 812, offsetLeft: 100, offsetTop: 300 }),
-    );
-    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-93px, -118px)');
+    const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812, offsetLeft: 100, offsetTop: 300 }));
+    expect(decl(win, 'transform')).toBe(vvT(475, 1112));
   });
 
   it('follows visualViewport resize (keyboard up), rAF-throttled', () => {
@@ -596,66 +622,72 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     const { win } = load(
       'dashboard.html',
       undefined,
-      withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }, (w) => {
+      withVV({ width: 375, height: 812 }, (w) => {
         (w as unknown as { requestAnimationFrame: (cb: FrameRequestCallback) => number }).requestAnimationFrame = (cb) =>
           frames.push(cb);
       }),
     );
-    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -418px)');
+    expect(decl(win, 'transform')).toBe(vvT(375, 812));
     const vv = fakeVV(win);
     vv.height = 420;
     vv.dispatchEvent(new win.Event('resize'));
     vv.dispatchEvent(new win.Event('resize'));
     // Not applied until the frame runs, and two events queue one frame.
-    expect(host(win).style.getPropertyValue('--hv-vh')).toBe('812px');
+    expect(decl(win, '--hv-vh')).toBe('812px');
     expect(frames).toHaveLength(1);
     frames.shift()!(0);
-    expect(host(win).style.getPropertyValue('--hv-vh')).toBe('420px');
-    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -810px)');
+    expect(decl(win, '--hv-vh')).toBe('420px');
+    expect(decl(win, 'transform')).toBe(vvT(375, 420));
 
     // Panning (vv scroll) is tracked too.
     vv.offsetTop = 400;
     vv.dispatchEvent(new win.Event('scroll'));
     expect(frames).toHaveLength(1);
     frames.shift()!(0);
-    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -410px)');
+    expect(decl(win, 'transform')).toBe(vvT(375, 820));
   });
 
   it('follows visualViewport resize without requestAnimationFrame', () => {
-    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }));
+    const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }));
     const vv = fakeVV(win);
     vv.height = 420;
     vv.dispatchEvent(new win.Event('resize'));
-    expect(host(win).style.getPropertyValue('--hv-vh')).toBe('420px');
-    expect(host(win).style.getPropertyValue('transform')).toBe('translate(-193px, -810px)');
+    expect(decl(win, '--hv-vh')).toBe('420px');
+    expect(decl(win, 'transform')).toBe(vvT(375, 420));
   });
 
-  it('no shift when the visual viewport matches the layout viewport', () => {
-    const { win } = load('dashboard.html', undefined, withViewport({ w: 1280, h: 800 }, { width: 1280, height: 800 }));
-    const h = host(win);
-    expect(h.style.getPropertyValue('transform')).toBe('none');
-    expect(h.style.getPropertyValue('--hv-vw')).toBe('1280px');
-    expect(h.style.getPropertyValue('--hv-vh')).toBe('800px');
+  it('desktop: the visual viewport excludes the scrollbar, so the corner is the scrollbar edge', () => {
+    const { win } = load('dashboard.html', undefined, withVV({ width: 1425, height: 900 }, (w) => setInner(w, 1440, 900)));
+    expect(decl(win, 'transform')).toBe(vvT(1425, 900));
   });
 
-  it('never shifts right/down past the CSS anchor', () => {
-    // A visual viewport reported larger than the containing block (rounding,
-    // a mismeasured scrollbar) must not push the widget off the right edge.
-    const { win } = load('dashboard.html', undefined, withViewport({ w: 1280, h: 800 }, { width: 1290.4, height: 800.6 }));
-    expect(host(win).style.getPropertyValue('transform')).toBe('none');
+  it('rounds fractional visual viewport values', () => {
+    const { win } = load('dashboard.html', undefined, withVV({ width: 374.6, height: 811.4, offsetLeft: 0.2, offsetTop: 0.3 }));
+    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, '--hv-vw')).toBe('374px');
+    expect(decl(win, '--hv-vh')).toBe('811px');
   });
 
-  it('no visualViewport: no transform, no size vars, fallback CSS', () => {
-    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, null));
-    const h = host(win);
+  it('no visualViewport: the original right/bottom anchoring, no transform, no size vars', () => {
+    const { win } = load('dashboard.html', undefined, withVV(null));
     expect((win as unknown as { visualViewport?: unknown }).visualViewport).toBeUndefined();
-    expect(h.style.getPropertyValue('transform')).toBe('none');
-    expect(h.style.getPropertyValue('--hv-vw')).toBe('');
-    expect(h.style.getPropertyValue('--hv-vh')).toBe('');
+    expect(decl(win, 'right')).toBe('calc(16px + env(safe-area-inset-right, 0px))');
+    expect(decl(win, 'bottom')).toBe('calc(16px + env(safe-area-inset-bottom, 0px))');
+    expect(decl(win, 'left')).toBe('auto');
+    expect(decl(win, 'top')).toBe('auto');
+    expect(decl(win, 'transform')).toBe('none');
+    expect(decl(win, '--hv-vw')).toBeNull();
+    expect(decl(win, '--hv-vh')).toBeNull();
+  });
+
+  it('a zero-size visual viewport keeps the fallback anchoring', () => {
+    const { win } = load('dashboard.html', undefined, withVV({ width: 0, height: 0 }));
+    expect(decl(win, 'right')).toBe('calc(16px + env(safe-area-inset-right, 0px))');
+    expect(decl(win, 'transform')).toBe('none');
   });
 
   it('re-applies after documentElement replacement', async () => {
-    const { win } = load('dashboard.html', undefined, withViewport({ w: 568, h: 1230 }, { width: 375, height: 812 }));
+    const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }));
     await flush();
     // The viewport changes without an event (e.g. while the host was detached).
     const vv = fakeVV(win);
@@ -664,11 +696,16 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     const doc = new win.DOMParser().parseFromString('<html><body><main>unpacked</main></body></html>', 'text/html');
     win.document.documentElement.replaceWith(doc.documentElement);
     await Promise.resolve();
-    const h = host(win);
-    expect(h.isConnected).toBe(true);
-    expect(h.style.getPropertyValue('transform')).toBe('translate(-208px, -530px)');
-    expect(h.style.getPropertyValue('--hv-vw')).toBe('360px');
-    expect(h.style.getPropertyValue('--hv-vh')).toBe('700px');
+    expect(host(win).isConnected).toBe(true);
+    expect(decl(win, 'transform')).toBe(vvT(360, 700));
+    expect(decl(win, '--hv-vw')).toBe('360px');
+    expect(decl(win, '--hv-vh')).toBe('700px');
+  });
+
+  it('carries no scrollbar probe', () => {
+    const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }));
+    expect(root(win).querySelector('.sb')).toBeNull();
+    expect(BODY).not.toContain('innerWidth - ');
   });
 
   it('panel size follows the visible viewport vars, with the old values as fallback', () => {

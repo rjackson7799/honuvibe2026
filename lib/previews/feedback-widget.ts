@@ -17,26 +17,34 @@ function jsonForScript(value: unknown): string {
 
 // Inline !important styles on the host: the page's own CSS can target the host
 // element (it sits in the light DOM), and only inline-important reliably wins.
-const HOST_STYLE = [
+const HOST_COMMON = [
   'position:fixed',
   'z-index:2147483647',
-  'right:calc(16px + env(safe-area-inset-right, 0px))',
-  'bottom:calc(16px + env(safe-area-inset-bottom, 0px))',
-  'left:auto',
-  'top:auto',
   'display:block',
   'width:auto',
   'height:auto',
   'margin:0',
   'padding:0',
   'border:0',
-  'transform:none',
   'visibility:visible',
   'opacity:1',
   'pointer-events:auto',
-]
-  .map((d) => d + ' !important')
-  .join(';');
+];
+const important = (decls: string[]) => decls.map((d) => d + ' !important').join(';');
+
+// Fallback (no visualViewport): bottom-right of the fixed containing block.
+const HOST_STYLE = important([
+  ...HOST_COMMON,
+  'right:calc(16px + env(safe-area-inset-right, 0px))',
+  'bottom:calc(16px + env(safe-area-inset-bottom, 0px))',
+  'left:auto',
+  'top:auto',
+  'transform:none',
+]);
+
+// With visualViewport: pinned at the containing block's origin; the script
+// appends the transform (to the visual viewport's corner) and the size vars.
+const HOST_STYLE_VV = important([...HOST_COMMON, 'left:0', 'top:0', 'right:auto', 'bottom:auto']);
 
 // Neutral "tool chrome" palette, shared with the gate page (gate.ts PAGE_STYLE).
 const CSS = `
@@ -78,7 +86,6 @@ const CSS = `
   overflow: hidden;
 }
 @media (max-width: 479px) { .panel { width: calc(100vw - 32px); width: calc(var(--hv-vw, 100vw) - 32px); } }
-.sb { position: absolute; top: 0; left: 0; width: 100px; height: 100px; overflow: scroll; visibility: hidden; pointer-events: none; }
 form { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; min-width: 0; margin: 0; padding: 0; border: 0; }
 fieldset { display: contents; }
 .body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 20px 20px 8px; }
@@ -141,7 +148,7 @@ const MARKUP = [
   '</div><p class="status" aria-live="polite"></p>',
   '<div class="actions"><button type="button" class="btn cancel">Cancel</button>',
   '<button type="submit" class="btn send">Send</button></div>',
-  '</fieldset></form></div><div class="sb" aria-hidden="true"></div></div>',
+  '</fieldset></form></div></div>',
 ].join('');
 
 const MSG = {
@@ -355,36 +362,30 @@ form.addEventListener('submit', function (e) {
 });
 
 // Fixed right/bottom anchors to the LAYOUT viewport. A non-responsive export can
-// stretch that far past the screen (measured: 568x1230 layout, 375x812 visible),
-// leaving the widget off-screen; the iOS keyboard shrinks only the VISUAL viewport.
-// So translate the host onto the visual viewport's bottom-right corner and hand
-// the visible size to the panel CSS (--hv-vw / --hv-vh).
-// The fixed containing block is the layout viewport minus classic scrollbars:
-// innerWidth includes a root scrollbar, clientWidth excludes it but on mobile
-// reports the initial containing block (375, not 568). Overlay scrollbars (mobile)
-// measure 0 on the probe, so there the block is innerWidth x innerHeight; on
-// desktop the root scrollbar is min(probe, inner - client), so the block equals
-// clientWidth and a full-window visual viewport yields no shift.
-var vv = w.visualViewport, sbProbe = $('.sb'), placeQueued = false;
+// stretch that far past the screen (real export: 375x812 visible, layout settling
+// at 568x1230 via a transient 669x1447, with no visualViewport event), and the
+// iOS keyboard shrinks only the VISUAL viewport. So, with visualViewport, the host
+// sits at the containing block's origin (left/top 0: the layout viewport's
+// top-left, which does not move as the layout grows) and is translated to the
+// visual viewport's bottom-right corner, then backed off by its own size
+// (translate(-100%, -100%)). Only visualViewport values are used - they are in
+// layout-viewport coordinates and fire resize/scroll whenever they change - so
+// nothing is inferred from innerWidth/clientWidth, and desktop scrollbars are
+// already excluded from vv.width. The 16px gap and safe-area insets stay in CSS
+// (calc + env), so no inset has to be measured.
+var vv = w.visualViewport, placeQueued = false;
 function px(n) { return n + 'px'; }
 function placeNow() {
   placeQueued = false;
   if (!vv) return;
-  var de = d.documentElement, sb = 0;
-  try { sb = Math.max(0, sbProbe.offsetWidth - sbProbe.clientWidth) || 0; } catch (e) {}
-  var iw = w.innerWidth || 0, ih = w.innerHeight || 0;
-  var cw = de ? de.clientWidth || 0 : 0, ch = de ? de.clientHeight || 0 : 0;
-  var cbW = iw - Math.min(sb, Math.max(0, iw - cw));
-  var cbH = ih - Math.min(sb, Math.max(0, ih - ch));
   var vw = Number(vv.width) || 0, vh = Number(vv.height) || 0;
-  if (!(vw > 0 && vh > 0 && cbW > 0 && cbH > 0)) return;
-  // Clamped at 0: the widget only ever moves up/left from its CSS anchor.
-  var dx = Math.min(0, Math.round((Number(vv.offsetLeft) || 0) + vw - cbW));
-  var dy = Math.min(0, Math.round((Number(vv.offsetTop) || 0) + vh - cbH));
-  // The whole attribute is rewritten from HOST_STYLE (its one transform
-  // declaration swapped) rather than round-tripped through the CSSOM.
-  var t = dx || dy ? 'translate(' + px(dx) + ', ' + px(dy) + ')' : 'none';
-  var s = HOST_STYLE.replace('transform:none !important', 'transform:' + t + ' !important') +
+  if (!(vw > 0 && vh > 0)) return;
+  var x = Math.round((Number(vv.offsetLeft) || 0) + vw);
+  var y = Math.round((Number(vv.offsetTop) || 0) + vh);
+  // The whole attribute is written rather than round-tripped through the CSSOM.
+  var s = HOST_STYLE_VV +
+    ';transform:translate(calc(' + px(x) + ' - 16px - env(safe-area-inset-right, 0px)), calc(' +
+    px(y) + ' - 16px - env(safe-area-inset-bottom, 0px))) translate(-100%, -100%) !important' +
     ';--hv-vw:' + px(Math.floor(vw)) + ' !important;--hv-vh:' + px(Math.floor(vh)) + ' !important';
   if (host.getAttribute('style') !== s) host.setAttribute('style', s);
 }
@@ -432,6 +433,7 @@ export function renderFeedbackWidget(opts: { slug: string }): string {
     ['CSS', CSS],
     ['MARKUP', MARKUP],
     ['HOST_STYLE', HOST_STYLE],
+    ['HOST_STYLE_VV', HOST_STYLE_VV],
   ] as const;
   const decl = 'var ' + consts.map(([n, v]) => n + ' = ' + jsonForScript(v)).join(',\n  ') + ';';
   return '<script>(function(){\n' + decl + '\n' + SOURCE.trim() + '\n})();</script>';
