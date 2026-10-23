@@ -27,7 +27,11 @@ export const FEEDBACK_LIMITS = {
   page: 300,
   userAgent: 500,
   bodyBytes: 16_384,
+  // multipart (note + one screenshot) body cap; JSON keeps bodyBytes.
+  multipartBodyBytes: 2_097_152,
 } as const;
+
+// Image-processing constants live in image-process.ts (SCREENSHOT_LIMITS).
 
 export type FeedbackInput = {
   name: string;
@@ -36,6 +40,8 @@ export type FeedbackInput = {
   page: string;
   viewportW: number | null;
   viewportH: number | null;
+  /** Client-generated idempotency key (lower-case uuid); becomes the row id. */
+  submissionId: string | null;
 };
 
 const VIEWPORT_MAX = 20_000;
@@ -65,6 +71,7 @@ const feedbackSchema = z.object({
     .min(1, 'Page is required')
     .max(FEEDBACK_LIMITS.page, `Page must be ${FEEDBACK_LIMITS.page} characters or fewer`)
     .refine((p) => !CONTROL_CHARS.test(p), 'Page contains invalid characters'),
+  submissionId: z.uuid({ error: 'Invalid submissionId' }).optional(),
 });
 
 function viewportOrNull(v: unknown): number | null {
@@ -83,6 +90,7 @@ export function parseFeedbackInput(
     kind: obj.kind,
     message: obj.message,
     page: obj.page,
+    submissionId: obj.submissionId === undefined || obj.submissionId === null ? undefined : obj.submissionId,
   });
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? 'Invalid feedback' };
@@ -90,7 +98,11 @@ export function parseFeedbackInput(
   return {
     ok: true,
     value: {
-      ...parsed.data,
+      name: parsed.data.name,
+      kind: parsed.data.kind,
+      message: parsed.data.message,
+      page: parsed.data.page,
+      submissionId: parsed.data.submissionId ? parsed.data.submissionId.toLowerCase() : null,
       viewportW: viewportOrNull(obj.viewportW),
       viewportH: viewportOrNull(obj.viewportH),
     },

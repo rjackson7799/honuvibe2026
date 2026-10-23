@@ -38,7 +38,26 @@ describe('parseFeedbackInput', () => {
     });
     expect(r).toEqual({
       ok: true,
-      value: { name: 'Ann', kind: 'bug', message: 'Button is off', page: '/about.html', viewportW: 1280, viewportH: 720 },
+      value: { name: 'Ann', kind: 'bug', message: 'Button is off', page: '/about.html', viewportW: 1280, viewportH: 720, submissionId: null },
+    });
+  });
+
+  describe('submissionId', () => {
+    const base = { name: 'A', kind: 'bug', message: 'x', page: 'p' };
+    it('is null when absent', () => {
+      const r = parseFeedbackInput(base);
+      expect(r.ok && r.value.submissionId).toBeNull();
+    });
+    it('accepts a uuid and lower-cases it', () => {
+      const r = parseFeedbackInput({ ...base, submissionId: '3F2504E0-4F89-41D3-9A0C-0305E82C3301' });
+      expect(r.ok && r.value.submissionId).toBe('3f2504e0-4f89-41d3-9a0c-0305e82c3301');
+    });
+    it('rejects a malformed submissionId', () => {
+      for (const bad of ['nope', '', 123, '3f2504e0-4f89-41d3-9a0c-0305e82c33', {}]) {
+        const r = parseFeedbackInput({ ...base, submissionId: bad });
+        expect(r.ok).toBe(false);
+        if (!r.ok) expect(r.error).toMatch(/submission/i);
+      }
     });
   });
 
@@ -98,7 +117,7 @@ describe('parseFeedbackInput', () => {
   it('turns a bad viewport into null without rejecting the note', () => {
     const base = { name: 'Ann', kind: 'bug', message: 'x', page: 'p' };
     const r = parseFeedbackInput({ ...base, viewportW: 'wide', viewportH: 12.5 });
-    expect(r).toEqual({ ok: true, value: { ...base, viewportW: null, viewportH: null } });
+    expect(r).toEqual({ ok: true, value: { ...base, viewportW: null, submissionId: null, viewportH: null } });
     const r2 = parseFeedbackInput({ ...base, viewportW: -1, viewportH: 20001 });
     expect(r2.ok && r2.value.viewportW === null && r2.value.viewportH === null).toBe(true);
     const r3 = parseFeedbackInput({ ...base, viewportW: 0, viewportH: 20000 });
