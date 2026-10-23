@@ -676,6 +676,7 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     expect(decl(win, 'left')).toBe('auto');
     expect(decl(win, 'top')).toBe('auto');
     expect(decl(win, 'transform')).toBe('none');
+    expect(decl(win, 'zoom')).toBe('1');
     expect(decl(win, '--hv-vw')).toBeNull();
     expect(decl(win, '--hv-vh')).toBeNull();
   });
@@ -769,18 +770,30 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     expect(decl(win, 'zoom')).toBe(counter(0.4));
   });
 
-  it('emits no zoom declaration when the inherited zoom is 1 or unreadable', () => {
+  it('pins an explicit zoom:1 when the inherited zoom is 1 or unreadable', () => {
+    // Always exactly one inline-important zoom, so page CSS that matches the host
+    // (e.g. `body > div { zoom: .5 }`) can't shrink it either.
     for (const html of ['1', '', 'normal', '0', '-2', 'NaN']) {
       const vv = load('index.html', undefined, withZoom({ html, body: '1' }, withVV({ width: 375, height: 812 })));
-      expect(decl(vv.win, 'zoom')).toBeNull();
+      expect(decl(vv.win, 'zoom')).toBe('1');
       const plain = load('index.html', undefined, withVV({ width: 375, height: 812 }));
       expect(host(vv.win).getAttribute('style')).toBe(host(plain.win).getAttribute('style'));
     }
-    // The fallback (no visualViewport) style is untouched too.
+    // html 0.5 x body 2 is an inherited zoom of 1 too.
+    const product = load('index.html', undefined, withZoom({ html: '0.5', body: '2' }, withVV({ width: 375, height: 812 })));
+    expect(decl(product.win, 'zoom')).toBe('1');
+    // The fallback (no visualViewport) path pins it as well.
     const fb = load('index.html', undefined, withZoom({ html: '1', body: '1' }, withVV(null)));
     const plainFb = load('index.html', undefined, withVV(null));
-    expect(decl(fb.win, 'zoom')).toBeNull();
+    expect(decl(fb.win, 'zoom')).toBe('1');
     expect(host(fb.win).getAttribute('style')).toBe(host(plainFb.win).getAttribute('style'));
+  });
+
+  it('the host zoom is inline !important, so it beats page CSS aimed at the host', () => {
+    const { win } = load('index.html', undefined, withVV({ width: 375, height: 812 }));
+    const attr = host(win).getAttribute('style') ?? '';
+    expect(attr).toContain('zoom:1 !important');
+    expect(attr.match(/(^|;)\s*zoom\s*:/g)).toHaveLength(1);
   });
 
   it('fallback path (no visualViewport) gets the same counter-zoom', () => {
@@ -795,7 +808,7 @@ describe('renderFeedbackWidget root CSS zoom', () => {
   it('follows a later zoom change on <html> or <body> (style/class mutations)', async () => {
     const zooms = { html: '1', body: '1' };
     const { win } = load('index.html', undefined, withZoom(zooms, withVV({ width: 375, height: 812 })));
-    expect(decl(win, 'zoom')).toBeNull();
+    expect(decl(win, 'zoom')).toBe('1');
     const html = win.document.documentElement;
     zooms.html = '0.2604';
     html.setAttribute('style', 'zoom: 0.2604');
@@ -812,13 +825,13 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     zooms.body = '1';
     html.removeAttribute('style');
     await Promise.resolve();
-    expect(decl(win, 'zoom')).toBeNull();
+    expect(decl(win, 'zoom')).toBe('1');
   });
 
   it('a window resize re-evaluates (stylesheet media query zoom)', () => {
     const zooms = { html: '1', body: '1' };
     const { win } = load('index.html', undefined, withZoom(zooms, withVV(null)));
-    expect(decl(win, 'zoom')).toBeNull();
+    expect(decl(win, 'zoom')).toBe('1');
     zooms.html = '0.25';
     win.dispatchEvent(new win.Event('resize'));
     expect(decl(win, 'zoom')).toBe(counter(0.25));
@@ -843,7 +856,7 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     await Promise.resolve();
     win.dispatchEvent(new win.Event('resize'));
     fakeVV(win).dispatchEvent(new win.Event('resize'));
-    expect(decl(win, 'zoom')).toBeNull();
+    expect(decl(win, 'zoom')).toBe('1');
     expect(frames).toHaveLength(1);
     frames.shift()!(0);
     expect(decl(win, 'zoom')).toBe(counter(0.5));
@@ -863,11 +876,34 @@ describe('renderFeedbackWidget root CSS zoom', () => {
         }),
       ),
     );
+    // Run (never drop) every queued frame: dropping one would leave placement
+    // stuck "queued" and make every later check below pass vacuously.
+    const drain = async () => {
+      for (let i = 0; i < 10 && frames.length; i++) {
+        frames.shift()!(0);
+        await flush();
+      }
+      expect(frames).toHaveLength(0);
+    };
     await flush();
-    frames.length = 0;
+    await drain();
+    expect(decl(win, 'zoom')).toBe(counter(0.2604));
+
+    // Writes to the host's own style attribute never re-trigger placement.
     host(win).setAttribute('style', host(win).getAttribute('style') + ';color:red');
     await flush();
     expect(frames).toHaveLength(0);
+
+    // A window resize queues exactly one frame; running it rewrites the host's
+    // style (dropping the color above), and that write queues nothing further.
+    win.dispatchEvent(new win.Event('resize'));
+    win.dispatchEvent(new win.Event('resize'));
+    expect(frames).toHaveLength(1);
+    frames.shift()!(0);
+    expect(host(win).getAttribute('style')).not.toContain('color:red');
+    await flush();
+    expect(frames).toHaveLength(0);
+    expect(decl(win, 'zoom')).toBe(counter(0.2604));
   });
 
   it('re-applies after documentElement replacement and watches the new root', async () => {

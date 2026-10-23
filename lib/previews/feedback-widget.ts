@@ -379,7 +379,7 @@ form.addEventListener('submit', function (e) {
 // export: 0.2604 = 375/1440), which shrank the launcher to 26% and scaled the
 // translate by the same factor. The host takes a counter-zoom (1/z) so its
 // effective zoom is 1: the translate stays in true CSS px and the 16px inputs
-// really are 16px (iOS focus-zoom). At z = 1 no zoom declaration is written.
+// really are 16px (iOS focus-zoom). At z = 1 the host still pins zoom:1.
 var vv = w.visualViewport, placeQueued = false, base = HOST_STYLE;
 function px(n) { return n + 'px'; }
 function zoomOf(el) {
@@ -404,8 +404,10 @@ function placeNow() {
         ';--hv-vw:' + px(Math.floor(vw)) + ' !important;--hv-vh:' + px(Math.floor(vh)) + ' !important';
     }
   }
-  var z = zoomOf(d.documentElement) * zoomOf(d.body), s = base;
-  if (Math.abs(z - 1) > 1e-6) s += ';zoom:' + String(1 / z) + ' !important';
+  // Always exactly one inline-important zoom (1 when nothing is inherited), so
+  // page CSS that matches the host itself (body > div { zoom: .5 }) can't win.
+  var z = zoomOf(d.documentElement) * zoomOf(d.body);
+  var s = base + ';zoom:' + (Math.abs(z - 1) > 1e-6 ? String(1 / z) : '1') + ' !important';
   // The whole attribute is written rather than round-tripped through the CSSOM.
   if (host.getAttribute('style') !== s) host.setAttribute('style', s);
 }
