@@ -144,7 +144,9 @@ describe('renderFeedbackWidget', () => {
     const host = hosts(page.win)[0] as HTMLElement;
     expect(host.shadowRoot).not.toBeNull();
     expect(host.getAttribute('style')).toContain('2147483647');
-    expect(host.getAttribute('style')).toContain('safe-area-inset-bottom');
+    // jsdom has no visualViewport: the fallback pins the tab to the right edge, centred.
+    expect(host.getAttribute('style')).toContain('right:0 !important');
+    expect(host.getAttribute('style')).toContain('top:50% !important');
     // M7: page-wide visibility / opacity / pointer-events rules can't hide the host.
     expect(host.getAttribute('style')).toContain('visibility:visible !important');
     expect(host.getAttribute('style')).toContain('opacity:1 !important');
@@ -256,7 +258,7 @@ describe('renderFeedbackWidget', () => {
 
   it('draft survives a 401 and a reload, then sends with its original page', async () => {
     const first = load('concept-a.html');
-    expect(first.win.localStorage.length).toBe(0);
+    expect(first.win.localStorage.getItem(NAME_KEY)).toBeNull();
     first.fetch.mockReturnValueOnce(respond(401));
     fill(first.win, 'Kenji', 'bug', 'Footer links overlap on my phone.');
     button(first.win, 'Send').click();
@@ -539,8 +541,9 @@ describe('renderFeedbackWidget', () => {
 // viewport, via a transient 669x1447, without any visualViewport event). Fixed
 // right/bottom anchors to the layout viewport, so with visualViewport the host is
 // pinned at the containing block's origin (left/top 0, which never moves as the
-// layout grows) and translated to the visual viewport's bottom-right corner using
-// visualViewport values only; translate(-100%, -100%) backs it off by its own size.
+// layout grows) and translated to the middle of the visual viewport's right edge
+// using visualViewport values only; translate(-100%, -50%) backs it off by its own
+// width and centres it vertically on that point.
 type FakeVV = EventTarget & { width: number; height: number; offsetLeft: number; offsetTop: number; scale: number };
 
 function withVV(
@@ -575,9 +578,12 @@ function decl(win: Win, prop: string): string | null {
   return v.slice(0, -'!important'.length).trim();
 }
 
-/** The transform for a visual viewport whose bottom-right corner is at (x, y). */
+/**
+ * The transform for a visual viewport whose right edge is at x (offsetLeft + width)
+ * and whose vertical middle is at y (offsetTop + height / 2).
+ */
 const vvT = (x: number, y: number) =>
-  `translate(calc(${x}px - 16px - env(safe-area-inset-right, 0px)), calc(${y}px - 16px - env(safe-area-inset-bottom, 0px))) translate(-100%, -100%)`;
+  `translate(calc(${x}px - env(safe-area-inset-right, 0px)), ${y}px) translate(-100%, -50%)`;
 
 const fakeVV = (win: Win) => (win as unknown as { visualViewport: FakeVV }).visualViewport;
 
@@ -587,13 +593,15 @@ function setInner(win: Win, w: number, h: number) {
 }
 
 describe('renderFeedbackWidget visual viewport anchoring', () => {
-  it('pins the host at the origin and translates it to the visual viewport corner', () => {
+  it('pins the host at the origin and translates it to the middle of the visual viewport right edge', () => {
     const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812 }));
     expect(decl(win, 'left')).toBe('0');
     expect(decl(win, 'top')).toBe('0');
     expect(decl(win, 'right')).toBe('auto');
     expect(decl(win, 'bottom')).toBe('auto');
-    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, 'transform')).toBe(
+      'translate(calc(375px - env(safe-area-inset-right, 0px)), 406px) translate(-100%, -50%)',
+    );
     expect(decl(win, '--hv-vw')).toBe('375px');
     expect(decl(win, '--hv-vh')).toBe('812px');
     expect(decl(win, 'position')).toBe('fixed');
@@ -609,12 +617,12 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     expect(a.win.document.getElementById('hv-preview-feedback')!.getAttribute('style')).toBe(
       b.win.document.getElementById('hv-preview-feedback')!.getAttribute('style'),
     );
-    expect(decl(a.win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(a.win, 'transform')).toBe(vvT(375, 406));
   });
 
   it('accounts for a panned visual viewport', () => {
     const { win } = load('dashboard.html', undefined, withVV({ width: 375, height: 812, offsetLeft: 100, offsetTop: 300 }));
-    expect(decl(win, 'transform')).toBe(vvT(475, 1112));
+    expect(decl(win, 'transform')).toBe(vvT(475, 706));
   });
 
   it('follows visualViewport resize (keyboard up), rAF-throttled', () => {
@@ -627,7 +635,7 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
           frames.push(cb);
       }),
     );
-    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, 'transform')).toBe(vvT(375, 406));
     const vv = fakeVV(win);
     vv.height = 420;
     vv.dispatchEvent(new win.Event('resize'));
@@ -637,14 +645,14 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     expect(frames).toHaveLength(1);
     frames.shift()!(0);
     expect(decl(win, '--hv-vh')).toBe('420px');
-    expect(decl(win, 'transform')).toBe(vvT(375, 420));
+    expect(decl(win, 'transform')).toBe(vvT(375, 210));
 
     // Panning (vv scroll) is tracked too.
     vv.offsetTop = 400;
     vv.dispatchEvent(new win.Event('scroll'));
     expect(frames).toHaveLength(1);
     frames.shift()!(0);
-    expect(decl(win, 'transform')).toBe(vvT(375, 820));
+    expect(decl(win, 'transform')).toBe(vvT(375, 610));
   });
 
   it('follows visualViewport resize without requestAnimationFrame', () => {
@@ -653,29 +661,29 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     vv.height = 420;
     vv.dispatchEvent(new win.Event('resize'));
     expect(decl(win, '--hv-vh')).toBe('420px');
-    expect(decl(win, 'transform')).toBe(vvT(375, 420));
+    expect(decl(win, 'transform')).toBe(vvT(375, 210));
   });
 
   it('desktop: the visual viewport excludes the scrollbar, so the corner is the scrollbar edge', () => {
     const { win } = load('dashboard.html', undefined, withVV({ width: 1425, height: 900 }, (w) => setInner(w, 1440, 900)));
-    expect(decl(win, 'transform')).toBe(vvT(1425, 900));
+    expect(decl(win, 'transform')).toBe(vvT(1425, 450));
   });
 
   it('rounds fractional visual viewport values', () => {
     const { win } = load('dashboard.html', undefined, withVV({ width: 374.6, height: 811.4, offsetLeft: 0.2, offsetTop: 0.3 }));
-    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, 'transform')).toBe(vvT(375, 406));
     expect(decl(win, '--hv-vw')).toBe('374px');
     expect(decl(win, '--hv-vh')).toBe('811px');
   });
 
-  it('no visualViewport: the original right/bottom anchoring, no transform, no size vars', () => {
+  it('no visualViewport: right edge, vertically centred by CSS, no size vars', () => {
     const { win } = load('dashboard.html', undefined, withVV(null));
     expect((win as unknown as { visualViewport?: unknown }).visualViewport).toBeUndefined();
-    expect(decl(win, 'right')).toBe('calc(16px + env(safe-area-inset-right, 0px))');
-    expect(decl(win, 'bottom')).toBe('calc(16px + env(safe-area-inset-bottom, 0px))');
+    expect(decl(win, 'right')).toBe('0');
+    expect(decl(win, 'top')).toBe('50%');
     expect(decl(win, 'left')).toBe('auto');
-    expect(decl(win, 'top')).toBe('auto');
-    expect(decl(win, 'transform')).toBe('none');
+    expect(decl(win, 'bottom')).toBe('auto');
+    expect(decl(win, 'transform')).toBe('translateY(-50%)');
     expect(decl(win, 'zoom')).toBe('1');
     expect(decl(win, '--hv-vw')).toBeNull();
     expect(decl(win, '--hv-vh')).toBeNull();
@@ -683,8 +691,9 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
 
   it('a zero-size visual viewport keeps the fallback anchoring', () => {
     const { win } = load('dashboard.html', undefined, withVV({ width: 0, height: 0 }));
-    expect(decl(win, 'right')).toBe('calc(16px + env(safe-area-inset-right, 0px))');
-    expect(decl(win, 'transform')).toBe('none');
+    expect(decl(win, 'right')).toBe('0');
+    expect(decl(win, 'top')).toBe('50%');
+    expect(decl(win, 'transform')).toBe('translateY(-50%)');
   });
 
   it('re-applies after documentElement replacement', async () => {
@@ -698,7 +707,7 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     win.document.documentElement.replaceWith(doc.documentElement);
     await Promise.resolve();
     expect(host(win).isConnected).toBe(true);
-    expect(decl(win, 'transform')).toBe(vvT(360, 700));
+    expect(decl(win, 'transform')).toBe(vvT(360, 350));
     expect(decl(win, '--hv-vw')).toBe('360px');
     expect(decl(win, '--hv-vh')).toBe('700px');
   });
@@ -760,7 +769,7 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     const zooms = { html: '0.2604', body: '1' };
     const { win } = load('index.html', undefined, withZoom(zooms, withVV({ width: 375, height: 812 })));
     expect(decl(win, 'zoom')).toBe(counter(0.2604));
-    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, 'transform')).toBe(vvT(375, 406));
     expect(decl(win, '--hv-vw')).toBe('375px');
     expect(decl(win, 'left')).toBe('0');
   });
@@ -799,9 +808,9 @@ describe('renderFeedbackWidget root CSS zoom', () => {
   it('fallback path (no visualViewport) gets the same counter-zoom', () => {
     const { win } = load('index.html', undefined, withZoom({ html: '0.2604', body: '1' }, withVV(null)));
     expect(decl(win, 'zoom')).toBe(counter(0.2604));
-    expect(decl(win, 'right')).toBe('calc(16px + env(safe-area-inset-right, 0px))');
-    expect(decl(win, 'bottom')).toBe('calc(16px + env(safe-area-inset-bottom, 0px))');
-    expect(decl(win, 'transform')).toBe('none');
+    expect(decl(win, 'right')).toBe('0');
+    expect(decl(win, 'top')).toBe('50%');
+    expect(decl(win, 'transform')).toBe('translateY(-50%)');
     expect(decl(win, '--hv-vw')).toBeNull();
   });
 
@@ -814,7 +823,7 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     html.setAttribute('style', 'zoom: 0.2604');
     await Promise.resolve();
     expect(decl(win, 'zoom')).toBe(counter(0.2604));
-    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, 'transform')).toBe(vvT(375, 406));
 
     zooms.body = '0.5';
     win.document.body.className = 'scaled';
@@ -919,7 +928,7 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     expect(host(win).isConnected).toBe(true);
     expect(host(win).parentElement).toBe(win.document.body);
     expect(decl(win, 'zoom')).toBe(counter(0.3));
-    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, 'transform')).toBe(vvT(375, 406));
 
     // The new root is observed...
     zooms.html = '0.5';
@@ -931,5 +940,178 @@ describe('renderFeedbackWidget root CSS zoom', () => {
     oldHtml.setAttribute('style', 'zoom: 0.25');
     await Promise.resolve();
     expect(decl(win, 'zoom')).toBe(counter(0.5));
+  });
+});
+
+// The owner's browser window runs ~48px under the Windows taskbar, which hid the
+// old bottom-right pill (and the panel's Send), and the near-black pill vanished
+// on dark photo heroes. The launcher is now a cream tab on the right edge,
+// vertically centred in the visible viewport.
+describe('renderFeedbackWidget right-edge tab', () => {
+  const css = (win: Win) => q<HTMLStyleElement>(win, 'style').textContent ?? '';
+  const launcher = (win: Win) => q<HTMLButtonElement>(win, '.launch');
+
+  it('is a real button named "Feedback" that announces and tracks its dialog', () => {
+    const { win } = load('concept-a.html');
+    const b = launcher(win);
+    expect(b).toBe(button(win, 'Feedback'));
+    expect(b.tagName).toBe('BUTTON');
+    expect(b.type).toBe('button');
+    expect(b.textContent?.trim()).toBe('Feedback');
+    expect(b.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(b.getAttribute('aria-expanded')).toBe('false');
+    // The icon is decorative and adds nothing to the accessible name.
+    const svg = b.querySelector('svg');
+    expect(svg).not.toBeNull();
+    expect(svg!.getAttribute('aria-hidden')).toBe('true');
+    expect(svg!.getAttribute('focusable')).toBe('false');
+    b.click();
+    expect(b.getAttribute('aria-expanded')).toBe('true');
+    button(win, 'Cancel').click();
+    expect(b.getAttribute('aria-expanded')).toBe('false');
+    b.click();
+    messageInput(win).dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, composed: true }));
+    expect(b.getAttribute('aria-expanded')).toBe('false');
+    expect(root(win).activeElement).toBe(b);
+  });
+
+  it('keeps the draft dot on the tab', () => {
+    const { win } = load('concept-a.html');
+    const dot = q<HTMLElement>(win, '.dot');
+    expect(launcher(win).contains(dot)).toBe(true);
+    expect(dot.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('is a high-contrast cream tab, flush right, rounded on the left only, reading bottom-to-top', () => {
+    const { win } = load('concept-a.html');
+    const c = css(win);
+    const launch = /(^|\n)\.launch\s*\{([^}]*)\}/.exec(c);
+    expect(launch).not.toBeNull();
+    const body = launch![2];
+    expect(body).toMatch(/background:\s*#f2efe8/);
+    expect(body).toMatch(/color:\s*#0a0a0c/);
+    expect(body).toMatch(/border:\s*1px solid rgba\(10,10,12,0\.35\)/);
+    expect(body).toMatch(/border-right:\s*0/);
+    expect(body).toMatch(/border-radius:\s*10px 0 0 10px/);
+    expect(body).toMatch(/box-shadow:\s*0 6px 20px rgba\(0,0,0,0\.35\)/);
+    expect(body).toMatch(/width:\s*44px/);
+    const minH = /min-height:\s*(\d+)px/.exec(body);
+    expect(minH).not.toBeNull();
+    expect(Number(minH![1])).toBeGreaterThanOrEqual(120);
+    expect(Number(minH![1])).toBeLessThanOrEqual(140);
+    expect(c).toMatch(/\.launch:hover,\s*\.launch:focus-visible\s*\{[^}]*background:\s*#ffffff/);
+    expect(c).toMatch(/\.launch:focus-visible\s*\{[^}]*outline:\s*2px solid #0a0a0c/);
+    expect(c).toMatch(/\.tl\s*\{[^}]*writing-mode:\s*vertical-rl;[^}]*transform:\s*rotate\(180deg\)/);
+    expect(c).toMatch(/@media \(prefers-reduced-motion: reduce\) \{[^}]*\.launch[^}]*transition:\s*none/);
+    // The panel keeps its dark palette.
+    expect(c).toMatch(/\.panel\s*\{[^}]*background:\s*rgba\(12,12,16,0\.94\)/);
+  });
+
+  it('the open panel keeps a 16px gap to the right edge inside the host box', () => {
+    // translate(-100%, -50%) backs the host off by its own width, so the gap must be
+    // part of the host's box (a margin on the in-flow panel), not an offset.
+    const { win } = load('concept-a.html');
+    expect(css(win)).toMatch(/\.panel\s*\{[^}]*margin:\s*0 16px 0 0/);
+  });
+});
+
+const HINT_KEY = 'hv_pv_fb_hint_seen';
+
+describe('renderFeedbackWidget first-visit hint', () => {
+  const hint = (win: Win) => root(win).querySelector<HTMLElement>('.hint');
+
+  function withTimers(timers: { fn: () => void; ms: number }[]) {
+    return (win: Win) => {
+      const fake = (fn: () => void, ms: number) => timers.push({ fn, ms });
+      (win as unknown as { setTimeout: typeof fake }).setTimeout = fake;
+      (win as unknown as { clearTimeout: () => void }).clearTimeout = () => {};
+    };
+  }
+
+  it('shows once per browser, left of the tab, hidden from assistive tech', () => {
+    const page = load('concept-a.html');
+    const h = hint(page.win);
+    expect(h).not.toBeNull();
+    expect(h!.textContent).toBe('Leave feedback here');
+    expect(h!.getAttribute('aria-hidden')).toBe('true');
+    expect(q<HTMLButtonElement>(page.win, '.launch').contains(h)).toBe(false);
+    expect(page.win.localStorage.getItem(HINT_KEY)).toBe('1');
+    const css = q<HTMLStyleElement>(page.win, 'style').textContent ?? '';
+    expect(css).toMatch(/\.hint\s*\{[^}]*position:\s*absolute;[^}]*right:\s*calc\(100% \+ \d+px\)/);
+    expect(css).toMatch(/\.hint\s*\{[^}]*pointer-events:\s*none/);
+    expect(css).toMatch(/\.hint\s*\{[^}]*font-size:\s*14px/);
+    expect(css).toMatch(/\.hint\s*\{[^}]*background:\s*#0a0a0c/);
+
+    const next = reload(page, 'index.html');
+    expect(hint(next.win)).toBeNull();
+  });
+
+  it('is removed after about 5 seconds', () => {
+    const timers: { fn: () => void; ms: number }[] = [];
+    const { win } = load('concept-a.html', undefined, withTimers(timers));
+    expect(hint(win)).not.toBeNull();
+    const t = timers.find((x) => x.ms === 5000);
+    expect(t).toBeDefined();
+    t!.fn();
+    expect(hint(win)).toBeNull();
+  });
+
+  it('is removed as soon as the panel opens', () => {
+    const timers: { fn: () => void; ms: number }[] = [];
+    const { win } = load('concept-a.html', undefined, withTimers(timers));
+    expect(hint(win)).not.toBeNull();
+    button(win, 'Feedback').click();
+    expect(hint(win)).toBeNull();
+    // A late timer is harmless, and closing the panel does not bring it back.
+    timers.find((x) => x.ms === 5000)!.fn();
+    button(win, 'Cancel').click();
+    expect(hint(win)).toBeNull();
+  });
+
+  it('survives the bundle root swap and restarts its timer', async () => {
+    const timers: { fn: () => void; ms: number }[] = [];
+    const { win } = load('concept-a.html', undefined, withTimers(timers));
+    await flush();
+    const before = timers.filter((x) => x.ms === 5000).length;
+    const doc = new win.DOMParser().parseFromString('<html><body><main>unpacked</main></body></html>', 'text/html');
+    win.document.documentElement.replaceWith(doc.documentElement);
+    await Promise.resolve();
+    expect(host(win).isConnected).toBe(true);
+    expect(hint(win)).not.toBeNull();
+    expect(timers.filter((x) => x.ms === 5000).length).toBe(before + 1);
+  });
+
+  it('is not shown when already seen', () => {
+    const { win } = load('concept-a.html', { session: {}, local: { [HINT_KEY]: '1' } });
+    expect(hint(win)).toBeNull();
+  });
+
+  it('is not shown when storage cannot be read', () => {
+    const { win } = load('concept-a.html', undefined, (w) => {
+      vi.spyOn(w.Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      });
+    });
+    expect(hint(win)).toBeNull();
+  });
+
+  it('is not shown when storage cannot be written (it could never be marked seen)', () => {
+    const { win } = load('concept-a.html', undefined, (w) => {
+      vi.spyOn(w.Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      });
+    });
+    expect(hint(win)).toBeNull();
+  });
+
+  it('is not shown when a resumed draft auto-opens the panel', () => {
+    const { win } = load('index.html', {
+      session: {
+        [DRAFT_KEY]: JSON.stringify({ name: 'Kenji', page: 'concept-a.html', kind: 'bug', message: 'Note', resume: true }),
+      },
+      local: {},
+    });
+    expect(q<HTMLElement>(win, '[role="dialog"]').hidden).toBe(false);
+    expect(hint(win)).toBeNull();
   });
 });
