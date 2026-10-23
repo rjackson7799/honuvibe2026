@@ -100,10 +100,15 @@ async function lookupOwner(admin: Admin, id: string): Promise<Owner> {
   }
 }
 
-// R5: DEFINITE iff a returned error carries a 5-char SQLSTATE or a PGRST code.
-// Empty/other codes (fetch failed, abort, timeout) are ambiguous.
-function isDefiniteError(code: string): boolean {
-  return /^[0-9A-Z]{5}$/.test(code) || code.startsWith('PGRST');
+// R5: objects are removed only after a PERMANENT insert error: SQLSTATE class
+// 22 (data), 23 (integrity; 23505 is the replay path), 42 (syntax/access) or 0A,
+// or a PostgREST request error PGRST1xx/2xx. WHY: a permanent error recurs for a
+// concurrent retry with the same payload, so that retry cannot commit a row
+// pointing at the objects we remove. Transient errors (57014 statement timeout,
+// 40001/40P01, 53xxx, 08xxx, PGRST000-003), thrown errors and empty/other codes
+// may succeed for a racing retry, so the objects are kept (reconciliation).
+function isPermanentError(code: string): boolean {
+  return /^(22|23|42|0A)[0-9A-Z]{3}$/.test(code) || /^PGRST[12]\d\d$/.test(code);
 }
 
 // Best effort: a failed removal is logged per path and the request still ends in 500.
@@ -216,20 +221,21 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
   const submissionId = parsed.value.submissionId;
   if (bodyKind === 'multipart' && !submissionId) return fail(400, 'submissionId is required');
 
+  // 13. post-auth throttles (valid-cookie holders only; an image note is one
+  // note). Before decoding so a throttled client cannot spend sharp CPU.
+  if (!tryConsume(`preview-fb:${slug}:${ip}`, IP_LIMIT, IP_WINDOW_S * 1000)) {
+    return tooMany(IP_WINDOW_S);
+  }
+  if (!tryConsume(`preview-fb:slug:${slug}`, SLUG_LIMIT, SLUG_WINDOW_S * 1000)) {
+    return tooMany(SLUG_WINDOW_S);
+  }
+
   // 12i. the screenshot is decoded and re-encoded before anything is stored
   let processed: { full: Buffer; thumb: Buffer } | null = null;
   if (imageBytes) {
     const result = await processScreenshot(imageBytes);
     if (!result.ok) return fail(400, result.error);
     processed = { full: result.full, thumb: result.thumb };
-  }
-
-  // 13. post-auth throttles (valid-cookie holders only; an image note is one note)
-  if (!tryConsume(`preview-fb:${slug}:${ip}`, IP_LIMIT, IP_WINDOW_S * 1000)) {
-    return tooMany(IP_WINDOW_S);
-  }
-  if (!tryConsume(`preview-fb:slug:${slug}`, SLUG_LIMIT, SLUG_WINDOW_S * 1000)) {
-    return tooMany(SLUG_WINDOW_S);
   }
 
   // 14r. replay check: a retry of an already-stored submission is a success
@@ -253,7 +259,18 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
 
   // 14i. insert via service role (id = submissionId when the client sent one)
   const userAgent = request.headers.get('user-agent');
-  const record: Record<string, unknown> = {
+  const record: {
+    id?: string;
+    preview_id: string;
+    page: string;
+    reviewer_name: string;
+    kind: string;
+    message: string;
+    viewport_w: number | null;
+    viewport_h: number | null;
+    user_agent: string | null;
+    image_path?: string;
+  } = {
     ...(submissionId ? { id: submissionId } : {}),
     preview_id: row.id,
     page: parsed.value.page,
@@ -284,7 +301,7 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
       }
       return fail(500, 'Could not save feedback');
     }
-    if (paths && submissionId && isDefiniteError(insertCode)) {
+    if (paths && submissionId && isPermanentError(insertCode)) {
       // Remove objects only when the row is CONFIRMED absent. If the re-check
       // finds the row for this preview, the note did commit: report success.
       // A re-check error or a foreign owner keeps the objects.

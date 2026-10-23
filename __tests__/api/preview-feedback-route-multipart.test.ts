@@ -493,12 +493,34 @@ describe('preview feedback route: multipart + idempotency', () => {
     expect(removeMock).toHaveBeenCalledWith([`${pid}/${f.sid}.jpg`, `${pid}/${f.sid}.thumb.jpg`]);
   });
 
-  it('a PGRST code is definite too', async () => {
+  it('a PGRST2xx request error (PGRST204) is permanent: cleanup path', async () => {
     const f = fresh();
     maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
-    insertMock.mockResolvedValue({ error: { code: 'PGRST301', message: 'jwt' } });
+    insertMock.mockResolvedValue({ error: { code: 'PGRST204', message: 'column' } });
     expect((await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG())).status).toBe(500);
     expect(removeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['57014', '40001', '40P01', '53300', '08006', 'PGRST000', 'PGRST003', 'PGRST301'])(
+    'transient/other code %s is ambiguous: 500, remove never called, no re-check',
+    async (code) => {
+      const f = fresh();
+      maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+      insertMock.mockResolvedValue({ error: { code, message: 'transient' } });
+      expect((await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG())).status).toBe(500);
+      expect(removeMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it('throttles before decoding: an exhausted bucket 429s a bad image instead of 400', async () => {
+    const f = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    for (let i = 0; i < 20; i++) {
+      const sid = `00000000-0000-4000-a000-${String(counter * 100 + i).padStart(12, '0')}`;
+      expect((await sendMp(f, { ...NOTE, submissionId: sid })).status).toBe(201);
+    }
+    const res = await sendMp(f, { ...NOTE, submissionId: f.sid }, { bytes: fixture('not-image.jpg'), type: 'image/jpeg' });
+    expect(res.status).toBe(429);
   });
 
   it('definite error but the row is present for this preview: 201, objects kept', async () => {
