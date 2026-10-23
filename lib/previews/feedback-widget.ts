@@ -373,24 +373,44 @@ form.addEventListener('submit', function (e) {
 // nothing is inferred from innerWidth/clientWidth, and desktop scrollbars are
 // already excluded from vv.width. The 16px gap and safe-area insets stay in CSS
 // (calc + env), so no inset has to be measured.
-var vv = w.visualViewport, placeQueued = false;
+//
+// CSS zoom on <html>/<body> is inherited multiplicatively. A non-reflowing export
+// can scale its desktop design to the phone with an inline zoom on <html> (real
+// export: 0.2604 = 375/1440), which shrank the launcher to 26% and scaled the
+// translate by the same factor. The host takes a counter-zoom (1/z) so its
+// effective zoom is 1: the translate stays in true CSS px and the 16px inputs
+// really are 16px (iOS focus-zoom). At z = 1 no zoom declaration is written.
+var vv = w.visualViewport, placeQueued = false, base = HOST_STYLE;
 function px(n) { return n + 'px'; }
+function zoomOf(el) {
+  if (!el || !w.getComputedStyle) return 1;
+  var z = NaN;
+  try {
+    var cs = w.getComputedStyle(el);
+    if (cs) z = parseFloat(cs.zoom || (cs.getPropertyValue ? cs.getPropertyValue('zoom') : ''));
+  } catch (e) {}
+  return isFinite(z) && z > 0 ? z : 1;
+}
 function placeNow() {
   placeQueued = false;
-  if (!vv) return;
-  var vw = Number(vv.width) || 0, vh = Number(vv.height) || 0;
-  if (!(vw > 0 && vh > 0)) return;
-  var x = Math.round((Number(vv.offsetLeft) || 0) + vw);
-  var y = Math.round((Number(vv.offsetTop) || 0) + vh);
+  if (vv) {
+    var vw = Number(vv.width) || 0, vh = Number(vv.height) || 0;
+    if (vw > 0 && vh > 0) {
+      var x = Math.round((Number(vv.offsetLeft) || 0) + vw);
+      var y = Math.round((Number(vv.offsetTop) || 0) + vh);
+      base = HOST_STYLE_VV +
+        ';transform:translate(calc(' + px(x) + ' - 16px - env(safe-area-inset-right, 0px)), calc(' +
+        px(y) + ' - 16px - env(safe-area-inset-bottom, 0px))) translate(-100%, -100%) !important' +
+        ';--hv-vw:' + px(Math.floor(vw)) + ' !important;--hv-vh:' + px(Math.floor(vh)) + ' !important';
+    }
+  }
+  var z = zoomOf(d.documentElement) * zoomOf(d.body), s = base;
+  if (Math.abs(z - 1) > 1e-6) s += ';zoom:' + String(1 / z) + ' !important';
   // The whole attribute is written rather than round-tripped through the CSSOM.
-  var s = HOST_STYLE_VV +
-    ';transform:translate(calc(' + px(x) + ' - 16px - env(safe-area-inset-right, 0px)), calc(' +
-    px(y) + ' - 16px - env(safe-area-inset-bottom, 0px))) translate(-100%, -100%) !important' +
-    ';--hv-vw:' + px(Math.floor(vw)) + ' !important;--hv-vh:' + px(Math.floor(vh)) + ' !important';
   if (host.getAttribute('style') !== s) host.setAttribute('style', s);
 }
 function place() {
-  if (!vv || placeQueued) return;
+  if (placeQueued) return;
   if (w.requestAnimationFrame) { placeQueued = true; w.requestAnimationFrame(placeNow); }
   else placeNow();
 }
@@ -398,8 +418,27 @@ if (vv && vv.addEventListener) {
   vv.addEventListener('resize', place);
   vv.addEventListener('scroll', place);
 }
+w.addEventListener('resize', place);
+w.addEventListener('load', place);
+
+// The export can set its zoom after load (inline style or a class on html/body).
+// Only html/body attributes are observed - never the host or the subtree - so
+// writing the host's style can't loop. Re-attached after the root swap.
+var zoomObs = w.MutationObserver ? new MutationObserver(place) : null, obsHtml = null, obsBody = null;
+function watchZoom() {
+  if (!zoomObs) return;
+  var h = d.documentElement, b = d.body;
+  if (h === obsHtml && b === obsBody) return;
+  zoomObs.disconnect();
+  obsHtml = h;
+  obsBody = b;
+  var opts = { attributes: true, attributeFilter: ['style', 'class'] };
+  if (h) zoomObs.observe(h, opts);
+  if (b) zoomObs.observe(b, opts);
+}
 
 function ensureMounted() {
+  watchZoom();
   if (host.isConnected) return;
   var parent = d.body || d.documentElement;
   if (parent) {

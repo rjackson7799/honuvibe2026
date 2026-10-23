@@ -729,3 +729,171 @@ describe('renderFeedbackWidget visual viewport anchoring', () => {
     expect(css).toMatch(/(^|\n)form\s*\{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*min-height:\s*0/);
   });
 });
+
+// A non-reflowing export can scale its desktop design down with an inline
+// `zoom` on <html> (new Hawaii Palms export: zoom 0.2604 = 375/1440 on a phone).
+// CSS zoom is inherited multiplicatively, so the host (in body) rendered at 26%
+// and its visual viewport translate was scaled by the same factor. The host
+// carries its own counter-zoom so its effective zoom is 1. jsdom does not
+// implement `zoom`, so computed zoom is stubbed for <html> and <body>.
+type Zooms = { html: string; body: string };
+
+function withZoom(zooms: Zooms, inner?: (win: Win) => void): (win: Win) => void {
+  return (win) => {
+    const real = win.getComputedStyle.bind(win);
+    const stub = (el: Element, pseudo?: string | null): CSSStyleDeclaration => {
+      const doc = win.document;
+      const z = el === doc.documentElement ? zooms.html : el === doc.body ? zooms.body : null;
+      if (z === null) return real(el, pseudo);
+      return { zoom: z, getPropertyValue: (p: string) => (p === 'zoom' ? z : '') } as unknown as CSSStyleDeclaration;
+    };
+    (win as unknown as { getComputedStyle: typeof stub }).getComputedStyle = stub;
+    inner?.(win);
+  };
+}
+
+const counter = (z: number) => String(1 / z);
+
+describe('renderFeedbackWidget root CSS zoom', () => {
+  it('counter-zooms the host under a zoomed <html>, keeping the visual viewport transform', () => {
+    const zooms = { html: '0.2604', body: '1' };
+    const { win } = load('index.html', undefined, withZoom(zooms, withVV({ width: 375, height: 812 })));
+    expect(decl(win, 'zoom')).toBe(counter(0.2604));
+    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+    expect(decl(win, '--hv-vw')).toBe('375px');
+    expect(decl(win, 'left')).toBe('0');
+  });
+
+  it('uses the product of the <html> and <body> zoom', () => {
+    const { win } = load('index.html', undefined, withZoom({ html: '0.5', body: '0.8' }, withVV({ width: 375, height: 812 })));
+    expect(decl(win, 'zoom')).toBe(counter(0.4));
+  });
+
+  it('emits no zoom declaration when the inherited zoom is 1 or unreadable', () => {
+    for (const html of ['1', '', 'normal', '0', '-2', 'NaN']) {
+      const vv = load('index.html', undefined, withZoom({ html, body: '1' }, withVV({ width: 375, height: 812 })));
+      expect(decl(vv.win, 'zoom')).toBeNull();
+      const plain = load('index.html', undefined, withVV({ width: 375, height: 812 }));
+      expect(host(vv.win).getAttribute('style')).toBe(host(plain.win).getAttribute('style'));
+    }
+    // The fallback (no visualViewport) style is untouched too.
+    const fb = load('index.html', undefined, withZoom({ html: '1', body: '1' }, withVV(null)));
+    const plainFb = load('index.html', undefined, withVV(null));
+    expect(decl(fb.win, 'zoom')).toBeNull();
+    expect(host(fb.win).getAttribute('style')).toBe(host(plainFb.win).getAttribute('style'));
+  });
+
+  it('fallback path (no visualViewport) gets the same counter-zoom', () => {
+    const { win } = load('index.html', undefined, withZoom({ html: '0.2604', body: '1' }, withVV(null)));
+    expect(decl(win, 'zoom')).toBe(counter(0.2604));
+    expect(decl(win, 'right')).toBe('calc(16px + env(safe-area-inset-right, 0px))');
+    expect(decl(win, 'bottom')).toBe('calc(16px + env(safe-area-inset-bottom, 0px))');
+    expect(decl(win, 'transform')).toBe('none');
+    expect(decl(win, '--hv-vw')).toBeNull();
+  });
+
+  it('follows a later zoom change on <html> or <body> (style/class mutations)', async () => {
+    const zooms = { html: '1', body: '1' };
+    const { win } = load('index.html', undefined, withZoom(zooms, withVV({ width: 375, height: 812 })));
+    expect(decl(win, 'zoom')).toBeNull();
+    const html = win.document.documentElement;
+    zooms.html = '0.2604';
+    html.setAttribute('style', 'zoom: 0.2604');
+    await Promise.resolve();
+    expect(decl(win, 'zoom')).toBe(counter(0.2604));
+    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+
+    zooms.body = '0.5';
+    win.document.body.className = 'scaled';
+    await Promise.resolve();
+    expect(decl(win, 'zoom')).toBe(counter(0.2604 * 0.5));
+
+    zooms.html = '1';
+    zooms.body = '1';
+    html.removeAttribute('style');
+    await Promise.resolve();
+    expect(decl(win, 'zoom')).toBeNull();
+  });
+
+  it('a window resize re-evaluates (stylesheet media query zoom)', () => {
+    const zooms = { html: '1', body: '1' };
+    const { win } = load('index.html', undefined, withZoom(zooms, withVV(null)));
+    expect(decl(win, 'zoom')).toBeNull();
+    zooms.html = '0.25';
+    win.dispatchEvent(new win.Event('resize'));
+    expect(decl(win, 'zoom')).toBe(counter(0.25));
+  });
+
+  it('zoom re-evaluation is rAF-throttled together with placement', async () => {
+    const frames: FrameRequestCallback[] = [];
+    const zooms = { html: '1', body: '1' };
+    const { win } = load(
+      'index.html',
+      undefined,
+      withZoom(
+        zooms,
+        withVV({ width: 375, height: 812 }, (w) => {
+          (w as unknown as { requestAnimationFrame: (cb: FrameRequestCallback) => number }).requestAnimationFrame = (cb) =>
+            frames.push(cb);
+        }),
+      ),
+    );
+    zooms.html = '0.5';
+    win.document.documentElement.setAttribute('style', 'zoom: 0.5');
+    await Promise.resolve();
+    win.dispatchEvent(new win.Event('resize'));
+    fakeVV(win).dispatchEvent(new win.Event('resize'));
+    expect(decl(win, 'zoom')).toBeNull();
+    expect(frames).toHaveLength(1);
+    frames.shift()!(0);
+    expect(decl(win, 'zoom')).toBe(counter(0.5));
+  });
+
+  it('never observes its own host (no feedback loop)', async () => {
+    const frames: FrameRequestCallback[] = [];
+    const zooms = { html: '0.2604', body: '1' };
+    const { win } = load(
+      'index.html',
+      undefined,
+      withZoom(
+        zooms,
+        withVV({ width: 375, height: 812 }, (w) => {
+          (w as unknown as { requestAnimationFrame: (cb: FrameRequestCallback) => number }).requestAnimationFrame = (cb) =>
+            frames.push(cb);
+        }),
+      ),
+    );
+    await flush();
+    frames.length = 0;
+    host(win).setAttribute('style', host(win).getAttribute('style') + ';color:red');
+    await flush();
+    expect(frames).toHaveLength(0);
+  });
+
+  it('re-applies after documentElement replacement and watches the new root', async () => {
+    const zooms = { html: '0.2604', body: '1' };
+    const { win } = load('index.html', undefined, withZoom(zooms, withVV({ width: 375, height: 812 })));
+    await flush();
+    expect(decl(win, 'zoom')).toBe(counter(0.2604));
+    const oldHtml = win.document.documentElement;
+    const doc = new win.DOMParser().parseFromString('<html><body><main>unpacked</main></body></html>', 'text/html');
+    zooms.html = '0.3';
+    win.document.documentElement.replaceWith(doc.documentElement);
+    await Promise.resolve();
+    expect(host(win).isConnected).toBe(true);
+    expect(host(win).parentElement).toBe(win.document.body);
+    expect(decl(win, 'zoom')).toBe(counter(0.3));
+    expect(decl(win, 'transform')).toBe(vvT(375, 812));
+
+    // The new root is observed...
+    zooms.html = '0.5';
+    win.document.documentElement.setAttribute('style', 'zoom: 0.5');
+    await Promise.resolve();
+    expect(decl(win, 'zoom')).toBe(counter(0.5));
+    // ...and the detached old one is not.
+    zooms.html = '0.25';
+    oldHtml.setAttribute('style', 'zoom: 0.25');
+    await Promise.resolve();
+    expect(decl(win, 'zoom')).toBe(counter(0.5));
+  });
+});
