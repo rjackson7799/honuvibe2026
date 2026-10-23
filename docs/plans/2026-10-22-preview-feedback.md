@@ -529,3 +529,53 @@ Declined or adjusted:
 - **"Let the parent identify the active concept" for framed pages:** declined. No export frames another preview page, and D8 documents the boundary.
 - **"Direct privilege assertions" inside the RLS suite:** adjusted. PostgREST can't read `information_schema`, so the suite asserts the behavior (`42501` for anon), and the grants query runs in the SQL editor on the test project (Task 1) and on prod (Ship).
 - **Keep the scratch file screenshot as an extra rendering check:** dropped. Task 8 step 4 renders the same bundle through the real route at both widths, so it would only repeat that check.
+
+## Execution record (2026-10-22)
+
+Built with subagent-driven development, one implementer and one task review per task, then an independent adversarial whole-branch review. Migration number 089 was still free.
+
+**Commits** (local on main, pushed together after 089 reached prod):
+`8321582` migration 089 · `382f0e8` pure helpers · `34f8d0d` + `4603647` widget · `9218723` feedback route · `fd158b9` gate injection · `2fc5795` admin pages · `e40af9e` final-review fixes · `be80bbb` + `8d1e5d0` visual-viewport anchoring. 27 files, no `any`, only this plan's files staged.
+
+**Gates**
+- Clean worktree at `8d1e5d0`: type-check green; build green (both API routes and both admin pages compiled); tests 2476/2476. One suite, `__tests__/discovery-launch-gate.test.tsx`, errors at import with `server-only` unresolved. That failure is **pre-existing at f57f8df** and unrelated: `server-only` isn't in package.json, and the dirty tree only resolves it via a stray Feb-23 `node_modules/server-only` directory.
+- `NODE_OPTIONS=--max-old-space-size=8192 pnpm verify` in the main tree (dirty WIP tree): type-check green; tests 228/228 files (2595 tests) green. The build step crashed twice from machine RAM exhaustion: a PostCSS subprocess allocation failure, then `node::Realloc` failing during "Running TypeScript". It passed on the next retry, with TypeScript finished and 498/498 pages.
+- `pnpm test:rls preview_feedback client_previews`: 17/17 on the hosted test project. Grants there: no `anon` row; `authenticated` = DELETE, INSERT, SELECT, UPDATE.
+- Task 7 upsert check on the test project: an `off` row stays false and an `on` row stays true across repeated upserts.
+
+**Task 8 integration** (local server on the test project, real Hawaii Palms `index.html` + `dashboard.html`, real gate route):
+- HTTP: the 401 page has no widget; the password POST gives 303 + cookie. `dashboard.html` serves 200 with the marker once, before `</body>`, and the rest byte-identical; the snippet is 13,967 B, the same on every page. A forged cookie gets 401; the probe gets 201.
+- Browser: the Chrome extension could not attach to any tab, so the pass ran in headless Chromium (Playwright) at 1440×900, 375×812 and 375×420. 18/18 checks pass, including the remount after the bundle's root swap and the full rotation drill.
+- Stored rows, all 4 matched by message:
+
+  | Message | page | reviewer_name | kind |
+  |---|---|---|---|
+  | SMOKE-1 http probe | http-probe | Probe | bug |
+  | SMOKE-2 dashboard | dashboard.html | Ann | bug |
+  | SMOKE-3 chooser | index.html | Ben | improvement |
+  | SMOKE-4 rotated | dashboard.html | Cy | bug |
+
+- Admin: 6/6 checks pass. Turning feedback off makes the next `dashboard.html` byte-identical to the export. Cleanup is done.
+
+**Deviations from the plan**
+- 089 CHECKs use `btrim(x, E' \t\r\n')`, because plain `btrim` trims spaces only and fails the plan's own whitespace test. 089 also adds an `updated_at` trigger.
+- The feedback route's Origin check uses the house `isSameOriginRequest` (Host header) instead of `nextUrl.host`, which 403'd under `next dev` on 127.0.0.1 or a LAN IP.
+- `parseFeedbackInput` also rejects control characters in the name and NUL/C0 controls in the message, which return 400 instead of a Postgres 500.
+- Widget additions beyond the plan:
+  - keystrokes are isolated at the shadow root, because export key handlers were stealing `/` and Esc;
+  - a 20-second send timeout;
+  - Close is blocked while a send is pending;
+  - after a 401 → reload, the restored draft auto-opens the panel once;
+  - host hardening with `visibility`, `opacity` and `pointer-events`;
+  - `acorn` is added as a devDependency for the ES2019 parse test.
+- **Visual-viewport anchoring**, found by Task 8. On a phone, the non-responsive dashboard grows the layout viewport to 568×1230, which pushed the fixed launcher off-screen. The host now pins at `left:0; top:0` and translates by `visualViewport` offsets, so it also tracks the iOS keyboard. Without `visualViewport` it falls back to the old right/bottom CSS. The fieldset is `display: contents`, so Send isn't clipped at 420 px tall.
+- The admin feedback toggle is disabled for public previews, and the action rejects enabling them.
+- The Task 4 build accepted the static `feedback` sibling route, so the catch-all fallback wasn't needed.
+
+**Known, deferred:** a stale optimistic error in rare A→B→A admin clicks; at 2× pinch-zoom Send is partly clipped; `viewportW/H` records the layout size rather than the visible size; duplicates are possible after a 20-second timeout or a bfcache restore (M3); the D7 edge for a trailing `</body` inside a script string (M6). Neither iOS Safari nor a real phone has been tested yet (Ship step 4).
+
+**Prod (Ship step 1), 2026-10-23:** Ryan applied 089 in the dashboard SQL editor. It returned "Success. No rows returned". Before that, a read-only baseline confirmed neither the column nor the table existed. Verified by querying prod over REST with the service key:
+- `client_previews`: 4 rows, `feedback_enabled` boolean on all 4, **enabled = 0**. A `select=feedback_enabled` call returns 200, so the schema cache has the column.
+- `preview_feedback`: 0 rows.
+- anon SELECT and INSERT both return `42501 permission denied`.
+- The authenticated TRUNCATE/REFERENCES/TRIGGER revoke ran in the same `BEGIN…COMMIT` that created the table, and the table exists.
