@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  PREVIEW_FEEDBACK_IMAGE_BUCKET,
   escapeMarkdown,
+  feedbackImagePaths,
   filterFeedback,
   groupFeedbackByPage,
   parseFeedbackInput,
   shortFeedbackId,
+  thumbPathFor,
   toMarkdownChecklist,
   type PreviewFeedbackItem,
 } from '@/lib/previews/feedback';
@@ -234,5 +237,17 @@ describe('toMarkdownChecklist', () => {
     expect(md).toContain('## a\\_b.html');
     expect(md).toContain('\\[link\\](x) \\<b\\>\\#1\\</b\\>');
     expect(md).toContain('_\\*Ann\\*, 2026-10-01_');
+  });
+});
+
+describe('feedback image paths', () => {
+  it('names the private bucket', () => {
+    expect(PREVIEW_FEEDBACK_IMAGE_BUCKET).toBe('preview-feedback-images');
+  });
+  it('builds full and thumb paths under the preview id', () => {
+    expect(feedbackImagePaths('pid', 'sid')).toEqual({ full: 'pid/sid.jpg', thumb: 'pid/sid.thumb.jpg' });
+  });
+  it('derives the thumb path from a full path', () => {
+    expect(thumbPathFor('pid/sid.jpg')).toBe('pid/sid.thumb.jpg');
   });
 });

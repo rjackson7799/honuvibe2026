@@ -33,6 +33,18 @@ export const FEEDBACK_LIMITS = {
 
 // Image-processing constants live in image-process.ts (SCREENSHOT_LIMITS).
 
+export const PREVIEW_FEEDBACK_IMAGE_BUCKET = 'preview-feedback-images';
+
+/** Object paths for a note's screenshot: <preview_id>/<submission_id>.jpg and .thumb.jpg. */
+export function feedbackImagePaths(previewId: string, submissionId: string): { full: string; thumb: string } {
+  return { full: `${previewId}/${submissionId}.jpg`, thumb: `${previewId}/${submissionId}.thumb.jpg` };
+}
+
+/** Thumb path for a stored full-image path (replaces the trailing .jpg). */
+export function thumbPathFor(imagePath: string): string {
+  return imagePath.replace(/\.jpg$/, '.thumb.jpg');
+}
+
 export type FeedbackInput = {
   name: string;
   kind: FeedbackKind;
