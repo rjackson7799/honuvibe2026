@@ -43,6 +43,7 @@ function item(over: Partial<PreviewFeedbackItem> & Pick<PreviewFeedbackItem, 'id
     viewportH: 844,
     userAgent: 'Mozilla/5.0 (iPhone)',
     status: 'new',
+    hasImage: false,
     ...over,
   };
 }
@@ -317,5 +318,47 @@ describe('AdminPreviewFeedback', () => {
     expect(screen.getByText('Footer link typo')).toBeInTheDocument();
     expect((screen.getByLabelText('Filter by status') as HTMLSelectElement).value).toBe('all');
     expect((screen.getByLabelText('Filter by kind') as HTMLSelectElement).value).toBe('all');
+  });
+
+  describe('screenshots', () => {
+    const IMG_ID = 'eeeeeeee-0000-4000-8000-000000000005';
+    const withImage = item({ id: IMG_ID, message: 'See the screenshot', hasImage: true });
+
+    it('renders a thumbnail only for items with an image', () => {
+      const { container } = render(
+        <AdminPreviewFeedback preview={PREVIEW} items={[ITEMS[0], withImage]} />,
+      );
+      const imgs = container.querySelectorAll('img');
+      expect(imgs).toHaveLength(1);
+      expect(imgs[0].getAttribute('src')).toBe(`/api/admin/preview-feedback/${IMG_ID}/image?v=thumb`);
+      expect(imgs[0].getAttribute('width')).toBe('120');
+      expect(imgs[0].getAttribute('height')).toBe('90');
+      const link = imgs[0].closest('a')!;
+      expect(link.getAttribute('href')).toBe(`/api/admin/preview-feedback/${IMG_ID}/image?v=full`);
+      expect(link.getAttribute('target')).toBe('_blank');
+      expect(link.getAttribute('rel')).toContain('noopener');
+    });
+
+    it('shows "Screenshot unavailable" on image error and keeps the note', () => {
+      const { container } = render(<AdminPreviewFeedback preview={PREVIEW} items={[withImage]} />);
+      fireEvent.error(container.querySelector('img')!);
+      expect(screen.getByText('Screenshot unavailable')).toBeInTheDocument();
+      expect(container.querySelector('img')).toBeNull();
+      expect(screen.getByText('See the screenshot')).toBeInTheDocument();
+    });
+
+    it('copied markdown carries the screenshot link', async () => {
+      const writeText = vi.fn(async () => {});
+      stubClipboard(writeText);
+      render(<AdminPreviewFeedback preview={PREVIEW} items={[withImage]} />);
+      fireEvent.click(screen.getByRole('button', { name: 'Copy as markdown' }));
+      await waitFor(() =>
+        expect(writeText).toHaveBeenCalledWith(
+          expect.stringContaining(
+            `[screenshot](https://www.honuvibe.ai/api/admin/preview-feedback/${IMG_ID}/image?v=full)`,
+          ),
+        ),
+      );
+    });
   });
 });

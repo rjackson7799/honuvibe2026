@@ -309,6 +309,8 @@ function FeedbackItemCard({
   const shortId = shortFeedbackId(item.id);
   const viewport =
     item.viewportW !== null && item.viewportH !== null ? `${item.viewportW}×${item.viewportH}` : null;
+  const [imageFailed, setImageFailed] = useState(false);
+  const imageUrl = `/api/admin/preview-feedback/${item.id}/image`;
   const meta = [viewport, item.userAgent].filter((v): v is string => Boolean(v)).join(' · ');
 
   return (
@@ -343,6 +345,31 @@ function FeedbackItemCard({
         </select>
       </div>
       <p className="whitespace-pre-wrap break-words text-[14px] text-fg-primary">{item.message}</p>
+      {item.hasImage &&
+        (imageFailed ? (
+          <p className="text-[12.5px] text-fg-tertiary">Screenshot unavailable</p>
+        ) : (
+          <a
+            href={`${imageUrl}?v=full`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open screenshot in a new tab"
+            className="inline-flex min-h-[44px] min-w-[44px] rounded-[10px] border border-border-default bg-bg-primary p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/40"
+          >
+            {/* Deliberate exception to the next/image rule: the screenshot is private
+                (admin signer route, 302 to a short-lived URL), so it must not go
+                through the image optimizer's shared cache. */}
+            <img
+              src={`${imageUrl}?v=thumb`}
+              width={120}
+              height={90}
+              loading="lazy"
+              alt="Screenshot"
+              className="h-[90px] w-[120px] object-contain"
+              onError={() => setImageFailed(true)}
+            />
+          </a>
+        ))}
       {meta && <p className="text-[12px] text-fg-tertiary break-all">{meta}</p>}
       {error && (
         <p role="alert" className={errorCls}>

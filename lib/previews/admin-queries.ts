@@ -8,6 +8,8 @@ import type { FeedbackKind, FeedbackStatus, PreviewFeedbackItem } from '@/lib/pr
 // PostgREST truncates every response at max_rows = 1000 with NO error, so:
 //   * counts NEVER come from fetched rows — they are head counts;
 //   * the feedback list is paged until a short page comes back.
+// image_path is read only to derive hasImage — nothing is signed here; images
+// are served by the admin signer route (/api/admin/preview-feedback/[id]/image).
 // Explicit columns only; `client_previews.password` is never selected.
 
 export type AdminPreviewSummary = {
@@ -30,7 +32,7 @@ const FEEDBACK_PAGE_SIZE = 500;
 const PREVIEW_COLUMNS =
   'id, slug, title, mode, created_at, expires_at, access_count, last_accessed_at, feedback_enabled';
 const FEEDBACK_COLUMNS =
-  'id, created_at, page, reviewer_name, kind, message, viewport_w, viewport_h, user_agent, status';
+  'id, created_at, page, reviewer_name, kind, message, viewport_w, viewport_h, user_agent, status, image_path';
 
 type PreviewRow = {
   id: string;
@@ -55,6 +57,7 @@ type FeedbackRow = {
   viewport_h: number | null;
   user_agent: string | null;
   status: FeedbackStatus;
+  image_path: string | null;
 };
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -107,6 +110,7 @@ function toItem(row: FeedbackRow): PreviewFeedbackItem {
     viewportH: row.viewport_h,
     userAgent: row.user_agent,
     status: row.status,
+    hasImage: row.image_path !== null && row.image_path !== undefined,
   };
 }
 

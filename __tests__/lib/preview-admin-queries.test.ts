@@ -37,9 +37,14 @@ function builder(table: string) {
   return chain;
 }
 
+const adminClientCalls = vi.hoisted(() => ({ count: 0 }));
+
 vi.mock('@/lib/supabase/server', () => ({
   createClient: async () => ({ from: (t: string) => builder(t) }),
-  createAdminClient: () => ({ from: (t: string) => builder(t) }),
+  createAdminClient: () => {
+    adminClientCalls.count += 1;
+    return { from: (t: string) => builder(t) };
+  },
 }));
 
 import { getPreviewSummaries, getPreviewWithFeedback } from '@/lib/previews/admin-queries';
@@ -87,11 +92,13 @@ function feedbackRow(n: number) {
     viewport_h: 844,
     user_agent: 'UA',
     status: 'new',
+    image_path: null,
   };
 }
 
 beforeEach(() => {
   state.queries.length = 0;
+  adminClientCalls.count = 0;
   state.resolver = () => ({ data: null, error: null });
 });
 
@@ -190,7 +197,31 @@ describe('getPreviewWithFeedback', () => {
       viewportH: 844,
       userAgent: 'UA',
       status: 'new',
+      hasImage: false,
     });
+  });
+
+  it('selects image_path, maps hasImage, uses the session client and never signs', async () => {
+    const imageId = '11111111-1111-4111-8111-111111111111';
+    state.resolver = (q) => {
+      if (q.table === 'client_previews') return { data: PREVIEW_ROW, error: null };
+      if (isHead(q)) return { count: 2, error: null };
+      return {
+        data: [
+          { ...feedbackRow(1), image_path: `${PREVIEW_ID}/${imageId}.jpg` },
+          { ...feedbackRow(2), image_path: null },
+        ],
+        error: null,
+      };
+    };
+
+    const result = await getPreviewWithFeedback(PREVIEW_ID);
+
+    expect(result!.items.map((i) => i.hasImage)).toEqual([true, false]);
+    expect(result!.items[0]).not.toHaveProperty('imagePath');
+    const rowQuery = state.queries.find((q) => q.table === 'preview_feedback' && !isHead(q))!;
+    expect(method(rowQuery, 'select')[0][1][0]).toContain('image_path');
+    expect(adminClientCalls.count).toBe(0);
   });
 
   it('returns null when the preview does not exist', async () => {

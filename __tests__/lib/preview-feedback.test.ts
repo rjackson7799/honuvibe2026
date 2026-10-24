@@ -24,6 +24,7 @@ function item(over: Partial<PreviewFeedbackItem>): PreviewFeedbackItem {
     viewportH: null,
     userAgent: null,
     status: 'new',
+    hasImage: false,
     ...over,
   };
 }
@@ -228,6 +229,15 @@ describe('toMarkdownChecklist', () => {
         '',
       ].join('\n'),
     );
+  });
+
+  it('appends the admin screenshot link only to items with an image', () => {
+    const withImage = item({ id: 'a1b2c3d4-1111-4222-8333-444455556666', hasImage: true, status: 'planned' });
+    const md = toMarkdownChecklist('T', [withImage, item({ id: 'ffffffff-0000-4000-8000-000000000000' })]);
+    const link =
+      ' · [screenshot](https://www.honuvibe.ai/api/admin/preview-feedback/a1b2c3d4-1111-4222-8333-444455556666/image?v=full)';
+    expect(md).toContain('`a1b2c3d4` (Planned)' + link);
+    expect(md.match(/\[screenshot\]/g)).toHaveLength(1);
   });
 
   it('escapes reviewer text', () => {

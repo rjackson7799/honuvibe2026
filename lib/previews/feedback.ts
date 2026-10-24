@@ -132,6 +132,8 @@ export type PreviewFeedbackItem = {
   viewportH: number | null;
   userAgent: string | null;
   status: FeedbackStatus;
+  /** True when the note has a screenshot (preview_feedback.image_path is set). */
+  hasImage: boolean;
 };
 
 /** `status: 'open'` = new + planned. */
@@ -181,6 +183,11 @@ export function escapeMarkdown(text: string): string {
   return text.replace(/[\\`*_[\]<>#|]/g, '\\$&');
 }
 
+/** Absolute admin URL for a note's screenshot (markdown is pasted outside the app). */
+export function feedbackImageAdminUrl(id: string): string {
+  return `https://www.honuvibe.ai/api/admin/preview-feedback/${id}/image?v=full`;
+}
+
 function utcDate(iso: string): string {
   return new Date(iso).toISOString().slice(0, 10);
 }
@@ -192,9 +199,10 @@ export function toMarkdownChecklist(previewTitle: string, items: PreviewFeedback
     for (const i of group.items) {
       const box = i.status === 'done' ? '[x]' : '[ ]';
       const message = escapeMarkdown(i.message).replace(/\r\n|\r|\n/g, '\n  ');
+      const shot = i.hasImage ? ` · [screenshot](${feedbackImageAdminUrl(i.id)})` : '';
       const suffix = i.status === 'new' ? '' : ` (${FEEDBACK_STATUS_LABEL[i.status]})`;
       lines.push(
-        `- ${box} **${FEEDBACK_KIND_LABEL[i.kind]}** — ${message} — _${escapeMarkdown(i.reviewerName)}, ${utcDate(i.createdAt)}_ · \`${shortFeedbackId(i.id)}\`${suffix}`,
+        `- ${box} **${FEEDBACK_KIND_LABEL[i.kind]}** — ${message} — _${escapeMarkdown(i.reviewerName)}, ${utcDate(i.createdAt)}_ · \`${shortFeedbackId(i.id)}\`${suffix}${shot}`,
       );
     }
     lines.push('');
