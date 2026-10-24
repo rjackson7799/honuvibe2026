@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { parse } from 'acorn';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -1194,18 +1195,24 @@ function pickFile(win: Win, file: File) {
 }
 
 type FakeItem = { kind: string; type: string; getAsFile: () => File | null };
-function fakeTransfer(files: File[], extraItems: FakeItem[] = []) {
+function fakeTransfer(files: File[], extraItems: FakeItem[] = [], text = '') {
   const items: FakeItem[] = [
     ...extraItems,
     ...files.map((f) => ({ kind: 'file', type: f.type, getAsFile: () => f })),
   ];
-  return { items, files, types: files.length ? ['Files'] : ['text/plain'] };
+  const getData = (t: string) => (t === 'text/plain' ? text : '');
+  return { items, files, types: files.length ? ['Files'] : ['text/plain'], getData };
 }
 
-function paste(win: Win, files: File[], extraItems: FakeItem[] = []): Event {
+function paste(
+  win: Win,
+  files: File[],
+  extraItems: FakeItem[] = [],
+  opts: { text?: string; target?: Element } = {},
+): Event {
   const ev = new win.Event('paste', { bubbles: true, cancelable: true, composed: true });
-  Object.defineProperty(ev, 'clipboardData', { value: fakeTransfer(files, extraItems) });
-  messageInput(win).dispatchEvent(ev);
+  Object.defineProperty(ev, 'clipboardData', { value: fakeTransfer(files, extraItems, opts.text ?? '') });
+  (opts.target ?? messageInput(win)).dispatchEvent(ev);
   return ev;
 }
 
@@ -1742,5 +1749,201 @@ describe('renderFeedbackWidget screenshot platform hint', () => {
       expect(tip(win)).toBe('');
       expect(q<HTMLElement>(win, '.tip').hidden).toBe(true);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Fix round 1 (review): text+image clipboards, focus after a failed compress,
+// the 400-with-image hint, the real compress branches, and comment hygiene.
+// ---------------------------------------------------------------------------
+describe('renderFeedbackWidget screenshot review fixes', () => {
+  const textAndImage = (win: Win) => [png(win, 10, 'excel.png')];
+
+  it('a text paste that also carries an image (Excel, PowerPoint) stays text in Message and Name', () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    for (const target of [messageInput(win), nameInput(win)]) {
+      const ev = paste(win, textAndImage(win), [], { text: 'A1\tB1', target });
+      expect(ev.defaultPrevented).toBe(false);
+    }
+    expect(shots.calls).toHaveLength(0);
+    expect(shotRow(win).hidden).toBe(true);
+  });
+
+  it('the same clipboard pasted elsewhere in the panel (no text field) attaches the image', () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    const ev = paste(win, textAndImage(win), [], { text: 'A1\tB1', target: radio(win, 'bug') });
+    expect(ev.defaultPrevented).toBe(true);
+    expect(shots.calls).toHaveLength(1);
+  });
+
+  it('an image-only clipboard (Win+Shift+S) pasted into Message attaches it', () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    const ev = paste(win, [png(win)], [], { text: '' });
+    expect(ev.defaultPrevented).toBe(true);
+    expect(shots.calls).toHaveLength(1);
+  });
+
+  it('a failed compress with nothing attached returns focus to Attach image', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    button(win, 'Attach image').focus();
+    pickFile(win, png(win));
+    expect(root(win).activeElement).toBe(button(win, 'Remove'));
+    shots.calls[0].reject(new Error('decode'));
+    await settle();
+    expect(shotRow(win).hidden).toBe(true);
+    expect(root(win).activeElement).toBe(button(win, 'Attach image'));
+  });
+
+  it('a failed replacement keeps the attached image and focus on Remove', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 2048));
+    await settle();
+    button(win, 'Remove').focus();
+    paste(win, [png(win)]);
+    shots.calls[1].reject(new Error('decode'));
+    await settle();
+    expect(shotRow(win).hidden).toBe(false);
+    expect(shotRow(win).textContent).toContain('2 KB');
+    expect(root(win).activeElement).toBe(button(win, 'Remove'));
+  });
+
+  it('a 400 with a screenshot attached suggests removing it; without one the message is generic', async () => {
+    const withImg = loadShots();
+    withImg.fetch.mockReturnValueOnce(respond(400));
+    fill(withImg.win, 'Aiko', 'bug', 'Bad image');
+    pickFile(withImg.win, png(withImg.win));
+    withImg.shots.calls[0].resolve(jpeg(withImg.win, 500));
+    await settle();
+    button(withImg.win, 'Send').click();
+    await settle();
+    expect(status(withImg.win)).toBe(
+      "Couldn't send. Remove the screenshot and try again, or attach a different image.",
+    );
+    // The note, image and draft are kept for the retry.
+    expect(shotRow(withImg.win).hidden).toBe(false);
+    expect(draftOf(withImg.win)).toMatchObject({ hasImage: true });
+
+    const plain = loadShots();
+    plain.fetch.mockReturnValueOnce(respond(400));
+    fill(plain.win, 'Aiko', 'bug', 'Bad text');
+    button(plain.win, 'Send').click();
+    await settle();
+    expect(status(plain.win)).toBe("Couldn't send. Please try again.");
+  });
+
+  it('the shipped widget source has no block comments (the // stripper must never meet one)', () => {
+    const file = readFileSync('lib/previews/feedback-widget.ts', 'utf8');
+    const start = file.indexOf('const SOURCE = String.raw`');
+    expect(start).toBeGreaterThan(-1);
+    const end = file.indexOf('`;', start);
+    const source = file.slice(start, end);
+    expect(source.length).toBeGreaterThan(5000);
+    expect(source).not.toContain('/*');
+    expect(source).not.toContain('*/');
+    // And nothing in the emitted script after the embedded constants.
+    expect(BODY.slice(BODY.indexOf('var w = window, d = document;'))).not.toContain('/*');
+  });
+});
+
+// The production compress (S2), with createImageBitmap, the canvas context and
+// toBlob stubbed (jsdom has no canvas): sizes are chosen to force each branch.
+type CanvasLog = {
+  toBlob: { w: number; h: number; type: string; q: number }[];
+  draws: unknown[][];
+  close: ReturnType<typeof vi.fn>;
+};
+
+function withCanvas(bitmap: { width: number; height: number }, sizeFor: (q: number) => number, log: CanvasLog) {
+  return (win: Win) => {
+    const bm = { width: bitmap.width, height: bitmap.height, close: log.close };
+    (win as unknown as { createImageBitmap: (b: Blob) => Promise<typeof bm> }).createImageBitmap = () =>
+      Promise.resolve(bm);
+    const ctx = {
+      fillStyle: '',
+      imageSmoothingQuality: '',
+      fillRect: () => {},
+      drawImage: (...a: unknown[]) => log.draws.push(a),
+    };
+    const proto = win.HTMLCanvasElement.prototype;
+    Object.defineProperty(proto, 'getContext', { configurable: true, value: () => ctx });
+    Object.defineProperty(proto, 'toBlob', {
+      configurable: true,
+      value(this: HTMLCanvasElement, cb: (b: Blob | null) => void, type: string, q: number) {
+        log.toBlob.push({ w: this.width, h: this.height, type, q });
+        cb(new win.Blob([new Uint8Array(sizeFor(q))], { type: 'image/jpeg' }));
+      },
+    });
+    Object.defineProperty(win, 'URL', {
+      configurable: true,
+      value: { createObjectURL: () => 'blob:test/c', revokeObjectURL: () => {} },
+    });
+  };
+}
+
+function loadCanvas(bitmap: { width: number; height: number }, sizeFor: (q: number) => number) {
+  const log: CanvasLog = { toBlob: [], draws: [], close: vi.fn() };
+  const page = load('concept-a.html', undefined, withCanvas(bitmap, sizeFor, log));
+  button(page.win, 'Feedback').click();
+  pickFile(page.win, png(page.win));
+  return { ...page, log };
+}
+
+const OVER = 1572865; // one byte over the 1.5 MB (1572864) client cap
+
+describe('renderFeedbackWidget compress (S2 branches)', () => {
+  it('scales the long edge to 1600 and encodes JPEG q0.82 once when it fits', async () => {
+    const { win, log } = loadCanvas({ width: 2880, height: 1800 }, () => 4096);
+    await settle();
+    expect(log.toBlob).toEqual([{ w: 1600, h: 1000, type: 'image/jpeg', q: 0.82 }]);
+    expect(log.draws[0].slice(1)).toEqual([0, 0, 1600, 1000]);
+    expect(log.close).toHaveBeenCalledTimes(1);
+    expect(shotRow(win).textContent).toContain('4 KB');
+  });
+
+  it('scales a portrait image by its height and never enlarges a small one', async () => {
+    const tall = loadCanvas({ width: 1000, height: 4000 }, () => 100);
+    await settle();
+    expect(tall.log.toBlob[0]).toMatchObject({ w: 400, h: 1600 });
+    const small = loadCanvas({ width: 800, height: 600 }, () => 100);
+    await settle();
+    expect(small.log.toBlob[0]).toMatchObject({ w: 800, h: 600 });
+  });
+
+  it('exactly 1.5 MB at q0.82 is accepted without a retry', async () => {
+    const { log, win } = loadCanvas({ width: 1600, height: 1000 }, () => 1572864);
+    await settle();
+    expect(log.toBlob.map((c) => c.q)).toEqual([0.82]);
+    expect(shotRow(win).textContent).toContain('1.5 MB');
+  });
+
+  it('retries once at q0.6 when q0.82 is over 1.5 MB', async () => {
+    const { log, win } = loadCanvas({ width: 2880, height: 1800 }, (q) => (q === 0.82 ? OVER : 3072));
+    await settle();
+    expect(log.toBlob.map((c) => c.q)).toEqual([0.82, 0.6]);
+    expect(shotRow(win).textContent).toContain('3 KB');
+    expect(log.close).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects as too large when q0.6 is still over, attaching nothing', async () => {
+    const { log, win } = loadCanvas({ width: 2880, height: 1800 }, () => OVER);
+    await settle();
+    expect(log.toBlob.map((c) => c.q)).toEqual([0.82, 0.6]);
+    expect(status(win)).toBe('That screenshot is too large. Try capturing a smaller area.');
+    expect(shotRow(win).hidden).toBe(true);
+    expect(log.close).toHaveBeenCalledTimes(1);
+  });
+
+  it('a zero-size decode is unreadable, and the bitmap is still closed', async () => {
+    const { log, win } = loadCanvas({ width: 0, height: 0 }, () => 100);
+    await settle();
+    expect(log.toBlob).toEqual([]);
+    expect(status(win)).toBe("Couldn't read that image. Try a PNG or JPG.");
+    expect(log.close).toHaveBeenCalledTimes(1);
   });
 });

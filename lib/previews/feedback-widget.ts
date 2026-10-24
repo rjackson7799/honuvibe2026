@@ -49,6 +49,12 @@ const HOST_STYLE = important([
 const HOST_STYLE_VV = important([...HOST_COMMON, 'left:0', 'top:0', 'right:auto', 'bottom:auto']);
 
 // Neutral "tool chrome" palette, shared with the gate page (gate.ts PAGE_STYLE).
+// .tip is nowrap inside a wrapping row: one line always, beside the Attach
+// button when it fits, else whole on the next row.
+// Short viewports (max-height 640px; the owner's 1280x590 window has ~48px under
+// the taskbar): the panel is centred on the visible viewport, so Send's bottom =
+// vh/2 + H/2 - 12 (actions bottom padding) - 1 (border). Send <= vh - 48 needs
+// H <= vh - 70; the cap is vh - 72 (Send <= vh - 49) whatever status line shows.
 const CSS = `
 :host { all: initial; }
 * { box-sizing: border-box; }
@@ -154,7 +160,6 @@ textarea.field { resize: vertical; min-height: 120px; }
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
 }
 .tip, .meta { font-size: 12px; line-height: 1.35; color: rgba(242,239,232,0.62); }
-/* One line always: beside the button when it fits, else whole on the next row. */
 .tip { white-space: nowrap; padding: 0 2px; }
 .shot { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
 .tb {
@@ -179,7 +184,7 @@ textarea.field { resize: vertical; min-height: 120px; }
   outline: 2px solid #f2efe8; outline-offset: 2px;
 }
 @media (max-height: 640px) {
-  .panel { max-height: calc(var(--hv-vh, 100dvh) - 64px); }
+  .panel { max-height: calc(var(--hv-vh, 100dvh) - 72px); }
   .body { padding-top: 14px; }
   .page, .field, .kinds, .drop, .shot { margin-bottom: 10px; }
   label, .lbl { margin-bottom: 4px; }
@@ -230,6 +235,8 @@ const MSG = {
     'Your session has expired. Copy your note somewhere safe, then reload the page and enter the password again.',
   rateLimited: 'Too many notes in a short time. Try again in about ',
   failed: "Couldn't send. Please try again.",
+  // A 400 with a screenshot attached: most likely the image (Unsupported image).
+  failedImage: "Couldn't send. Remove the screenshot and try again, or attach a different image.",
   incomplete: 'Add your name, pick a type and write a note.',
   hint: 'Leave feedback here',
   processing: 'Processing screenshot…',
@@ -475,6 +482,7 @@ function pick(f) {
 function settled(gen, blob, err) {
   if (gen !== attachGen) return;
   processing = false;
+  var onRm = root.activeElement === rmBtn;
   if (!err && blob && blob.size) {
     clearImage();
     var src = mkSrc(blob);
@@ -486,6 +494,8 @@ function settled(gen, blob, err) {
     if (!fMsg.value && !image) dropDraft();
   }
   render();
+  // A failure with nothing attached hides Remove; don't drop focus to <body>.
+  if (onRm && shotEl.hidden) attachBtn.focus();
 }
 function firstImage(dt) {
   var i, it, f, list = dt && dt.items;
@@ -524,10 +534,16 @@ rmBtn.addEventListener('click', function () {
 });
 // Text pastes keep their default; only an image item is taken. Like keys,
 // pastes and drops inside the panel never reach the export's own handlers.
+// Office and other apps put text/plain AND a bitmap on the clipboard: pasted
+// into Name or Message, that is text. Elsewhere in the panel (a radio, a
+// button) the text has nowhere to go, so the image is taken.
 root.addEventListener('paste', function (e) {
   isolate(e);
   if (panel.hidden) return;
-  var f = firstImage(e.clipboardData);
+  var cd = e.clipboardData, t = e.target, txt = '';
+  if (t === fName || t === fMsg) { try { txt = cd ? cd.getData('text/plain') : ''; } catch (x) {} }
+  if (txt) return;
+  var f = firstImage(cd);
   if (!f) return;
   e.preventDefault();
   pick(f);
@@ -672,7 +688,7 @@ function finish(token, res) {
     var n = secs >= 0 ? Math.max(1, Math.ceil(secs / 60)) : 10;
     say(M.rateLimited + n + (n === 1 ? ' minute.' : ' minutes.'));
   } else {
-    say(M.failed);
+    say(s === 400 && image ? M.failedImage : M.failed);
   }
   render();
   // Disabling the fieldset blurred Send; put focus back so Esc keeps working,
