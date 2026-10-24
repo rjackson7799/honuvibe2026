@@ -1947,3 +1947,153 @@ describe('renderFeedbackWidget compress (S2 branches)', () => {
     expect(log.close).toHaveBeenCalledTimes(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Final-review fixes: I1 (409 -> rotate the submissionId and resend once) and
+// M3 (a longer send timeout when a screenshot is attached).
+// ---------------------------------------------------------------------------
+const CONFLICT_MSG = "Couldn't send this note. Please press Send again.";
+
+describe('renderFeedbackWidget 409 conflict (I1)', () => {
+  it('a 409 rotates the id, persists it in both drafts BEFORE the resend, resends once; 201 clears', async () => {
+    const page = loadShots();
+    const { win, shots, fetch } = page;
+    fill(win, 'Aiko', 'bug', 'Duplicated tab note');
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    const oldId = draftOf(win)!.id as string;
+    const oldImg = imgDraftOf(win)!;
+    expect(oldImg.id).toBe(oldId);
+
+    let atResend: { draft: Record<string, unknown> | null; img: { id: string; dataUrl: string } | null } | null = null;
+    fetch.mockReturnValueOnce(respond(409)).mockImplementationOnce(() => {
+      atResend = { draft: draftOf(win), img: imgDraftOf(win) };
+      return respond(201);
+    });
+    button(win, 'Send').click();
+    await settle();
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    const first = sentBody(page, 0).submissionId as string;
+    const second = sentBody(page, 1).submissionId as string;
+    expect(first).toBe(oldId);
+    expect(second).toMatch(V4);
+    expect(second).not.toBe(first);
+    // The resend still carries the screenshot and the same note.
+    const fd = fetch.mock.calls[1][1].body as FormData;
+    expect((fd.get('image') as File).size).toBe(500);
+    expect(sentBody(page, 1)).toMatchObject({ name: 'Aiko', kind: 'bug', message: 'Duplicated tab note' });
+    // Both drafts were rewritten under the new id before the resend went out.
+    expect(atResend!.draft).toMatchObject({ id: second, message: 'Duplicated tab note', hasImage: true });
+    expect(atResend!.img).toEqual({ id: second, dataUrl: oldImg.dataUrl });
+    // 201 clears everything.
+    expect(status(win)).toBe('Thanks — your note was sent.');
+    expect(win.sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+    expect(win.sessionStorage.getItem(IMG_KEY)).toBeNull();
+  });
+
+  it('a 409 on a text-only note rotates the text draft and resends once', async () => {
+    const page = load('concept-a.html');
+    const { win, fetch } = page;
+    fill(win, 'Aiko', 'improvement', 'Text only');
+    const oldId = draftOf(win)!.id;
+    let draftAtResend: Record<string, unknown> | null = null;
+    fetch.mockReturnValueOnce(respond(409)).mockImplementationOnce(() => {
+      draftAtResend = draftOf(win);
+      return respond(201);
+    });
+    button(win, 'Send').click();
+    await settle();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    const second = sentBody(page, 1).submissionId;
+    expect(second).toMatch(V4);
+    expect(second).not.toBe(oldId);
+    expect(draftAtResend).toMatchObject({ id: second, message: 'Text only', hasImage: false });
+    expect(win.sessionStorage.getItem(IMG_KEY)).toBeNull();
+    expect(status(win)).toBe('Thanks — your note was sent.');
+  });
+
+  it('409 twice: a clear error, no third request, the note kept under the rotated id; a reload reuses it', async () => {
+    const page = loadShots();
+    const { win, shots, fetch } = page;
+    fill(win, 'Aiko', 'bug', 'Still clashing');
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    fetch.mockReturnValueOnce(respond(409)).mockReturnValueOnce(respond(409));
+    button(win, 'Send').click();
+    await settle();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(status(win)).toBe(CONFLICT_MSG);
+    expect(messageInput(win).matches(':disabled')).toBe(false);
+    expect(messageInput(win).value).toBe('Still clashing');
+    const rotated = sentBody(page, 1).submissionId;
+    expect(draftOf(win)).toMatchObject({ id: rotated, hasImage: true });
+    expect(imgDraftOf(win)!.id).toBe(rotated);
+
+    const next = reload(page, 'index.html');
+    expect(draftOf(next.win)!.id).toBe(rotated);
+    expect(messageInput(next.win).value).toBe('Still clashing');
+    next.fetch.mockReturnValueOnce(respond(201));
+    button(next.win, 'Feedback').click();
+    button(next.win, 'Send').click();
+    await settle();
+    expect(sentBody(next).submissionId).toBe(rotated);
+  });
+
+  it('a later 409 after a fresh Send gets its own single automatic resend', async () => {
+    const page = load('concept-a.html');
+    const { win, fetch } = page;
+    fill(win, 'Aiko', 'bug', 'Try again');
+    fetch.mockReturnValueOnce(respond(409)).mockReturnValueOnce(respond(409));
+    button(win, 'Send').click();
+    await settle();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    fetch.mockReturnValueOnce(respond(409)).mockReturnValueOnce(respond(201));
+    button(win, 'Send').click();
+    await settle();
+    expect(fetch).toHaveBeenCalledTimes(4);
+    expect(new Set([0, 1, 2, 3].map((i) => sentBody(page, i).submissionId)).size).toBe(3);
+    expect(status(win)).toBe('Thanks — your note was sent.');
+  });
+});
+
+describe('renderFeedbackWidget send timeout (M3)', () => {
+  function withTimeoutLog(log: number[]) {
+    return (win: Win) => {
+      const realSet = win.setTimeout.bind(win);
+      const fake = (fn: () => void, ms: number) => {
+        if (ms === 20000 || ms === 45000) {
+          log.push(ms);
+          return 0;
+        }
+        return realSet(fn, ms);
+      };
+      (win as unknown as { setTimeout: typeof fake }).setTimeout = fake;
+    };
+  }
+
+  it('is 45 s when a screenshot is attached', async () => {
+    const log: number[] = [];
+    const { win, shots, fetch } = loadShots('concept-a.html', undefined, withTimeoutLog(log));
+    fetch.mockReturnValueOnce(new Promise<Response>(() => {}));
+    fill(win, 'Aiko', 'bug', 'Big upload');
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    button(win, 'Send').click();
+    await settle();
+    expect(log).toEqual([45000]);
+  });
+
+  it('is 20 s without a screenshot', async () => {
+    const log: number[] = [];
+    const { win, fetch } = loadShots('concept-a.html', undefined, withTimeoutLog(log));
+    fetch.mockReturnValueOnce(new Promise<Response>(() => {}));
+    fill(win, 'Aiko', 'bug', 'Text only');
+    button(win, 'Send').click();
+    await settle();
+    expect(log).toEqual([20000]);
+  });
+});

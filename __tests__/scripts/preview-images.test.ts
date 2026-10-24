@@ -5,17 +5,24 @@ import { purgePrefix, reconcile } from '../../scripts/preview-images.mjs';
 type Obj = { name: string; created_at: string; updated_at?: string };
 
 // In-memory fake: storage bucket (list/remove) + preview_feedback table (.in('id')).
+// `rowIds` are rows whose image_path points at <PREVIEW>/<id>.jpg; `rows` sets
+// image_path explicitly (null = a note without a screenshot).
 function fake(opts: {
   objects: Record<string, Obj[]>;
   rowIds?: string[];
+  rows?: { id: string; image_path: string | null }[];
   rootFiles?: string[];
   listError?: (prefix: string) => boolean;
   lookup?: () => { data: unknown; error: unknown };
 }) {
   const store = new Map<string, Obj[]>(Object.entries(opts.objects).map(([k, v]) => [k, [...v]]));
-  const rowIds = new Set(opts.rowIds ?? []);
+  const rows = new Map<string, string | null>([
+    ...(opts.rowIds ?? []).map((id): [string, string | null] => [id, `${PREVIEW}/${id}.jpg`]),
+    ...(opts.rows ?? []).map((r): [string, string | null] => [r.id, r.image_path]),
+  ]);
   const removeCalls: string[][] = [];
   const inCalls: string[][] = [];
+  const selectCols: string[] = [];
   const bucket = {
     async list(prefix: string, o: { limit?: number; offset?: number } = {}) {
       const limit = o.limit ?? 100;
@@ -48,16 +55,22 @@ function fake(opts: {
   const client = {
     storage: { from: () => bucket },
     from: () => ({
-      select: () => ({
-        in: async (_col: string, ids: string[]) => {
-          inCalls.push(ids);
-          if (opts.lookup) return opts.lookup();
-          return { data: ids.filter((i) => rowIds.has(i)).map((id) => ({ id })), error: null };
-        },
-      }),
+      select: (cols: string) => {
+        selectCols.push(cols);
+        return {
+          in: async (_col: string, ids: string[]) => {
+            inCalls.push(ids);
+            if (opts.lookup) return opts.lookup();
+            return {
+              data: ids.filter((i) => rows.has(i)).map((id) => ({ id, image_path: rows.get(id) ?? null })),
+              error: null,
+            };
+          },
+        };
+      },
     }),
   };
-  return { client, store, removeCalls, inCalls };
+  return { client, store, removeCalls, inCalls, selectCols };
 }
 
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
@@ -219,6 +232,43 @@ describe('reconcile hardening', () => {
     expect(r.scanned).toBe(2);
     expect(r.removed).toBe(0);
     expect(f.removeCalls).toHaveLength(0);
+  });
+});
+
+describe('reconcile matches image_path (M1)', () => {
+  it('an old object whose row has image_path NULL is an orphan (a removed screenshot does not linger)', async () => {
+    const f = fake({ objects: { [PREVIEW]: pair(1, old) }, rows: [{ id: uuid(1), image_path: null }] });
+    const r = await reconcile(f.client, { graceHours: 24, now });
+    expect(r.removed).toBe(2);
+    expect(f.removeCalls.flat().sort()).toEqual([`${PREVIEW}/${uuid(1)}.jpg`, `${PREVIEW}/${uuid(1)}.thumb.jpg`].sort());
+    expect(f.selectCols).toEqual(['id, image_path']);
+  });
+
+  it('an old object whose row points at a different path is an orphan', async () => {
+    const other = '22222222-2222-4222-8222-222222222222';
+    const f = fake({
+      objects: { [PREVIEW]: pair(1, old) },
+      rows: [{ id: uuid(1), image_path: `${other}/${uuid(1)}.jpg` }],
+    });
+    const r = await reconcile(f.client, { graceHours: 24, now });
+    expect(r.removed).toBe(2);
+  });
+
+  it('keeps the full image and its thumb when the row points at the full image', async () => {
+    const f = fake({
+      objects: { [PREVIEW]: pair(1, old) },
+      rows: [{ id: uuid(1), image_path: `${PREVIEW}/${uuid(1)}.jpg` }],
+    });
+    const r = await reconcile(f.client, { graceHours: 24, now });
+    expect(r.removed).toBe(0);
+    expect(r.kept).toBe(2);
+    expect(f.removeCalls).toHaveLength(0);
+  });
+
+  it('a fresh object whose row has image_path NULL is kept (grace still applies)', async () => {
+    const f = fake({ objects: { [PREVIEW]: pair(1, fresh) }, rows: [{ id: uuid(1), image_path: null }] });
+    const r = await reconcile(f.client, { graceHours: 24, now });
+    expect(r.removed).toBe(0);
   });
 });
 

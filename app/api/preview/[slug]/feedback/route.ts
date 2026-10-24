@@ -83,18 +83,47 @@ function bodyKindOf(value: string | null): BodyKind | null {
 
 type Admin = ReturnType<typeof createAdminClient>;
 
-type Owner = { state: 'absent' } | { state: 'found'; previewId: string } | { state: 'error' };
+type StoredNote = {
+  preview_id: string;
+  page: string;
+  reviewer_name: string;
+  kind: string;
+  message: string;
+  image_path: string | null;
+};
 
-// Which preview (if any) owns the row with this id. Never throws.
-async function lookupOwner(admin: Admin, id: string): Promise<Owner> {
+/** What the incoming request would store: the parsed (trimmed) note plus image presence. */
+type IncomingNote = { previewId: string; page: string; name: string; kind: string; message: string; hasImage: boolean };
+
+// absent: no row with this id. same: the stored row IS this note (a retry whose
+// response was lost) -> 201. conflict: the id is taken by another preview or by
+// a DIFFERENT note (duplicated tab, or the note was edited after an ambiguous
+// failure) -> 409, so the widget rotates its id and resends instead of being
+// told a note it never stored was sent. error: lookup failed.
+type Owner = { state: 'absent' } | { state: 'same' } | { state: 'conflict' } | { state: 'error' };
+
+function sameNote(r: StoredNote, n: IncomingNote): boolean {
+  return (
+    r.preview_id === n.previewId &&
+    r.page === n.page &&
+    r.reviewer_name === n.name &&
+    r.kind === n.kind &&
+    r.message === n.message &&
+    (r.image_path !== null) === n.hasImage
+  );
+}
+
+// Classifies the row (if any) with this id against the incoming note. Never throws.
+async function lookupOwner(admin: Admin, id: string, note: IncomingNote): Promise<Owner> {
   try {
     const { data, error } = await admin
       .from('preview_feedback')
-      .select('preview_id')
+      .select('preview_id, page, reviewer_name, kind, message, image_path')
       .eq('id', id)
-      .maybeSingle<{ preview_id: string }>();
+      .maybeSingle<StoredNote>();
     if (error) return { state: 'error' };
-    return data ? { state: 'found', previewId: data.preview_id } : { state: 'absent' };
+    if (!data) return { state: 'absent' };
+    return sameNote(data, note) ? { state: 'same' } : { state: 'conflict' };
   } catch {
     return { state: 'error' };
   }
@@ -220,6 +249,14 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
   if (!parsed.ok) return fail(400, parsed.error);
   const submissionId = parsed.value.submissionId;
   if (bodyKind === 'multipart' && !submissionId) return fail(400, 'submissionId is required');
+  const incoming: IncomingNote = {
+    previewId: row.id,
+    page: parsed.value.page,
+    name: parsed.value.name,
+    kind: parsed.value.kind,
+    message: parsed.value.message,
+    hasImage: imageBytes !== null,
+  };
 
   // 13. post-auth throttles (valid-cookie holders only; an image note is one
   // note). Before decoding so a throttled client cannot spend sharp CPU.
@@ -230,22 +267,23 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
     return tooMany(SLUG_WINDOW_S);
   }
 
+  // 14r. replay check, BEFORE decoding (it needs only image presence, not the
+  // bytes): a retry of an already-stored identical note is a success and never
+  // re-uploads or decodes; an id held by another preview or by a different note
+  // is a conflict, and nothing is written.
+  if (submissionId) {
+    const owner = await lookupOwner(admin, submissionId, incoming);
+    if (owner.state === 'error') return fail(500, 'Could not save feedback');
+    if (owner.state === 'same') return json(201, { ok: true });
+    if (owner.state === 'conflict') return fail(409, 'Conflict');
+  }
+
   // 12i. the screenshot is decoded and re-encoded before anything is stored
   let processed: { full: Buffer; thumb: Buffer } | null = null;
   if (imageBytes) {
     const result = await processScreenshot(imageBytes);
     if (!result.ok) return fail(400, result.error);
     processed = { full: result.full, thumb: result.thumb };
-  }
-
-  // 14r. replay check: a retry of an already-stored submission is a success
-  // (and never re-uploads); an id owned by another preview is a conflict.
-  if (submissionId) {
-    const owner = await lookupOwner(admin, submissionId);
-    if (owner.state === 'error') return fail(500, 'Could not save feedback');
-    if (owner.state === 'found') {
-      return owner.previewId === row.id ? json(201, { ok: true }) : fail(409, 'Conflict');
-    }
   }
 
   // 14u. upload full, then thumb (upsert: a retry overwrites the same paths)
@@ -292,22 +330,35 @@ export async function POST(request: NextRequest, ctx: RouteContext): Promise<Res
     return fail(500, 'Could not save feedback');
   }
 
+  // No-delete invariant: objects live at <preview_id>/<submissionId>.jpg, so the
+  // only row that can reference them is the one whose id is this submissionId.
+  // We therefore remove them ONLY when the re-check confirms that row ABSENT.
+  // Whenever a row with this id exists - the same note (201) or a different one
+  // (409, e.g. a concurrent request from a duplicated tab won the race) - the
+  // objects are kept: if that row has an image, these are exactly the objects
+  // it points at; if it has none, they are orphans that reconcile removes
+  // (it counts an object live only when a row's image_path names it).
+  // Residual (M2, deferred): a concurrent same-id request carrying DIFFERENT
+  // content could commit after our confirmed-absent re-check; R5 limits removal
+  // to permanent errors, which zod's mirror of the DB checks makes practically
+  // unreachable.
   if (insertCode !== null) {
     if (submissionId && insertCode === '23505') {
-      // Unique violation: the row exists. Ours (a concurrent retry) -> success; objects stay.
-      const owner = await lookupOwner(admin, submissionId);
-      if (owner.state === 'found') {
-        return owner.previewId === row.id ? json(201, { ok: true }) : fail(409, 'Conflict');
-      }
+      // Unique violation: the row exists. The same note (a concurrent retry) ->
+      // success; a different note -> conflict. Objects stay either way.
+      const owner = await lookupOwner(admin, submissionId, incoming);
+      if (owner.state === 'same') return json(201, { ok: true });
+      if (owner.state === 'conflict') return fail(409, 'Conflict');
       return fail(500, 'Could not save feedback');
     }
     if (paths && submissionId && isPermanentError(insertCode)) {
       // Remove objects only when the row is CONFIRMED absent. If the re-check
-      // finds the row for this preview, the note did commit: report success.
-      // A re-check error or a foreign owner keeps the objects.
-      const owner = await lookupOwner(admin, submissionId);
+      // finds this note, it did commit: report success. A different note is a
+      // conflict. A re-check error, or any existing row, keeps the objects.
+      const owner = await lookupOwner(admin, submissionId, incoming);
       if (owner.state === 'absent') await removeObjects(admin, [paths.full, paths.thumb]);
-      else if (owner.state === 'found' && owner.previewId === row.id) return json(201, { ok: true });
+      else if (owner.state === 'same') return json(201, { ok: true });
+      else if (owner.state === 'conflict') return fail(409, 'Conflict');
     }
     return fail(500, 'Could not save feedback');
   }

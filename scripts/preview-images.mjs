@@ -7,8 +7,11 @@
  * purge      removes EVERY object under <preview_id>/ (use before deleting a preview).
  *            Idempotent: a second run removes 0.
  * reconcile  scans the whole bucket and removes objects older than the grace
- *            period whose <submission_id> has no preview_feedback row (left behind
- *            by a failed/ambiguous insert). Never removes an object that has a row.
+ *            period that no preview_feedback row points at: an object is live only
+ *            when the row with its <submission_id> has image_path equal to
+ *            <folder>/<submission_id>.jpg (the .thumb.jpg follows its full image).
+ *            So objects left by a failed/ambiguous insert, or by a note later
+ *            re-sent without its screenshot (image_path NULL), are removed.
  *
  * Env: NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.
  * The logic is exported as functions over a supabase-js-shaped client so tests
@@ -73,8 +76,9 @@ export async function purgePrefix(client, previewId) {
 }
 
 /**
- * Remove orphaned objects: older than `graceHours` AND no preview_feedback row
- * with their submission id. Returns { scanned, removed, kept, ignored }.
+ * Remove orphaned objects: older than `graceHours` AND not referenced by a
+ * preview_feedback row (the row with their submission id must have image_path
+ * === `<folder>/<id>.jpg`). Returns { scanned, removed, kept, ignored }.
  */
 export async function reconcile(client, { graceHours = 24, now = Date.now() } = {}) {
   if (typeof graceHours !== 'number' || !Number.isFinite(graceHours) || graceHours < 0) {
@@ -84,7 +88,7 @@ export async function reconcile(client, { graceHours = 24, now = Date.now() } = 
   const cutoff = now - graceHours * 3600_000;
 
   // Pass 1: read-only scan of every folder (= preview id).
-  const candidates = []; // { path, id } older than the cutoff
+  const candidates = []; // { path, id, full } older than the cutoff
   let scanned = 0;
   let ignored = 0;
   let kept = 0;
@@ -111,23 +115,28 @@ export async function reconcile(client, { graceHours = 24, now = Date.now() } = 
         kept += 1;
         continue;
       }
-      candidates.push({ path: `${folder}/${f.name}`, id: m[1].toLowerCase() });
+      const id = m[1].toLowerCase();
+      // `full` = the image_path a row must hold for this object (and its thumb) to be live.
+      candidates.push({ path: `${folder}/${f.name}`, id, full: `${folder}/${id}.jpg`.toLowerCase() });
     }
   }
 
-  // Pass 2: which candidate ids still have a row?
+  // Pass 2: which full-image paths do the candidates' rows point at? A row
+  // with image_path NULL (or another path) does not keep the object alive.
   const ids = [...new Set(candidates.map((c) => c.id))];
-  const live = new Set();
+  const live = new Set(); // lower-cased image_path values
   for (const batch of chunk(ids, PAGE)) {
-    const { data, error } = await client.from('preview_feedback').select('id').in('id', batch);
+    const { data, error } = await client.from('preview_feedback').select('id, image_path').in('id', batch);
     // Fail closed: a null/non-array result must never read as "no rows".
     if (error || !Array.isArray(data)) {
       throw new Error(`row lookup failed: ${error ? error.message : 'no data returned'}`);
     }
-    for (const r of data) live.add(String(r.id).toLowerCase());
+    for (const r of data) {
+      if (typeof r.image_path === 'string') live.add(r.image_path.toLowerCase());
+    }
   }
 
-  const orphans = candidates.filter((c) => !live.has(c.id)).map((c) => c.path);
+  const orphans = candidates.filter((c) => !live.has(c.full)).map((c) => c.path);
   kept += candidates.length - orphans.length;
   const removed = await removeAll(bucket, orphans);
   return { scanned, removed, kept, ignored };

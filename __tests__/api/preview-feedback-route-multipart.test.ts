@@ -33,8 +33,15 @@ vi.mock('@/lib/supabase/server', () => ({
   createAdminClient: () => ({ from: fromMock, storage: { from: storageFromMock } }),
 }));
 
+// Pass-through spy so a test can prove the replay check runs before decoding.
+vi.mock('@/lib/previews/image-process', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@/lib/previews/image-process')>();
+  return { ...real, processScreenshot: vi.fn(real.processScreenshot) };
+});
+
 import { POST } from '@/app/api/preview/[slug]/feedback/route';
 import { signGate } from '@/lib/previews/gate';
+import { processScreenshot } from '@/lib/previews/image-process';
 
 const SECRET = 'test-secret-0123456789abcdef0123456789abcdef';
 const PASSWORD = 'hunter2';
@@ -61,6 +68,20 @@ const NOTE = {
   viewportW: 1280,
   viewportH: 720,
 };
+
+// A stored preview_feedback row as the replay check selects it. Defaults to
+// the same note as NOTE, with a screenshot.
+function stored(pid: string, sid: string, over: Record<string, unknown> = {}) {
+  return {
+    preview_id: pid,
+    page: NOTE.page,
+    reviewer_name: NOTE.name,
+    kind: NOTE.kind,
+    message: NOTE.message,
+    image_path: `${pid}/${sid}.jpg`,
+    ...over,
+  };
+}
 
 async function multipartBody(payload: unknown, image?: { bytes: Uint8Array; type: string; name?: string }) {
   const fd = new FormData();
@@ -397,11 +418,79 @@ describe('preview feedback route: multipart + idempotency', () => {
   it('replay of a stored submissionId for this preview is 201 with no upload and no insert', async () => {
     const f = fresh();
     maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
-    replayMock.mockResolvedValue({ data: { preview_id: `preview-id-${f.slug}` }, error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${f.slug}`, f.sid), error: null });
     const res = await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG());
     expect(res.status).toBe(201);
     expect(await res.json()).toEqual({ ok: true });
     expect(uploadMock).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it('M5: a true replay with an image is 201 without decoding the image', async () => {
+    const f = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${f.slug}`, f.sid), error: null });
+    const res = await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG());
+    expect(res.status).toBe(201);
+    expect(processScreenshot).not.toHaveBeenCalled();
+    expect(uploadMock).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it('I1: the replay check compares trimmed incoming values (whitespace-only differences replay)', async () => {
+    const f = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${f.slug}`, f.sid), error: null });
+    const res = await sendMp(f, { ...NOTE, message: `  ${NOTE.message}\n`, name: ` ${NOTE.name} `, submissionId: f.sid }, PNG());
+    expect(res.status).toBe(201);
+    expect(insertMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['message', { message: 'A different note from a duplicated tab' }],
+    ['page', { page: '/about.html' }],
+    ['reviewer_name', { reviewer_name: 'Someone else' }],
+    ['kind', { kind: 'improvement' }],
+    ['image presence (stored has none, request has one)', { image_path: null }],
+  ])('I1: same id but a different %s is 409, nothing written or decoded', async (_label, over) => {
+    const f = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${f.slug}`, f.sid, over), error: null });
+    const res = await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG());
+    expect(res.status).toBe(409);
+    expect(await errorOf(res)).toBe('Conflict');
+    expect(processScreenshot).not.toHaveBeenCalled();
+    expect(uploadMock).not.toHaveBeenCalled();
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(removeMock).not.toHaveBeenCalled();
+  });
+
+  it('I1: image presence differs the other way (stored has one, request has none) is 409', async () => {
+    const f = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${f.slug}`, f.sid), error: null });
+    const res = await sendMp(f, { ...NOTE, submissionId: f.sid });
+    expect(res.status).toBe(409);
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(removeMock).not.toHaveBeenCalled();
+  });
+
+  it('I1: a JSON replay of a stored note without an image is 201; with a different message 409', async () => {
+    const a = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(a.slug), error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${a.slug}`, a.sid, { image_path: null }), error: null });
+    const ok = req(a.slug, { ip: a.ip, cookie: signGate(a.slug, PASSWORD), body: JSON.stringify({ ...NOTE, submissionId: a.sid }) });
+    expect((await POST(ok.request, ok.ctx)).status).toBe(201);
+
+    const b = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(b.slug), error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${b.slug}`, b.sid, { image_path: null }), error: null });
+    const bad = req(b.slug, {
+      ip: b.ip,
+      cookie: signGate(b.slug, PASSWORD),
+      body: JSON.stringify({ ...NOTE, message: 'edited after a timeout', submissionId: b.sid }),
+    });
+    expect((await POST(bad.request, bad.ctx)).status).toBe(409);
     expect(insertMock).not.toHaveBeenCalled();
   });
 
@@ -433,7 +522,7 @@ describe('preview feedback route: multipart + idempotency', () => {
 
     const b = fresh();
     maybeSingleMock.mockResolvedValue({ data: previewRow(b.slug), error: null });
-    replayMock.mockResolvedValue({ data: { preview_id: `preview-id-${b.slug}` }, error: null });
+    replayMock.mockResolvedValue({ data: stored(`preview-id-${b.slug}`, b.sid, { image_path: null }), error: null });
     insertMock.mockClear();
     const replay = req(b.slug, { ip: b.ip, cookie: signGate(b.slug, PASSWORD), body: JSON.stringify({ ...NOTE, submissionId: b.sid }) });
     expect((await POST(replay.request, replay.ctx)).status).toBe(201);
@@ -463,10 +552,35 @@ describe('preview feedback route: multipart + idempotency', () => {
     maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
     replayMock
       .mockResolvedValueOnce({ data: null, error: null })
-      .mockResolvedValueOnce({ data: { preview_id: pid }, error: null });
+      .mockResolvedValueOnce({ data: stored(pid, f.sid), error: null });
     insertMock.mockResolvedValue({ error: { code: '23505', message: 'dup' } });
     const res = await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG());
     expect(res.status).toBe(201);
+    expect(removeMock).not.toHaveBeenCalled();
+  });
+
+  it('I1: unique violation whose re-select shows a different note is 409, remove never called', async () => {
+    const f = fresh();
+    const pid = `preview-id-${f.slug}`;
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValueOnce({ data: stored(pid, f.sid, { message: 'the other tab won the race' }), error: null });
+    insertMock.mockResolvedValue({ error: { code: '23505', message: 'dup' } });
+    const res = await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG());
+    expect(res.status).toBe(409);
+    expect(removeMock).not.toHaveBeenCalled();
+  });
+
+  it('I1: unique violation whose re-select shows the same text but no image is 409, remove never called', async () => {
+    const f = fresh();
+    const pid = `preview-id-${f.slug}`;
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValueOnce({ data: stored(pid, f.sid, { image_path: null }), error: null });
+    insertMock.mockResolvedValue({ error: { code: '23505', message: 'dup' } });
+    expect((await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG())).status).toBe(409);
     expect(removeMock).not.toHaveBeenCalled();
   });
 
@@ -528,9 +642,20 @@ describe('preview feedback route: multipart + idempotency', () => {
     maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
     replayMock
       .mockResolvedValueOnce({ data: null, error: null })
-      .mockResolvedValueOnce({ data: { preview_id: `preview-id-${f.slug}` }, error: null });
+      .mockResolvedValueOnce({ data: stored(`preview-id-${f.slug}`, f.sid), error: null });
     insertMock.mockResolvedValue({ error: { code: '23514', message: 'x' } });
     expect((await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG())).status).toBe(201);
+    expect(removeMock).not.toHaveBeenCalled();
+  });
+
+  it('I1: definite error and the re-check finds a different note for this preview: 409, objects kept', async () => {
+    const f = fresh();
+    maybeSingleMock.mockResolvedValue({ data: previewRow(f.slug), error: null });
+    replayMock
+      .mockResolvedValueOnce({ data: null, error: null })
+      .mockResolvedValueOnce({ data: stored(`preview-id-${f.slug}`, f.sid, { message: 'other' }), error: null });
+    insertMock.mockResolvedValue({ error: { code: '23514', message: 'x' } });
+    expect((await sendMp(f, { ...NOTE, submissionId: f.sid }, PNG())).status).toBe(409);
     expect(removeMock).not.toHaveBeenCalled();
   });
 
@@ -610,7 +735,7 @@ describe('preview feedback route: multipart + idempotency', () => {
       return deferred;
     });
     replayMock.mockImplementation(async () => ({
-      data: committed ? { preview_id: pid } : null,
+      data: committed ? stored(pid, f.sid) : null,
       error: null,
     }));
 

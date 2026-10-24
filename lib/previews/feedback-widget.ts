@@ -237,6 +237,8 @@ const MSG = {
   failed: "Couldn't send. Please try again.",
   // A 400 with a screenshot attached: most likely the image (Unsupported image).
   failedImage: "Couldn't send. Remove the screenshot and try again, or attach a different image.",
+  // A second 409 after the automatic resend under a fresh id.
+  conflict: "Couldn't send this note. Please press Send again.",
   incomplete: 'Add your name, pick a type and write a note.',
   hint: 'Leave feedback here',
   processing: 'Processing screenshot…',
@@ -261,6 +263,8 @@ try { framed = w.top !== w; } catch (e) { framed = true; }
 if (framed) return;
 
 var DRAFT_KEY = 'hv_pv_fb_draft:' + C.slug, NAME_KEY = 'hv_pv_feedback_name', TIMEOUT_MS = 20000;
+// A screenshot can take ~24 s on a slow mobile uplink: give it longer.
+var IMG_TIMEOUT_MS = 45000;
 var IMG_KEY = 'hv_pv_fb_draft_img:' + C.slug, JPEG = 'data:image/jpeg;base64,';
 // S2: long edge 1600, JPEG q0.82, once more at q0.6 over 1.5 MB (1572864 bytes).
 // S10(f): an image draft is restored only under 2.2 MB of data URL.
@@ -306,7 +310,7 @@ var draftPage = null, draftSaved = false, sending = false;
 // pick) and on Remove; a compression that settles for an older generation is
 // dropped. image = { blob, src, own } (own: src is an object URL to revoke).
 // sid = the note's submissionId (S7): made when a draft starts, kept in the
-// draft, reused by every retry, cleared by a 201.
+// draft, reused by every retry, cleared by a 201, replaced by rotateId() on a 409.
 var sid = null, attachGen = 0, processing = false, image = null, imgSaved = false, notice = '';
 function newId() {
   var c = w.crypto, h = '', i, u;
@@ -403,6 +407,27 @@ function storeImage(gen) {
     } catch (e) {}
   };
   try { r.readAsDataURL(img.blob); } catch (e) {}
+}
+// A 409 means the id is taken by a different note (a duplicated tab, or an
+// edit after an ambiguous failure). Take a fresh id and re-key BOTH drafts
+// synchronously, so a reload after the resend reuses the new id. S10(b): the
+// old image key goes first; then the text draft; then the image under the new id.
+function rotateId() {
+  var old = sid, u = '';
+  try {
+    var io = JSON.parse(w.sessionStorage.getItem(IMG_KEY));
+    if (io && io.id === old && typeof io.dataUrl === 'string') u = io.dataUrl;
+  } catch (e) {}
+  sid = newId();
+  ssDel(IMG_KEY);
+  saveDraft();
+  imgSaved = false;
+  if (image && u) {
+    try {
+      w.sessionStorage.setItem(IMG_KEY, JSON.stringify({ id: sid, dataUrl: u }));
+      imgSaved = true;
+    } catch (e) {}
+  }
 }
 // S10(f): only an image saved under this draft's id, as a JPEG data URL under 2.2 MB.
 function restoreImage() {
@@ -670,6 +695,12 @@ function finish(token, res) {
   sending = false;
   fs.disabled = false;
   var s = res ? res.status : 0;
+  if (s === 409 && !token.retried) {
+    // One automatic resend under a fresh id; a second 409 is reported below.
+    rotateId();
+    send(true);
+    return;
+  }
   if (s === 201) {
     try { w.localStorage.setItem(NAME_KEY, fName.value.trim()); } catch (e) {}
     fMsg.value = '';
@@ -687,6 +718,8 @@ function finish(token, res) {
     var secs = h === null || h === '' ? NaN : Number(h);
     var n = secs >= 0 ? Math.max(1, Math.ceil(secs / 60)) : 10;
     say(M.rateLimited + n + (n === 1 ? ' minute.' : ' minutes.'));
+  } else if (s === 409) {
+    say(M.conflict);
   } else {
     say(s === 400 && image ? M.failedImage : M.failed);
   }
@@ -699,23 +732,27 @@ function finish(token, res) {
 form.addEventListener('submit', function (e) {
   e.preventDefault();
   if (sending || processing) return;
-  var name = fName.value.trim(), kind = kindVal(), message = fMsg.value;
-  if (!name || !kind || !message.trim()) { say(M.incomplete); return; }
+  if (!fName.value.trim() || !kindVal() || !fMsg.value.trim()) { say(M.incomplete); return; }
   startDraft();
+  send(false);
+});
+// retried: this is the one automatic resend after a 409 (the fieldset stays
+// disabled in between, so the note is unchanged).
+function send(retried) {
   var body = JSON.stringify({
-    name: name, kind: kind, message: message, page: draftPage || currentPage(),
+    name: fName.value.trim(), kind: kindVal(), message: fMsg.value, page: draftPage || currentPage(),
     viewportW: w.innerWidth, viewportH: w.innerHeight, submissionId: sid
   });
   sending = true;
   fs.disabled = true;
   say(M.sending);
   var ctrl = w.AbortController ? new w.AbortController() : null;
-  var token = { timer: 0 };
+  var token = { timer: 0, retried: retried };
   pending = token;
   token.timer = w.setTimeout(function () {
     if (ctrl) ctrl.abort();
     finish(token, null);
-  }, TIMEOUT_MS);
+  }, image ? IMG_TIMEOUT_MS : TIMEOUT_MS);
   // S3: with an image, exactly two multipart fields; the browser sets the
   // boundary, so no Content-Type here.
   var init = { method: 'POST', credentials: 'same-origin', body: body };
@@ -734,7 +771,7 @@ form.addEventListener('submit', function (e) {
     function (res) { finish(token, res); },
     function () { finish(token, null); }
   );
-});
+}
 
 // Fixed right/top:50% anchors to the LAYOUT viewport. A non-responsive export can
 // stretch that far past the screen (real export: 375x812 visible, layout settling
