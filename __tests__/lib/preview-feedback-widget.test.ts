@@ -22,8 +22,8 @@ const NAME_KEY = 'hv_pv_feedback_name';
 type FetchInit = {
   method: string;
   credentials: string;
-  headers: Record<string, string>;
-  body: string;
+  headers?: Record<string, string>;
+  body: string | FormData;
   signal?: AbortSignal;
 };
 type FetchMock = ReturnType<typeof vi.fn<(url: string, init: FetchInit) => Promise<Response>>>;
@@ -131,9 +131,14 @@ async function flush() {
   for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 0));
 }
 
+/** The note JSON of a sent request: the body itself, or the multipart `payload` field. */
 function sentBody(page: Page, call = 0): Record<string, unknown> {
-  return JSON.parse(page.fetch.mock.calls[call][1].body) as Record<string, unknown>;
+  const body = page.fetch.mock.calls[call][1].body;
+  const text = typeof body === 'string' ? body : (body.get('payload') as string);
+  return JSON.parse(text) as Record<string, unknown>;
 }
+
+const V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 describe('renderFeedbackWidget', () => {
   it('mounts one host', () => {
@@ -220,9 +225,19 @@ describe('renderFeedbackWidget', () => {
     expect(url).toBe(`/api/preview/${SLUG}/feedback`);
     expect(init.method).toBe('POST');
     expect(init.credentials).toBe('same-origin');
-    expect(init.headers['Content-Type']).toBe('application/json');
+    expect(init.headers!['Content-Type']).toBe('application/json');
+    expect(typeof init.body).toBe('string');
     const body = sentBody(page);
-    expect(Object.keys(body).sort()).toEqual(['kind', 'message', 'name', 'page', 'viewportH', 'viewportW']);
+    expect(Object.keys(body).sort()).toEqual([
+      'kind',
+      'message',
+      'name',
+      'page',
+      'submissionId',
+      'viewportH',
+      'viewportW',
+    ]);
+    expect(body.submissionId).toMatch(V4);
     expect(body).toMatchObject({ name: 'Aiko', kind: 'bug', message: 'The hero image is cropped.', page: 'concept-a.html' });
     expect(typeof body.viewportW).toBe('number');
     expect(status(win)).toBe('Thanks \u2014 your note was sent.');
@@ -444,10 +459,12 @@ describe('renderFeedbackWidget', () => {
     const { win } = load('concept-a.html');
     fill(win, 'Aiko', 'bug', 'Something');
     expect(JSON.parse(win.sessionStorage.getItem(DRAFT_KEY)!)).toEqual({
+      id: expect.stringMatching(V4),
       name: 'Aiko',
       page: 'concept-a.html',
       kind: 'bug',
       message: 'Something',
+      hasImage: false,
     });
     expect(q<HTMLElement>(win, '.dot').hidden).toBe(false);
     type(win, messageInput(win), '');
@@ -533,6 +550,8 @@ describe('renderFeedbackWidget', () => {
     expect(() => parse('a?.b', { ecmaVersion: 2019 })).toThrow();
     expect(BODY.toLowerCase()).not.toContain('</script');
     expect(BODY).not.toContain('<!--');
+    // Full-line source comments are not shipped.
+    expect(BODY.split('\n').filter((l) => /^\s*\/\//.test(l))).toEqual([]);
   });
 });
 
@@ -1113,5 +1132,615 @@ describe('renderFeedbackWidget first-visit hint', () => {
     });
     expect(q<HTMLElement>(win, '[role="dialog"]').hidden).toBe(false);
     expect(hint(win)).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Screenshot attachments (S2/S3/S7/S10/S13). jsdom has no canvas, so the
+// widget's compress step is replaced through its test seam
+// (window.__hvPfbCompress, looked up at call time) with deferred promises, and
+// URL.createObjectURL / revokeObjectURL are recorded.
+// ---------------------------------------------------------------------------
+const IMG_KEY = `hv_pv_fb_draft_img:${SLUG}`;
+const JPEG_PREFIX = 'data:image/jpeg;base64,';
+
+type Deferred = { file: Blob; resolve: (b: Blob) => void; reject: (e: unknown) => void };
+type Shots = { calls: Deferred[]; created: string[]; revoked: string[] };
+
+/** beforeEval hook: the compress seam + object-URL bookkeeping (+ optional extra setup). */
+function withShots(shots: Shots, extra?: (win: Win) => void): (win: Win) => void {
+  return (win) => {
+    (win as unknown as { __hvPfbCompress: (f: Blob) => Promise<Blob> }).__hvPfbCompress = (file) =>
+      new Promise<Blob>((resolve, reject) => shots.calls.push({ file, resolve, reject }));
+    let n = 0;
+    Object.defineProperty(win, 'URL', {
+      configurable: true,
+      value: {
+        createObjectURL: () => {
+          const u = `blob:test/${++n}`;
+          shots.created.push(u);
+          return u;
+        },
+        revokeObjectURL: (u: string) => shots.revoked.push(u),
+      },
+    });
+    extra?.(win);
+  };
+}
+
+const newShots = (): Shots => ({ calls: [], created: [], revoked: [] });
+
+function loadShots(file = 'concept-a.html', carry?: Snapshot, extra?: (win: Win) => void) {
+  const shots = newShots();
+  const page = load(file, carry, withShots(shots, extra));
+  return { ...page, shots };
+}
+
+function png(win: Win, bytes = 10, name = 'shot.png'): File {
+  return new win.File([new Uint8Array(bytes)], name, { type: 'image/png' });
+}
+function jpeg(win: Win, bytes: number): Blob {
+  const a = new Uint8Array(bytes);
+  a[0] = 0xff;
+  a[1] = 0xd8;
+  a[2] = 0xff;
+  return new win.Blob([a], { type: 'image/jpeg' });
+}
+
+function pickFile(win: Win, file: File) {
+  const input = q<HTMLInputElement>(win, 'input[type="file"]');
+  Object.defineProperty(input, 'files', { configurable: true, value: [file] });
+  input.dispatchEvent(new win.Event('change', { bubbles: true }));
+}
+
+type FakeItem = { kind: string; type: string; getAsFile: () => File | null };
+function fakeTransfer(files: File[], extraItems: FakeItem[] = []) {
+  const items: FakeItem[] = [
+    ...extraItems,
+    ...files.map((f) => ({ kind: 'file', type: f.type, getAsFile: () => f })),
+  ];
+  return { items, files, types: files.length ? ['Files'] : ['text/plain'] };
+}
+
+function paste(win: Win, files: File[], extraItems: FakeItem[] = []): Event {
+  const ev = new win.Event('paste', { bubbles: true, cancelable: true, composed: true });
+  Object.defineProperty(ev, 'clipboardData', { value: fakeTransfer(files, extraItems) });
+  messageInput(win).dispatchEvent(ev);
+  return ev;
+}
+
+function drop(win: Win, files: File[]): Event {
+  const target = q<HTMLElement>(win, '.body');
+  const over = new win.Event('dragover', { bubbles: true, cancelable: true, composed: true });
+  Object.defineProperty(over, 'dataTransfer', { value: { ...fakeTransfer(files), dropEffect: 'none' } });
+  target.dispatchEvent(over);
+  const ev = new win.Event('drop', { bubbles: true, cancelable: true, composed: true });
+  Object.defineProperty(ev, 'dataTransfer', { value: fakeTransfer(files) });
+  target.dispatchEvent(ev);
+  return ev;
+}
+
+const shotRow = (w: Win) => q<HTMLElement>(w, '.shot');
+const dropArea = (w: Win) => q<HTMLElement>(w, '.drop');
+const thumb = (w: Win) => q<HTMLImageElement>(w, '.shot img');
+const sendBtn = (w: Win) => q<HTMLButtonElement>(w, '.send');
+const tip = (w: Win) => q<HTMLElement>(w, '.tip').textContent ?? '';
+
+async function settle() {
+  for (let i = 0; i < 20; i++) await new Promise((r) => setTimeout(r, 0));
+}
+
+function draftOf(win: Win): Record<string, unknown> | null {
+  const raw = win.sessionStorage.getItem(DRAFT_KEY);
+  return raw === null ? null : (JSON.parse(raw) as Record<string, unknown>);
+}
+function imgDraftOf(win: Win): { id: string; dataUrl: string } | null {
+  const raw = win.sessionStorage.getItem(IMG_KEY);
+  return raw === null ? null : (JSON.parse(raw) as { id: string; dataUrl: string });
+}
+
+function b64(bytes: number[]): string {
+  return Buffer.from(Uint8Array.from(bytes)).toString('base64');
+}
+
+describe('renderFeedbackWidget screenshot UI', () => {
+  it('renders the optional screenshot section between Message and the buttons', () => {
+    const { win } = loadShots();
+    button(win, 'Feedback').click();
+    const body = q<HTMLElement>(win, '.body');
+    expect(body.textContent).toContain('Screenshot (optional)');
+    const input = q<HTMLInputElement>(win, 'input[type="file"]');
+    expect(input.accept).toBe('image/*');
+    expect(input.hidden).toBe(true);
+    const attach = button(win, 'Attach image');
+    expect(dropArea(win).contains(attach)).toBe(true);
+    expect(shotRow(win).hidden).toBe(true);
+    // Order: message textarea, then the screenshot section, then the action row.
+    const msg = messageInput(win);
+    expect(msg.compareDocumentPosition(dropArea(win)) & win.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(dropArea(win).compareDocumentPosition(sendBtn(win)) & win.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const css = q<HTMLStyleElement>(win, 'style').textContent ?? '';
+    expect(css).toMatch(/\.drop\s*\{[^}]*border:\s*1px dashed/);
+    // Attach / Remove share .btn (min-height 44px).
+    expect(attach.classList.contains('btn')).toBe(true);
+    expect(css).toMatch(/\.btn\s*\{[^}]*min-height:\s*44px/);
+  });
+
+  it('the Attach button opens the file picker', () => {
+    const { win } = loadShots();
+    button(win, 'Feedback').click();
+    const input = q<HTMLInputElement>(win, 'input[type="file"]');
+    const click = vi.fn();
+    input.addEventListener('click', click);
+    button(win, 'Attach image').click();
+    expect(click).toHaveBeenCalledTimes(1);
+  });
+
+  it('a picked image shows a 72px thumbnail with its size and a Remove button', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    pickFile(win, png(win));
+    expect(shots.calls).toHaveLength(1);
+    // Processing state: the row shows progress and Send is locked.
+    expect(shotRow(win).hidden).toBe(false);
+    expect(shotRow(win).textContent).toContain('Processing screenshot…');
+    expect(sendBtn(win).disabled).toBe(true);
+    expect(sendBtn(win).textContent).toBe('Processing screenshot…');
+    shots.calls[0].resolve(jpeg(win, 184 * 1024));
+    await settle();
+    expect(shotRow(win).hidden).toBe(false);
+    expect(dropArea(win).hidden).toBe(true);
+    expect(thumb(win).getAttribute('src')).toBe(shots.created[0]);
+    expect(thumb(win).getAttribute('width')).toBe('72');
+    expect(thumb(win).getAttribute('height')).toBe('72');
+    expect(shotRow(win).textContent).toContain('184 KB');
+    expect(button(win, 'Remove').classList.contains('btn')).toBe(true);
+    expect(sendBtn(win).disabled).toBe(false);
+    expect(sendBtn(win).textContent).toBe('Send');
+  });
+
+  it('a non-image file is refused with a message and nothing is attached', () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    pickFile(win, new win.File(['%PDF'], 'doc.pdf', { type: 'application/pdf' }));
+    expect(shots.calls).toHaveLength(0);
+    expect(shotRow(win).hidden).toBe(true);
+    expect(status(win)).toMatch(/isn't an image/);
+  });
+
+  it('a compress failure shows a clear message and attaches nothing', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    pickFile(win, png(win));
+    shots.calls[0].reject(new Error('decode'));
+    await settle();
+    expect(shotRow(win).hidden).toBe(true);
+    expect(dropArea(win).hidden).toBe(false);
+    expect(status(win)).toBe("Couldn't read that image. Try a PNG or JPG.");
+    expect(sendBtn(win).disabled).toBe(false);
+    expect(draftOf(win)).toBeNull();
+  });
+
+  it('paste takes the first image item; a text paste is left alone', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    const text = paste(win, [], [{ kind: 'string', type: 'text/plain', getAsFile: () => null }]);
+    expect(text.defaultPrevented).toBe(false);
+    expect(shots.calls).toHaveLength(0);
+
+    const a = png(win, 10, 'a.png');
+    const b = png(win, 20, 'b.png');
+    const ev = paste(win, [a, b], [{ kind: 'string', type: 'text/html', getAsFile: () => null }]);
+    expect(ev.defaultPrevented).toBe(true);
+    expect(shots.calls).toHaveLength(1);
+    expect(shots.calls[0].file).toBe(a);
+  });
+
+  it('paste never reaches the page', () => {
+    const { win } = loadShots();
+    button(win, 'Feedback').click();
+    const seen = vi.fn();
+    win.document.addEventListener('paste', seen);
+    paste(win, [], [{ kind: 'string', type: 'text/plain', getAsFile: () => null }]);
+    expect(seen).not.toHaveBeenCalled();
+  });
+
+  it('drop on the panel attaches the first image file', () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    const f = png(win);
+    const ev = drop(win, [new win.File(['x'], 'notes.txt', { type: 'text/plain' }), f]);
+    expect(ev.defaultPrevented).toBe(true);
+    expect(shots.calls).toHaveLength(1);
+    expect(shots.calls[0].file).toBe(f);
+  });
+
+  it('sends FormData with payload + image when attached, JSON otherwise', async () => {
+    const page = loadShots();
+    const { win, shots, fetch } = page;
+    fetch.mockReturnValueOnce(respond(201));
+    fill(win, 'Aiko', 'bug', 'See the screenshot.');
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 2048));
+    await settle();
+    button(win, 'Send').click();
+    await settle();
+    const init = fetch.mock.calls[0][1];
+    expect(init.method).toBe('POST');
+    expect(init.credentials).toBe('same-origin');
+    // The browser sets the multipart boundary; the widget must not set Content-Type.
+    expect(init.headers).toBeUndefined();
+    expect(init.body).toBeInstanceOf(win.FormData);
+    const fd = init.body as FormData;
+    expect(Array.from(fd.keys()).sort()).toEqual(['image', 'payload']);
+    expect(typeof fd.get('payload')).toBe('string');
+    const img = fd.get('image') as File;
+    expect(img.size).toBe(2048);
+    expect(img.name).toBe('screenshot.jpg');
+    const payload = sentBody(page);
+    expect(payload).toMatchObject({ name: 'Aiko', kind: 'bug', message: 'See the screenshot.', page: 'concept-a.html' });
+    expect(payload.submissionId).toMatch(V4);
+    expect(status(win)).toBe('Thanks — your note was sent.');
+  });
+});
+
+describe('renderFeedbackWidget screenshot state machine', () => {
+  it('A then B, B resolving first and A last: B is shown, A is dropped', async () => {
+    const { win, shots, fetch } = loadShots();
+    fill(win, 'Aiko', 'bug', 'Two picks.');
+    pickFile(win, png(win, 10, 'a.png'));
+    paste(win, [png(win, 10, 'b.png')]);
+    expect(shots.calls).toHaveLength(2);
+    shots.calls[1].resolve(jpeg(win, 3000));
+    await settle();
+    expect(thumb(win).getAttribute('src')).toBe(shots.created[0]);
+    shots.calls[0].resolve(jpeg(win, 9999));
+    await settle();
+    // B stays; A's late result is dropped and leaves no live object URL behind.
+    expect(shotRow(win).textContent).toContain('3 KB');
+    const live = shots.created.filter((u) => !shots.revoked.includes(u));
+    expect(live).toEqual([thumb(win).getAttribute('src')]);
+    expect(sendBtn(win).disabled).toBe(false);
+    fetch.mockReturnValueOnce(respond(201));
+    button(win, 'Send').click();
+    await settle();
+    expect(((fetch.mock.calls[0][1].body as FormData).get('image') as File).size).toBe(3000);
+    // After a 201 the object URL is released too.
+    expect(shots.created.filter((u) => !shots.revoked.includes(u))).toEqual([]);
+  });
+
+  it('A attached, then B picked: A is replaced and its URL revoked', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 1000));
+    await settle();
+    const urlA = thumb(win).getAttribute('src');
+    pickFile(win, png(win));
+    shots.calls[1].resolve(jpeg(win, 2000));
+    await settle();
+    expect(shots.revoked).toContain(urlA);
+    expect(thumb(win).getAttribute('src')).not.toBe(urlA);
+  });
+
+  it('Remove during compression: nothing comes back', async () => {
+    const { win, shots, fetch } = loadShots();
+    fill(win, 'Aiko', 'bug', 'Removed mid-way.');
+    pickFile(win, png(win));
+    expect(sendBtn(win).disabled).toBe(true);
+    button(win, 'Remove').click();
+    expect(shotRow(win).hidden).toBe(true);
+    expect(sendBtn(win).disabled).toBe(false);
+    shots.calls[0].resolve(jpeg(win, 1000));
+    await settle();
+    expect(shotRow(win).hidden).toBe(true);
+    expect(shots.created).toEqual([]);
+    expect(imgDraftOf(win)).toBeNull();
+    expect(draftOf(win)).toMatchObject({ hasImage: false, message: 'Removed mid-way.' });
+    fetch.mockReturnValueOnce(respond(201));
+    button(win, 'Send').click();
+    await settle();
+    expect(typeof fetch.mock.calls[0][1].body).toBe('string');
+  });
+
+  it('Send during compression is disabled and the submit handler refuses', async () => {
+    const { win, shots, fetch } = loadShots();
+    fill(win, 'Aiko', 'bug', 'Too early.');
+    pickFile(win, png(win));
+    expect(sendBtn(win).disabled).toBe(true);
+    // Disabling a button doesn't stop a programmatic/implicit submit.
+    q<HTMLFormElement>(win, 'form').dispatchEvent(new win.Event('submit', { bubbles: true, cancelable: true }));
+    await settle();
+    expect(fetch).not.toHaveBeenCalled();
+    shots.calls[0].resolve(jpeg(win, 1000));
+    await settle();
+    expect(sendBtn(win).disabled).toBe(false);
+  });
+
+  it('paste, drop and file change while sending are all ignored', async () => {
+    const { win, shots, fetch } = loadShots();
+    let resolve!: (r: Response) => void;
+    fetch.mockReturnValueOnce(new Promise<Response>((r) => (resolve = r)));
+    fill(win, 'Aiko', 'bug', 'Busy.');
+    button(win, 'Send').click();
+    await settle();
+    paste(win, [png(win)]);
+    const d = drop(win, [png(win)]);
+    // The drop is still swallowed so the browser doesn't navigate to the file mid-send.
+    expect(d.defaultPrevented).toBe(true);
+    pickFile(win, png(win));
+    expect(shots.calls).toHaveLength(0);
+    expect(shotRow(win).hidden).toBe(true);
+    resolve(new Response(null, { status: 201 }));
+    await settle();
+    expect(shots.calls).toHaveLength(0);
+  });
+});
+
+describe('renderFeedbackWidget screenshot drafts', () => {
+  it('attach before typing starts a draft and captures the page', async () => {
+    const { win, shots } = loadShots();
+    button(win, 'Feedback').click();
+    pickFile(win, png(win));
+    win.history.replaceState(null, '', 'index.html');
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    const draft = draftOf(win)!;
+    expect(draft).toMatchObject({ page: 'concept-a.html', message: '', hasImage: true });
+    expect(draft.id).toMatch(V4);
+    const img = imgDraftOf(win)!;
+    expect(img.id).toBe(draft.id);
+    expect(img.dataUrl.startsWith(JPEG_PREFIX)).toBe(true);
+    expect(pageLine(win)).toBe('Page: concept-a.html');
+    expect(q<HTMLElement>(win, '.dot').hidden).toBe(false);
+  });
+
+  it('emptying the message while an image is attached keeps the draft; Remove then drops it', async () => {
+    const { win, shots } = loadShots();
+    fill(win, 'Aiko', 'bug', 'Text first.');
+    const id = draftOf(win)!.id;
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    type(win, messageInput(win), '');
+    expect(draftOf(win)).toMatchObject({ id, message: '', hasImage: true });
+    expect(imgDraftOf(win)!.id).toBe(id);
+    expect(q<HTMLElement>(win, '.dot').hidden).toBe(false);
+    button(win, 'Remove').click();
+    expect(imgDraftOf(win)).toBeNull();
+    expect(draftOf(win)).toBeNull();
+    expect(q<HTMLElement>(win, '.dot').hidden).toBe(true);
+    // A new draft gets a new id.
+    type(win, messageInput(win), 'Again');
+    expect(draftOf(win)!.id).toMatch(V4);
+    expect(draftOf(win)!.id).not.toBe(id);
+  });
+
+  it('Remove with text keeps the text draft with hasImage false', async () => {
+    const { win, shots } = loadShots();
+    fill(win, 'Aiko', 'bug', 'Keep text.');
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    expect(draftOf(win)).toMatchObject({ hasImage: true });
+    button(win, 'Remove').click();
+    expect(imgDraftOf(win)).toBeNull();
+    expect(draftOf(win)).toMatchObject({ message: 'Keep text.', hasImage: false });
+    expect(root(win).activeElement).toBe(button(win, 'Attach image'));
+  });
+
+  it('an attached image survives a 401 and a reload, then is sent with the same submissionId', async () => {
+    const first = loadShots();
+    first.fetch.mockReturnValueOnce(respond(401));
+    fill(first.win, 'Kenji', 'bug', 'With a picture.');
+    pickFile(first.win, png(first.win));
+    first.shots.calls[0].resolve(jpeg(first.win, 700));
+    await settle();
+    button(first.win, 'Send').click();
+    await settle();
+    expect(status(first.win)).toContain('Your note is saved');
+    expect(status(first.win)).not.toContain("screenshot isn't");
+    const id1 = sentBody(first).submissionId;
+
+    const second = reload(first, 'index.html');
+    expect(q<HTMLElement>(second.win, '[role="dialog"]').hidden).toBe(false);
+    expect(shotRow(second.win).hidden).toBe(false);
+    expect(thumb(second.win).getAttribute('src')).toBeTruthy();
+    expect(shotRow(second.win).textContent).toContain('1 KB');
+    second.fetch.mockReturnValueOnce(respond(201));
+    button(second.win, 'Send').click();
+    await settle();
+    const fd = second.fetch.mock.calls[0][1].body as FormData;
+    expect(fd).toBeInstanceOf(second.win.FormData);
+    const img = fd.get('image') as File;
+    expect(img.size).toBe(700);
+    const bytes = new Uint8Array(await img.arrayBuffer());
+    expect(Array.from(bytes.slice(0, 3))).toEqual([0xff, 0xd8, 0xff]);
+    expect(sentBody(second).submissionId).toBe(id1);
+    // e: a 201 clears both keys.
+    expect(second.win.sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+    expect(second.win.sessionStorage.getItem(IMG_KEY)).toBeNull();
+    expect(shotRow(second.win).hidden).toBe(true);
+  });
+
+  it('the image write throws while replacing A with B: the old key is gone, the reload restores no image and says so', async () => {
+    let failImage = false;
+    const first = loadShots('concept-a.html', undefined, (win) => {
+      const real = win.Storage.prototype.setItem;
+      vi.spyOn(win.Storage.prototype, 'setItem').mockImplementation(function (this: Storage, k: string, v: string) {
+        if (failImage && k === IMG_KEY) throw new Error('QuotaExceededError');
+        return real.call(this, k, v);
+      });
+    });
+    const { win, shots } = first;
+    fill(win, 'Kenji', 'bug', 'Replace me.');
+    pickFile(win, png(win));
+    shots.calls[0].resolve(jpeg(win, 500));
+    await settle();
+    expect(imgDraftOf(win)).not.toBeNull();
+    failImage = true;
+    pickFile(win, png(win));
+    shots.calls[1].resolve(jpeg(win, 600));
+    await settle();
+    expect(imgDraftOf(win)).toBeNull();
+    // B is still attached in this page.
+    expect(shotRow(win).textContent).toContain('1 KB');
+    first.fetch.mockReturnValueOnce(respond(401));
+    button(win, 'Send').click();
+    await settle();
+    const G = "Your note is saved, but the screenshot isn't — attach it again after you sign back in";
+    expect(status(win)).toContain(G);
+
+    const second = reload(first, 'index.html');
+    expect(q<HTMLElement>(second.win, '[role="dialog"]').hidden).toBe(false);
+    expect(shotRow(second.win).hidden).toBe(true);
+    expect(messageInput(second.win).value).toBe('Replace me.');
+    expect(status(second.win)).toContain(G);
+    expect(draftOf(second.win)).toMatchObject({ hasImage: false, message: 'Replace me.' });
+  });
+
+  it('reload with mismatched ids: the image is discarded and the text kept', () => {
+    const idA = '11111111-1111-4111-8111-111111111111';
+    const idB = '22222222-2222-4222-8222-222222222222';
+    const { win } = loadShots('index.html', {
+      session: {
+        [DRAFT_KEY]: JSON.stringify({ id: idA, name: 'K', page: 'a.html', kind: 'bug', message: 'Hi', hasImage: true }),
+        [IMG_KEY]: JSON.stringify({ id: idB, dataUrl: JPEG_PREFIX + b64([0xff, 0xd8, 0xff, 1]) }),
+      },
+      local: {},
+    });
+    expect(shotRow(win).hidden).toBe(true);
+    expect(messageInput(win).value).toBe('Hi');
+    expect(win.sessionStorage.getItem(IMG_KEY)).toBeNull();
+    expect(draftOf(win)).toMatchObject({ id: idA, hasImage: false });
+  });
+
+  it('reload with a matching image draft restores it', () => {
+    const id = '33333333-3333-4333-8333-333333333333';
+    const { win } = loadShots('index.html', {
+      session: {
+        [DRAFT_KEY]: JSON.stringify({ id, name: 'K', page: 'a.html', kind: 'bug', message: '', hasImage: true }),
+        [IMG_KEY]: JSON.stringify({ id, dataUrl: JPEG_PREFIX + b64([0xff, 0xd8, 0xff, 1, 2]) }),
+      },
+      local: {},
+    });
+    button(win, 'Feedback').click();
+    expect(shotRow(win).hidden).toBe(false);
+    expect(shotRow(win).textContent).toContain('1 KB');
+    expect(messageInput(win).value).toBe('');
+    expect(q<HTMLElement>(win, '.dot').hidden).toBe(false);
+    expect(status(win)).toBe('');
+  });
+
+  it('reload with a corrupt image draft: discarded', () => {
+    const id = '44444444-4444-4444-8444-444444444444';
+    const draft = JSON.stringify({ id, name: 'K', page: 'a.html', kind: 'bug', message: 'Text', hasImage: true });
+    const bad = [
+      '{not json',
+      JSON.stringify({ id }),
+      JSON.stringify({ id, dataUrl: 'data:image/png;base64,' + b64([1, 2, 3]) }),
+      JSON.stringify({ id, dataUrl: JPEG_PREFIX + '!!!not base64!!!' }),
+      JSON.stringify({ id, dataUrl: JPEG_PREFIX }),
+      JSON.stringify({ id, dataUrl: JPEG_PREFIX + 'A'.repeat(2.2 * 1024 * 1024) }),
+    ];
+    for (const value of bad) {
+      const { win } = loadShots('index.html', { session: { [DRAFT_KEY]: draft, [IMG_KEY]: value }, local: {} });
+      expect(shotRow(win).hidden).toBe(true);
+      expect(messageInput(win).value).toBe('Text');
+      expect(win.sessionStorage.getItem(IMG_KEY)).toBeNull();
+    }
+  });
+
+  it('an old-shape draft (no id) gets a fresh submissionId', () => {
+    const { win } = loadShots('index.html', {
+      session: { [DRAFT_KEY]: JSON.stringify({ name: 'K', page: 'a.html', kind: 'bug', message: 'Old' }) },
+      local: {},
+    });
+    expect(messageInput(win).value).toBe('Old');
+    expect(draftOf(win)!.id).toMatch(V4);
+  });
+
+  it('a retry after a timeout sends the same submissionId; a 201 then starts a new one', async () => {
+    const timers: { fn: () => void; ms: number }[] = [];
+    const page = loadShots('concept-a.html', undefined, (win) => {
+      const realSet = win.setTimeout.bind(win);
+      const fake = (fn: () => void, ms: number) => (ms === 20000 ? timers.push({ fn, ms }) : realSet(fn, ms));
+      (win as unknown as { setTimeout: typeof fake }).setTimeout = fake;
+    });
+    const { win, fetch } = page;
+    fetch.mockReturnValueOnce(new Promise<Response>(() => {}));
+    fill(win, 'Aiko', 'bug', 'Slow network');
+    button(win, 'Send').click();
+    await settle();
+    timers.shift()!.fn();
+    await settle();
+    expect(status(win)).toBe("Couldn't send. Please try again.");
+    fetch.mockReturnValueOnce(respond(201));
+    button(win, 'Send').click();
+    await settle();
+    expect(sentBody(page, 1).submissionId).toBe(sentBody(page, 0).submissionId);
+    fetch.mockReturnValueOnce(respond(201));
+    fill(win, 'Aiko', 'bug', 'Next note');
+    button(win, 'Send').click();
+    await settle();
+    expect(sentBody(page, 2).submissionId).toMatch(V4);
+    expect(sentBody(page, 2).submissionId).not.toBe(sentBody(page, 0).submissionId);
+  });
+
+  it('uses crypto.randomUUID when present, else a Math.random RFC-4122 v4', () => {
+    const viaCrypto = loadShots('concept-a.html', undefined, (win) => {
+      Object.defineProperty(win, 'crypto', {
+        configurable: true,
+        value: { randomUUID: () => 'AAAAAAAA-BBBB-4CCC-9DDD-EEEEEEEEEEEE' },
+      });
+    });
+    fill(viaCrypto.win, 'A', 'bug', 'x');
+    expect(draftOf(viaCrypto.win)!.id).toBe('aaaaaaaa-bbbb-4ccc-9ddd-eeeeeeeeeeee');
+
+    for (let i = 0; i < 20; i++) {
+      const fallback = loadShots('concept-a.html', undefined, (win) => {
+        Object.defineProperty(win, 'crypto', { configurable: true, value: undefined });
+      });
+      fill(fallback.win, 'A', 'bug', 'x');
+      expect(draftOf(fallback.win)!.id).toMatch(V4);
+    }
+  });
+});
+
+describe('renderFeedbackWidget screenshot platform hint', () => {
+  function withUA(ua: string, touch: number) {
+    return (win: Win) => {
+      Object.defineProperty(win.navigator, 'userAgent', { configurable: true, value: ua });
+      Object.defineProperty(win.navigator, 'maxTouchPoints', { configurable: true, value: touch });
+    };
+  }
+  const WIN = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36';
+  const MAC =
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15';
+  const IPHONE =
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+  const ANDROID =
+    'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36';
+
+  it('Windows: Win+Shift+S, then Ctrl+V', () => {
+    expect(tip(loadShots('a.html', undefined, withUA(WIN, 0)).win)).toContain('Win+Shift+S, then Ctrl+V');
+    // A Windows touch laptop is still Windows.
+    expect(tip(loadShots('a.html', undefined, withUA(WIN, 10)).win)).toContain('Win+Shift+S, then Ctrl+V');
+  });
+
+  it('Mac: Cmd+Ctrl+Shift+4, then Cmd+V', () => {
+    expect(tip(loadShots('a.html', undefined, withUA(MAC, 0)).win)).toContain('Cmd+Ctrl+Shift+4, then Cmd+V');
+  });
+
+  it('phones and tablets: no hint (an iPad reports a Mac UA with touch points)', () => {
+    for (const [ua, touch] of [
+      [IPHONE, 5],
+      [ANDROID, 5],
+      [MAC, 5],
+    ] as const) {
+      const { win } = loadShots('a.html', undefined, withUA(ua, touch));
+      expect(tip(win)).toBe('');
+      expect(q<HTMLElement>(win, '.tip').hidden).toBe(true);
+    }
   });
 });

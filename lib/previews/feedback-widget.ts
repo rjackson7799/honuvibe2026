@@ -145,6 +145,24 @@ textarea.field { resize: vertical; min-height: 120px; }
 }
 .kind:has(input:checked) { border-color: rgba(255,255,255,0.55); }
 .kind input { width: 18px; height: 18px; margin: 0; accent-color: #f2efe8; }
+.drop {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 0 0 14px; padding: 6px;
+  border: 1px dashed rgba(255,255,255,0.28); border-radius: 9px;
+}
+.drop .btn, .shot .btn {
+  flex: 0 0 auto; padding: 0 12px; font-size: 14px; color: #f2efe8;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+}
+.tip, .meta { font-size: 12px; line-height: 1.35; color: rgba(242,239,232,0.62); }
+/* One line always: beside the button when it fits, else whole on the next row. */
+.tip { white-space: nowrap; padding: 0 2px; }
+.shot { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; }
+.tb {
+  flex: 0 0 72px; width: 72px; height: 72px; overflow: hidden;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px;
+}
+.tb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.meta { flex: 1 1 auto; min-width: 0; }
 .status { margin: 0; padding: 0 20px; font-size: 13px; color: #f2efe8; }
 .status:not(:empty) { padding-top: 10px; }
 .actions { display: flex; gap: 8px; flex: 0 0 auto; padding: 12px 20px 16px; }
@@ -159,6 +177,14 @@ textarea.field { resize: vertical; min-height: 120px; }
 .btn:disabled, .field:disabled, .kind input:disabled { opacity: 0.55; cursor: default; }
 .btn:focus-visible, .field:focus-visible, .kind input:focus-visible {
   outline: 2px solid #f2efe8; outline-offset: 2px;
+}
+@media (max-height: 640px) {
+  .panel { max-height: calc(var(--hv-vh, 100dvh) - 64px); }
+  .body { padding-top: 14px; }
+  .page, .field, .kinds, .drop, .shot { margin-bottom: 10px; }
+  label, .lbl { margin-bottom: 4px; }
+  textarea.field { height: 76px; min-height: 64px; }
+  .actions { padding: 10px 20px 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .launch, .field, .kind, .btn, .hint { transition: none; animation: none; }
@@ -184,6 +210,11 @@ const MARKUP = [
   '<div class="kinds" role="radiogroup" aria-labelledby="hv-kind" aria-required="true"></div>',
   '<label for="hv-msg">Message</label>',
   '<textarea id="hv-msg" class="field" name="message" rows="5" required></textarea>',
+  '<div class="lbl">Screenshot (optional)</div>',
+  '<div class="drop"><button type="button" class="btn attach">Attach image</button>',
+  '<span class="tip"></span><input type="file" accept="image/*" tabindex="-1" hidden></div>',
+  '<div class="shot" hidden><span class="tb"><img alt="Screenshot preview" width="72" height="72" hidden></span>',
+  '<span class="meta"></span><button type="button" class="btn rm">Remove</button></div>',
   '</div><p class="status" aria-live="polite"></p>',
   '<div class="actions"><button type="button" class="btn cancel">Cancel</button>',
   '<button type="submit" class="btn send">Send</button></div>',
@@ -201,6 +232,17 @@ const MSG = {
   failed: "Couldn't send. Please try again.",
   incomplete: 'Add your name, pick a type and write a note.',
   hint: 'Leave feedback here',
+  processing: 'Processing screenshot…',
+  notImage: "That file isn't an image. Attach a PNG or JPG.",
+  unreadable: "Couldn't read that image. Try a PNG or JPG.",
+  tooLarge: 'That screenshot is too large. Try capturing a smaller area.',
+  // S10(g): the text draft was written but the image draft was not.
+  imgUnsaved: "Your note is saved, but the screenshot isn't — attach it again after you sign back in.",
+  expiredImgUnsaved:
+    "Your session has expired. Reload the page and enter the password again. Your note is saved, but the screenshot isn't — attach it again after you sign back in.",
+  // S13, one line in the drop area. Phones get none.
+  tipWin: 'Win+Shift+S, then Ctrl+V',
+  tipMac: 'Cmd+Ctrl+Shift+4, then Cmd+V',
 };
 
 const SOURCE = String.raw`
@@ -212,6 +254,11 @@ try { framed = w.top !== w; } catch (e) { framed = true; }
 if (framed) return;
 
 var DRAFT_KEY = 'hv_pv_fb_draft:' + C.slug, NAME_KEY = 'hv_pv_feedback_name', TIMEOUT_MS = 20000;
+var IMG_KEY = 'hv_pv_fb_draft_img:' + C.slug, JPEG = 'data:image/jpeg;base64,';
+// S2: long edge 1600, JPEG q0.82, once more at q0.6 over 1.5 MB (1572864 bytes).
+// S10(f): an image draft is restored only under 2.2 MB of data URL.
+var EDGE = 1600, MAX_BYTES = 1572864, IMG_DRAFT_MAX = 2306867;
+var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 var PREFIX = '/api/preview/' + C.slug + '/';
 var host = d.createElement('div');
 host.id = 'hv-preview-feedback';
@@ -226,6 +273,8 @@ root.appendChild(shell.firstChild);
 function $(s) { return root.querySelector(s); }
 var launch = $('.launch'), dot = $('.dot'), panel = $('.panel'), form = $('form'), fs = $('fieldset');
 var fName = $('#hv-name'), fMsg = $('#hv-msg'), pageEl = $('.page'), statusEl = $('.status');
+var dropEl = $('.drop'), attachBtn = $('.attach'), tipEl = $('.tip'), fileIn = $('input[type="file"]');
+var shotEl = $('.shot'), thumb = $('.tb img'), metaEl = $('.meta'), rmBtn = $('.rm'), sendBtn = $('.send');
 fName.maxLength = L.name;
 fMsg.maxLength = L.message;
 K.forEach(function (k) {
@@ -246,6 +295,22 @@ function setKind(v) {
 }
 
 var draftPage = null, draftSaved = false, sending = false;
+// Screenshot state (S2/S10). attachGen bumps on every selection (paste, drop,
+// pick) and on Remove; a compression that settles for an older generation is
+// dropped. image = { blob, src, own } (own: src is an object URL to revoke).
+// sid = the note's submissionId (S7): made when a draft starts, kept in the
+// draft, reused by every retry, cleared by a 201.
+var sid = null, attachGen = 0, processing = false, image = null, imgSaved = false, notice = '';
+function newId() {
+  var c = w.crypto, h = '', i, u;
+  if (c && typeof c.randomUUID === 'function') {
+    try { u = String(c.randomUUID()).toLowerCase(); if (UUID_RE.test(u)) return u; } catch (e) {}
+  }
+  // RFC 4122 v4 from Math.random: version nibble 4, variant 8/9/a/b.
+  for (i = 0; i < 32; i++) h += Math.floor(Math.random() * 16).toString(16);
+  h = h.slice(0, 12) + '4' + h.slice(13, 16) + '89ab'.charAt(Math.floor(Math.random() * 4)) + h.slice(17);
+  return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
+}
 function currentPage() {
   var p = location.pathname || '';
   if (p.indexOf(PREFIX) === 0) p = p.slice(PREFIX.length);
@@ -257,13 +322,20 @@ function currentPage() {
 }
 function refresh() {
   pageEl.textContent = 'Page: ' + (draftPage || currentPage());
-  dot.hidden = !fMsg.value;
+  dot.hidden = !fMsg.value && !image;
 }
 function say(t) { statusEl.textContent = t; }
+function ssDel(k) { try { w.sessionStorage.removeItem(k); } catch (e) {} }
+// S10(a): a draft exists while the message is non-empty or an image is
+// attached. It owns the page it started on and the submissionId.
+function startDraft() {
+  if (draftPage === null) draftPage = currentPage();
+  if (!sid) sid = newId();
+}
 // resume = auto-open the panel on the next load (set only at a 401, so the
 // reviewer sees the note on the page they re-enter the password on).
 function saveDraft(resume) {
-  var o = { name: fName.value, page: draftPage, kind: kindVal(), message: fMsg.value };
+  var o = { id: sid, name: fName.value, page: draftPage, kind: kindVal(), message: fMsg.value, hasImage: !!image };
   if (resume) o.resume = true;
   try {
     w.sessionStorage.setItem(DRAFT_KEY, JSON.stringify(o));
@@ -273,19 +345,216 @@ function saveDraft(resume) {
 function dropDraft() {
   draftPage = null;
   draftSaved = false;
-  try { w.sessionStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  sid = null;
+  ssDel(DRAFT_KEY);
+  ssDel(IMG_KEY);
 }
 function onInput() {
   if (sending) return;
-  if (!fMsg.value) dropDraft();
-  else {
-    if (draftPage === null) draftPage = currentPage();
-    saveDraft();
-  }
+  if (fMsg.value || image) { startDraft(); saveDraft(); }
+  else if (!processing) dropDraft();
   refresh();
 }
 form.addEventListener('input', onInput);
 form.addEventListener('change', onInput);
+
+function mkSrc(blob) {
+  try { return w.URL.createObjectURL(blob); } catch (e) { return ''; }
+}
+function clearImage() {
+  if (image && image.own) { try { w.URL.revokeObjectURL(image.src); } catch (e) {} }
+  image = null;
+}
+function render() {
+  var has = !!image;
+  shotEl.hidden = !processing && !has;
+  dropEl.hidden = processing || has;
+  if (has && image.src) { thumb.setAttribute('src', image.src); thumb.hidden = false; }
+  else { thumb.removeAttribute('src'); thumb.hidden = true; }
+  var n = has ? image.blob.size : 0;
+  metaEl.textContent = processing ? M.processing
+    : has ? (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB') : '';
+  sendBtn.disabled = processing;
+  sendBtn.textContent = processing ? M.processing : 'Send';
+  refresh();
+}
+// S10(b): the old image key goes FIRST, so a failed write can never leave the
+// previous screenshot to be restored with this note. The new one is written as
+// a data URL once read; imgSaved records whether that write landed (S10g).
+function storeImage(gen) {
+  var img = image, R = w.FileReader, r;
+  ssDel(IMG_KEY);
+  imgSaved = false;
+  if (!R) return;
+  r = new R();
+  r.onload = function () {
+    var u = String(r.result || '');
+    if (gen !== attachGen || image !== img || u.indexOf(JPEG) !== 0 || u.length >= IMG_DRAFT_MAX) return;
+    try {
+      w.sessionStorage.setItem(IMG_KEY, JSON.stringify({ id: sid, dataUrl: u }));
+      imgSaved = true;
+    } catch (e) {}
+  };
+  try { r.readAsDataURL(img.blob); } catch (e) {}
+}
+// S10(f): only an image saved under this draft's id, as a JPEG data URL under 2.2 MB.
+function restoreImage() {
+  try {
+    var io = JSON.parse(w.sessionStorage.getItem(IMG_KEY));
+    var u = io && io.id === sid && typeof io.dataUrl === 'string' ? io.dataUrl : '';
+    if (u.indexOf(JPEG) !== 0 || u.length >= IMG_DRAFT_MAX) return null;
+    var s = w.atob(u.slice(JPEG.length)), a = new Uint8Array(s.length), i;
+    for (i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+    if (!a.length) return null;
+    var b = new w.Blob([a], { type: 'image/jpeg' }), src = mkSrc(b);
+    return { blob: b, src: src || u, own: !!src };
+  } catch (e) { return null; }
+}
+
+// S2 compression. Tests (jsdom has no canvas) swap it through
+// window.__hvPfbCompress, looked up at call time; production never sets it.
+// Resolves to a JPEG Blob or rejects with an Error whose hvMsg is user-facing.
+function userErr(m) { var e = new Error(m); e.hvMsg = m; return e; }
+function decode(file) {
+  function viaImg() {
+    return new Promise(function (res, rej) {
+      var U = w.URL, url = U.createObjectURL(file), img = d.createElement('img');
+      function free() { try { U.revokeObjectURL(url); } catch (e) {} }
+      img.onload = function () { res({ src: img, w: img.naturalWidth, h: img.naturalHeight, free: free }); };
+      img.onerror = function () { free(); rej(userErr(M.unreadable)); };
+      img.src = url;
+    });
+  }
+  if (!w.createImageBitmap) return viaImg();
+  return w.createImageBitmap(file).then(function (bm) {
+    return { src: bm, w: bm.width, h: bm.height, free: function () { if (bm.close) bm.close(); } };
+  }, viaImg);
+}
+function jpegOf(c, q) {
+  return new Promise(function (res, rej) {
+    c.toBlob(function (b) { if (b && b.size) res(b); else rej(userErr(M.unreadable)); }, 'image/jpeg', q);
+  });
+}
+function compress(file) {
+  return decode(file).then(function (im) {
+    var c = d.createElement('canvas'), g, k;
+    try {
+      if (!(im.w > 0 && im.h > 0)) throw userErr(M.unreadable);
+      k = Math.min(1, EDGE / Math.max(im.w, im.h));
+      c.width = Math.max(1, Math.round(im.w * k));
+      c.height = Math.max(1, Math.round(im.h * k));
+      g = c.getContext('2d');
+      // JPEG has no alpha: transparent areas become white, not black.
+      g.fillStyle = '#fff';
+      g.fillRect(0, 0, c.width, c.height);
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(im.src, 0, 0, c.width, c.height);
+    } finally { im.free(); }
+    return jpegOf(c, 0.82).then(function (b) {
+      return b.size <= MAX_BYTES ? b : jpegOf(c, 0.6).then(function (b2) {
+        if (b2.size <= MAX_BYTES) return b2;
+        throw userErr(M.tooLarge);
+      });
+    });
+  });
+}
+// Every source (paste, drop, file pick) comes through here; nothing is taken
+// while sending. Send stays locked while processing.
+function pick(f) {
+  if (sending || !f) return;
+  if (!/^image\//.test(String(f.type || ''))) { say(M.notImage); return; }
+  var gen = ++attachGen, fn = w.__hvPfbCompress || compress, p;
+  processing = true;
+  startDraft();
+  say('');
+  render();
+  if (root.activeElement === attachBtn) rmBtn.focus();
+  try { p = Promise.resolve(fn(f)); } catch (e) { p = Promise.reject(e); }
+  p.then(function (b) { settled(gen, b, null); }, function (e) { settled(gen, null, e || 1); });
+}
+function settled(gen, blob, err) {
+  if (gen !== attachGen) return;
+  processing = false;
+  if (!err && blob && blob.size) {
+    clearImage();
+    var src = mkSrc(blob);
+    image = { blob: blob, src: src, own: !!src };
+    storeImage(gen);
+    saveDraft();
+  } else {
+    say(err && err.hvMsg ? err.hvMsg : M.unreadable);
+    if (!fMsg.value && !image) dropDraft();
+  }
+  render();
+}
+function firstImage(dt) {
+  var i, it, f, list = dt && dt.items;
+  if (list) {
+    for (i = 0; i < list.length; i++) {
+      it = list[i];
+      if (it && it.kind === 'file' && /^image\//.test(it.type || '')) { f = it.getAsFile(); if (f) return f; }
+    }
+  }
+  list = dt && dt.files;
+  if (list) for (i = 0; i < list.length; i++) if (/^image\//.test(list[i].type || '')) return list[i];
+  return null;
+}
+function hasFiles(dt) {
+  var t = dt && dt.types, i;
+  if (t) for (i = 0; i < t.length; i++) if (t[i] === 'Files') return true;
+  return false;
+}
+attachBtn.addEventListener('click', function () { if (!sending) fileIn.click(); });
+fileIn.addEventListener('change', function () {
+  var f = fileIn.files && fileIn.files[0];
+  try { fileIn.value = ''; } catch (e) {}
+  pick(f);
+});
+rmBtn.addEventListener('click', function () {
+  if (sending) return;
+  attachGen++;
+  processing = false;
+  clearImage();
+  imgSaved = false;
+  ssDel(IMG_KEY);
+  if (fMsg.value) saveDraft(); else dropDraft();
+  say('');
+  render();
+  attachBtn.focus();
+});
+// Text pastes keep their default; only an image item is taken. Like keys,
+// pastes and drops inside the panel never reach the export's own handlers.
+root.addEventListener('paste', function (e) {
+  isolate(e);
+  if (panel.hidden) return;
+  var f = firstImage(e.clipboardData);
+  if (!f) return;
+  e.preventDefault();
+  pick(f);
+});
+panel.addEventListener('dragover', function (e) {
+  isolate(e);
+  if (!hasFiles(e.dataTransfer)) return;
+  e.preventDefault();
+  try { e.dataTransfer.dropEffect = 'copy'; } catch (x) {}
+});
+// A file drop is always swallowed (even mid-send) so the browser never
+// navigates away to the dropped file.
+panel.addEventListener('drop', function (e) {
+  isolate(e);
+  var dt = e.dataTransfer, f;
+  if (!hasFiles(dt)) return;
+  e.preventDefault();
+  if (sending) return;
+  f = firstImage(dt);
+  if (f) pick(f); else say(M.notImage);
+});
+// S13: the snip-to-clipboard shortcut, desktop only (an iPad reports a Mac UA
+// with touch points).
+var nav = w.navigator || {}, ua = String(nav.userAgent || ''), touch = Number(nav.maxTouchPoints) || 0;
+tipEl.textContent = /Android|iPhone|iPad|iPod|Mobile/.test(ua) ? ''
+  : /Windows/.test(ua) ? M.tipWin : /Macintosh/.test(ua) && touch <= 1 ? M.tipMac : '';
+tipEl.hidden = !tipEl.textContent;
 
 var savedName = '', draft = null;
 try { savedName = w.localStorage.getItem(NAME_KEY) || ''; } catch (e) {}
@@ -294,7 +563,7 @@ try {
   if (raw !== null) {
     var o = null;
     try { o = JSON.parse(raw); } catch (e) {}
-    if (o && typeof o === 'object' && typeof o.message === 'string' && o.message) draft = o;
+    if (o && typeof o === 'object' && typeof o.message === 'string' && (o.message || o.hasImage === true)) draft = o;
     else w.sessionStorage.removeItem(DRAFT_KEY);
   }
 } catch (e) {}
@@ -303,11 +572,20 @@ if (draft) {
   fMsg.value = draft.message.slice(0, L.message);
   if (typeof draft.kind === 'string') setKind(draft.kind);
   draftPage = typeof draft.page === 'string' && draft.page ? draft.page.slice(0, L.page) : currentPage();
+  // An old-shape draft (no id) gets a fresh one.
+  sid = typeof draft.id === 'string' && UUID_RE.test(draft.id.toLowerCase()) ? draft.id.toLowerCase() : newId();
+  if (draft.hasImage === true) {
+    image = restoreImage();
+    if (image) imgSaved = true;
+    else notice = M.imgUnsaved;
+  }
   draftSaved = true;
 } else {
   fName.value = savedName.slice(0, L.name);
 }
-refresh();
+if (!image) ssDel(IMG_KEY);
+if (draft && !fMsg.value && !image) { dropDraft(); draft = null; notice = ''; }
+render();
 
 // One-time hint left of the tab. Marked seen BEFORE it is shown, so a browser
 // whose storage throws (and could never remember it) never gets it at all.
@@ -339,7 +617,8 @@ function showHint() {
 
 function openPanel() {
   dropHint();
-  if (!sending) say('');
+  // notice: a screenshot lost on reload (S10g), shown once.
+  if (!sending) { say(notice); notice = ''; }
   panel.hidden = false;
   launch.hidden = true;
   launch.setAttribute('aria-expanded', 'true');
@@ -379,11 +658,14 @@ function finish(token, res) {
     try { w.localStorage.setItem(NAME_KEY, fName.value.trim()); } catch (e) {}
     fMsg.value = '';
     setKind('');
+    attachGen++;
+    clearImage();
+    imgSaved = false;
     dropDraft();
     say(M.sent);
   } else if (s === 401) {
     if (draftSaved) saveDraft(true);
-    say(draftSaved ? M.expiredSaved : M.expiredUnsaved);
+    say(!draftSaved ? M.expiredUnsaved : image && !imgSaved ? M.expiredImgUnsaved : M.expiredSaved);
   } else if (s === 429) {
     var h = res.headers && res.headers.get ? res.headers.get('Retry-After') : null;
     var secs = h === null || h === '' ? NaN : Number(h);
@@ -392,7 +674,7 @@ function finish(token, res) {
   } else {
     say(M.failed);
   }
-  refresh();
+  render();
   // Disabling the fieldset blurred Send; put focus back so Esc keeps working,
   // unless the reviewer has since moved focus somewhere else on the page.
   var a = d.activeElement;
@@ -400,12 +682,13 @@ function finish(token, res) {
 }
 form.addEventListener('submit', function (e) {
   e.preventDefault();
-  if (sending) return;
+  if (sending || processing) return;
   var name = fName.value.trim(), kind = kindVal(), message = fMsg.value;
   if (!name || !kind || !message.trim()) { say(M.incomplete); return; }
+  startDraft();
   var body = JSON.stringify({
     name: name, kind: kind, message: message, page: draftPage || currentPage(),
-    viewportW: w.innerWidth, viewportH: w.innerHeight
+    viewportW: w.innerWidth, viewportH: w.innerHeight, submissionId: sid
   });
   sending = true;
   fs.disabled = true;
@@ -417,10 +700,17 @@ form.addEventListener('submit', function (e) {
     if (ctrl) ctrl.abort();
     finish(token, null);
   }, TIMEOUT_MS);
-  var init = {
-    method: 'POST', credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json' }, body: body
-  };
+  // S3: with an image, exactly two multipart fields; the browser sets the
+  // boundary, so no Content-Type here.
+  var init = { method: 'POST', credentials: 'same-origin', body: body };
+  if (image) {
+    var fd = new w.FormData();
+    fd.append('payload', body);
+    fd.append('image', image.blob, 'screenshot.jpg');
+    init.body = fd;
+  } else {
+    init.headers = { 'Content-Type': 'application/json' };
+  }
   if (ctrl) init.signal = ctrl.signal;
   var req;
   try { req = w.fetch(C.endpoint, init); } catch (err) { req = Promise.reject(err); }
@@ -532,9 +822,18 @@ if (draft && draft.resume === true) {
   saveDraft();
   openPanel();
 } else {
+  // Rewritten so a fresh id / a dropped image is reflected in storage.
+  if (draft) saveDraft();
   showHint();
 }
 `;
+
+// Full-line comments stay in this file but are not shipped inline on every page.
+// Safe because SOURCE has no multi-line string literals (it can't: no backticks).
+const SHIPPED_SOURCE = SOURCE.trim()
+  .split('\n')
+  .filter((line) => !/^\s*\/\//.test(line))
+  .join('\n');
 
 /**
  * Returns one inline `<script>` that mounts the preview feedback widget.
@@ -552,5 +851,5 @@ export function renderFeedbackWidget(opts: { slug: string }): string {
     ['HOST_STYLE_VV', HOST_STYLE_VV],
   ] as const;
   const decl = 'var ' + consts.map(([n, v]) => n + ' = ' + jsonForScript(v)).join(',\n  ') + ';';
-  return '<script>(function(){\n' + decl + '\n' + SOURCE.trim() + '\n})();</script>';
+  return '<script>(function(){\n' + decl + '\n' + SHIPPED_SOURCE + '\n})();</script>';
 }
