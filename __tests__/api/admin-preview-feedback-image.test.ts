@@ -82,6 +82,8 @@ describe('GET /api/admin/preview-feedback/[id]/image', () => {
     h.user = null;
     const res = await call(ID);
     expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'Not found' });
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
     expect(h.adminCreated).not.toHaveBeenCalled();
     expect(h.createSignedUrl).not.toHaveBeenCalled();
   });

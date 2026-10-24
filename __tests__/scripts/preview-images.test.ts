@@ -2,10 +2,16 @@ import { describe, expect, it } from 'vitest';
 // Plain ESM script (allowJs); importing must not run main().
 import { purgePrefix, reconcile } from '../../scripts/preview-images.mjs';
 
-type Obj = { name: string; created_at: string };
+type Obj = { name: string; created_at: string; updated_at?: string };
 
 // In-memory fake: storage bucket (list/remove) + preview_feedback table (.in('id')).
-function fake(opts: { objects: Record<string, Obj[]>; rowIds?: string[] }) {
+function fake(opts: {
+  objects: Record<string, Obj[]>;
+  rowIds?: string[];
+  rootFiles?: string[];
+  listError?: (prefix: string) => boolean;
+  lookup?: () => { data: unknown; error: unknown };
+}) {
   const store = new Map<string, Obj[]>(Object.entries(opts.objects).map(([k, v]) => [k, [...v]]));
   const rowIds = new Set(opts.rowIds ?? []);
   const removeCalls: string[][] = [];
@@ -14,8 +20,12 @@ function fake(opts: { objects: Record<string, Obj[]>; rowIds?: string[] }) {
     async list(prefix: string, o: { limit?: number; offset?: number } = {}) {
       const limit = o.limit ?? 100;
       const offset = o.offset ?? 0;
+      if (opts.listError?.(prefix ?? '')) return { data: null, error: { message: 'list boom' } };
       if (!prefix) {
-        const folders = [...store.keys()].map((name) => ({ name, id: null, created_at: null }));
+        const folders = [
+          ...[...store.keys()].map((name) => ({ name, id: null, created_at: null })),
+          ...(opts.rootFiles ?? []).map((name) => ({ name, id: 'root', created_at: old })),
+        ];
         return { data: folders.slice(offset, offset + limit), error: null };
       }
       const list = (store.get(prefix) ?? []).slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -41,6 +51,7 @@ function fake(opts: { objects: Record<string, Obj[]>; rowIds?: string[] }) {
       select: () => ({
         in: async (_col: string, ids: string[]) => {
           inCalls.push(ids);
+          if (opts.lookup) return opts.lookup();
           return { data: ids.filter((i) => rowIds.has(i)).map((id) => ({ id })), error: null };
         },
       }),
@@ -132,5 +143,89 @@ describe('reconcile', () => {
 
     const again = await reconcile(f.client, { graceHours: 24, now });
     expect(again.removed).toBe(0);
+  });
+});
+
+describe('reconcile hardening', () => {
+  it('ages by the later of created_at and updated_at (a re-upload is fresh)', async () => {
+    const f = fake({
+      objects: {
+        [PREVIEW]: [
+          { name: `${uuid(1)}.jpg`, created_at: old, updated_at: fresh },
+          { name: `${uuid(1)}.thumb.jpg`, created_at: old, updated_at: fresh },
+          ...pair(2, old).map((o) => ({ ...o, updated_at: old })),
+        ],
+      },
+    });
+    const r = await reconcile(f.client, { graceHours: 24, now });
+    expect(r.removed).toBe(2);
+    expect(f.removeCalls.flat().every((p) => p.includes(uuid(2)))).toBe(true);
+  });
+
+  it('keeps objects it cannot date', async () => {
+    const f = fake({ objects: { [PREVIEW]: [{ name: `${uuid(1)}.jpg`, created_at: 'garbage' }] } });
+    const r = await reconcile(f.client, { graceHours: 0, now });
+    expect(r.removed).toBe(0);
+  });
+
+  it('a row lookup error removes nothing and throws', async () => {
+    const f = fake({
+      objects: { [PREVIEW]: pair(1, old) },
+      lookup: () => ({ data: null, error: { message: 'db down' } }),
+    });
+    await expect(reconcile(f.client, { graceHours: 0, now })).rejects.toThrow(/row lookup failed/);
+    expect(f.removeCalls).toHaveLength(0);
+  });
+
+  it('a null lookup result without an error also removes nothing and throws', async () => {
+    const f = fake({
+      objects: { [PREVIEW]: pair(1, old) },
+      lookup: () => ({ data: null, error: null }),
+    });
+    await expect(reconcile(f.client, { graceHours: 0, now })).rejects.toThrow(/row lookup failed/);
+    expect(f.removeCalls).toHaveLength(0);
+  });
+
+  it('a list error during reconcile removes nothing and throws', async () => {
+    const f = fake({ objects: { [PREVIEW]: pair(1, old) }, listError: (p) => p === PREVIEW });
+    await expect(reconcile(f.client, { graceHours: 0, now })).rejects.toThrow(/list failed/);
+    expect(f.removeCalls).toHaveLength(0);
+  });
+
+  it('pages more than 100 top-level folders', async () => {
+    const objects: Record<string, Obj[]> = {};
+    for (let i = 0; i < 130; i++) objects[uuid(1000 + i)] = pair(i, old);
+    const f = fake({ objects });
+    const r = await reconcile(f.client, { graceHours: 0, now });
+    expect(r.scanned).toBe(260);
+    expect(r.removed).toBe(260);
+  });
+
+  it('keeps an object whose mixed-case uuid matches a lowercase row id', async () => {
+    const upper = uuid(1).replace(/[0-9a-f]/g, (c) => c.toUpperCase());
+    const f = fake({
+      objects: { [PREVIEW]: [{ name: `${upper}.jpg`, created_at: old }, { name: `${upper}.thumb.jpg`, created_at: old }] },
+      rowIds: [uuid(1)],
+    });
+    const r = await reconcile(f.client, { graceHours: 0, now });
+    expect(r.removed).toBe(0);
+    expect(r.kept).toBe(2);
+  });
+
+  it('counts root-level objects as ignored and never removes them', async () => {
+    const f = fake({ objects: {}, rootFiles: ['stray.jpg', `${uuid(5)}.jpg`] });
+    const r = await reconcile(f.client, { graceHours: 0, now });
+    expect(r.ignored).toBe(2);
+    expect(r.scanned).toBe(2);
+    expect(r.removed).toBe(0);
+    expect(f.removeCalls).toHaveLength(0);
+  });
+});
+
+describe('purgePrefix failures', () => {
+  it('a list error removes nothing and throws', async () => {
+    const f = fake({ objects: { [PREVIEW]: pair(1, old) }, listError: () => true });
+    await expect(purgePrefix(f.client, PREVIEW)).rejects.toThrow(/list failed/);
+    expect(f.removeCalls).toHaveLength(0);
   });
 });

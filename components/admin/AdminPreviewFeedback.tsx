@@ -359,6 +359,7 @@ function FeedbackItemCard({
             {/* Deliberate exception to the next/image rule: the screenshot is private
                 (admin signer route, 302 to a short-lived URL), so it must not go
                 through the image optimizer's shared cache. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={`${imageUrl}?v=thumb`}
               width={120}

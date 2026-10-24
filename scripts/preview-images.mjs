@@ -88,7 +88,12 @@ export async function reconcile(client, { graceHours = 24, now = Date.now() } = 
   let scanned = 0;
   let ignored = 0;
   let kept = 0;
-  const folders = (await listAll(bucket, '')).filter((f) => f.id === null).map((f) => f.name);
+  const top = await listAll(bucket, '');
+  // Root-level objects are never ours: report them, never remove them.
+  const rootFiles = top.filter((f) => f.id !== null).length;
+  scanned += rootFiles;
+  ignored += rootFiles;
+  const folders = top.filter((f) => f.id === null).map((f) => f.name);
   for (const folder of folders) {
     for (const f of (await listAll(bucket, folder)).filter((x) => x.id !== null)) {
       scanned += 1;
@@ -97,9 +102,12 @@ export async function reconcile(client, { graceHours = 24, now = Date.now() } = 
         ignored += 1;
         continue;
       }
-      const created = Date.parse(f.created_at ?? '');
-      // Unknown age -> treat as fresh (never delete what we can't date).
-      if (!Number.isFinite(created) || created > cutoff) {
+      // An upsert (the route's retry path) refreshes updated_at but keeps
+      // created_at, so age by the LATER of the two. Unknown age -> treat as
+      // fresh (never delete what we can't date).
+      const stamps = [f.created_at, f.updated_at].map((t) => Date.parse(t ?? '')).filter(Number.isFinite);
+      const touched = stamps.length > 0 ? Math.max(...stamps) : NaN;
+      if (!Number.isFinite(touched) || touched > cutoff) {
         kept += 1;
         continue;
       }
@@ -112,8 +120,11 @@ export async function reconcile(client, { graceHours = 24, now = Date.now() } = 
   const live = new Set();
   for (const batch of chunk(ids, PAGE)) {
     const { data, error } = await client.from('preview_feedback').select('id').in('id', batch);
-    if (error) throw new Error(`row lookup failed: ${error.message}`);
-    for (const r of data ?? []) live.add(String(r.id).toLowerCase());
+    // Fail closed: a null/non-array result must never read as "no rows".
+    if (error || !Array.isArray(data)) {
+      throw new Error(`row lookup failed: ${error ? error.message : 'no data returned'}`);
+    }
+    for (const r of data) live.add(String(r.id).toLowerCase());
   }
 
   const orphans = candidates.filter((c) => !live.has(c.id)).map((c) => c.path);
