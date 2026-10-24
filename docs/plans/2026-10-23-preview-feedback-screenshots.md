@@ -332,3 +332,61 @@ Test against the **test project**, then `pnpm verify:fast`. Commit.
   - expiring thumbnails, solved by S8;
   - a migration rerun that corrects bucket settings, with exact-settings verification (Task 1, Ship);
   - "dampened, not bounded" wording (S12, Risks).
+
+## Execution record (2026-10-23)
+
+Built with subagent-driven development: one implementer and one task review per task, a fix round where a review asked for one, then an independent adversarial whole-branch review and one fix wave. Migration number 090 was still free.
+
+**Commits** (local on main, pushed together after 090 reached prod): `b620354` 090 + storage tests · `9372572` helpers (sharp re-encode, capped multipart, submissionId) · `1a1132f` + `e7b682e` route · `ff6defd` + `7a16ae5` widget · `dbbb08f` + `de85c20` admin, signer, purge/reconcile · `b6b1c77` final-review fixes.
+
+**Gates**
+- Main tree at `b6b1c77`: type-check green; tests 234 files / 2785 green; build green (498/498 pages).
+- Clean worktree at `b6b1c77`: type-check and build green; tests 2666 green, 217/218 files. The one red is the pre-existing `server-only` resolve in `__tests__/discovery-launch-gate.test.tsx` (not in package.json). The build also logs pre-existing `MISSING_MESSAGE partnerships.comade…` lines; no commit here touches those files.
+- `pnpm test:rls preview_feedback preview_feedback_images client_previews`: 25/25 on the hosted test project. The 090 rerun was proven to *correct* a corrupted bucket.
+- Real Chromium at HEAD, both Hawaii Palms exports (site + dashboard) at 375×812, 1280×590 @1.5 and 1440×900: 6/6 runs pass.
+  - With a thumbnail, Send's bottom is 540.5 px at 1280×590, and 541 px with a status line (limit 542, Ryan's taskbar).
+  - `retina-4mb.png` (4.17 MB) compresses to 181.8 KB, a 1600×1000 JPEG.
+  - Paste, draft restore, right-edge tab, counter-zoom and keystroke isolation all still work.
+
+**Task 6 integration** (local server on the test project, real 12-page export, real routes): 12/12 checks pass.
+- Forged-cookie multipart → 401. Disguised HTML image → 400 `Unsupported image`, with nothing stored.
+- Pasted-screenshot note and text-only note: rows and `image_path` are correct. Both objects are JPEG with no EXIF, full ≤ 1600 px and thumb ≤ 240 px.
+- Replayed `submissionId` → one row, one image pair.
+- Admin: the thumbnail loads, and the full link 302s to a signed JPEG; signed out, the link is 404. The markdown carries the S9 link.
+- `reconcile --grace-hours 0` removed only a planted orphan; `purge` emptied the prefix, and a rerun removed 0. Cleanup is done.
+
+**Deviations from the plan**
+- **R5 refined:** objects are removed only after a *permanent* insert error (SQLSTATE 22/23/42/0A, PGRST1xx/2xx). Transient errors (57014, 40xxx, 53xxx, 08xxx, PGRST000–003) keep the objects for reconcile. The reason is a race: a slow request hits a timeout, a retry commits, and the first request would otherwise delete the committed note's image.
+- Post-auth throttles run **before** decoding (an automated security review flagged CPU spend), and the replay check runs before the decode.
+- **Content-aware replay (final review, Important):**
+  - A replay returns 201 only when the stored row is the same note (page, name, kind, message, image presence). Otherwise it returns 409, and the widget rotates its id and resends once.
+  - Before this, a duplicated tab or a note edited after a timeout showed "Thanks" and was never saved.
+- Smaller deviations:
+  - `parseMultipart` rejects unknown fields;
+  - `processScreenshot` retries at q60 before rejecting (R8);
+  - `image-process.ts` has no `server-only` import (R1).
+- Widget additions:
+  - a text paste that also carries a bitmap (Excel/PowerPoint) stays text in Name/Message;
+  - the send timeout is 45 s with an image;
+  - focus returns to Attach after a failed compress;
+  - a 400 with an image attached shows a hint;
+  - the short-viewport cap is `vh − 72`.
+- Reconcile:
+  - ages objects by max(`created_at`, `updated_at`);
+  - counts an object live only if a row's `image_path` points at it;
+  - fails closed on any lookup error.
+- The skill `studio-client-preview` now has a "Deleting a preview" section (purge, then delete the row), and its verify note includes a screenshot.
+
+**Known, deferred:**
+- Two duplicated tabs sending image notes at the same instant can leave one row showing the other's screenshot; nothing is deleted.
+- `reconcile --grace-hours 0` has a race, so keep it to test projects.
+- At 1280×590 with a status line, the thumbnail row scrolls under it.
+- Not yet tested: the `<img>` decode fallback, the q0.6 retry in a real browser, iOS Safari and HEIC.
+
+**Prod (Ship step 1), 2026-10-23:**
+- Before 090, a read-only baseline: `image_path` → 42703, and no bucket.
+- Ryan applied 090. Verified by querying prod with the service key over REST:
+  - `image_path` is selectable, with 1 row and 0 non-NULL;
+  - the bucket is `public:false`, `file_size_limit:2097152`, `allowed_mime_types:["image/jpeg"]`;
+  - anon `createSignedUrl` is denied, anon list returns `[]`, and an anon upload is rejected by RLS.
+- Ryan pasted the storage-policies query: "Success. No rows returned".
